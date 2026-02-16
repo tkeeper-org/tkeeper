@@ -3,7 +3,7 @@
 If you found a security issue in TKeeper, please report it privately.
 
 ## Report
-Email: [security@exploit.org](mailto:security@exploit.org)\
+Email: [security@tkeeper.org](mailto:security@tkeeper.org)\
 Subject: [TKeeper Security] <short summary>
 
 Please **DON'T** open a public GitHub issue for security reports.

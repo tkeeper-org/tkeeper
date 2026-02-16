@@ -6,11 +6,9 @@
 
 **Distributed threshold KMS (t-of-n)** for environments where **no single machine** should have unilateral key authority.
 
-[Documentation](https://docs.exploit.org/tkeeper) • [OpenAPI](openapi.yaml)
+[TKeeper Labs](https://tkeeper.org) • [Documentation](https://docs.exploit.org/tkeeper) • [OpenAPI](openapi.yaml)
 
 </div>
-
-> Contact [enterprise@exploit.org](mailto:enterprise@exploit.org) to get details about the **enterprise support**.
 
 ## What it is
 
@@ -73,14 +71,6 @@ Examples:
 - You cannot operate multiple peers reliably (availability, networking, monitoring)
 
  > If you need a general-purpose secrets manager rather than threshold custody, a traditional secrets manager may be a better fit (e.g., HashiCorp Vault).
-
-## For enterprises
-
-TKeeper is Apache 2.0 licensed and can be deployed self-managed. For security-critical production deployments, we provide an **Enterprise Kit**: hands-on implementation and operational support for running TKeeper reliably at scale.
-
-We adapt TKeeper to your requirements and architecture (security boundaries, authentication, approvals, and operational procedures) and provide incident response and security support for production operations.
-
-Contact [enterprise@exploit.org](mailto:enterprise@exploit.org) for details.
 
 ## API reference
 

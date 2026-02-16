@@ -51,7 +51,7 @@ publishing {
             pom {
                 name = projectName
                 description = projectDescription
-                url = 'https://github.com/exploit-org/tkeeper/sdk'
+                url = 'https://github.com/tkeeper-org/tkeeper/sdk'
 
                 licenses {
                     license {
@@ -63,15 +63,15 @@ publishing {
                 developers {
                     developer {
                         id = '0'
-                        name = 'exploit-org'
-                        email = 'contact@exploit.org'
+                        name = 'tkeeper-org'
+                        email = 'labs@tkeeper.org'
                     }
                 }
 
                 scm {
-                    connection = 'scm:git:https://github.com/exploit-org/tkeeper.git'
-                    developerConnection = 'scm:git:git@github.com:exploit-org/tkeeper.git'
-                    url = 'https://github.com/exploit-org/tkeeper/tree/main/tkeeper/sdk'
+                    connection = 'scm:git:https://github.com/tkeeper-org/tkeeper.git'
+                    developerConnection = 'scm:git:git@github.com:tkeeper-org/tkeeper.git'
+                    url = 'https://github.com/tkeeper-org/tkeeper/tree/main/tkeeper/sdk'
                 }
             }
         }
