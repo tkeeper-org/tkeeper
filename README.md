@@ -6,7 +6,7 @@
 
 **Distributed threshold KMS (t-of-n)** for environments where **no single machine** should have unilateral key authority.
 
-[TKeeper Labs](https://tkeeper.org) • [Documentation](https://docs.exploit.org/tkeeper) • [OpenAPI](openapi.yaml)
+[TKeeper Labs](https://tkeeper.org) • [Documentation](https://tkeeper.org/docs) • [OpenAPI](openapi.yaml)
 
 </div>
 
