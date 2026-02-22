@@ -45,23 +45,88 @@ function fmt(template, value) {
   return template.replace("%s", String(value));
 }
 
+function createSegment(raw) {
+  if (raw === "**") {
+    throw new Error("Deep wildcard '**' is not allowed — permissions must be explicit per segment");
+  }
+
+  if (raw === "*") {
+    return { matches: () => true };
+  }
+
+  const starCount = (raw.match(/\*/g) || []).length;
+
+  if (starCount === 0) {
+    return { matches: (v) => v === raw };
+  }
+
+  if (starCount > 1) {
+    throw new Error(`Invalid pattern segment: '${raw}' — max one wildcard per segment`);
+  }
+
+  if (raw.endsWith("*")) {
+    const prefix = raw.slice(0, -1);
+    return { matches: (v) => v.startsWith(prefix) };
+  }
+
+  if (raw.startsWith("*")) {
+    const suffix = raw.slice(1);
+    return { matches: (v) => v.endsWith(suffix) };
+  }
+
+  const idx = raw.indexOf("*");
+  const prefix = raw.slice(0, idx);
+  const suffix = raw.slice(idx + 1);
+  return {
+    matches: (v) => v.startsWith(prefix) && v.endsWith(suffix) && v.length >= prefix.length + suffix.length,
+  };
+}
+
+function parseSegments(pattern) {
+  return String(pattern).split(".").filter(Boolean).map(createSegment);
+}
+
+function splitRaw(permission) {
+  return String(permission).split(".").filter(Boolean);
+}
+
+function matchPermission(patternSegments, permission) {
+  const pathSegments = splitRaw(permission);
+  if (pathSegments.length === 0) return false;
+  if (patternSegments.length !== pathSegments.length) return false;
+
+  for (let i = 0; i < patternSegments.length; i++) {
+    if (!patternSegments[i].matches(pathSegments[i])) return false;
+  }
+  return true;
+}
+
 export class PermissionSet {
   constructor(perms = []) {
-    this._set = new Set(perms);
+    this._allow = [];
+    this._deny = [];
     this._cache = new Map();
     this._cacheMax = 256;
+
+    for (const p of perms) {
+      if (typeof p !== "string" || !p) continue;
+
+      if (p.startsWith("-")) {
+        this._deny.push(parseSegments(p.slice(1)));
+      } else {
+        this._allow.push(parseSegments(p));
+      }
+    }
   }
 
-  hasExact(permission) {
-    return this._set.has(permission);
-  }
+  has(permission) {
+    if (!permission || typeof permission !== "string") return false;
 
-  has(pattern) {
-    if (!pattern || typeof pattern !== "string") return false;
-    if (this._set.has(pattern)) return true;
-    if (this._cache.has(pattern)) return this._cache.get(pattern);
-    const result = this._matchAny(pattern);
-    this._remember(pattern, result);
+    const cached = this._cache.get(permission);
+    if (cached !== undefined) return cached;
+
+    const result = this._evaluate(permission);
+    this._remember(permission, result);
     return result;
   }
 
@@ -75,6 +140,14 @@ export class PermissionSet {
     return true;
   }
 
+  _evaluate(permission) {
+    const allowed = this._allow.some((segs) => matchPermission(segs, permission));
+    if (!allowed) return false;
+
+    const denied = this._deny.some((segs) => matchPermission(segs, permission));
+    return !denied;
+  }
+
   _remember(key, value) {
     this._cache.set(key, value);
     if (this._cache.size > this._cacheMax) {
@@ -82,36 +155,6 @@ export class PermissionSet {
       this._cache.delete(first);
     }
   }
-
-  _matchAny(pattern) {
-      const pSeg = splitPerm(pattern);
-      if (pSeg.length === 0) return false;
-      const startsWithWildcard = (pSeg[0] === "*");
-
-      for (const perm of this._set) {
-        const sSeg = splitPerm(perm);
-        if (sSeg.length === 0) continue;
-
-        if (startsWithWildcard && sSeg.length === 1) continue;
-        if (pSeg.length !== sSeg.length) continue;
-
-        let ok = true;
-        for (let i = 0; i < pSeg.length; i++) {
-          const ps = pSeg[i];
-          const ss = sSeg[i];
-
-          if (ps === "*" || ss === "*") continue;
-
-          if (ps !== ss) { ok = false; break; }
-        }
-        if (ok) return true;
-      }
-      return false;
-  }
-}
-
-function splitPerm(s) {
-  return String(s).split(".").filter(Boolean);
 }
 
 export const Auth = {
