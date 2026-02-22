@@ -49,6 +49,7 @@ tasks.register('dockerBuild', Exec) {
 
 dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
 
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
     implementation("com.linecorp.armeria:armeria:1.34.1")
@@ -64,7 +65,7 @@ dependencies {
     compileOnly "jakarta.annotation:jakarta.annotation-api:2.1.1"
 
     implementation 'org.fusesource.jansi:jansi:2.4.2'
-    implementation 'ch.qos.logback:logback-classic:1.5.20'
+    implementation 'ch.qos.logback:logback-classic:1.5.32'
 
     implementation 'org.exploit:bigint:0.0.8'
     implementation 'org.exploit:ed25519:0.0.8'
@@ -92,7 +93,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2'
 
     implementation 'software.amazon.awssdk:kms:2.31.33'
-    implementation 'com.google.cloud:google-cloud-kms:2.63.0'
+    implementation 'com.google.cloud:google-cloud-kms:2.88.0'
     implementation 'com.oracle.oci.sdk:oci-java-sdk-keymanagement:3.63.3'
     implementation 'org.msgpack:jackson-dataformat-msgpack:0.9.10'
 }
