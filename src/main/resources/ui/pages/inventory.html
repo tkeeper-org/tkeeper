@@ -1,64 +1,48 @@
 <div class="row row-cards">
     <div class="col-12">
-        <div class="card shadow-sm border-0 tk-inv-root">
-            <div class="card-body p-3 p-md-4">
-
-                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 border-bottom pb-3 pb-md-4 mb-3 mb-md-4">
-                    <div class="d-flex align-items-center gap-3 min-w-0">
-            <span class="bg-teal-lt avatar rounded">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                <path d="M9 14l2 2l4 -4" />
-              </svg>
-            </span>
-
-                        <div class="min-w-0">
-                            <h3 class="card-title mb-1 fw-bold">Inventory</h3>
-                            <div class="text-muted small text-truncate" id="tk-inv-subtitle">Overview of cryptographic assets</div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-end gap-2">
-                        <button id="tk-inv-refresh" class="btn btn-outline-primary shadow-sm" type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-2 tk-inv-refresh-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-                                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-                            </svg>
-                            Refresh
-                        </button>
-                        <div class="text-muted small tk-text-11 text-sm-end" id="tk-inv-generated"></div>
+        <div class="card shadow-sm border-0 tk-panel tk-inv-root">
+            <div class="tk-panel-head tk-panel-head--tight">
+                <div class="tk-panel-ident min-w-0">
+                    <span class="bg-teal-lt avatar rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                            <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                            <path d="M9 14l2 2l4 -4" />
+                        </svg>
+                    </span>
+                    <div class="tk-panel-title-wrap min-w-0">
+                        <div class="tk-panel-kicker">Compliance</div>
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Asset Inventory</h3>
                     </div>
                 </div>
 
+                <div class="tk-panel-actions">
+                    <div class="text-muted small text-sm-end tk-inv-generated" id="tk-inv-generated"></div>
+                    <button id="tk-inv-refresh" class="btn btn-outline-primary shadow-sm" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-2 tk-inv-refresh-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-3 p-md-4">
                 <div class="tk-inv-toolbar mb-3 mb-md-4">
                     <div class="row g-2 align-items-end">
                         <div class="col-12 col-lg-5">
                             <label class="form-label mb-1 text-muted small">Key ID</label>
                             <div class="input-group input-group-flat bg-white rounded border tk-inv-filter-wrap">
-                <span class="input-group-text bg-white border-0 ps-3 d-flex align-items-center justify-content-center py-2 lh-1 tk-inv-icon-wrap">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                    <path d="M21 21l-6 -6" />
-                  </svg>
-                </span>
                                 <input id="tk-inv-filter" class="form-control border-0" placeholder="Filter by Key ID..." autocomplete="off">
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-5">
-                            <label class="form-label mb-1 text-muted small">Asset owner</label>
+                            <label class="form-label mb-1 text-muted small">Asset Owner</label>
                             <div class="input-group input-group-flat bg-white rounded border tk-inv-owner-wrap">
-                <span class="input-group-text bg-white border-0 ps-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
-                    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
-                  </svg>
-                </span>
                                 <input id="tk-inv-owner" class="form-control border-0" placeholder="Filter by asset owner..." autocomplete="off">
                             </div>
                         </div>
@@ -73,7 +57,7 @@
                         <div class="col-12">
                             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-1">
                                 <div class="text-muted small" id="tk-inv-foot"></div>
-                                <div class="text-muted small d-none d-md-block">Tip: press Enter in a filter field to apply.</div>
+                                <div class="text-muted small d-none d-md-block">Press Enter in a filter field to apply.</div>
                             </div>
                         </div>
                     </div>
@@ -84,7 +68,6 @@
                 <div class="mt-4 d-flex justify-content-center">
                     <button id="tk-inv-more" class="btn btn-outline-secondary px-5 d-none" type="button">Load more items</button>
                 </div>
-
             </div>
         </div>
     </div>

@@ -28,7 +28,6 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
     return encodeHtml(cleaned);
   }
 
-  const stateEl = document.getElementById("tk-unseal-state");
   const sharesEl = document.getElementById("tk-unseal-shares");
   const resetEl = document.getElementById("tk-unseal-reset");
   const submit = document.getElementById("tk-unseal-submit");
@@ -38,7 +37,7 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
   const st = await safeStatus(api, showAlert);
   if (!st) return;
 
-  stateEl.textContent = `State: ${st.state}`;
+  statusEl.textContent = `State: ${st.state}`;
 
   renderProgress(st.progress);
 

@@ -29,7 +29,6 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
     return encodeHtml(cleaned);
   }
 
-  const badge = document.getElementById("tk-keygen-perm-badge");
   const disabled = document.getElementById("tk-keygen-disabled");
   const form = document.getElementById("tk-keygen-form");
 
@@ -78,7 +77,7 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
     if (notificationsEl) notificationsEl.innerHTML = "";
   }
 
-  if (!badge || !disabled || !form || !keyIdEl || !curveEl || !modeEl || !modeHint || !polEnabled || !polBox || !allowHistEl || !applyValEl || !procValEl || !submit || !reset) {
+  if (!disabled || !form || !keyIdEl || !curveEl || !modeEl || !modeHint || !polEnabled || !polBox || !allowHistEl || !applyValEl || !procValEl || !submit || !reset) {
     console.error("Keygen init: missing required DOM elements.");
     return;
   }
@@ -116,19 +115,21 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
   const allowed = Auth?.permissions?.anyOf?.([PERMS.create, PERMS.rotate, PERMS.refresh]) ?? false;
 
   if (!allowed) {
-    badge.className = "badge bg-warning-lt";
-    badge.textContent = "No permission";
     disabled.classList.remove("d-none");
     form.querySelectorAll("input,select,button,textarea").forEach((x) => (x.disabled = true));
+    submit.disabled = true;
+    reset.disabled = true;
     return;
   }
 
-  badge.className = "badge bg-green-lt";
-  badge.textContent = "Allowed";
-
-  polEnabled.addEventListener("change", () => {
+  const syncPolicyVisibility = () => {
     polBox.classList.toggle("d-none", !polEnabled.checked);
-  });
+  };
+
+  polEnabled.addEventListener("change", syncPolicyVisibility);
+  polEnabled.addEventListener("input", syncPolicyVisibility);
+  polEnabled.addEventListener("click", () => setTimeout(syncPolicyVisibility, 0));
+  syncPolicyVisibility();
 
   modeEl.addEventListener("change", updateModeHint);
   updateModeHint();

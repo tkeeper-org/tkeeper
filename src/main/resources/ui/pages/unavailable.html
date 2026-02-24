@@ -1,22 +1,23 @@
-<div class="row row-cards justify-content-center align-items-center tk-minh-60vh">
-    <div class="col-12 col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-5 text-center">
-                <div class="mb-4 text-warning">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.48 0l-7.1 12.25a2 2 0 0 0 1.84 2.75z" /></svg>
+<div class="row row-cards">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
+                    <span class="bg-warning-lt avatar rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.48 0l-7.1 12.25a2 2 0 0 0 1.84 2.75z" /></svg>
+                    </span>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Runtime</div>
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Service Unavailable</h3>
+                    </div>
                 </div>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted mb-4" id="tk-unavail-text">Try reloading your page.</p>
 
-                <h2 class="card-title h2 fw-bold mb-2">Service Unavailable</h2>
-                <p class="text-muted mb-4" id="tk-unavail-text">Try reloading your page</p>
-
-                <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-white border px-4" id="tk-unavail-refresh">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
-                        Try Again
-                    </button>
-                    <button class="btn btn-ghost-danger" id="tk-unavail-logout">
-                        Logout
-                    </button>
+                <div class="d-flex gap-3">
+                    <button class="btn btn-white border px-4" id="tk-unavail-refresh">Try Again</button>
+                    <button class="btn btn-ghost-danger" id="tk-unavail-logout">Logout</button>
                 </div>
             </div>
         </div>

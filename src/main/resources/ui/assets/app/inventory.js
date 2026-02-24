@@ -29,7 +29,6 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
   }
 
   const needIds = [
-    "tk-inv-subtitle",
     "tk-inv-generated",
     "tk-inv-refresh",
     "tk-inv-filter",
@@ -48,7 +47,6 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
   }
 
   const els = {
-    subtitle: document.getElementById("tk-inv-subtitle"),
     generated: document.getElementById("tk-inv-generated"),
     refresh: document.getElementById("tk-inv-refresh"),
     filter: document.getElementById("tk-inv-filter"),
@@ -104,12 +102,6 @@ els.more.addEventListener("click", async () => {
     els.list.innerHTML = "";
     els.more.classList.add("d-none");
     els.foot.textContent = "";
-    els.subtitle.textContent = (() => {
-      const parts = [];
-      if (currentFilter) parts.push(`Key ID: ${currentFilter}`);
-      if (currentOwner) parts.push(`Owner: ${currentOwner}`);
-      return parts.length ? parts.join(" · ") : "All keys";
-    })();
     await loadPage({ append: false });
   }
 
@@ -131,7 +123,7 @@ els.more.addEventListener("click", async () => {
         return;
       }
 
-      els.generated.textContent = inv.generatedAt ? `Generated at: ${fmtTime(inv.generatedAt)}` : "";
+      els.generated.textContent = inv.generatedAt ? fmtTime(inv.generatedAt) : "";
 
       let items = Array.isArray(inv.items) ? inv.items : [];
 

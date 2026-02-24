@@ -161,13 +161,13 @@ function wireLogout() {
 function renderSubject(subject) {
   const s = subject || "Unknown";
   els.subject.textContent = s;
-  els.hint.textContent = "Authenticated";
+  els.hint.textContent = "";
   els.avatar.textContent = s.trim().slice(0, 1).toUpperCase() || "?";
 }
 
 function renderSubjectUnauth() {
   els.subject.textContent = "Unauthenticated";
-  els.hint.textContent = "Enter token to continue";
+  els.hint.textContent = "";
   els.avatar.textContent = "?";
 }
 

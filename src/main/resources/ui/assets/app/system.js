@@ -29,7 +29,6 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
   }
 
   const els = {
-    subtitle: document.getElementById("tk-system-subtitle"),
     badge: document.getElementById("tk-system-badge"),
     refresh: document.getElementById("tk-system-refresh"),
     alerts: document.getElementById("tk-system-alerts"),
@@ -76,7 +75,7 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
 
     renderThisPeer(selfState);
 
-    els.subtitle.textContent = selfId ? `Node: ${selfId}` : "";
+    els.foot.textContent = selfId ? `Node: ${selfId}` : "";
     els.ready.textContent = `${readyCount} / ${totalPeers}`;
     els.threshold.textContent = String(threshold);
 

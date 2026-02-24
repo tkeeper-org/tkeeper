@@ -1,37 +1,37 @@
-<div class="row row-cards justify-content-center align-items-center tk-minh-50vh">
-    <div class="col-12 col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-5">
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <span class="bg-orange-lt avatar rounded shadow-sm">
+<div class="row row-cards">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
+                    <span class="bg-orange-lt avatar rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon text-orange" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l7 4v5c0 5 -3 9 -7 9s-7 -4 -7 -9v-7l7 -4z" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4" /><path d="M12 12l8 -4" /></svg>
                     </span>
-                    <div>
-                        <h3 class="card-title mb-0 fw-bold">Consistency Fix</h3>
-                        <div class="text-muted small">Repair distributed key states</div>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Cryptography</div>
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Consistency Check</h3>
                     </div>
                 </div>
+            </div>
 
-                <div class="mb-4">
-                    <label class="form-label small text-uppercase fw-bold text-muted ls-1">Target Key Identifier</label>
-                    <div class="input-group input-group-flat bg-light border rounded">
-                        <span class="input-group-text bg-transparent border-0 ps-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.5 10.5l2.5 2.5-6 6H10v-3l6.5-5.5z"></path><path d="M10 14l-2-2"></path><path d="M15 9a3 3 0 1 0-6 0a3 3 0 0 0 6 0z"></path></svg>
-                        </span>
-                        <input id="tk-consistency-keyId"
-                               class="form-control bg-transparent border-0 ps-2"
-                               placeholder="e.g. key-ops-master-01"
-                               autocomplete="off">
+            <div class="card-body p-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-9">
+                        <label class="form-label small text-uppercase fw-bold text-muted ls-1">Target Key ID</label>
+                        <div class="input-group input-group-flat bg-white border">
+                            <input id="tk-consistency-keyId"
+                                   class="form-control border-0"
+                                   placeholder="e.g. key-ops-master-01"
+                                   autocomplete="off">
+                        </div>
                     </div>
-                    <div class="form-hint mt-2">
-                        Only use this if you encounter an <code class="text-dark bg-light px-1 rounded">INCONSISTENT_KEEPER</code> error.
+                    <div class="col-12 col-lg-3 d-grid align-self-end">
+                        <button id="tk-consistency-run" type="button" class="btn btn-primary">
+                            Run Consistency Check
+                        </button>
                     </div>
                 </div>
-
-                <div class="d-grid">
-                    <button id="tk-consistency-run" type="button" class="btn btn-primary btn-lg">
-                        Run Consistency Check
-                    </button>
+                <div class="form-hint mt-2">
+                    Use only for <code class="text-dark bg-light px-1">INCONSISTENT_KEEPER</code> recovery.
                 </div>
 
                 <div id="tk-consistency-result" class="mt-4 pt-3 border-top d-none animate-fade-in"></div>

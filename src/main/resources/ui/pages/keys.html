@@ -1,25 +1,25 @@
 <div class="row row-cards">
     <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-header border-bottom-0 pt-4 pb-2 px-4 align-items-center">
-                <div class="d-flex align-items-center gap-3">
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
                     <span class="bg-blue-lt avatar rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" /><path d="M12 10l-2 2l2 2l2 -2l-2 -2" /><path d="M12 13l0 9" /></svg>
                     </span>
-                    <div>
-                        <h3 class="card-title mb-0 fw-bold">Vault</h3>
-                        <div class="text-muted small">Manage cryptographic keys</div>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Cryptography</div>
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Vault</h3>
                     </div>
-                    <span class="badge bg-indigo-lt ms-2 d-none" id="tk-keys-mode-badge">Historical Mode</span>
                 </div>
-                <div class="ms-auto d-flex gap-2">
+                <div class="tk-panel-actions">
+                    <span class="badge bg-indigo-lt d-none" id="tk-keys-mode-badge">Historical Mode</span>
                     <button id="tk-keys-reload" class="btn btn-action btn-sm" type="button" title="Reload">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
                     </button>
                 </div>
             </div>
 
-            <div class="card-body px-4">
+            <div class="card-body p-4">
                 <div id="tk-keys-historical-banner" class="alert alert-info align-items-center justify-content-between py-2 mb-4 d-none">
                     <div class="d-flex align-items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" /></svg>
@@ -34,11 +34,8 @@
 
                 <div class="row g-2 mb-4 align-items-center">
                     <div class="col-md-8">
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-                            </span>
-                            <input id="tk-keys-logicalId" class="form-control bg-light border-0" placeholder="Search by logical ID...">
+                        <div class="input-group input-group-flat bg-white border">
+                            <input id="tk-keys-logicalId" class="form-control border-0" placeholder="Search by logical ID...">
                         </div>
                     </div>
                     <div class="col-6 col-md-2">
@@ -189,7 +186,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3 d-none" id="tk-sigs-verify-merkle-wrap"">
+                        <div class="mb-3 d-none" id="tk-sigs-verify-merkle-wrap">
                             <label class="form-label small">Merkle Root (Base64)</label>
                             <input id="tk-sigs-verify-merkleRoot64" class="form-control font-monospace" placeholder="Optional">
                         </div>

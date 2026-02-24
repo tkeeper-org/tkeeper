@@ -1,78 +1,66 @@
 <div class="row row-cards">
     <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="bg-indigo-lt avatar rounded">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
-                        </span>
-                        <div>
-                            <h3 class="card-title mb-0 fw-bold">System Status</h3>
-                            <div class="text-muted small" id="tk-system-subtitle">Cluster health and topology</div>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span id="tk-system-badge" class="badge bg-secondary-lt">Connecting...</span>
-                        <button id="tk-system-refresh" class="btn btn-action btn-sm border" title="Refresh data">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
-                        </button>
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
+                    <span class="bg-indigo-lt avatar rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
+                    </span>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Runtime</div>
+                        <h3 class="card-title fw-bold tk-panel-title">System Status</h3>
                     </div>
                 </div>
+                <div class="tk-panel-actions">
+                    <span id="tk-system-badge" class="badge bg-secondary-lt tk-status-chip">Connecting...</span>
+                    <button id="tk-system-refresh" class="btn btn-action btn-sm border tk-btn-icon" title="Refresh data" aria-label="Refresh data">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
+                    </button>
+                </div>
+            </div>
 
+            <div class="card-body p-4">
                 <div id="tk-system-alerts" class="mb-4"></div>
 
-                <div class="row row-cards mb-4">
-                    <div class="col-12 col-md-4">
-                        <div class="card card-sm border-0 bg-light h-100">
-                            <div class="card-body d-flex align-items-center">
-                                <span class="bg-white text-blue avatar me-3 border shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
-                                </span>
-                                <div class="me-auto">
-                                    <div class="text-muted text-uppercase fw-bold small ls-1">Capability</div>
-                                    <div class="h2 mb-0 fw-bold text-dark" id="tk-system-capability">-</div>
-                                </div>
+                <div class="tk-kpi-grid mb-4">
+                    <div class="tk-kpi tk-kpi--wide">
+                        <div class="tk-kpi-top">
+                            <span class="bg-white text-blue avatar border shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
+                            </span>
+                            <div>
+                                <div class="tk-kpi-label">Capability</div>
+                                <div class="tk-kpi-value" id="tk-system-capability">-</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-12 col-md-4">
-                        <div class="card card-sm border-0 bg-light h-100">
-                            <div class="card-body d-flex align-items-center">
-                                <span class="bg-white text-green avatar me-3 border shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 12l5 5l10 -10" /><path d="M2 12l5 5m5 -5l5 -5" /></svg>
-                                </span>
-                                <div class="me-auto">
-                                    <div class="text-muted text-uppercase fw-bold small ls-1">Local Peer State</div>
-                                    <div class="h2 mb-0 fw-bold text-dark" id="tk-system-peerstate">-</div>
-                                </div>
+                    <div class="tk-kpi tk-kpi--wide">
+                        <div class="tk-kpi-top">
+                            <span class="bg-white text-green avatar border shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 12l5 5l10 -10" /><path d="M2 12l5 5m5 -5l5 -5" /></svg>
+                            </span>
+                            <div>
+                                <div class="tk-kpi-label">Local Peer State</div>
+                                <div class="tk-kpi-value" id="tk-system-peerstate">-</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-2">
-                        <div class="card card-sm border-0 bg-light h-100">
-                            <div class="card-body text-center p-3">
-                                <div class="text-muted text-uppercase fw-bold small ls-1 mb-1">Quorum</div>
-                                <div class="h2 mb-0 fw-bold text-dark" id="tk-system-ready">-</div>
-                            </div>
-                        </div>
+                    <div class="tk-kpi tk-kpi--narrow">
+                        <div class="tk-kpi-label">Quorum</div>
+                        <div class="tk-kpi-value" id="tk-system-ready">-</div>
                     </div>
 
-                    <div class="col-6 col-md-2">
-                        <div class="card card-sm border-0 bg-light h-100">
-                            <div class="card-body text-center p-3">
-                                <div class="text-muted text-uppercase fw-bold small ls-1 mb-1">Threshold</div>
-                                <div class="h2 mb-0 fw-bold text-dark" id="tk-system-threshold">-</div>
-                            </div>
-                        </div>
+                    <div class="tk-kpi tk-kpi--narrow">
+                        <div class="tk-kpi-label">Threshold</div>
+                        <div class="tk-kpi-value" id="tk-system-threshold">-</div>
                     </div>
                 </div>
 
-                <div class="card border rounded mb-0">
-                    <div class="card-header bg-light py-3 border-bottom">
-                        <h4 class="card-title m-0 text-muted small text-uppercase fw-bold ls-1">Connected Peers</h4>
+                <div class="tk-table-panel mb-0">
+                    <div class="tk-table-head">
+                        <div class="m-0 tk-section-caption">Connected Peers</div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-vcenter table-nowrap mb-0 table-hover">

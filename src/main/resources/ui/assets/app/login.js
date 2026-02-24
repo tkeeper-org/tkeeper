@@ -38,26 +38,30 @@ export async function init({ showAlert, setTitle }) {
 
   const oidcLoginBtn = document.getElementById("tk-oidc-login");
 
+  function setDesc(text) {
+    if (desc) desc.textContent = text;
+  }
+
   let cfg;
   try {
     await api.initAuth();
     cfg = api.auth.config;
   } catch (e) {
     showAlert("danger", errMsg(e));
-    desc.textContent = "Cannot load auth configuration.";
+    setDesc("Cannot load auth configuration.");
     return;
   }
 
   if (!cfg?.id) {
     showAlert("danger", "Server did not return ControlPlaneAuthConfig.");
-    desc.textContent = "Auth configuration is missing.";
+    setDesc("Auth configuration is missing.");
     return;
   }
 
   if (cfg.id === "TOKEN") {
     tokenBox.classList.remove("d-none");
     oidcBox.classList.add("d-none");
-    desc.innerHTML = `Enter authentication token.`;
+    setDesc("Enter authentication token.");
 
     tokenSave.addEventListener("click", async () => {
       const t = String(tokenInput?.value || "").trim();
@@ -81,7 +85,7 @@ export async function init({ showAlert, setTitle }) {
   if (cfg.id === "OIDC") {
     tokenBox.classList.add("d-none");
     oidcBox.classList.remove("d-none");
-    desc.textContent = "Login via OpenID Connect.";
+    setDesc("Login via OpenID Connect.");
 
     oidcLoginBtn.addEventListener("click", async () => {
       try {
@@ -95,7 +99,7 @@ export async function init({ showAlert, setTitle }) {
   }
 
   showAlert("danger", `Unsupported auth mode: ${cfg.id}`);
-  desc.textContent = `Unknown auth mode: ${cfg.id}`;
+  setDesc(`Unknown auth mode: ${cfg.id}`);
 }
 
 async function startOidc(cfg) {

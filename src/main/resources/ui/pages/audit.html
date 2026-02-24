@@ -1,34 +1,29 @@
 <div class="row row-cards justify-content-center">
     <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-
-                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4 border-bottom pb-4">
-                    <div class="d-flex gap-3">
-                        <span class="bg-teal-lt avatar rounded shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
-                        </span>
-                        <div>
-                            <h3 class="card-title mb-1 fw-bold">Audit Verification</h3>
-                            <div class="text-muted small" id="tk-audit-subtitle">Verify cryptographic integrity of audit trails</div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2 bg-light p-1 rounded border">
-                        <div class="px-3 py-1 border-end">
-                            <span id="tk-audit-count" class="text-muted small font-monospace">0/1000</span>
-                        </div>
-                        <button id="tk-audit-clear" class="btn btn-ghost-secondary btn-sm" type="button">Clear</button>
-                        <button id="tk-audit-verify" class="btn btn-white shadow-sm btn-sm fw-bold text-primary" type="button">
-                            Verify Logs
-                        </button>
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
+                    <span class="bg-teal-lt avatar rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                    </span>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Compliance</div>
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Audit Verification</h3>
                     </div>
                 </div>
 
+                <div class="tk-panel-actions">
+                    <span id="tk-audit-count" class="text-muted small font-monospace">0/1000</span>
+                    <button id="tk-audit-clear" class="btn btn-ghost-secondary btn-sm" type="button">Clear</button>
+                    <button id="tk-audit-verify" class="btn btn-primary btn-sm" type="button">Verify Logs</button>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
                 <div class="mb-0">
                     <label class="form-label small text-uppercase fw-bold text-muted ls-1 mb-2">NDJSON Input</label>
                     <textarea id="tk-audit-input"
-                              class="form-control font-monospace bg-light border-0 p-3 tk-audit-textarea"
+                              class="form-control font-monospace p-3 tk-audit-textarea"
                               rows="12"
                               placeholder='Paste log entries here (one JSON object per line)...'></textarea>
                 </div>

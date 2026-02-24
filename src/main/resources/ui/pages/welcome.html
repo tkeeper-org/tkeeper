@@ -1,32 +1,22 @@
-<div class="row row-cards justify-content-center align-items-center tk-minh-60vh">
-    <div class="col-12 col-md-9 col-lg-6">
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-5 text-center">
-
-                <div class="mb-4">
-                    <span class="avatar avatar-xl bg-blue-lt rounded-circle shadow-sm">
+<div class="row row-cards">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
+                    <span class="avatar bg-blue-lt rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" /><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 12l0 2.5" /></svg>
                     </span>
-                </div>
-
-                <h2 class="card-title h2 fw-bold mb-2">Welcome to TKeeper</h2>
-
-                <div id="tk-welcome-authed" class="d-none">
-                    <div class="alert alert-success bg-green-lt border-0 text-dark d-inline-block px-4 py-3 rounded-3 text-start">
-                        <div class="d-flex align-items-center gap-3">
-                             <span class="bg-white text-green avatar avatar-sm rounded-circle">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg>
-                             </span>
-                            <div>
-                                <div class="text-muted small text-uppercase fw-bold tk-text-10">
-                                    Authenticated As
-                                </div>
-                                <div class="fw-bold" id="tk-welcome-subject"></div>
-                            </div>
-                        </div>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Control</div>
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Welcome to TKeeper</h3>
                     </div>
-                    <div class="mt-4 text-muted small">
-                        Select an option from the sidebar to continue.
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div id="tk-welcome-authed" class="d-none">
+                    <div class="alert alert-success bg-green-lt border-0 text-dark d-inline-block px-4 py-3 text-start mb-0">
+                        <div class="fw-bold" id="tk-welcome-subject"></div>
                     </div>
                 </div>
 
@@ -34,12 +24,8 @@
                     <div class="mb-4 text-secondary">
                         Please sign in to access the vault management console.
                     </div>
-                    <a class="btn btn-primary btn-lg px-5" href="#/login">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M20 12h-13l3 -3m0 6l-3 -3" /></svg>
-                        Sign In
-                    </a>
+                    <a class="btn btn-primary px-5" href="#/login">Sign In</a>
                 </div>
-
             </div>
         </div>
     </div>

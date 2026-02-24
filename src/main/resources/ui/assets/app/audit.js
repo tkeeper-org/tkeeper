@@ -30,7 +30,6 @@ export async function init({ api, Auth, showAlert, clearAlerts }) {
     verify: document.getElementById("tk-audit-verify"),
     clear: document.getElementById("tk-audit-clear"),
     result: document.getElementById("tk-audit-result"),
-    subtitle: document.getElementById("tk-audit-subtitle"),
   };
 
   if (!els.input || !els.count || !els.verify || !els.clear || !els.result) {
