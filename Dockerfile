@@ -1,18 +1,19 @@
-FROM eclipse-temurin:21-jre-jammy
+FROM registry.access.redhat.com/ubi9/openjdk-21:1.23
 
-ARG APP_USER=tkeeper
-ARG APP_UID=10001
-ARG APP_HOME=/var/lib/tkeeper
+LABEL maintainer="TKeeper Labs" \
+      app.name="tkeeper"
 
-RUN useradd -r -u ${APP_UID} -g root -m -d ${APP_HOME} ${APP_USER} \
- && mkdir -p /opt/tkeeper/app ${APP_HOME} \
- && chown -R ${APP_USER}:root /opt/tkeeper ${APP_HOME}
+ENV JAVA_OPTS_APPEND="\
+  -XX:+UseZGC \
+  -XX:+ZGenerational \
+  -XX:MaxRAMPercentage=65.0 \
+  -XX:+ExitOnOutOfMemoryError \
+  -Dcom.sun.management.jmxremote=false \
+  -Djdk.serialFilter=!* \
+  -Djdk.tls.client.protocols=TLSv1.3,TLSv1.2"
 
-COPY build/docker/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
+COPY --chown=185:0 build/docker/tkeeper.jar /deployments/tkeeper.jar
 
-USER ${APP_USER}
-WORKDIR ${APP_HOME}
+ENV JAVA_APP_JAR="/deployments/tkeeper.jar"
 
 EXPOSE 8080 9090
-
-CMD ["java", "-jar", "/opt/tkeeper/app/tkeeper.jar"]

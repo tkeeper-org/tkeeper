@@ -8,7 +8,7 @@ services:
     volumes:
       - ./conf/keeper-1:/etc/tkeeper:ro
     tmpfs:
-      - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=10001,gid=0
+      - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=185,gid=0
 
   keeper-2:
     image: exploit/tkeeper:dev
@@ -19,7 +19,7 @@ services:
     volumes:
       - ./conf/keeper-2:/etc/tkeeper:ro
     tmpfs:
-      - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=10001,gid=0
+      - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=185,gid=0
   keeper-3:
     image: exploit/tkeeper:dev
     environment:
@@ -29,4 +29,4 @@ services:
     volumes:
       - ./conf/keeper-3:/etc/tkeeper:ro
     tmpfs:
-      - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=10001,gid=0
+      - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=185,gid=0

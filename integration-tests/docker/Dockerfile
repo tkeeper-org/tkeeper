@@ -38,23 +38,34 @@ RUN wget -O gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz \
 RUN ldconfig
 
 
-FROM eclipse-temurin:21-jre-jammy AS runtime
+FROM registry.access.redhat.com/ubi9/openjdk-21:1.23 AS runtime
 
-RUN useradd -r -u 10001 -g root -m -d /var/lib/tkeeper tkeeper \
- && mkdir -p /opt/tkeeper/app /etc/tkeeper /var/lib/tkeeper \
- && chown -R tkeeper:root /opt/tkeeper /etc/tkeeper /var/lib/tkeeper
+USER 0
+RUN mkdir -p /opt/tkeeper/app /etc/tkeeper /var/lib/tkeeper \
+ && chown -R 185:0 /opt/tkeeper /etc/tkeeper /var/lib/tkeeper \
+ && chmod -R g+rwX /opt/tkeeper /etc/tkeeper /var/lib/tkeeper
 
 COPY --from=native-build /usr/local/lib/ /usr/local/lib/
 RUN ldconfig
 
-COPY build/docker/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
-COPY integration-tests/docker/entrypoint.sh /opt/tkeeper/entrypoint.sh
+COPY --chown=185:0 build/docker/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
+COPY --chown=185:0 integration-tests/docker/entrypoint.sh /opt/tkeeper/entrypoint.sh
 RUN chmod +x /opt/tkeeper/entrypoint.sh
 
-USER tkeeper
+USER 185
 WORKDIR /var/lib/tkeeper
 
 EXPOSE 8080 9090
 
 ENV KEEPER_CONFIG_LOCATION=/etc/tkeeper
+
+ENV JAVA_TOOL_OPTIONS="\
+-XX:+UseZGC \
+-XX:+ZGenerational \
+-XX:MaxRAMPercentage=65.0 \
+-XX:+ExitOnOutOfMemoryError \
+-Dcom.sun.management.jmxremote=false \
+-Djdk.serialFilter=!* \
+-Djdk.tls.client.protocols=TLSv1.3,TLSv1.2"
+
 ENTRYPOINT ["/opt/tkeeper/entrypoint.sh"]
