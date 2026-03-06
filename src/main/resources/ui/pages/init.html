@@ -22,15 +22,29 @@
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-lg-4">
                             <label class="form-label small text-muted text-uppercase fw-bold ls-1">Peer ID</label>
-                            <input id="tk-init-peerId" class="form-control fw-bold text-center" inputmode="numeric" placeholder="1">
+                            <input id="tk-init-peerId" class="form-control fw-bold text-center" inputmode="numeric" placeholder="i">
                         </div>
                         <div class="col-12 col-lg-4">
                             <label class="form-label small text-muted text-uppercase fw-bold ls-1">Threshold</label>
-                            <input id="tk-init-threshold" class="form-control fw-bold text-center" inputmode="numeric" placeholder="3">
+                            <input id="tk-init-threshold" class="form-control fw-bold text-center" inputmode="numeric" placeholder="t">
                         </div>
                         <div class="col-12 col-lg-4">
                             <label class="form-label small text-muted text-uppercase fw-bold ls-1">Total Peers</label>
-                            <input id="tk-init-total" class="form-control fw-bold text-center" inputmode="numeric" placeholder="5">
+                            <input id="tk-init-total" class="form-control fw-bold text-center" inputmode="numeric" placeholder="n">
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start gap-2 p-3 mb-1" style="background:#f5f7ff;border-left:3px solid #0044ff;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm mt-1 flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="#0044ff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <circle cx="12" cy="12" r="9"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                            <polyline points="11 12 12 12 12 16 13 16"/>
+                        </svg>
+                        <div class="small text-muted lh-sm">
+                            <span class="fw-bold text-dark d-block mb-1" style="font-size:11px;letter-spacing:0.06em;text-transform:uppercase;font-family:var(--tk-font-mono)">Cross-Peer Consistency</span>
+                            <strong>Threshold</strong> and <strong>Total Peers</strong> must be identical across all nodes in the cluster.
+                            Mismatched values will cause signing failures or prevent quorum from being reached.
                         </div>
                     </div>
 
