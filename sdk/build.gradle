@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '1.0.3-SNAPSHOT'
+version = '1.0.3'
 
 def projectName = "TKeeper SDK"
 def projectDescription = "API client for TKeeper in Java"
