@@ -7,7 +7,7 @@ plugins {
 def mainClassName = 'org.exploit.keeper.TKeeperKt'
 
 group = 'org.exploit'
-version = '1.0.3'
+version = '1.0.4-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -67,17 +67,17 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit:bigint:0.0.9'
-    implementation 'org.exploit:ed25519:0.0.9'
-    implementation 'org.exploit:secp256k1:0.0.9'
-    implementation 'org.exploit:sodium:0.0.9'
-    implementation 'org.exploit:tss4j:0.0.9'
-    implementation 'org.exploit:frost:0.0.9'
-    implementation 'org.exploit:gg20:0.0.9'
-    implementation 'org.exploit:ecies:0.0.9'
-    implementation 'org.exploit:frost-ed25519:0.0.9'
-    implementation 'org.exploit:frost-secp256k1:0.0.9'
-    implementation 'org.exploit:crypto:1.0.5'
+    implementation 'org.exploit:bigint:0.0.10'
+    implementation 'org.exploit:ed25519:0.0.10'
+    implementation 'org.exploit:secp256k1:0.0.10'
+    implementation 'org.exploit:sodium:0.0.10'
+    implementation 'org.exploit:tss4j:0.0.10'
+    implementation 'org.exploit:frost:0.0.10'
+    implementation 'org.exploit:gg20:0.0.10'
+    implementation 'org.exploit:ecies:0.0.10'
+    implementation 'org.exploit:frost-ed25519:0.0.10'
+    implementation 'org.exploit:frost-secp256k1:0.0.10'
+    implementation 'org.exploit:crypto:1.0.6'
 
     implementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
     implementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
