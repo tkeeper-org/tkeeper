@@ -96,6 +96,8 @@ dependencies {
     implementation 'com.google.cloud:google-cloud-kms:2.88.0'
     implementation 'com.oracle.oci.sdk:oci-java-sdk-keymanagement:3.63.3'
     implementation 'org.msgpack:jackson-dataformat-msgpack:0.9.10'
+
+    implementation 'io.sentry:sentry:8.35.0'
 }
 
 test {
