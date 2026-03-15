@@ -14,4 +14,4 @@ We expect respectful and professional behavior in issues, PRs, and discussions.
 Project maintainers may remove content, lock threads, or restrict participation when behavior crosses the line.
 
 ## Reporting
-To report a CoC issue, email: contact@exploit.org
+To report a CoC issue, email: labs@tkeeper.org

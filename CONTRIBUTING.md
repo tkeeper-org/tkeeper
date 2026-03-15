@@ -4,7 +4,7 @@ Thanks for contributing to TKeeper. It's a security-critical, distributed system
 
 ## Where to post what
 
-- **Security issues:** do **NOT** open a public issue or discussion. See [SECURITY](SECURITY.md) and email us at `security@exploit.org`.
+- **Security issues:** do **NOT** open a public issue or discussion. See [SECURITY](SECURITY.md) and email us at `security@tkeeper.org`.
 - **Questions / support:** use **GitHub Discussions** (Q&A).
 - **Bugs / actionable work:** use **GitHub Issues** (only after you can describe a reproducible problem).
 - **Design proposals / larger changes:** start in **Discussions** first (Ideas), then open an issue/PR.
