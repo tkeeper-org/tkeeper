@@ -1030,6 +1030,7 @@ components:
       type: string
       enum:
       - AES_GCM
+      - CHACHA20_POLY1305
       description: Cipher type
     Encrypt:
       type: object
