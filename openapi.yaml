@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: TKeeper API
-  version: 1.0.0
+  version: 1.0.6
   description: |-
     This specification describes the TKeeper HTTP API.
 
@@ -288,6 +288,7 @@ components:
       enum:
       - ED25519
       - SECP256K1
+      - P256
       description: Supported curve names.
     Dig:
       type: object
@@ -598,6 +599,9 @@ components:
           description: 'Optional signature context (e.g., BIP340/TAPROOT). Relevant for Secp256k1 + FROST.
 
             '
+        tweak:
+          type: string
+          description: Optional tweak for key derivation
         hash:
           type: boolean
           default: false
@@ -629,6 +633,9 @@ components:
           format: int32
           nullable: true
           description: Optional key generation/version to verify against.
+        tweak:
+          type: string
+          description: Optional tweak for key derivation
         hash:
           type: boolean
           default: false
@@ -1043,6 +1050,9 @@ components:
         algorithm:
           $ref: '#/components/schemas/CipherType'
           default: AES_GCM
+        tweak:
+          type: string
+          description: Optional tweak for key derivation
         plaintext64:
           type: string
           description: Base64-encoded plaintext.
@@ -1060,6 +1070,9 @@ components:
         ciphertext64:
           type: string
           description: Base64-encoded ciphertext.
+        tweak:
+          type: string
+          description: Optional tweak for key derivation
         generation:
           type: integer
           format: int32
