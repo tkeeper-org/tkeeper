@@ -5,13 +5,13 @@
 <dependency>
     <groupId>org.exploit</groupId>
     <artifactId>tkeeper-sdk</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
-implementation 'org.exploit:tkeeper-sdk:1.0.3'
+implementation 'org.exploit:tkeeper-sdk:1.0.6'
 ```
 
 ## Usage
