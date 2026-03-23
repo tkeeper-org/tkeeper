@@ -26,9 +26,10 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
     testImplementation(project(":sdk"))
     testImplementation 'ch.qos.logback:logback-classic:1.5.20'
-    testImplementation 'org.exploit:tss4j:0.0.6'
-    testImplementation 'org.exploit:ed25519:0.0.6'
-    testImplementation 'org.exploit:secp256k1:0.0.6'
+    testImplementation 'org.exploit:tss4j:0.0.12'
+    testImplementation 'org.exploit:ed25519:0.0.12'
+    testImplementation 'org.exploit:secp256k1:0.0.12'
+    testImplementation 'org.exploit:secp256r1:0.0.12'
     testImplementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
     testImplementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
     testImplementation("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
