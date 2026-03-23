@@ -2,84 +2,144 @@
 
 <div align="center">
 
-# TKeeper
-
-**Distributed threshold KMS (t-of-n)** for environments where **no single machine** should have unilateral key authority.
+# TKeeper (Threshold Key Management System)
 
 [TKeeper Labs](https://tkeeper.org) • [Documentation](https://tkeeper.org/docs) • [OpenAPI](openapi.yaml)
 
 </div>
 
-## What it is
 
-TKeeper *(Threshold Keeper)* is a distributed, threshold Key Management System (KMS) for environments where no single machine should have unilateral key authority.
+TKeeper is a distributed, threshold KMS for environments where no single machine should have unilateral key authority. It runs as a network of cooperating peers and performs cryptographic operations under a **t-of-n** threshold model: at least **t distinct peers** must participate in every sign, decrypt, or key management operation.
 
-It runs as a network of cooperating peers (“keepers”) and performs protected cryptographic operations using a **t-of-n** threshold model, requiring participation from at least **t distinct peers**.
+> The private key is split into shares via Shamir Secret Sharing and is **never reconstructed**: not during signing, not during decryption, not during key generation. Compromising up to t−1 peers yields nothing.
 
-> In many traditional key management setups, the private key still has a single point of custody: there is one place where the full key exists and can be used to sign or decrypt. If that storage or runtime environment is compromised, the attacker gets full key authority.
-> 
-> TKeeper avoids that class of risk. The private key is split into shares and is **never reconstructed** anywhere, including during key generation. As a result, compromising up to **t** machines is not sufficient to sign or decrypt.
+Built on [tss4j](https://github.com/tkeeper-org/tss4j): a purpose-built threshold cryptography library implementing GG20, FROST, and verifiable threshold ECIES.
 
-## Capabilities
+---
 
-### Threshold signing
-TKeeper performs quorum-based signing so no single host can authorize signatures. It supports signature verification and is built for crypto-first workloads, including modern schemes like Taproot signing.
+## Threshold Protocols
 
-### Threshold encryption and decryption
-TKeeper supports threshold encryption and decryption using an ElGamal KEM over the secp256k1 curve, allowing data to be encrypted and decrypted via t-of-n quorum participation.
+### Threshold ECDSA: GG20
 
-### Distributed key generation and key workflows
-TKeeper supports Distributed Key Generation so the full private key is never generated or held by a single peer. Keys are managed through a versioned lifecycle using `logicalId` and `generation`, with create, rotate, refresh, and destroy operations.
+One-round online threshold ECDSA with identifiable abort. Hardened against CVE-2023-33241 (BitForge), CVE-2025-66016, and Alpha-Rays via the full CGGMP21/24 ZK proof suite: Paillier-Blum modulus proofs, no-small-factors proofs, range proofs, and respondent proofs with EC-point binding.
 
-### Permission-based access control
-Every request is authenticated and authorized against explicit permission identifiers. Permissions are scoped by operation and can be limited per key using the key namespace, for example `tkeeper.key.{keyId}.sign`. A limited wildcard can be used to grant broader access when needed, for example `tkeeper.key.*.sign` or `tkeeper.key.*.*`.
+Supported curves: **secp256k1**, **secp256r1 (P-256)**
 
-### Compliance controls
-TKeeper provides signed, tamper-evident audit records for security-relevant actions and supports verification endpoints. When audit logging is enabled, TKeeper can enforce sink availability: if no configured sink can accept an audit record, the operation is denied. TKeeper also supports asset inventory to make keys and metadata visible for governance, reviews, and operational oversight.
+### Threshold Schnorr: FROST (RFC 9591)
 
-### Control Plane UI
-TKeeper includes an administrative UI under `/ui` for day-to-day operations. Access is token-based, with optional OIDC login depending on configuration.
+Two-round Schnorr threshold signing with Proof-of-Possession commitments. Signing scheme is configurable per key.
 
-## Use cases
+| Scheme  | Description                                               |
+|---------|-----------------------------------------------------------|
+| Default | RFC 9591 Schnorr, SEC1-compressed R                       |
+| BIP-340 | Bitcoin Schnorr, x-only R and PK                          |
+| Taproot | BIP-341 key-path with TapTweak (configurable merkle root) |
 
-### Crypto custody and blockchain signing
-For exchanges, custodial wallets, treasury, and settlement systems. Threshold signing prevents a single host from authorizing transactions. Crypto support is first-class, including Taproot signing.
+Supported curves: **secp256k1**, **Ed25519**, **secp256r1 (P-256)**
 
-### High-risk service signing
-For internal signing services, CI/CD signing, license signing, and privileged automation. Quorum signing plus strict permissions prevents one machine or one operator from signing alone.
+### Threshold ECIES
 
-### Encryption with controlled decryption
-For backups, exports, configuration bundles, and sensitive payloads. Data can be encrypted/decrypted using ElGamal KEM over the secp256k1 curve.
+ElGamal KEM with AEAD symmetric layer and verifiable partial decryption via DLEQ proofs. Encryption is non-interactive; decryption requires quorum participation. Each partial decrypt is accompanied by a DLEQ proof: invalid contributions are rejected with an identifiable abort.
 
-### Split control across environments or organizations
-For deployments where keepers run in different zones, regions, or even different organizations. Threshold operations and authenticated keeper-to-keeper communication prevent unilateral sign/decrypt/rotate/destroy.
+Supported curves: **secp256k1**, **secp256r1 (P-256)**  
+Supported ciphers: **AES-256-GCM**, **ChaCha20-Poly1305**  
+KDF: HKDF-SHA-384 with domain separation
 
-### Audit and compliance-driven operations
-For environments that require traceability of security-relevant actions. Signed, tamper-evident audit records provide verifiable evidence.
+---
 
-### Versioned key lifecycle for long-lived systems
-For platforms that need predictable rotations and safe key changes. `logicalId` + `generation` enables create/rotate/refresh/destroy workflows with guardrails around destructive operations.
+## Key Lifecycle
 
-## When TKeeper is not the right tool
+Keys are addressed by `logicalId` + `generation`. Supported operations:
 
-TKeeper is a distributed threshold system. If you do not need threshold security, or you prioritize minimal operational complexity over custody guarantees, a single-node or centralized KMS may be a better fit.
+| Operation | Description                                                                   |
+|-----------|-------------------------------------------------------------------------------|
+| `CREATE`  | Distributed key generation: full private key never exists on any single peer |
+| `IMPORT`  | Import an existing raw private key, split and distributed across peers        |
+| `REFRESH` | Re-randomize shares without changing the group public key                     |
+| `ROTATE`  | Generate a new key under the same `logicalId`, incrementing `generation`      |
+| `DESTROY` | Securely delete all shares across peers                                       |
 
-Examples:
+Key shares are stored encrypted at rest (`SecretBox`, AES-256) and decrypted only within the scope of an active signing or decryption session.
 
-- Basic secret storage / envelope encryption without quorum operations
-- Your threat model accepts a single key risk
-- You cannot operate multiple peers reliably (availability, networking, monitoring)
+---
 
- > If you need a general-purpose secrets manager rather than threshold custody, a traditional secrets manager may be a better fit (e.g., HashiCorp Vault).
+## Key Tweaking
 
-## API reference
+Signing and decryption support an optional `tweak` parameter. The tweak is applied as a deterministic scalar offset to the group public key, enabling per-user or per-asset key derivation from a single root key without re-running DKG.
 
-The OpenAPI specification describes the complete HTTP surface, request/response models, and error semantics. Use it as the canonical reference for integrations and automation.
+---
+
+## Access Control
+
+Every operation is authenticated and authorized against explicit permission identifiers scoped by key and operation:
+
+```
+tkeeper.key.{keyId}.sign
+tkeeper.key.{keyId}.decrypt
+tkeeper.key.{keyId}.dkg
+tkeeper.key.*.sign          # wildcard over all keys
+tkeeper.key.*.*             # full access
+```
+
+Permissions are enforced at the API layer before any threshold operation begins.
+
+---
+
+## Audit and Compliance
+
+TKeeper emits signed, tamper-evident audit records for all security-relevant actions (sign, decrypt, keygen, rotate, destroy, permission changes). Records are verifiable via a dedicated endpoint.
+
+When sink enforcement is enabled, TKeeper denies operations if no configured audit sink is reachable, ensuring no operation proceeds without a durable audit trail.
+
+Asset inventory endpoints expose key metadata (curve, scheme, generation, creation time) for governance reviews and operational oversight.
+
+---
+
+## Capabilities Summary
+
+| Capability                 | Protocols                                         | Curves                        |
+|----------------------------|---------------------------------------------------|-------------------------------|
+| Threshold signing          | GG20 (ECDSA), FROST (Schnorr / BIP-340 / Taproot) | secp256k1, secp256r1, Ed25519 |
+| Threshold decryption       | Threshold ECIES                                   | secp256k1, secp256r1          |
+| Distributed key generation | Shamir + Feldman VSS                              | secp256k1, secp256r1, Ed25519 |
+| Key import                 | Raw private key → distributed shares              | secp256k1, secp256r1, Ed25519 |
+| Key refresh / rotation     | Share re-randomization, versioned lifecycle       | all                           |
+| Signature verification     | Per-peer verification endpoint                    | all                           |
+| Audit logging              | Signed tamper-evident records                     | :                             |
+| Access control             | Permission-scoped per key and operation           | :                             |
+
+---
+
+## When TKeeper Is Not the Right Tool
+
+TKeeper is built for environments where the cost of a key compromise is high.
+If that's not your constraint, a simpler setup will serve you better.
+
+- You need basic secret storage or envelope encryption without quorum operations
+- You cannot reliably operate multiple peers (networking, monitoring, availability)
+- You need a general-purpose secrets manager, then consider HashiCorp Vault instead
+
+---
+
+## Threat Model
+TKeeper extends [tss4j](https://github.com/tkeeper-org/tkeeper) threat model 
+
+## API Reference
+
+The OpenAPI specification describes the complete HTTP surface, request/response models, and error semantics.
 
 See [OpenAPI Reference](openapi.yaml)
 
-## Running Tests
-TKeeper uses [Testcontainers](https://testcontainers.com) to run integration tests against a local Docker Compose cluster. See [integration tests](integration-tests) for details.
+---
 
-# License
-TKeeper is licensed under [Apache License, Version 2.0](LICENSE.md).
+## Running Tests
+
+Integration tests run against a local Docker Compose cluster via [Testcontainers](https://testcontainers.com).
+
+See [integration-tests](integration-tests) for setup and environment details.
+
+---
+
+## License
+
+Apache License 2.0: see [LICENSE.md](LICENSE.md)
