@@ -122,7 +122,8 @@ If that's not your constraint, a simpler setup will serve you better.
 ---
 
 ## Threat Model
-TKeeper extends [tss4j](https://github.com/tkeeper-org/tkeeper) threat model 
+- **TKeeper**: See [TKeeper Threat Model](THREAT_MODEL.md) in this repository
+- **tss4j**: See [tss4j Threat Model](https://github.com/tkeeper-org/tss4j/THREAT_MODEL.md) for cryptographic protocols' threat model.
 
 ## API Reference
 
