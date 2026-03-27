@@ -53,6 +53,9 @@ See available test classes in [tests](src/test/kotlin/)
 
 ---
 
+## Notes
+Client with `idx = 3` has disabled coordinator (so it can't make generate/rotate/refresh, sign, encrypt/decrypt, destroy & consistency fix requests)
+
 ## macOS notes (Colima)
 
 On macOS, Docker **MUST** be provided by Colima. If your setup uses a non-default Docker socket, configure it via environment variables (`DOCKER_HOST`) before running tests. See [build.gradle](build.gradle) for details.

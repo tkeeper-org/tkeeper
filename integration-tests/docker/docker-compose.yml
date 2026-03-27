@@ -26,6 +26,7 @@ services:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
         -Djna.library.path=/usr/local/lib
+        -Dkeeper.coordinator.enabled=false
     volumes:
       - ./conf/keeper-3:/etc/tkeeper:ro
     tmpfs:
