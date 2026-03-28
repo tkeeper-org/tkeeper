@@ -92,7 +92,7 @@ dependencies {
     implementation 'org.exploit:jettyx-http2:0.1.6'
 
     implementation 'org.exploit:signalix:0.1.3'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
 
     implementation 'software.amazon.awssdk:kms:2.31.33'
     implementation 'com.google.cloud:google-cloud-kms:2.88.0'
