@@ -87,6 +87,49 @@
                                 </div>
                             </div>
 
+                            <div class="col-12">
+                                <div class="card border mb-0">
+                                    <div class="card-body pb-3">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <div class="fw-bold text-dark">Four-Eye Control</div>
+                                                <div class="text-muted small mt-1">Require M-of-N approvers to authorize operations on this key.</div>
+                                            </div>
+                                            <label class="form-check form-switch m-0" for="tk-import-foureye-enabled">
+                                                <input id="tk-import-foureye-enabled" class="form-check-input" type="checkbox">
+                                            </label>
+                                        </div>
+
+                                        <div id="tk-import-foureye-body" class="mt-3 d-none">
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-3">
+                                                    <label class="form-label small text-muted text-uppercase ls-1">Min Approvers (M)</label>
+                                                    <input id="tk-import-foureye-m" type="number" min="2" max="99"
+                                                           class="form-control" value="2" autocomplete="off">
+                                                    <div class="form-hint">Must be ≥ 2 and ≤ N.</div>
+                                                </div>
+                                                <div class="col-md-9 d-flex align-items-end pb-1">
+                                                    <span class="text-muted small">
+                                                      Total approvers <strong>N</strong> = number of keys you add below.
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div id="tk-import-foureye-keys" class="d-flex flex-column gap-2 mb-3"></div>
+
+                                            <button type="button" id="tk-import-foureye-add"
+                                                    class="btn btn-sm btn-outline-secondary">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1"
+                                                     width="16" height="16" viewBox="0 0 24 24" stroke-width="2"
+                                                     stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z"
+                                                                                             fill="none"/><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg>
+                                                Add Approver Key
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="alert alert-danger bg-danger-lt border-0 mt-4 mb-0">
                                 <div class="text-danger">
                                     <strong class="d-block mb-1">Critical Impact</strong>
