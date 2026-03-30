@@ -20,9 +20,10 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    api 'org.exploit:jettyx:0.1.6'
-    api 'org.exploit:jettyx-jackson:0.1.6'
-    api 'org.exploit:jettyx-http2:0.1.6'
+    api 'org.exploit:jettyx:0.1.7'
+    api 'org.exploit:jettyx-jackson:0.1.7'
+    api 'org.exploit:jettyx-http2:0.1.7'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.21.2'
 }
 
 java {
