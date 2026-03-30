@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: TKeeper API
-  version: 1.0.6
+  version: 1.0.7
   description: |-
     This specification describes the TKeeper HTTP API.
 
@@ -26,34 +26,34 @@ info:
     When this happens, read the Warning response header for details.
 
 servers:
-- url: /
+  - url: /
 tags:
-- name: Integrity
-  description: Request/event integrity management
-- name: Destroy
-  description: Key destruction endpoint
-- name: Audit
-  description: Audit log verification
-- name: Consistency
-  description: Consistency endpoints
-- name: Compliance
-  description: Compliance endpoints
-- name: Signature
-  description: Threshold signing and verification
-- name: System
-  description: System lifecycle and health endpoints
-- name: Central
-  description: Central endpoints
-- name: ControlPlane
-  description: Control plane endpoints
-- name: Storage
-  description: Storage (trusted dealer) operations
-- name: ECIES
-  description: Threshold ECIES encryption/decryption
-- name: DKG
-  description: Distributed key generation / rotation / refresh
-- name: Expire
-  description: Expiration window queries for key policies.
+  - name: Integrity
+    description: Request/event integrity management
+  - name: Destroy
+    description: Key destruction endpoint
+  - name: Audit
+    description: Audit log verification
+  - name: Consistency
+    description: Consistency endpoints
+  - name: Compliance
+    description: Compliance endpoints
+  - name: Signature
+    description: Threshold signing and verification
+  - name: System
+    description: System lifecycle and health endpoints
+  - name: Central
+    description: Central endpoints
+  - name: ControlPlane
+    description: Control plane endpoints
+  - name: Storage
+    description: Storage (trusted dealer) operations
+  - name: ECIES
+    description: Threshold ECIES encryption/decryption
+  - name: DKG
+    description: Distributed key generation / rotation / refresh
+  - name: Expire
+    description: Expiration window queries for key policies.
 components:
   securitySchemes:
     DevToken:
@@ -70,8 +70,8 @@ components:
     ErrorMessage:
       type: object
       required:
-      - code
-      - error
+        - code
+        - error
       properties:
         code:
           type: integer
@@ -84,77 +84,77 @@ components:
     ErrorType:
       type: string
       enum:
-      - ACCESS_DENIED
-      - AUDIT_FAILED
-      - AUDIT_NOT_AVAILABLE
-      - CONSISTENCY_CHECK_FAILED
-      - CURVE_MISMATCH
-      - DESTROY_FORBIDDEN
-      - DEV_MODE_VIOLATION
-      - HMAC_KEY_NOT_FOUND
-      - IDENTIFIABLE_ABORT
-      - INCONSISTENT_KEEPER
-      - INTEGRITY_KEY_NOT_FOUND
-      - INTERNAL_ERROR
-      - INVALID_BASE64
-      - INVALID_CIPHERTEXT
-      - INVALID_CONFIG
-      - INVALID_CURSOR
-      - INVALID_ECDSA_SIGNATURE
-      - INVALID_EXPIRATION_TIME
-      - INVALID_KEY_GENERATION
-      - INVALID_KEY_SET_POLICY
-      - INVALID_MERKLE_ROOT
-      - INVALID_PAYLOAD
-      - INVALID_PEER_ID
-      - INVALID_REQUEST_BODY
-      - INVALID_SCHNORR_SIGNATURE
-      - INVALID_SEC1R65SCHNORR_SIGNATURE
-      - INVALID_SESSION_ID
-      - INVALID_SHARE
-      - INVALID_SIGNATURE_CONTEXT_KIND
-      - INVALID_THRESHOLD
-      - INVALID_TOTAL
-      - INVALID_KEY_ID
-      - INVALID_ASSET_OWNER
-      - IMPOSTER_FOUND
-      - KEEPER_ALREADY_INITIALIZED
-      - KEEPER_ALREADY_UNSEALED
-      - KEEPER_NOT_INITIALIZED
-      - KEEPER_SEALED
-      - KEY_ALREADY_EXISTS
-      - KEY_APPLY_OPS_FORBIDDEN
-      - KEY_NOT_FOUND
-      - KEY_PROCESS_OPS_FORBIDDEN
-      - MISSING_KEY_ID
-      - MISSING_KEY_VERSION
-      - MISSING_SESSION_ID
-      - MISSING_WINDOW
-      - MISSING_EXPIRE_TYPE
-      - NOT_ENOUGH_CONFIGURED_CLIENTS
-      - NOT_ENOUGH_HEALTHY_CLIENTS
-      - NOT_ENOUGH_PERMISSIONS
-      - NOT_ENOUGH_HONEST_CLIENTS
-      - NOT_PARTICIPANT
-      - NOT_SUPPORTED_FOR_AUTO_PROVIDER
-      - ROTATE_NEEDED
-      - SESSION_ALREADY_EXISTS
-      - SESSION_MANAGER_NOT_FOUND
-      - SESSION_NOT_FOUND
-      - SHARE_NOT_FOUND
-      - SIGNATURE_VERIFIER_NOT_FOUND
-      - TOO_MANY_OPERATIONS
-      - UNAUTHENTICATED
-      - UNSUPPORTED_CURVE
-      - WARNING
-      - INVALID_EXPIRE_TYPE
-      - TAMPERED_KEEPER
+        - ACCESS_DENIED
+        - AUDIT_FAILED
+        - AUDIT_NOT_AVAILABLE
+        - CONSISTENCY_CHECK_FAILED
+        - CURVE_MISMATCH
+        - DESTROY_FORBIDDEN
+        - DEV_MODE_VIOLATION
+        - HMAC_KEY_NOT_FOUND
+        - IDENTIFIABLE_ABORT
+        - INCONSISTENT_KEEPER
+        - INTEGRITY_KEY_NOT_FOUND
+        - INTERNAL_ERROR
+        - INVALID_BASE64
+        - INVALID_CIPHERTEXT
+        - INVALID_CONFIG
+        - INVALID_CURSOR
+        - INVALID_ECDSA_SIGNATURE
+        - INVALID_EXPIRATION_TIME
+        - INVALID_KEY_GENERATION
+        - INVALID_KEY_SET_POLICY
+        - INVALID_MERKLE_ROOT
+        - INVALID_PAYLOAD
+        - INVALID_PEER_ID
+        - INVALID_REQUEST_BODY
+        - INVALID_SCHNORR_SIGNATURE
+        - INVALID_SEC1R65SCHNORR_SIGNATURE
+        - INVALID_SESSION_ID
+        - INVALID_SHARE
+        - INVALID_SIGNATURE_CONTEXT_KIND
+        - INVALID_THRESHOLD
+        - INVALID_TOTAL
+        - INVALID_KEY_ID
+        - INVALID_ASSET_OWNER
+        - IMPOSTER_FOUND
+        - KEEPER_ALREADY_INITIALIZED
+        - KEEPER_ALREADY_UNSEALED
+        - KEEPER_NOT_INITIALIZED
+        - KEEPER_SEALED
+        - KEY_ALREADY_EXISTS
+        - KEY_APPLY_OPS_FORBIDDEN
+        - KEY_NOT_FOUND
+        - KEY_PROCESS_OPS_FORBIDDEN
+        - MISSING_KEY_ID
+        - MISSING_KEY_VERSION
+        - MISSING_SESSION_ID
+        - MISSING_WINDOW
+        - MISSING_EXPIRE_TYPE
+        - NOT_ENOUGH_CONFIGURED_CLIENTS
+        - NOT_ENOUGH_HEALTHY_CLIENTS
+        - NOT_ENOUGH_PERMISSIONS
+        - NOT_ENOUGH_HONEST_CLIENTS
+        - NOT_PARTICIPANT
+        - NOT_SUPPORTED_FOR_AUTO_PROVIDER
+        - ROTATE_NEEDED
+        - SESSION_ALREADY_EXISTS
+        - SESSION_MANAGER_NOT_FOUND
+        - SESSION_NOT_FOUND
+        - SHARE_NOT_FOUND
+        - SIGNATURE_VERIFIER_NOT_FOUND
+        - TOO_MANY_OPERATIONS
+        - UNAUTHENTICATED
+        - UNSUPPORTED_CURVE
+        - WARNING
+        - INVALID_EXPIRE_TYPE
+        - TAMPERED_KEEPER
       description: Error code returned by TKeeper.
-    KeyReference:
+    Destroy:
       type: object
       required:
-      - keyId
-      - version
+        - keyId
+        - version
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -162,6 +162,9 @@ components:
           type: integer
           format: int32
           description: Key generation/version to destroy.
+        approvals:
+          $ref: '#/components/schemas/Approvals'
+          nullable: true
     VerifyResult:
       type: object
       additionalProperties: false
@@ -170,7 +173,7 @@ components:
           type: boolean
           default: true
       required:
-      - valid
+        - valid
     SignedLine:
       type: object
       additionalProperties: false
@@ -181,8 +184,8 @@ components:
           type: string
           description: Base64 Ed25519 Schnorr signature.
       required:
-      - event
-      - signature
+        - event
+        - signature
     Logs:
       type: object
       additionalProperties: false
@@ -191,9 +194,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SignedLine'
-          default: []
+          default: [ ]
       required:
-      - logs
+        - logs
     AuditEvent:
       type: object
       additionalProperties: false
@@ -241,11 +244,11 @@ components:
             type: string
           description: Dead nodes found during this operation
       required:
-      - id
-      - peerId
-      - integrityKeyVersion
-      - timestamp
-      - event
+        - id
+        - peerId
+        - integrityKeyVersion
+        - timestamp
+        - event
     Ctx:
       type: object
       additionalProperties: false
@@ -286,9 +289,9 @@ components:
     CurveName:
       type: string
       enum:
-      - ED25519
-      - SECP256K1
-      - P256
+        - ED25519
+        - SECP256K1
+        - P256
       description: Supported curve names.
     Dig:
       type: object
@@ -314,12 +317,12 @@ components:
           type: string
           description: Base64-encoded hash value.
       required:
-      - alg
-      - value64
+        - alg
+        - value64
     BodyHashAlg:
       type: string
       enum:
-      - HMAC_SHA256
+        - HMAC_SHA256
       description: Display name "HMAC-SHA256" (server-side), enum value is HMAC_SHA256.
     Outcome:
       type: object
@@ -342,7 +345,7 @@ components:
         subject:
           type: string
       required:
-      - subject
+        - subject
     ConsistencyCheck:
       type: object
       properties:
@@ -359,15 +362,15 @@ components:
           additionalProperties:
             $ref: '#/components/schemas/KeyVersion'
       required:
-      - verdict
-      - versions
+        - verdict
+        - versions
     ConsistencyVerdict:
       type: string
       enum:
-      - OK
-      - SYNC_NEEDED
-      - ROTATE_NEEDED
-      - MISSING
+        - OK
+        - SYNC_NEEDED
+        - ROTATE_NEEDED
+        - MISSING
     KeyVersion:
       type: object
       description: 'activeGen/pendingGen are key generations (versions):
@@ -397,8 +400,8 @@ components:
         hasMore:
           type: boolean
       required:
-      - inventory
-      - hasMore
+        - inventory
+        - hasMore
     AssetInventory:
       type: object
       properties:
@@ -419,11 +422,11 @@ components:
           items:
             $ref: '#/components/schemas/AssetInventoryItem'
       required:
-      - generatedAt
-      - peerId
-      - threshold
-      - totalPeers
-      - items
+        - generatedAt
+        - peerId
+        - threshold
+        - totalPeers
+        - items
     AssetInventoryItem:
       type: object
       properties:
@@ -459,20 +462,20 @@ components:
           $ref: '#/components/schemas/AssetOwner'
           nullable: true
       required:
-      - logicalId
-      - status
-      - currentGeneration
-      - createdAt
-      - updatedAt
-      - hasActiveKey
+        - logicalId
+        - status
+        - currentGeneration
+        - createdAt
+        - updatedAt
+        - hasActiveKey
     KeyStatus:
       type: string
       enum:
-      - ACTIVE
-      - APPLY_EXPIRED
-      - DESTROYED
-      - DISABLED
-      - EXPIRED
+        - ACTIVE
+        - APPLY_EXPIRED
+        - DESTROYED
+        - DISABLED
+        - EXPIRED
       description: 'ACTIVE: full use depending on permissions.
 
         APPLY_EXPIRED: cannot encrypt/sign, but can decrypt/verify.
@@ -494,6 +497,37 @@ components:
         allowHistoricalProcess:
           type: boolean
           default: true
+        fourEye:
+          $ref: '#/components/schemas/FourEyeControlPolicy'
+          nullable: true
+    Approvals:
+      type: object
+      description: 'Passed to request when four-eye control policy is present for the key id'
+      properties:
+        nonce:
+          type: string
+          nullable: false
+          description: 'Unique nonce included in signature'
+        timestamp:
+          type: integer
+          nullable: false
+          description: 'Timestamp included in signature. TTL configurable in config'
+        proofs:
+          type: array
+          nullable: false
+          items:
+            $ref: '#/components/schemas/Proof'
+    Proof:
+      type: object
+      properties:
+        fingerprint:
+          type: string
+          nullable: false
+          description: 'Fingerprint of public key calculated as Base64(SHA256(publicKey)). Use always compressed variant of encoding, if available for curve.'
+        signature64:
+          type: string
+          nullable: false
+          description: 'Signature of request encoded in base64. Varies from request type.'
     NotAfter:
       type: object
       properties:
@@ -504,46 +538,71 @@ components:
           format: int64
           nullable: true
       required:
-      - unit
+        - unit
+    FourEyeControlPolicy:
+      type: object
+      properties:
+        m:
+          type: integer
+          description: 'Minimum count of required approvals (min 2)'
+        n:
+          type: integer
+          description: 'Total count of approvals'
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/PublicKey'
+    PublicKey:
+      type: object
+      properties:
+        curve:
+          type: string
+          enum:
+            - P256
+            - ED25519
+            - SECP256K1
+        publicKey64:
+          type: string
+          description: 'Base64 encoded public key'
     TimestampUnit:
       type: string
       enum:
-      - MILLISECONDS
-      - SECONDS
+        - MILLISECONDS
+        - SECONDS
     SessionType:
       type: string
       enum:
-      - GG20
-      - FROST
+        - GG20
+        - FROST
     ContextKind:
       type: string
       enum:
-      - BIP340
-      - TAPROOT
+        - BIP340
+        - TAPROOT
     TSSCode:
       type: string
       enum:
-      - SUCCESS
-      - FAILED
+        - SUCCESS
+        - FAILED
     SignatureType:
       type: string
       enum:
-      - ECDSA
-      - SCHNORR
-      - SEC1R65SCHNORR
+        - ECDSA
+        - SCHNORR
+        - SEC1R65SCHNORR
       description: "ECDSA: 65-byte ECDSA signature (including recId).\nSCHNORR: 64-byte Schnorr signature.\n  - For Secp256k1:\
         \ x-only Schnorr (BIP340-style).\n  - For Ed25519: standard 64-byte signature.\nSEC1R65SCHNORR: Secp256k1 65-byte\
         \ Schnorr signature (SEC1 R || S format).\n"
     SignatureContext:
       type: object
       required:
-      - kind
+        - kind
       properties:
         kind:
           $ref: '#/components/schemas/ContextKind'
       oneOf:
-      - $ref: '#/components/schemas/BIP340Context'
-      - $ref: '#/components/schemas/TaprootContext'
+        - $ref: '#/components/schemas/BIP340Context'
+        - $ref: '#/components/schemas/TaprootContext'
       discriminator:
         propertyName: kind
         mapping:
@@ -552,21 +611,21 @@ components:
     BIP340Context:
       type: object
       required:
-      - kind
+        - kind
       properties:
         kind:
           type: string
           enum:
-          - BIP340
+            - BIP340
     TaprootContext:
       type: object
       required:
-      - kind
+        - kind
       properties:
         kind:
           type: string
           enum:
-          - TAPROOT
+            - TAPROOT
         merkleRoot64:
           type: string
           nullable: true
@@ -583,9 +642,9 @@ components:
     Sign:
       type: object
       required:
-      - keyId
-      - algorithm
-      - operations
+        - keyId
+        - algorithm
+        - operations
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -606,13 +665,16 @@ components:
           type: boolean
           default: false
           description: Prehash (SHA-256) data before signing.
+        approvals:
+          $ref: '#/components/schemas/Approvals'
+          nullable: true
     Verify:
       type: object
       required:
-      - keyId
-      - sigType
-      - data64
-      - signature64
+        - keyId
+        - sigType
+        - data64
+        - signature64
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -652,9 +714,9 @@ components:
     ThresholdSignature:
       type: object
       required:
-      - code
-      - type
-      - generation
+        - code
+        - type
+        - generation
       properties:
         code:
           $ref: '#/components/schemas/TSSCode'
@@ -675,24 +737,24 @@ components:
     StoreState:
       type: string
       enum:
-      - UNINITIALIZED
-      - SEALED
-      - UNSEALED
+        - UNINITIALIZED
+        - SEALED
+        - UNSEALED
     Progress:
       type: object
       required:
-      - ready
+        - ready
       properties:
         ready:
           type: boolean
       oneOf:
-      - $ref: '#/components/schemas/ReadyProgress'
-      - $ref: '#/components/schemas/ShamirUnsealProgress'
+        - $ref: '#/components/schemas/ReadyProgress'
+        - $ref: '#/components/schemas/ShamirUnsealProgress'
       description: Progress of unsealing. Shape depends on sealing method.
     ReadyProgress:
       type: object
       required:
-      - ready
+        - ready
       properties:
         ready:
           type: boolean
@@ -700,10 +762,10 @@ components:
     ShamirUnsealProgress:
       type: object
       required:
-      - threshold
-      - total
-      - progress
-      - ready
+        - threshold
+        - total
+        - progress
+        - ready
       properties:
         threshold:
           type: integer
@@ -723,8 +785,8 @@ components:
     StatusResponse:
       type: object
       required:
-      - state
-      - progress
+        - state
+        - progress
       properties:
         sealedBy:
           type: string
@@ -742,9 +804,9 @@ components:
       type: object
       description: Initialization payload for keeper.
       required:
-      - peerId
-      - threshold
-      - total
+        - peerId
+        - threshold
+        - total
       properties:
         peerId:
           type: integer
@@ -769,9 +831,9 @@ components:
       type: object
       description: Shamir-based initialization data (returned by keeper).
       required:
-      - threshold
-      - total
-      - shares64
+        - threshold
+        - total
+        - shares64
       properties:
         threshold:
           type: integer
@@ -818,7 +880,7 @@ components:
           type: boolean
           default: false
       required:
-      - ready
+        - ready
     PublicKeyDto:
       type: object
       properties:
@@ -826,7 +888,7 @@ components:
           type: string
           description: Base64-encoded public key bytes
       required:
-      - data64
+        - data64
     ValueInt:
       type: object
       description: Generic Value<T> specialized for T = int
@@ -840,12 +902,12 @@ components:
           format: int32
           nullable: true
       required:
-      - serviceId
+        - serviceId
     ControlPlaneAuthConfig:
       type: object
       required:
-      - id
-      - header
+        - id
+        - header
       properties:
         id:
           type: string
@@ -854,8 +916,8 @@ components:
           type: string
           description: Header name expected by this auth method
       oneOf:
-      - $ref: '#/components/schemas/HeaderTokenAuthConfig'
-      - $ref: '#/components/schemas/OIDCAuthConfig'
+        - $ref: '#/components/schemas/HeaderTokenAuthConfig'
+        - $ref: '#/components/schemas/OIDCAuthConfig'
       discriminator:
         propertyName: id
         mapping:
@@ -864,30 +926,30 @@ components:
     HeaderTokenAuthConfig:
       type: object
       required:
-      - id
-      - header
+        - id
+        - header
       properties:
         id:
           type: string
           enum:
-          - TOKEN
+            - TOKEN
         header:
           type: string
           description: Header name where token must be provided
     OIDCAuthConfig:
       type: object
       required:
-      - id
-      - header
-      - clientId
-      - audience
-      - discoveryUrl
-      - callbackUrl
+        - id
+        - header
+        - clientId
+        - audience
+        - discoveryUrl
+        - callbackUrl
       properties:
         id:
           type: string
           enum:
-          - OIDC
+            - OIDC
         header:
           type: string
           description: Header name where JWT must be provided
@@ -904,11 +966,11 @@ components:
     System:
       type: object
       required:
-      - id
-      - state
-      - threshold
-      - totalPeers
-      - peers
+        - id
+        - state
+        - threshold
+        - totalPeers
+        - peers
       properties:
         id:
           type: string
@@ -928,14 +990,14 @@ components:
     PeerState:
       type: string
       enum:
-      - READY
-      - NOT_READY
-      - UNAVAILABLE
+        - READY
+        - NOT_READY
+        - UNAVAILABLE
     AuditInfo:
       type: object
       required:
-      - enabled
-      - sinks
+        - enabled
+        - sinks
       properties:
         enabled:
           type: boolean
@@ -946,8 +1008,8 @@ components:
     SinkInfo:
       type: object
       required:
-      - id
-      - available
+        - id
+        - available
       properties:
         id:
           type: string
@@ -957,8 +1019,8 @@ components:
     SimpleAuthData:
       type: object
       required:
-      - subject
-      - permissions
+        - subject
+        - permissions
       properties:
         subject:
           type: string
@@ -966,12 +1028,12 @@ components:
           type: array
           items:
             type: string
-          default: []
+          default: [ ]
     AllowedKeySetPage:
       type: object
       required:
-      - keys
-      - hasMore
+        - keys
+        - hasMore
       properties:
         keys:
           type: array
@@ -985,10 +1047,10 @@ components:
     AllowedKey:
       type: object
       required:
-      - logicalId
-      - generation
-      - status
-      - scopes
+        - logicalId
+        - generation
+        - status
+        - scopes
       properties:
         curve:
           $ref: '#/components/schemas/CurveName'
@@ -1007,21 +1069,21 @@ components:
     KeyScope:
       type: string
       enum:
-      - ENCRYPT
-      - DECRYPT
-      - SIGN
-      - VERIFY
-      - PUBLIC
-      - DESTROY
+        - ENCRYPT
+        - DECRYPT
+        - SIGN
+        - VERIFY
+        - PUBLIC
+        - DESTROY
       description: 'What the user is allowed to do with this key (derived from permissions).
 
         '
     Store:
       type: object
       required:
-      - keyId
-      - curve
-      - value64
+        - keyId
+        - curve
+        - value64
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -1036,14 +1098,14 @@ components:
     CipherType:
       type: string
       enum:
-      - AES_GCM
-      - CHACHA20_POLY1305
+        - AES_GCM
+        - CHACHA20_POLY1305
       description: Cipher type
     Encrypt:
       type: object
       required:
-      - keyId
-      - plaintext64
+        - keyId
+        - plaintext64
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -1059,8 +1121,8 @@ components:
     Decrypt:
       type: object
       required:
-      - keyId
-      - ciphertext64
+        - keyId
+        - ciphertext64
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -1077,14 +1139,15 @@ components:
           type: integer
           format: int32
           nullable: true
-          description: 'Key generation to decrypt with. If omitted, uses current generation.
-
-            '
+          description: 'Key generation to decrypt with. If omitted, uses current generation.'
+        approvals:
+          $ref: '#/components/schemas/Approvals'
+          nullable: true
     Encrypted:
       type: object
       required:
-      - ciphertext64
-      - generation
+        - ciphertext64
+        - generation
       properties:
         ciphertext64:
           type: string
@@ -1096,7 +1159,7 @@ components:
     Decrypted:
       type: object
       required:
-      - plaintext64
+        - plaintext64
       properties:
         plaintext64:
           type: string
@@ -1109,9 +1172,9 @@ components:
     Generate:
       type: object
       required:
-      - keyId
-      - curve
-      - mode
+        - keyId
+        - curve
+        - mode
       properties:
         keyId:
           $ref: '#/components/schemas/KeyId'
@@ -1125,12 +1188,15 @@ components:
         assetOwner:
           $ref: '#/components/schemas/AssetOwner'
           nullable: true
+        approvals:
+          $ref: '#/components/schemas/Approvals'
+          nullable: true
     KeyGenMode:
       type: string
       enum:
-      - CREATE
-      - ROTATE
-      - REFRESH
+        - CREATE
+        - ROTATE
+        - REFRESH
     KeyId:
       type: string
       minLength: 1
@@ -1146,16 +1212,16 @@ components:
     ExpireType:
       type: string
       enum:
-      - APPLY
-      - PROCESS
+        - APPLY
+        - PROCESS
       description: Expiration kind for key operations.
     ExpireItem:
       type: object
       required:
-      - type
-      - logicalId
-      - generation
-      - expiresAt
+        - type
+        - logicalId
+        - generation
+        - expiresAt
       properties:
         type:
           $ref: '#/components/schemas/ExpireType'
@@ -1171,7 +1237,7 @@ components:
     ExpirePage:
       type: object
       required:
-      - items
+        - items
       properties:
         items:
           type: array
@@ -1204,13 +1270,13 @@ components:
             type: string
           description: Warning message string containing additional detail.
 security:
-- DevToken: []
-- JwtToken: []
+  - DevToken: [ ]
+  - JwtToken: [ ]
 paths:
   /v1/keeper/integrity/rotate:
     post:
       tags:
-      - Integrity
+        - Integrity
       summary: Rotate integrity key
       description: 'Regenerates integrity key used to sign events and requests.
 
@@ -1222,7 +1288,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.integrity.rotate
+          - tkeeper.integrity.rotate
       responses:
         '204':
           description: No content
@@ -1239,20 +1305,20 @@ paths:
   /v1/keeper/destroy:
     post:
       tags:
-      - Destroy
+        - Destroy
       summary: Destroy key generation
       description: "Destroys a specific key generation/version.\n\nRules:\n- Destroying the current active generation and\
         \ the immediately previous generation is forbidden.\n  Example: if current generation is 5, only generations 1..3\
         \ can be destroyed.\n\nPermission required:\n- tkeeper.key.{keyId}.destroy\n"
       x-permissions:
         any:
-        - tkeeper.key.%s.destroy
+          - tkeeper.key.%s.destroy
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/KeyReference'
+              $ref: '#/components/schemas/Destroy'
       responses:
         '200':
           description: Destroyed (no response body)
@@ -1269,7 +1335,7 @@ paths:
   /v1/keeper/audit/verify:
     post:
       tags:
-      - Audit
+        - Audit
       operationId: auditVerify
       summary: Verify single audit log line
       description: 'Verifies signature of a single signed audit log line.
@@ -1281,7 +1347,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.audit.log.verify
+          - tkeeper.audit.log.verify
       requestBody:
         required: true
         content:
@@ -1306,7 +1372,7 @@ paths:
   /v1/keeper/audit/verify/batch:
     post:
       tags:
-      - Audit
+        - Audit
       operationId: auditVerifyBatch
       summary: Verify batch of audit log lines
       description: 'Verifies signatures of multiple signed audit log lines. Returns a map: event id -> VerifyResult.
@@ -1318,7 +1384,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.audit.log.verify
+          - tkeeper.audit.log.verify
       requestBody:
         required: true
         content:
@@ -1345,7 +1411,7 @@ paths:
   /v1/keeper/consistency/fix:
     post:
       tags:
-      - Consistency
+        - Consistency
       summary: Try auto-fix consistency for a key
       description: 'Attempts to automatically fix keeper consistency for the given keyId.
 
@@ -1357,14 +1423,14 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.consistency.fix
+          - tkeeper.consistency.fix
       parameters:
-      - name: keyId
-        in: query
-        required: true
-        schema:
-          $ref: '#/components/schemas/KeyId'
-        description: Key logical id.
+        - name: keyId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/KeyId'
+          description: Key logical id.
       responses:
         '200':
           description: Consistency check result after attempting auto-fix
@@ -1385,7 +1451,7 @@ paths:
   /v1/keeper/compliance/inventory:
     get:
       tags:
-      - Compliance
+        - Compliance
       summary: Asset inventory
       description: 'Returns current (or historical) asset inventory.
 
@@ -1397,42 +1463,42 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.compliance.inventory
+          - tkeeper.compliance.inventory
       parameters:
-      - name: logicalId
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Optional filter by key logical id.
-      - name: historical
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-        description: If true, include historical records.
-      - name: lastSeen
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Cursor marker used by backend for pagination (opaque string).
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 200
-          maximum: 200
-        description: Max items to return (capped at 200).
-      - name: assetOwner
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/AssetOwner'
-        description: 'Optional filter: return only assets owned by this assetOwner.'
+        - name: logicalId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional filter by key logical id.
+        - name: historical
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: If true, include historical records.
+        - name: lastSeen
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Cursor marker used by backend for pagination (opaque string).
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 200
+            maximum: 200
+          description: Max items to return (capped at 200).
+        - name: assetOwner
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/AssetOwner'
+          description: 'Optional filter: return only assets owned by this assetOwner.'
       responses:
         '200':
           description: OK
@@ -1453,7 +1519,7 @@ paths:
   /v1/keeper/sign:
     post:
       tags:
-      - Signature
+        - Signature
       summary: Threshold sign
       description: 'Produces a threshold signature for provided operations.
 
@@ -1465,7 +1531,7 @@ paths:
         '
       x-permissions:
         any:
-        - tkeeper.key.%s.sign
+          - tkeeper.key.%s.sign
       requestBody:
         required: true
         content:
@@ -1492,7 +1558,7 @@ paths:
   /v1/keeper/sign/verify:
     post:
       tags:
-      - Signature
+        - Signature
       summary: Verify signature
       description: 'Verifies a signature against a key.
 
@@ -1504,7 +1570,7 @@ paths:
         '
       x-permissions:
         any:
-        - tkeeper.key.%s.verify
+          - tkeeper.key.%s.verify
       requestBody:
         required: true
         content:
@@ -1531,7 +1597,7 @@ paths:
   /v1/keeper/system/status:
     get:
       tags:
-      - System
+        - System
       summary: Get keeper status
       description: 'Returns current keeper status (state + unseal progress).
 
@@ -1559,7 +1625,7 @@ paths:
   /v1/keeper/system/init:
     post:
       tags:
-      - System
+        - System
       summary: Initialize keeper
       description: 'Initializes keeper storage/sealing configuration.
 
@@ -1573,7 +1639,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.system.init
+          - tkeeper.system.init
       requestBody:
         required: true
         content:
@@ -1602,24 +1668,24 @@ paths:
   /v1/keeper/system/health:
     get:
       tags:
-      - System
+        - System
       summary: Health check
       description: 'Liveness probe. Always returns 204 No Content when service is up.
 
         '
-      security: []
+      security: [ ]
       responses:
         '204':
           description: No content
   /v1/keeper/system/ready:
     get:
       tags:
-      - System
+        - System
       summary: Readiness check
       description: 'Returns 204 No Content when keeper is UNSEALED, otherwise 503 Service Unavailable.
 
         '
-      security: []
+      security: [ ]
       responses:
         '204':
           description: Ready (no content)
@@ -1632,7 +1698,7 @@ paths:
   /v1/keeper/system/unseal:
     post:
       tags:
-      - System
+        - System
       summary: Submit unseal share(s)
       description: 'Submits one or multiple unseal shares. If enough valid shares are submitted, keeper becomes unsealed.
 
@@ -1653,7 +1719,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.system.unseal
+          - tkeeper.system.unseal
       requestBody:
         required: true
         content:
@@ -1679,7 +1745,7 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
     get:
       tags:
-      - System
+        - System
       summary: Unseal (auto providers)
       description: 'Unseals keeper storage when the configured seal manager supports automatic unsealing (e.g., `aws`, `google`).
 
@@ -1697,7 +1763,7 @@ paths:
         - tkeeper.system.unseal'
       x-permissions:
         required:
-        - tkeeper.system.unseal
+          - tkeeper.system.unseal
       responses:
         '200':
           description: OK (progress/status)
@@ -1718,7 +1784,7 @@ paths:
   /v1/keeper/system/seal:
     post:
       tags:
-      - System
+        - System
       summary: Seal keeper
       description: 'Seals keeper.
 
@@ -1735,7 +1801,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.system.seal
+          - tkeeper.system.seal
       responses:
         '204':
           description: No content
@@ -1750,7 +1816,7 @@ paths:
   /v1/keeper/ping:
     get:
       tags:
-      - Central
+        - Central
       summary: Ping / readiness
       description: 'Returns readiness status.
 
@@ -1762,7 +1828,7 @@ paths:
         - No permission check in this handler.
 
         '
-      security: []
+      security: [ ]
       responses:
         '200':
           description: OK
@@ -1775,7 +1841,7 @@ paths:
   /v1/keeper/publicKey:
     get:
       tags:
-      - Central
+        - Central
       summary: Get public key
       description: 'Returns public key bytes (base64) for a given keyId and optional generation.
 
@@ -1787,21 +1853,21 @@ paths:
         '
       x-permissions:
         any:
-        - tkeeper.key.%s.public
+          - tkeeper.key.%s.public
       parameters:
-      - name: keyId
-        in: query
-        required: true
-        schema:
-          $ref: '#/components/schemas/KeyId'
-        description: Key logical id
-      - name: generation
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-        description: Optional key generation/version (integer). If omitted, backend chooses default.
+        - name: keyId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/KeyId'
+          description: Key logical id
+        - name: generation
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          description: Optional key generation/version (integer). If omitted, backend chooses default.
       responses:
         '200':
           description: OK
@@ -1826,7 +1892,7 @@ paths:
   /v1/keeper/peerId:
     get:
       tags:
-      - Central
+        - Central
       summary: Get peer id
       description: 'Returns keeper peerId.
 
@@ -1854,10 +1920,10 @@ paths:
   /v1/keeper/control/auth/config:
     get:
       tags:
-      - ControlPlane
+        - ControlPlane
       summary: Get control plane auth configuration
       description: Returns the auth configuration used by the control plane (token header / OIDC settings).
-      security: []
+      security: [ ]
       responses:
         '200':
           description: OK
@@ -1870,7 +1936,7 @@ paths:
   /v1/keeper/control/system:
     get:
       tags:
-      - ControlPlane
+        - ControlPlane
       summary: Get system overview
       description: 'Returns system state and peer readiness.
 
@@ -1882,7 +1948,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.control.system
+          - tkeeper.control.system
       responses:
         '200':
           description: OK
@@ -1899,7 +1965,7 @@ paths:
   /v1/keeper/control/audit/sinks:
     get:
       tags:
-      - ControlPlane
+        - ControlPlane
       summary: Get audit sinks status
       description: 'Returns whether audit is enabled and which sinks are available.
 
@@ -1911,7 +1977,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.control.sinks
+          - tkeeper.control.sinks
       responses:
         '200':
           description: OK
@@ -1928,7 +1994,7 @@ paths:
   /v1/keeper/control/me:
     get:
       tags:
-      - ControlPlane
+        - ControlPlane
       summary: Get current authenticated subject and permissions
       description: 'Returns current authenticated user (subject) and their permissions.
 
@@ -1956,7 +2022,7 @@ paths:
   /v1/keeper/control/keys:
     get:
       tags:
-      - ControlPlane
+        - ControlPlane
       summary: List keys visible to current user
       description: 'Returns keys for which the authenticated user has at least one permission/scope.
 
@@ -1971,34 +2037,34 @@ paths:
 
         '
       parameters:
-      - name: historical
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-        description: If true, include historical items. In this case logicalId is required.
-      - name: logicalId
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Optional filter by key logical id.
-      - name: lastSeen
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Cursor marker used by backend for pagination (opaque string).
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 200
-          maximum: 200
-        description: Max items to return (capped at 200).
+        - name: historical
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: If true, include historical items. In this case logicalId is required.
+        - name: logicalId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional filter by key logical id.
+        - name: lastSeen
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Cursor marker used by backend for pagination (opaque string).
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 200
+            maximum: 200
+          description: Max items to return (capped at 200).
       responses:
         '200':
           description: OK
@@ -2017,7 +2083,7 @@ paths:
   /v1/keeper/storage/store:
     post:
       tags:
-      - Storage
+        - Storage
       summary: Trusted dealer import (store)
       description: 'Imports/stores key material using a trusted dealer flow.
 
@@ -2029,7 +2095,7 @@ paths:
         '
       x-permissions:
         required:
-        - tkeeper.storage.write
+          - tkeeper.storage.write
       requestBody:
         required: true
         content:
@@ -2052,7 +2118,7 @@ paths:
   /v1/keeper/ecies/encrypt:
     post:
       tags:
-      - ECIES
+        - ECIES
       summary: Encrypt data (threshold ECIES)
       description: 'Encrypts plaintext using threshold ECIES.
 
@@ -2064,7 +2130,7 @@ paths:
         '
       x-permissions:
         any:
-        - tkeeper.key.%s.encrypt
+          - tkeeper.key.%s.encrypt
       requestBody:
         required: true
         content:
@@ -2091,7 +2157,7 @@ paths:
   /v1/keeper/ecies/decrypt:
     post:
       tags:
-      - ECIES
+        - ECIES
       summary: Decrypt data (threshold ECIES)
       description: 'Decrypts ciphertext using threshold ECIES.
 
@@ -2103,7 +2169,7 @@ paths:
         '
       x-permissions:
         any:
-        - tkeeper.key.%s.decrypt
+          - tkeeper.key.%s.decrypt
       requestBody:
         required: true
         content:
@@ -2130,10 +2196,9 @@ paths:
   /v1/keeper/dkg:
     post:
       tags:
-      - DKG
+        - DKG
       summary: Generate / rotate / refresh key (DKG)
       description: 'Starts DKG operation for key creation/rotation/refresh.
-
 
         Permission required (depends on mode):
 
@@ -2146,9 +2211,9 @@ paths:
         '
       x-permissions:
         any:
-        - tkeeper.dkg.create
-        - tkeeper.dkg.rotate
-        - tkeeper.dkg.refresh
+          - tkeeper.dkg.create
+          - tkeeper.dkg.rotate
+          - tkeeper.dkg.refresh
       requestBody:
         required: true
         content:
@@ -2171,7 +2236,7 @@ paths:
   /v1/keeper/expires:
     get:
       tags:
-      - Expire
+        - Expire
       summary: List expiring operations
       description: 'Lists key operations that are *expiring soon*.
 
@@ -2189,61 +2254,61 @@ paths:
         - `type` controls which expiration stream is queried (`apply` or `process`).'
       x-permissions:
         required:
-        - tkeeper.expired.view
+          - tkeeper.expired.view
       parameters:
-      - &id009
-        name: type
-        in: query
-        required: true
-        schema:
-          type: string
-          enum:
-          - apply
-          - process
-        description: Expiration type selector.
-      - &id006
-        name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 100
-          minimum: 1
-          maximum: 2000
-        description: Page size (1..2000). Default is 100.
-      - &id007
-        name: cursor
-        in: query
-        required: false
-        schema:
-          type: string
-        description: Opaque cursor for pagination.
-      - name: windowSec
-        in: query
-        required: false
-        schema: &id008
-          type: integer
-          format: int64
-          minimum: 1
-        description: Window size in seconds. When provided, returns items expiring in `[now, now+windowSec]`.
-      - name: from
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int64
-          minimum: 0
-          default: 0
-        description: Start time (epoch seconds). Used only with `to`.
-      - name: to
-        in: query
-        required: false
-        schema:
-          type: integer
-          format: int64
-          minimum: 0
-        description: End time (epoch seconds). When provided (with optional `from`), returns items expiring in `[from, to]`.
+        - &id009
+          name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - apply
+              - process
+          description: Expiration type selector.
+        - &id006
+          name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 100
+            minimum: 1
+            maximum: 2000
+          description: Page size (1..2000). Default is 100.
+        - &id007
+          name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Opaque cursor for pagination.
+        - name: windowSec
+          in: query
+          required: false
+          schema: &id008
+            type: integer
+            format: int64
+            minimum: 1
+          description: Window size in seconds. When provided, returns items expiring in `[now, now+windowSec]`.
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+          description: Start time (epoch seconds). Used only with `to`.
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+          description: End time (epoch seconds). When provided (with optional `from`), returns items expiring in `[from, to]`.
       responses:
         '200':
           description: OK
@@ -2259,7 +2324,7 @@ paths:
   /v1/keeper/expires/apply:
     get:
       tags:
-      - Expire
+        - Expire
       summary: List expiring APPLY operations
       description: 'Lists keysets whose **apply** policy expires within the given window.
 
@@ -2270,15 +2335,15 @@ paths:
         Note: `windowSec` is required; otherwise the request fails with `MISSING_WINDOW`.'
       x-permissions:
         required:
-        - tkeeper.expired.view
+          - tkeeper.expired.view
       parameters:
-      - *id006
-      - *id007
-      - name: windowSec
-        in: query
-        required: true
-        schema: *id008
-        description: Window size in seconds. When provided, returns items expiring in `[now, now+windowSec]`.
+        - *id006
+        - *id007
+        - name: windowSec
+          in: query
+          required: true
+          schema: *id008
+          description: Window size in seconds. When provided, returns items expiring in `[now, now+windowSec]`.
       responses:
         '200':
           description: OK
@@ -2294,7 +2359,7 @@ paths:
   /v1/keeper/expires/process:
     get:
       tags:
-      - Expire
+        - Expire
       summary: List expiring PROCESS operations
       description: 'Lists keysets whose **process** policy expires within the given window.
 
@@ -2305,15 +2370,15 @@ paths:
         Note: `windowSec` is required; otherwise the request fails with `MISSING_WINDOW`.'
       x-permissions:
         required:
-        - tkeeper.expired.view
+          - tkeeper.expired.view
       parameters:
-      - *id006
-      - *id007
-      - name: windowSec
-        in: query
-        required: true
-        schema: *id008
-        description: Window size in seconds. When provided, returns items expiring in `[now, now+windowSec]`.
+        - *id006
+        - *id007
+        - name: windowSec
+          in: query
+          required: true
+          schema: *id008
+          description: Window size in seconds. When provided, returns items expiring in `[now, now+windowSec]`.
       responses:
         '200':
           description: OK
@@ -2329,7 +2394,7 @@ paths:
   /v1/keeper/expires/expired:
     get:
       tags:
-      - Expire
+        - Expire
       summary: List expired operations
       description: 'Lists key operations that are already **expired** at the time of request.
 
@@ -2340,11 +2405,11 @@ paths:
         `type` controls which expiration stream is queried (`apply` or `process`).'
       x-permissions:
         required:
-        - tkeeper.expired.view
+          - tkeeper.expired.view
       parameters:
-      - *id009
-      - *id006
-      - *id007
+        - *id009
+        - *id006
+        - *id007
       responses:
         '200':
           description: OK
