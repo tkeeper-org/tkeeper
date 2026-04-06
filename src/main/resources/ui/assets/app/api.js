@@ -271,6 +271,11 @@ export const api = {
     return res.data;
   },
 
+  async systemUnsealAuto() {
+    const res = await this.getJson("/v1/keeper/system/unseal");
+    return res?.data ?? res;
+  },
+
   async getPublicKey(keyId, generation = null) {
     const query = {};
     if (keyId != null && keyId !== "") query.keyId = keyId;

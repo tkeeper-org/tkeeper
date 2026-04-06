@@ -8,6 +8,8 @@ KEEPER_DEV_ENABLED="${KEEPER_DEV_ENABLED:-true}"
 JAVA_LIBRARY_PATH="${JAVA_LIBRARY_PATH:-/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib}"
 JNA_LIBRARY_PATH="${JNA_LIBRARY_PATH:-/usr/local/lib}"
 
+HSM_ENABLED="${HSM_ENABLED:-false}"
+
 set -- java \
   "-Dkeeper.config.location=${KEEPER_CONFIG_LOCATION}" \
   "-Djava.library.path=${JAVA_LIBRARY_PATH}" \
@@ -24,4 +26,9 @@ if [ -n "${JAVA_OPTS:-}" ]; then
 fi
 
 set -- "$@" -jar /opt/tkeeper/app/tkeeper.jar
+
+if [ "${HSM_ENABLED}" = "true" ]; then
+  /opt/tkeeper/init-hsm.sh
+fi
+
 exec "$@"

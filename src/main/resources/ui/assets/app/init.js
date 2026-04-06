@@ -43,6 +43,17 @@ export async function init({api, Auth, showAlert, clearAlerts}) {
         try {
             const r = await api.systemInit({peerId, threshold, total});
 
+            if (!r) {
+                try {
+                    const st = await api.getStatus();
+                    if (st?.state === "SEALED") location.hash = "#/unseal";
+                    else location.hash = "#/welcome";
+                } catch {
+                    location.hash = "#/welcome";
+                }
+                return;
+            }
+
             const warning = r?.warning;
             const data = r?.data ?? r;
 

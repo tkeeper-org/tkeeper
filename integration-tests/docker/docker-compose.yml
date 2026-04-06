@@ -16,10 +16,14 @@ services:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
         -Djna.library.path=/usr/local/lib
+      HSM_ENABLED: "true"
+      SOFTHSM2_CONF: /etc/softhsm2/softhsm2.conf
     volumes:
       - ./conf/keeper-2:/etc/tkeeper:ro
     tmpfs:
       - /var/lib/tkeeper:rw,exec,nosuid,size=512m,uid=185,gid=0
+      - /var/lib/softhsm/tokens:rw,nosuid,size=64m,uid=185,gid=0
+
   keeper-3:
     image: exploit/tkeeper:dev
     environment:

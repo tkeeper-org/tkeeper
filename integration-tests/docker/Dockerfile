@@ -3,6 +3,7 @@ FROM eclipse-temurin:21-jdk-jammy AS native-build
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates git wget xz-utils \
     build-essential autoconf automake libtool pkg-config m4 \
+    libssl-dev opensc \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /tmp
@@ -35,21 +36,41 @@ RUN wget -O gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz \
  && make -j"$(nproc)" \
  && make install
 
+RUN git clone https://github.com/softhsm/SoftHSMv2.git \
+ && cd SoftHSMv2 \
+ && git checkout 13e6e86 \
+ && ./autogen.sh \
+ && ./configure --disable-gost --with-crypto-backend=openssl \
+ && make -j"$(nproc)" \
+ && make install
+
 RUN ldconfig
 
 
-FROM registry.access.redhat.com/ubi9/openjdk-21:1.23 AS runtime
+FROM eclipse-temurin:21-jdk-jammy AS runtime
 
 USER 0
-RUN mkdir -p /opt/tkeeper/app /etc/tkeeper /var/lib/tkeeper \
- && chown -R 185:0 /opt/tkeeper /etc/tkeeper /var/lib/tkeeper \
- && chmod -R g+rwX /opt/tkeeper /etc/tkeeper /var/lib/tkeeper
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    opensc \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /opt/tkeeper/app /etc/tkeeper /var/lib/tkeeper /var/lib/softhsm/tokens \
+ && chown -R 185:0 /opt/tkeeper /etc/tkeeper /var/lib/tkeeper /var/lib/softhsm \
+ && chmod -R g+rwX /opt/tkeeper /etc/tkeeper /var/lib/tkeeper /var/lib/softhsm
 
 COPY --from=native-build /usr/local/lib/ /usr/local/lib/
+COPY --from=native-build /usr/local/bin/softhsm2-util /usr/local/bin/softhsm2-util
+
+RUN mkdir -p /etc/softhsm2 /var/lib/softhsm/tokens && \
+    printf 'directories.tokendir = /var/lib/softhsm/tokens\nobjectstore.backend = file\nlog.level = INFO\nslots.removable = false\n' \
+    > /etc/softhsm2/softhsm2.conf
 RUN ldconfig
 
 COPY --chown=185:0 build/docker/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
 COPY --chown=185:0 integration-tests/docker/entrypoint.sh /opt/tkeeper/entrypoint.sh
+COPY --chown=185:0 integration-tests/docker/init-hsm.sh /opt/tkeeper/init-hsm.sh
+
+RUN chmod +x /opt/tkeeper/init-hsm.sh
 RUN chmod +x /opt/tkeeper/entrypoint.sh
 
 USER 185
