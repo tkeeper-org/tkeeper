@@ -1,16 +1,152 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '2.1.0'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'com.google.devtools.ksp' version '2.1.0-1.0.29'
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm' version '2.3.20'
+    id 'com.gradleup.shadow' version '9.4.1'
+    id 'com.google.devtools.ksp' version '2.3.6'
 }
 
 def mainClassName = 'org.exploit.keeper.TKeeperKt'
 
 group = 'org.exploit'
-version = '1.0.7'
+version = '2.0.0'
 
 repositories {
     mavenCentral()
+}
+
+def featureModules = [
+        'feature-seal-aws'          : 'keeper.feature.seal.aws',
+        'feature-seal-gcloud'       : 'keeper.feature.seal.gcloud',
+        'feature-authority-bitcoin' : 'keeper.feature.authority.bitcoin',
+        'feature-authority-evm'     : 'keeper.feature.authority.evm',
+        'feature-authority-x509'    : 'keeper.feature.authority.x509',
+        'feature-ecies'             : 'keeper.feature.ecies',
+        'feature-ui'                : 'keeper.feature.ui'
+]
+
+def testOnlyFeatureModules = [
+        'feature-failure-injection': 'keeper.feature.failure-injection'
+]
+
+def truthy = { value ->
+    value != null && value.toString().trim().toLowerCase(java.util.Locale.ROOT) in ['true', '1', 'yes', 'y', 'on']
+}
+
+def parseFeatures = { value ->
+    (value == null ? '' : value.toString())
+            .split(',')
+            .collect { it.trim() }
+            .findAll { !it.isEmpty() }
+            .collect { it.toLowerCase(java.util.Locale.ROOT) }
+            .toSet()
+}
+
+def selectedRuntimeFeatures = parseFeatures(findProperty('keeper.features'))
+def selectedDockerFeatures = parseFeatures(findProperty('keeper.docker.features'))
+def selectedProductionFeatures = [selectedRuntimeFeatures, selectedDockerFeatures]
+        .flatten()
+        .toSet()
+
+def explicitlySelectedFeature = { Set<String> features, String moduleName ->
+    def shortName = moduleName - 'feature-'
+    features.contains(moduleName) || features.contains(shortName)
+}
+
+def allProductionFeaturesSelected =
+        truthy(findProperty('keeper.features.all')) ||
+                selectedRuntimeFeatures.contains('all') ||
+                selectedDockerFeatures.contains('all')
+
+def shouldIncludeProductionFeature = { String moduleName, String propertyName ->
+    allProductionFeaturesSelected ||
+            explicitlySelectedFeature(selectedProductionFeatures, moduleName) ||
+            truthy(findProperty(propertyName))
+}
+
+def enabledFeatureModules = featureModules.findAll { moduleName, propertyName ->
+    shouldIncludeProductionFeature(moduleName, propertyName)
+}
+
+configurations {
+    integrationFeatureRuntime {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
+    compileOnly "jakarta.annotation:jakarta.annotation-api:2.1.1"
+
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
+
+    api 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    api 'org.msgpack:jackson-dataformat-msgpack:0.9.10'
+
+    api 'org.exploit:jettyx:0.1.7'
+    api 'org.exploit:jettyx-jackson:0.1.7'
+
+    api "io.micronaut:micronaut-inject:4.10.8"
+    api "io.micronaut:micronaut-context:4.10.8"
+
+    api 'org.exploit:signalix:0.1.3'
+    api 'com.typesafe:config:1.4.5'
+    api 'org.rocksdb:rocksdbjni:10.2.1'
+    api 'org.exploit:secure-buffer:0.1.0'
+
+    api platform('org.exploit.anvil:bom:0.1.0')
+    api 'org.exploit.anvil:bigint'
+    api 'org.exploit.anvil:shamir'
+    api 'org.exploit.anvil:ecc-secp256k1'
+    api 'org.exploit.anvil:ecc-ed25519'
+    api 'org.exploit.anvil:ecc-p256'
+    api 'org.exploit.anvil:xchacha20-poly1305'
+    api 'org.exploit.anvil:util'
+    api 'org.exploit:verdict:0.1.1'
+
+    api 'org.exploit:verdict-authority:0.1.1'
+    api 'org.exploit:verdict-authority-oci:0.1.1'
+
+    api 'com.linecorp.armeria:armeria:1.39.0'
+    api 'com.linecorp.armeria:armeria-kotlin:1.39.0'
+
+    implementation 'org.exploit.anvil:t-ecdsa'
+    implementation 'org.exploit.anvil:t-schnorr'
+    implementation 'org.exploit.anvil:frost-ed25519'
+    implementation 'org.exploit.anvil:frost-secp256k1'
+    implementation 'org.exploit.anvil:frost-p256'
+    implementation 'org.exploit.anvil:zk-dlog'
+
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
+
+    implementation 'org.fusesource.jansi:jansi:2.4.2'
+    implementation 'ch.qos.logback:logback-classic:1.5.32'
+
+    implementation 'org.exploit:verdict-intent-typed:0.1.1'
+
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.84'
+
+    implementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
+    implementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
+    implementation("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
+
+    implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
+
+    implementation 'org.exploit:jettyx-http2:0.1.7'
+    implementation 'io.sentry:sentry:8.35.0'
+
+    enabledFeatureModules.keySet().each { moduleName ->
+        runtimeOnly project(path: ":$moduleName", configuration: 'shadowRuntimeElements')
+    }
+
+    featureModules.keySet().each { moduleName ->
+        integrationFeatureRuntime project(path: ":$moduleName", configuration: 'shadowRuntimeElements')
+    }
+
+    testOnlyFeatureModules.keySet().each { moduleName ->
+        integrationFeatureRuntime project(path: ":$moduleName", configuration: 'shadowRuntimeElements')
+    }
 }
 
 tasks.named('shadowJar') {
@@ -23,7 +159,44 @@ tasks.named('shadowJar') {
     mergeServiceFiles()
     append 'reference.conf'
 
-    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE*'
+    exclude 'META-INF/*.SF',
+            'META-INF/*.DSA',
+            'META-INF/*.RSA',
+            'META-INF/INDEX.LIST',
+            'META-INF/DEPENDENCIES',
+            'META-INF/NOTICE',
+            'META-INF/LICENSE*'
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.register('shadowJarIntegration', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'build'
+    description = 'Builds integration fat jar with all feature modules and failure-injection.'
+
+    archiveBaseName.set('tkeeper')
+    archiveClassifier.set('integration')
+
+    from sourceSets.main.output
+
+    configurations = [
+            project.configurations.runtimeClasspath,
+            project.configurations.integrationFeatureRuntime
+    ]
+
+    zip64 true
+    manifest { attributes 'Main-Class': mainClassName }
+
+    mergeServiceFiles()
+    append 'reference.conf'
+
+    exclude 'META-INF/*.SF',
+            'META-INF/*.DSA',
+            'META-INF/*.RSA',
+            'META-INF/INDEX.LIST',
+            'META-INF/DEPENDENCIES',
+            'META-INF/NOTICE',
+            'META-INF/LICENSE*'
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
@@ -32,6 +205,14 @@ tasks.register('prepareDocker', Copy) {
     dependsOn tasks.named('shadowJar')
 
     from(tasks.named('shadowJar').get().archiveFile)
+    into("$buildDir/docker")
+    rename { "tkeeper.jar" }
+}
+
+tasks.register('prepareDockerIntegration', Copy) {
+    dependsOn tasks.named('shadowJarIntegration')
+
+    from(tasks.named('shadowJarIntegration').get().archiveFile)
     into("$buildDir/docker")
     rename { "tkeeper.jar" }
 }
@@ -47,64 +228,26 @@ tasks.register('dockerBuild', Exec) {
             '.'
 }
 
-dependencies {
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
+tasks.register('dockerBuildIntegration', Exec) {
+    dependsOn tasks.named('prepareDockerIntegration')
 
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
-    implementation("com.linecorp.armeria:armeria:1.34.1")
-    implementation 'com.linecorp.armeria:armeria-kotlin:1.34.1'
-
-    implementation 'com.typesafe:config:1.4.5'
-
-    implementation 'org.rocksdb:rocksdbjni:10.2.1'
-
-    implementation "io.micronaut:micronaut-inject:4.10.8"
-    implementation "io.micronaut:micronaut-context:4.10.8"
-    ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    compileOnly "jakarta.annotation:jakarta.annotation-api:2.1.1"
-
-    implementation 'org.fusesource.jansi:jansi:2.4.2'
-    implementation 'ch.qos.logback:logback-classic:1.5.32'
-
-    implementation 'org.exploit:bigint:0.0.12'
-    implementation 'org.exploit:ed25519:0.0.12'
-    implementation 'org.exploit:secp256k1:0.0.12'
-    implementation 'org.exploit:secp256r1:0.0.12'
-    implementation 'org.exploit:sodium:0.0.12'
-    implementation 'org.exploit:tss4j:0.0.12'
-    implementation 'org.exploit:frost:0.0.12'
-    implementation 'org.exploit:gg20:0.0.12'
-    implementation 'org.exploit:ecies:0.0.12'
-    implementation 'org.exploit:frost-ed25519:0.0.12'
-    implementation 'org.exploit:frost-secp256k1:0.0.12'
-    implementation 'org.exploit:frost-secp256r1:0.0.12'
-    implementation 'org.exploit:crypto:1.0.8'
-
-    implementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
-    implementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
-    implementation("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
-
-    implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
-
-    implementation 'org.exploit:jettyx:0.1.7'
-    implementation 'org.exploit:jettyx-jackson:0.1.7'
-    implementation 'org.exploit:jettyx-http2:0.1.7'
-
-    implementation 'org.exploit:signalix:0.1.3'
-    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-
-    implementation 'software.amazon.awssdk:kms:2.31.33'
-    implementation 'com.google.cloud:google-cloud-kms:2.88.0'
-    implementation 'com.oracle.oci.sdk:oci-java-sdk-keymanagement:3.63.3'
-    implementation 'org.msgpack:jackson-dataformat-msgpack:0.9.10'
-
-    implementation 'io.sentry:sentry:8.35.0'
+    executable = 'docker'
+    args 'build',
+            '-f', 'integration-tests/docker/Dockerfile',
+            '-t', 'exploit/tkeeper:dev',
+            '.'
 }
 
 test {
     useJUnitPlatform()
 }
+
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
+}
+
+compileKotlin {
+    compilerOptions {
+        freeCompilerArgs.set(["-Xannotation-default-target=param-property"])
+    }
 }
