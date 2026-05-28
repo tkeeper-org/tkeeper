@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-jammy AS native-build
+FROM eclipse-temurin:25-jdk-jammy AS native-build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates git wget xz-utils \
@@ -47,7 +47,14 @@ RUN git clone https://github.com/softhsm/SoftHSMv2.git \
 RUN ldconfig
 
 
-FROM eclipse-temurin:21-jdk-jammy AS runtime
+FROM eclipse-temurin:25-jdk-jammy AS runtime
+
+ARG TKEEPER_VERSION=dev
+ARG TKEEPER_FEATURES=
+
+LABEL org.opencontainers.image.title="tkeeper" \
+      org.opencontainers.image.version="${TKEEPER_VERSION}" \
+      org.exploit.tkeeper.features="${TKEEPER_FEATURES}"
 
 USER 0
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -79,14 +86,15 @@ WORKDIR /var/lib/tkeeper
 EXPOSE 8080 9090
 
 ENV KEEPER_CONFIG_LOCATION=/etc/tkeeper
+ENV TKEEPER_FEATURES="${TKEEPER_FEATURES}"
 
 ENV JAVA_TOOL_OPTIONS="\
 -XX:+UseZGC \
--XX:+ZGenerational \
 -XX:MaxRAMPercentage=65.0 \
 -XX:+ExitOnOutOfMemoryError \
 -Dcom.sun.management.jmxremote=false \
 -Djdk.serialFilter=!* \
--Djdk.tls.client.protocols=TLSv1.3,TLSv1.2"
+-Djdk.tls.client.protocols=TLSv1.3,TLSv1.2 \
+-XX:+UseCompactObjectHeaders"
 
 ENTRYPOINT ["/opt/tkeeper/entrypoint.sh"]
