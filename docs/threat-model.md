@@ -4,7 +4,7 @@ This page covers TKeeper service-level threats.
 
 For protocol-level details in FROST, GG20, ECIES, ZK proofs, nonce handling, Paillier, and curve math, use the tss4j threat model:
 
-[tss4j THREAT_MODEL.md](https://github.com/tkeeper-org/tss4j/blob/main/THREAT_MODEL.md)
+[Anvil THREAT_MODEL.md](https://github.com/exploit-org/anvil/blob/main/THREAT_MODEL.md)
 
 ## Scope
 

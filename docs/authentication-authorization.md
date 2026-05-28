@@ -60,33 +60,35 @@ TKeeper does not validate issuer directly. Trust is anchored in the configured J
 
 Common permissions:
 
-| Permission | Allows |
-| --- | --- |
-| `tkeeper.system.init` | initialize keeper |
-| `tkeeper.system.unseal` | unseal |
-| `tkeeper.system.seal` | seal |
-| `tkeeper.dkg.create` | create a key |
-| `tkeeper.dkg.rotate` | rotate a key |
-| `tkeeper.dkg.refresh` | refresh shares |
-| `tkeeper.key.{keyId}.public` | read public key |
-| `tkeeper.key.{keyId}.sign` | sign |
-| `tkeeper.key.{keyId}.verify` | verify |
-| `tkeeper.key.{keyId}.encrypt` | ECIES encrypt |
-| `tkeeper.key.{keyId}.decrypt` | ECIES decrypt |
-| `tkeeper.key.{keyId}.destroy` | destroy key |
-| `tkeeper.storage.write` | trusted-dealer import |
-| `tkeeper.consistency.fix` | run consistency fix |
-| `tkeeper.integrity.rotate` | rotate audit integrity key |
-| `tkeeper.audit.log.verify` | verify signed audit log lines |
-| `tkeeper.compliance.inventory` | read asset inventory |
-| `tkeeper.control.system` | read control-plane system state |
-| `tkeeper.control.sinks` | read audit sink state |
-| `tkeeper.expired.view` | view expired key material where supported |
+| Permission                     | Allows                                    |
+|--------------------------------|-------------------------------------------|
+| `tkeeper.system.init`          | initialize keeper                         |
+| `tkeeper.system.unseal`        | unseal                                    |
+| `tkeeper.system.seal`          | seal                                      |
+| `tkeeper.dkg.create`           | create a key                              |
+| `tkeeper.dkg.rotate`           | rotate a key                              |
+| `tkeeper.dkg.refresh`          | refresh shares                            |
+| `tkeeper.key.{keyId}.public`   | read public key                           |
+| `tkeeper.key.{keyId}.sign`     | sign                                      |
+| `tkeeper.key.{keyId}.verify`   | verify                                    |
+| `tkeeper.key.{keyId}.encrypt`  | ECIES encrypt                             |
+| `tkeeper.key.{keyId}.decrypt`  | ECIES decrypt                             |
+| `tkeeper.key.{keyId}.destroy`  | destroy key                               |
+| `tkeeper.storage.write`        | trusted-dealer import                     |
+| `tkeeper.consistency.fix`      | run consistency fix                       |
+| `tkeeper.integrity.rotate`     | rotate audit integrity key                |
+| `tkeeper.audit.log.verify`     | verify signed audit log lines             |
+| `tkeeper.compliance.inventory` | read asset inventory                      |
+| `tkeeper.control.system`       | read control-plane system state           |
+| `tkeeper.control.sinks`        | read audit sink state                     |
+| `tkeeper.expired.view`         | view expired key material where supported |
+| `tkeeper.quorum.promote`       | promote from mono to threshold            |
 
 Wildcards are supported:
 
 ```text
 tkeeper.key.*.sign
+tkeeper.key.prefix-*.sign
 tkeeper.key.*.*
 ```
 
