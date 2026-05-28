@@ -1,0 +1,175 @@
+<div class="row row-cards tk-keygen-page">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel tk-keygen-panel">
+            <div class="tk-panel-head tk-keygen-head">
+                <div class="tk-panel-ident">
+                    <span class="avatar rounded tk-keygen-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path
+                                d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path
+                                d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg>
+                    </span>
+                    <div class="tk-panel-title-wrap">
+                        <h3 class="card-title tk-panel-title tk-keygen-title">Key Generation</h3>
+                    </div>
+                </div>
+                <div class="tk-panel-actions">
+                    <button id="tk-keygen-reset" type="button" class="btn btn-ghost-secondary">Reset</button>
+                    <button id="tk-keygen-submit" type="button" class="btn btn-primary px-4">Run DKG</button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <div id="tk-keygen-disabled" class="alert alert-warning d-flex align-items-center gap-2 d-none m-3"
+                     role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M12 9v2m0 4v.01"/>
+                        <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.48 0l-7.1 12.25a2 2 0 0 0 1.84 2.75z"/>
+                    </svg>
+                    <div>You do not have permissions for key generation.</div>
+                </div>
+
+                <form id="tk-keygen-form" class="tk-keygen-grid">
+                    <section class="tk-keygen-section tk-keygen-section-key">
+                        <div class="tk-keygen-section-title">Key</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-6">
+                                    <label class="form-label">Logical ID</label>
+                                    <input id="tk-keygen-keyId" class="form-control" placeholder="eth-cold-storage"
+                                           autocomplete="off">
+                                </div>
+
+                                <div class="col-6 col-lg-3">
+                                    <label class="form-label">Curve</label>
+                                    <select id="tk-keygen-curve" class="form-select">
+                                        <option value="SECP256K1">SECP256K1</option>
+                                        <option value="ED25519">ED25519</option>
+                                        <option value="P256">P256</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-6 col-lg-3">
+                                    <label class="form-label">Mode</label>
+                                    <select id="tk-keygen-mode" class="form-select">
+                                        <option value="CREATE">CREATE</option>
+                                        <option value="ROTATE">ROTATE</option>
+                                        <option value="REFRESH">REFRESH</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Asset Owner</label>
+                                    <input id="tk-keygen-assetOwner" class="form-control" placeholder="customer-42"
+                                           autocomplete="off">
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-hint small" id="tk-keygen-mode-hint"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tk-keygen-section">
+                        <div class="tk-keygen-section-title">Authorities</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="tk-authority-toolbar">
+                                <button type="button" id="tk-keygen-authority-arbitrary" class="btn btn-outline-secondary">Use arbitrary</button>
+                                <button type="button" id="tk-keygen-authority-add" class="btn btn-outline-dark">Add authority</button>
+                            </div>
+
+                            <div id="tk-keygen-authorities" class="tk-authority-list"></div>
+                        </div>
+                    </section>
+
+                    <section class="tk-keygen-section">
+                        <div class="tk-keygen-section-title">Policy</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="tk-keygen-toggle-row">
+                                <span>Access policy</span>
+                                <label class="form-check form-switch m-0" for="tk-keygen-policy-enabled">
+                                    <input id="tk-keygen-policy-enabled" class="form-check-input tk-switch-lg"
+                                           type="checkbox">
+                                </label>
+                            </div>
+
+                            <div id="tk-keygen-policy" class="tk-keygen-policy d-none">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-check form-switch">
+                                            <input id="tk-keygen-allowHistorical" class="form-check-input"
+                                                   type="checkbox" checked>
+                                            <span class="form-check-label">Allow historical operations</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Block new operations after</label>
+                                        <div class="input-clearable" id="tk-keygen-apply-wrapper">
+                                            <input id="tk-keygen-apply-value" type="datetime-local"
+                                                   class="form-control">
+                                            <button type="button" class="input-clearable-btn" aria-label="Clear">
+                                                &times;
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label">Block all operations after</label>
+                                        <div class="input-clearable" id="tk-keygen-process-wrapper">
+                                            <input id="tk-keygen-process-value" type="datetime-local"
+                                                   class="form-control">
+                                            <button type="button" class="input-clearable-btn" aria-label="Clear">
+                                                &times;
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tk-keygen-section">
+                        <div class="tk-keygen-section-title">Approval</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="tk-keygen-toggle-row">
+                                <span>Four-eye control</span>
+                                <label class="form-check form-switch m-0"
+                                       for="tk-keygen-foureye-enabled">
+                                    <input id="tk-keygen-foureye-enabled" class="form-check-input"
+                                           type="checkbox">
+                                </label>
+                            </div>
+
+                            <div id="tk-keygen-foureye-body" class="tk-keygen-policy d-none">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Min approvers</label>
+                                        <input id="tk-keygen-foureye-m" type="number" min="2"
+                                               max="99"
+                                               class="form-control" value="2" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div id="tk-keygen-foureye-keys"
+                                     class="d-flex flex-column gap-2 mb-3"></div>
+
+                                <button type="button" id="tk-keygen-foureye-add"
+                                        class="btn btn-outline-secondary">
+                                    Add approver key
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="tk-notifications" id="tk-keygen-notifications"></div>

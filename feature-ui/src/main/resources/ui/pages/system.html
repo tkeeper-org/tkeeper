@@ -1,0 +1,129 @@
+<div class="row row-cards">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel">
+            <div class="tk-panel-head">
+                <div class="tk-panel-ident">
+                    <span class="bg-indigo-lt avatar rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
+                    </span>
+                    <div class="tk-panel-title-wrap">
+                        <div class="tk-panel-kicker">Runtime</div>
+                        <h3 class="card-title fw-bold tk-panel-title">System</h3>
+                    </div>
+                </div>
+                <div class="tk-panel-actions">
+                    <span id="tk-system-badge" class="badge bg-secondary-lt tk-status-chip">Connecting...</span>
+                    <button id="tk-system-refresh" class="btn btn-action btn-sm border tk-btn-icon" title="Refresh data" aria-label="Refresh data">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <div id="tk-system-alerts" class="mb-4"></div>
+
+                <div class="tk-kpi-grid mb-4">
+                    <div class="tk-kpi tk-kpi--wide">
+                        <div class="tk-kpi-top">
+                            <span class="bg-white text-blue avatar border shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
+                            </span>
+                            <div>
+                                <div class="tk-kpi-label">Capability</div>
+                                <div class="tk-kpi-value" id="tk-system-capability">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tk-kpi tk-kpi--wide">
+                        <div class="tk-kpi-top">
+                            <span class="bg-white text-green avatar border shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 12l5 5l10 -10" /><path d="M2 12l5 5m5 -5l5 -5" /></svg>
+                            </span>
+                            <div>
+                                <div class="tk-kpi-label">Local Peer State</div>
+                                <div class="tk-kpi-value" id="tk-system-peerstate">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tk-kpi tk-kpi--narrow">
+                        <div class="tk-kpi-label">Quorum</div>
+                        <div class="tk-kpi-value" id="tk-system-ready">-</div>
+                    </div>
+
+                    <div class="tk-kpi tk-kpi--narrow">
+                        <div class="tk-kpi-label">Threshold</div>
+                        <div class="tk-kpi-value" id="tk-system-threshold">-</div>
+                    </div>
+                </div>
+
+                <div class="tk-table-panel mb-0">
+                    <div class="tk-table-head">
+                        <div class="m-0 tk-section-caption">Connected Peers</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-vcenter table-nowrap mb-0 table-hover">
+                            <thead>
+                            <tr class="bg-light">
+                                <th class="w-1 text-muted">ID</th>
+                                <th>State</th>
+                                <th class="text-secondary w-50">Notes</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tk-system-peers" class="font-size-sm">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-end text-muted small" id="tk-system-footnote"></div>
+
+                <section id="tk-quorum-upgrade" class="tk-upgrade-section d-none" aria-labelledby="tk-quorum-upgrade-title">
+                    <div class="tk-upgrade-head">
+                        <div>
+                            <h3 id="tk-quorum-upgrade-title" class="tk-upgrade-title">Promote to threshold</h3>
+                            <div class="tk-upgrade-subtitle">Move this keeper from mono custody into an MPC quorum.</div>
+                        </div>
+                    </div>
+
+                    <div class="tk-upgrade-body">
+                        <div class="tk-upgrade-warning" role="alert">
+                            <div class="tk-upgrade-warning-title">Irreversible operation</div>
+                            <div>
+                                TKeeper will distribute existing keys to the target peers as threshold shares, then delete mono key material and previous mono generations.
+                                This keeper cannot be moved back to mono mode after promotion.
+                            </div>
+                            <div class="mt-2">
+                                Target peers must already be initialized, unsealed, reachable, and configured for the same quorum.
+                            </div>
+                        </div>
+
+                        <div class="tk-upgrade-form-grid mt-3">
+                            <div>
+                                <label class="form-label small text-muted text-uppercase fw-bold ls-1">Target Threshold</label>
+                                <input id="tk-quorum-threshold" class="form-control fw-bold text-center" inputmode="numeric" placeholder="t">
+                            </div>
+                            <div>
+                                <label class="form-label small text-muted text-uppercase fw-bold ls-1">Target Total Peers</label>
+                                <input id="tk-quorum-total" class="form-control fw-bold text-center" inputmode="numeric" placeholder="n">
+                            </div>
+                        </div>
+
+                        <label class="form-check tk-upgrade-ack">
+                            <input id="tk-quorum-ack" class="form-check-input" type="checkbox">
+                            <span class="form-check-label fw-semibold">I understand consequences</span>
+                        </label>
+
+                        <div class="tk-upgrade-actions">
+                            <div id="tk-quorum-status" class="text-muted small"></div>
+                            <button id="tk-quorum-promote" class="btn btn-danger px-4" disabled>Promote to Threshold</button>
+                        </div>
+
+                        <div id="tk-quorum-result" class="mt-3 d-none"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

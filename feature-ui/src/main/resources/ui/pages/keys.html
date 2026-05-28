@@ -1,0 +1,167 @@
+<div class="row row-cards">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel tk-inv-root">
+            <div class="tk-panel-head tk-panel-head--tight">
+                <div class="tk-panel-ident min-w-0">
+                    <span class="bg-blue-lt avatar rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/>
+                            <path d="M12 10l-2 2l2 2l2 -2l-2 -2"/>
+                            <path d="M12 13l0 9"/>
+                        </svg>
+                    </span>
+                    <div class="tk-panel-title-wrap min-w-0">
+                        <h3 class="card-title mb-0 fw-bold tk-panel-title">Vault</h3>
+                    </div>
+                </div>
+
+                <div class="tk-panel-actions tk-vault-actions">
+                    <div class="btn-group tk-vault-export-group">
+                        <button id="tk-keys-export-json" class="btn btn-outline-secondary" type="button">Export JSON</button>
+                        <button id="tk-keys-export-csv" class="btn btn-outline-secondary" type="button">CSV</button>
+                    </div>
+                    <button id="tk-keys-refresh" class="btn btn-outline-primary shadow-sm" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-2 tk-inv-refresh-icon"
+                             width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                             fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/>
+                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-3 p-md-4">
+                <div id="tk-keys-browser">
+                    <div class="tk-inv-toolbar tk-vault-toolbar mb-3">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-12 col-lg-5">
+                                <label class="form-label mb-1 text-muted small">Key ID</label>
+                                <div class="input-group input-group-flat bg-white rounded border tk-inv-filter-wrap">
+                                    <input id="tk-keys-filter" class="form-control border-0"
+                                           placeholder="Filter by key ID..." autocomplete="off">
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <label class="form-label mb-1 text-muted small">Asset Owner</label>
+                                <div class="input-group input-group-flat bg-white rounded border tk-inv-owner-wrap">
+                                    <input id="tk-keys-owner" class="form-control border-0"
+                                           placeholder="Filter by asset owner..." autocomplete="off">
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-lg-1">
+                                <label class="form-label mb-1 text-muted small">Rows</label>
+                                <select id="tk-keys-limit" class="form-select bg-light border-0">
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200" selected>200</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6 col-lg-2">
+                                <div class="d-grid d-sm-flex gap-2 justify-content-lg-end">
+                                    <button id="tk-keys-apply" class="btn btn-primary" type="button">Apply</button>
+                                    <button id="tk-keys-clear" class="btn btn-outline-secondary" type="button">Clear</button>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-1">
+                                    <div class="text-muted small" id="tk-keys-foot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tk-keys-list" class="tk-inv-list"></div>
+
+                    <div class="mt-4 d-flex justify-content-center">
+                        <button id="tk-keys-more" class="btn btn-outline-secondary px-5 d-none" type="button">
+                            Load more items
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tk-keys-detail" class="d-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tk-modal" id="tk-modal-public" tabindex="-1" aria-hidden="true">
+        <div class="tk-modal-backdrop" id="tk-modal-public-backdrop"></div>
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold">Public Key</h5>
+                    <button type="button" class="btn-close" id="tk-public-close" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-body text-center">
+                    <div class="mb-3">
+                        <label class="form-label small text-muted text-uppercase fw-bold ls-1">Logical ID</label>
+                        <input id="tk-public-key" class="form-control border-0 text-center fw-bold bg-transparent" readonly>
+                    </div>
+
+                    <label class="form-label small text-muted text-uppercase ls-1">Public Key Material (Base64)</label>
+                    <textarea id="tk-public-data64" class="form-control font-monospace bg-light text-center border-0" rows="5" readonly></textarea>
+                    <div class="mt-2 text-secondary small" id="tk-public-status"></div>
+                </div>
+                <div class="modal-footer bg-light justify-content-center">
+                    <button type="button" class="btn btn-primary w-100" id="tk-public-close2">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tk-modal" id="tk-modal-destroy" tabindex="-1" aria-hidden="true">
+        <div class="tk-modal-backdrop" id="tk-modal-destroy-backdrop"></div>
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg border-danger">
+                <div class="modal-header bg-danger-lt border-bottom-0">
+                    <h5 class="modal-title text-danger d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M4 7l16 0"/>
+                            <path d="M10 11l0 6"/>
+                            <path d="M14 11l0 6"/>
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/>
+                        </svg>
+                        Destroy Key
+                    </h5>
+                    <button type="button" class="btn-close" id="tk-destroy-close" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-body">
+                    <p class="text-danger mb-4 small fw-bold">
+                        This action is irreversible. The key material for this generation will be permanently erased.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Target Key</label>
+                        <input id="tk-destroy-key" class="form-control bg-light border-0 fw-bold" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Generation</label>
+                        <input id="tk-destroy-generation" class="form-control bg-light border-0" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Type the key ID to confirm</label>
+                        <input id="tk-destroy-confirm" class="form-control border-danger" placeholder="Enter logical ID here...">
+                    </div>
+                    <div class="mb-2 text-danger small fw-bold" id="tk-destroy-status"></div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-link link-secondary" id="tk-destroy-cancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="tk-destroy-submit">Confirm Destroy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

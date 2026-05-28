@@ -1,0 +1,161 @@
+<div class="row row-cards tk-keygen-page">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 tk-panel tk-keygen-panel">
+            <div class="tk-panel-head tk-keygen-head">
+                <div class="tk-panel-ident">
+                    <span class="avatar rounded tk-keygen-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round"><path stroke="none"
+                                                                                   d="M0 0h24v24H0z"
+                                                                                   fill="none"/><path
+                                d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 5l5 -5"/><path
+                                d="M12 4l0 10"/></svg>
+                    </span>
+                    <div class="tk-panel-title-wrap">
+                        <h3 class="card-title tk-panel-title tk-keygen-title">Import Keys</h3>
+                    </div>
+                </div>
+                <div class="tk-panel-actions">
+                    <button id="tk-import-clear" class="btn btn-ghost-secondary" type="button">Reset</button>
+                    <button id="tk-import-submit" class="btn btn-primary px-4" type="button">Import Key</button>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <form class="tk-keygen-grid">
+                    <section class="tk-keygen-section tk-keygen-section-key">
+                        <div class="tk-keygen-section-title">Key</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-6">
+                                    <label class="form-label">Logical ID</label>
+                                    <input id="tk-import-keyId" class="form-control"
+                                           placeholder="production-kms-root" autocomplete="off">
+                                </div>
+
+                                <div class="col-6 col-lg-3">
+                                    <label class="form-label">Curve</label>
+                                    <select id="tk-import-curve" class="form-select">
+                                        <option value="SECP256K1">SECP256K1</option>
+                                        <option value="ED25519">ED25519</option>
+                                        <option value="P256">P256</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-6 col-lg-3">
+                                    <label class="form-label">Asset Owner</label>
+                                    <input id="tk-import-assetOwner" class="form-control"
+                                           placeholder="customer-42" autocomplete="off">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">Key Material</label>
+                                    <textarea id="tk-import-value64" class="form-control font-monospace" rows="7"
+                                              placeholder="Base64 private key"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tk-keygen-section">
+                        <div class="tk-keygen-section-title">Authorities</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="tk-authority-toolbar">
+                                <button type="button" id="tk-import-authority-arbitrary"
+                                        class="btn btn-outline-secondary">Use arbitrary
+                                </button>
+                                <button type="button" id="tk-import-authority-add"
+                                        class="btn btn-outline-dark">Add authority
+                                </button>
+                            </div>
+
+                            <div id="tk-import-authorities" class="tk-authority-list"></div>
+                        </div>
+                    </section>
+
+                    <section class="tk-keygen-section">
+                        <div class="tk-keygen-section-title">Policy</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="tk-keygen-toggle-row">
+                                <span>Access policy</span>
+                                <label class="form-check form-switch m-0">
+                                    <input id="tk-import-policy-enabled" class="form-check-input tk-switch-import"
+                                           type="checkbox">
+                                </label>
+                            </div>
+
+                            <div id="tk-import-policy" class="tk-keygen-policy d-none">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-check form-switch">
+                                            <input id="tk-import-allow-historical" class="form-check-input"
+                                                   type="checkbox" checked>
+                                            <span class="form-check-label">Allow historical operations</span>
+                                        </label>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Block new operations after</label>
+                                        <div class="input-clearable" id="tk-import-apply-wrapper">
+                                            <input id="tk-import-apply-notAfter" type="datetime-local"
+                                                   class="form-control bg-white">
+                                            <button type="button" class="input-clearable-btn"
+                                                    data-target="tk-import-apply-notAfter">&times;
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label">Block all operations after</label>
+                                        <div class="input-clearable" id="tk-import-process-wrapper">
+                                            <input id="tk-import-process-notAfter" type="datetime-local"
+                                                   class="form-control bg-white">
+                                            <button type="button" class="input-clearable-btn"
+                                                    data-target="tk-import-process-notAfter">&times;
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="tk-keygen-section">
+                        <div class="tk-keygen-section-title">Approval</div>
+                        <div class="tk-keygen-section-body">
+                            <div class="tk-keygen-toggle-row">
+                                <span>Four-eye control</span>
+                                <label class="form-check form-switch m-0"
+                                       for="tk-import-foureye-enabled">
+                                    <input id="tk-import-foureye-enabled" class="form-check-input"
+                                           type="checkbox">
+                                </label>
+                            </div>
+
+                            <div id="tk-import-foureye-body" class="tk-keygen-policy d-none">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Min approvers</label>
+                                        <input id="tk-import-foureye-m" type="number" min="2" max="99"
+                                               class="form-control" value="2" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div id="tk-import-foureye-keys"
+                                     class="d-flex flex-column gap-2 mb-3"></div>
+
+                                <button type="button" id="tk-import-foureye-add"
+                                        class="btn btn-outline-secondary">
+                                    Add approver key
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </form>
+
+                <div id="tk-import-status" class="tk-import-status"></div>
+            </div>
+        </div>
+    </div>
+</div>
