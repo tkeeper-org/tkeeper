@@ -1,0 +1,41 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.gradleup.shadow' version '9.4.1'
+    id 'com.google.devtools.ksp' version '2.3.6'
+}
+
+group = 'org.exploit'
+version = '2.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    compileOnly(project(':'))
+
+    ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    exclude 'com/fasterxml/jackson/**'
+    exclude 'META-INF/services/com.fasterxml.jackson.*'
+    exclude 'io/netty/**'
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE*'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('shadowJar')
+}
+
+kotlin {
+    jvmToolchain(25)
+}
+
+test {
+    useJUnitPlatform()
+}
