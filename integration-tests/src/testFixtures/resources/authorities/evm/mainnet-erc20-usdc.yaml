@@ -1,0 +1,24 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/mainnet-usdc-transfer
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Mainnet USDC transfer limit
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 1
+  contracts:
+    - standard: erc20
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+policy:
+  id: test-evm-mainnet-usdc-transfer
+  fallback: DENY
+  allow:
+    - id: allow-small-usdc-transfer
+      where:
+        - "chainId == 1"
+        - "effect.one(effects, 'erc20.transfer')"
+        - "effect.onlyTypes(effects, ['erc20.transfer'])"
+        - "bigint.lte(effect.amount(effects, 'erc20.transfer'), '100000000')"

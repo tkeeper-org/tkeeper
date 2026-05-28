@@ -1,0 +1,26 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/mainnet-usdc-approval
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Mainnet USDC approval limit
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 1
+  contracts:
+    - standard: erc20
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+policy:
+  id: test-evm-mainnet-usdc-approval
+  fallback: DENY
+  allow:
+    - id: allow-usdc-approval
+      where:
+        - "chainId == 1"
+        - "call.function == 'approve'"
+        - "effect.one(effects, 'erc20.approval')"
+        - "effect.onlyTypes(effects, ['erc20.approval'])"
+        - "effect.any(effects, 'erc20.approval', {'token': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 'spender': '0x4444444444444444444444444444444444444444'})"
+        - "bigint.lte(effect.amount(effects, 'erc20.approval'), '1000')"

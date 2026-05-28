@@ -1,0 +1,40 @@
+schemaVersion: verdict.authority/v1
+id: test:custom/treasury-large
+type: custom
+version: 1.0.0
+metadata:
+  title: Treasury transfer signing
+  labels:
+    suite: integration
+    intent: custom
+config:
+  fields:
+    purpose:
+      type: string
+    amount:
+      type: bigint
+    currency:
+      type: string
+    approver:
+      type: string
+    memo:
+      type: string
+      required: false
+      nullable: true
+  effects:
+    - type: treasury.transfer
+      fields:
+        asset: "$currency"
+        amount: "$amount"
+        approver: "$approver"
+policy:
+  id: test-custom-treasury-large
+  fallback: DENY
+  allow:
+    - id: allow-approved-treasury-transfer
+      where:
+        - "purpose == 'treasury'"
+        - "approver in ['cfo', 'controller']"
+        - "currency in ['USD', 'EUR']"
+        - "bigint.lte(amount, '100000')"
+        - "effect.onlyTypes(effects, ['treasury.transfer'])"

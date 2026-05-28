@@ -1,0 +1,22 @@
+schemaVersion: verdict.authority/v1
+id: test:x509/service-leaf
+type: x509.tbs-certificate
+version: 1.0.0
+metadata:
+  title: Service leaf certificate
+  labels:
+    suite: integration
+    intent: x509
+config: {}
+policy:
+  id: test-x509-service-leaf
+  fallback: DENY
+  allow:
+    - id: allow-service-leaf
+      where:
+        - "version == 3"
+        - "subject.commonName == 'api.svc.test'"
+        - "extensions.basicConstraints.present"
+        - "!extensions.basicConstraints.cA"
+        - "extensions.keyUsage.digitalSignature"
+        - "extensions.extKeyUsage.serverAuth"

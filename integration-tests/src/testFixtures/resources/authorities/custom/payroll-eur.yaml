@@ -1,0 +1,36 @@
+schemaVersion: verdict.authority/v1
+id: test:custom/payroll-eur
+type: custom
+version: 1.0.0
+metadata:
+  title: EUR payroll batch signing
+  labels:
+    suite: integration
+    intent: custom
+config:
+  fields:
+    purpose:
+      type: string
+    amount:
+      type: bigint
+    employeeCount:
+      type: int
+    currency:
+      type: string
+  effects:
+    - type: payroll.batch
+      fields:
+        asset: "$currency"
+        amount: "$amount"
+        employeeCount: "$employeeCount"
+policy:
+  id: test-custom-payroll-eur
+  fallback: DENY
+  allow:
+    - id: allow-eur-payroll-batch
+      where:
+        - "purpose == 'payroll'"
+        - "currency == 'EUR'"
+        - "employeeCount >= 1"
+        - "employeeCount <= 50"
+        - "bigint.lte(amount, '250000')"

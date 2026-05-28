@@ -1,0 +1,26 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/mainnet-usdc-transfer-from
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Mainnet USDC transferFrom limit
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 1
+  contracts:
+    - standard: erc20
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+policy:
+  id: test-evm-mainnet-usdc-transfer-from
+  fallback: DENY
+  allow:
+    - id: allow-usdc-transfer-from
+      where:
+        - "chainId == 1"
+        - "call.function == 'transferFrom'"
+        - "effect.one(effects, 'erc20.transferFrom')"
+        - "effect.onlyTypes(effects, ['erc20.transferFrom'])"
+        - "effect.any(effects, 'erc20.transferFrom', {'token': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 'from': '0x5555555555555555555555555555555555555555', 'to': '0x3333333333333333333333333333333333333333'})"
+        - "bigint.lte(effect.amount(effects, 'erc20.transferFrom'), '321')"

@@ -1,0 +1,32 @@
+schemaVersion: verdict.authority/v1
+id: test:custom/admin-ops
+type: custom
+version: 1.0.0
+metadata:
+  title: Administrative operation signing
+  labels:
+    suite: integration
+    intent: custom
+config:
+  fields:
+    purpose:
+      type: string
+    operation:
+      type: string
+    ticket:
+      type: string
+    emergency:
+      type: bool
+      required: false
+      default: false
+policy:
+  id: test-custom-admin-ops
+  fallback: DENY
+  allow:
+    - id: allow-normal-admin-change
+      where:
+        - "purpose == 'admin'"
+        - "operation in ['rotate', 'reconcile', 'freeze']"
+        - "ticket in ['INC-0001', 'INC-0002']"
+      unless:
+        - "emergency"

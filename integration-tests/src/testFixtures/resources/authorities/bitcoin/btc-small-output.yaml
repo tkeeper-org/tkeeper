@@ -1,0 +1,23 @@
+schemaVersion: verdict.authority/v1
+id: test:bitcoin/btc-small-output
+type: bitcoin.transaction
+version: 1.0.0
+metadata:
+  title: BTC small output with safe sighash
+  labels:
+    suite: integration
+    intent: bitcoin
+config:
+  protocol: BTC
+policy:
+  id: test-bitcoin-btc-small-output
+  fallback: DENY
+  allow:
+    - id: allow-small-btc-output
+      where:
+        - "protocol == 'BTC'"
+        - "sighash.all"
+        - "!sighash.anyoneCanPay"
+        - "effect.onlyTypes(effects, ['utxo.spend', 'utxo.output', 'utxo.fee'])"
+        - "bigint.lte(effect.amount(effects, 'utxo.output'), '100000')"
+        - "bigint.lte(effect.amount(effects, 'utxo.fee'), '10000')"

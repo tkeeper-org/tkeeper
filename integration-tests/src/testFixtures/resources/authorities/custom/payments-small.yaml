@@ -1,0 +1,38 @@
+schemaVersion: verdict.authority/v1
+id: test:custom/payments-small
+type: custom
+version: 1.0.0
+metadata:
+  title: Small USD payment signing
+  labels:
+    suite: integration
+    intent: custom
+config:
+  fields:
+    purpose:
+      type: string
+    amount:
+      type: bigint
+    currency:
+      type: string
+    payload:
+      type: string
+      required: false
+      nullable: true
+  effects:
+    - type: payment.transfer
+      fields:
+        purpose: "$purpose"
+        asset: "$currency"
+        amount: "$amount"
+policy:
+  id: test-custom-payments-small
+  fallback: DENY
+  allow:
+    - id: allow-small-usd-payment
+      where:
+        - "purpose == 'payments'"
+        - "currency == 'USD'"
+        - "bigint.lte(amount, '1000')"
+        - "effect.one(effects, 'payment.transfer')"
+        - "effect.any(effects, 'payment.transfer', {'asset': 'USD'})"

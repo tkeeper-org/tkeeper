@@ -1,0 +1,36 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/mainnet-vault-withdraw
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Mainnet vault withdraw
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 1
+  contracts:
+    - name: vault
+      address: "0x6666666666666666666666666666666666666666"
+      functions:
+        - signature: "withdraw(address,uint256)"
+          arguments: ["to", "amount"]
+          effects:
+            - type: vault.withdraw
+              fields:
+                vault: "$transaction.to"
+                to: "$to"
+                amount: "$amount"
+policy:
+  id: test-evm-mainnet-vault-withdraw
+  fallback: DENY
+  allow:
+    - id: allow-vault-withdraw
+      where:
+        - "chainId == 1"
+        - "call.contract == 'vault'"
+        - "call.function == 'withdraw'"
+        - "effect.one(effects, 'vault.withdraw')"
+        - "effect.onlyTypes(effects, ['vault.withdraw'])"
+        - "effect.any(effects, 'vault.withdraw', {'vault': '0x6666666666666666666666666666666666666666', 'to': '0x7777777777777777777777777777777777777777'})"
+        - "bigint.lte(effect.sum(effects, 'vault.withdraw', 'amount'), '55')"

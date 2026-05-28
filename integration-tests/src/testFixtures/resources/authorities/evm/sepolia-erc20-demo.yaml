@@ -1,0 +1,23 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/sepolia-demo-token
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Sepolia demo ERC20 transfer
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 11155111
+  contracts:
+    - standard: erc20
+      address: "0x1111111111111111111111111111111111111111"
+policy:
+  id: test-evm-sepolia-demo-token
+  fallback: DENY
+  allow:
+    - id: allow-demo-token-transfer
+      where:
+        - "chainId == 11155111"
+        - "effect.one(effects, 'erc20.transfer')"
+        - "bigint.lte(effect.amount(effects, 'erc20.transfer'), '1000000000000000000')"

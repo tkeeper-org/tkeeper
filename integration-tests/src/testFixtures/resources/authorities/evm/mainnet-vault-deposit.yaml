@@ -1,0 +1,44 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/mainnet-vault-deposit
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Mainnet vault payable deposit
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 1
+  contracts:
+    - name: vault
+      address: "0x6666666666666666666666666666666666666666"
+      functions:
+        - signature: "deposit(uint256)"
+          arguments: ["amount"]
+          effects:
+            - type: vault.deposit
+              fields:
+                vault: "$transaction.to"
+                amount: "$amount"
+            - type: native.transfer
+              fields:
+                asset: native
+                to: "$transaction.to"
+                amount: "$transaction.value"
+policy:
+  id: test-evm-mainnet-vault-deposit
+  fallback: DENY
+  allow:
+    - id: allow-vault-deposit-with-native-value
+      where:
+        - "chainId == 1"
+        - "call.contract == 'vault'"
+        - "call.function == 'deposit'"
+        - "effect.one(effects, 'vault.deposit')"
+        - "effect.one(effects, 'native.transfer')"
+        - "effect.onlyTypes(effects, ['vault.deposit', 'native.transfer'])"
+        - "effect.any(effects, 'vault.deposit', {'vault': '0x6666666666666666666666666666666666666666'})"
+        - "effect.any(effects, 'native.transfer', {'to': '0x6666666666666666666666666666666666666666', 'asset': 'native'})"
+        - "bigint.lte(effect.sum(effects, 'vault.deposit', 'amount'), '500')"
+        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
+        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100')"

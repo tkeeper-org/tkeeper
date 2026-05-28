@@ -1,0 +1,38 @@
+schemaVersion: verdict.authority/v1
+id: test:custom/payments-country
+type: custom
+version: 1.0.0
+metadata:
+  title: Payment signing with country blocklist
+  labels:
+    suite: integration
+    intent: custom
+config:
+  fields:
+    purpose:
+      type: string
+    amount:
+      type: bigint
+    currency:
+      type: string
+    country:
+      type: string
+  effects:
+    - type: payment.transfer
+      fields:
+        asset: "$currency"
+        amount: "$amount"
+        country: "$country"
+policy:
+  id: test-custom-payments-country
+  fallback: DENY
+  deny:
+    - id: blocked-country
+      where:
+        - "country in ['IR', 'KP']"
+  allow:
+    - id: allow-small-unblocked-payment
+      where:
+        - "purpose == 'payments'"
+        - "currency in ['USD', 'EUR']"
+        - "bigint.lte(amount, '5000')"

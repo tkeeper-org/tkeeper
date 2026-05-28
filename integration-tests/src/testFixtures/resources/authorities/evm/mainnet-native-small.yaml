@@ -1,0 +1,20 @@
+schemaVersion: verdict.authority/v1
+id: test:evm/mainnet-native-small
+type: evm.transaction
+version: 1.0.0
+metadata:
+  title: Mainnet native ETH transfer limit
+  labels:
+    suite: integration
+    intent: evm
+config:
+  chainId: 1
+policy:
+  id: test-evm-mainnet-native-small
+  fallback: DENY
+  allow:
+    - id: allow-small-native-transfer
+      where:
+        - "chainId == 1"
+        - "effect.onlyTypes(effects, ['native.transfer'])"
+        - "bigint.lte(effect.amount(effects, 'native.transfer'), '10000000000000000')"
