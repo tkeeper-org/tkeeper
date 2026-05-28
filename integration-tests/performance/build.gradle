@@ -1,0 +1,59 @@
+import groovy.json.JsonSlurper
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'java-test-fixtures'
+}
+
+group = 'org.exploit'
+version = '2.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation testFixtures(project(':integration-tests'))
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+test {
+    useJUnitPlatform()
+
+    maxParallelForks = 1
+    systemProperty("junit.jupiter.execution.parallel.enabled", "false")
+
+    def home = System.getProperty("user.home")
+
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        def colimaSockEnv = System.getenv("COLIMA_SOCKET_ENV")
+
+        def colimaSock = colimaSockEnv ?: "${home}/.colima/default/docker.sock"
+        environment "DOCKER_HOST", "unix://${colimaSock}"
+        environment "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "/var/run/docker.sock"
+
+        try {
+            def proc = new ProcessBuilder("colima", "status", "--json")
+                    .redirectErrorStream(true)
+                    .start()
+
+            def out = proc.inputStream.getText("UTF-8")
+            if (proc.waitFor() == 0) {
+                def json = new JsonSlurper().parseText(out)
+                def ip = (json?.ip_address ?: "").toString().trim()
+                if (ip) {
+                    environment "TESTCONTAINERS_HOST_OVERRIDE", ip
+                }
+            }
+        } catch (Exception ignored) {
+            throw new GradleException("Use Colima VM ro run ")
+        }
+    }
+
+    systemProperty 'it.compose.file', file('../docker/docker-compose.yml').absolutePath
+    systemProperty 'it.dev.token', 'integration-tests-dev-token'
+}

@@ -3,14 +3,16 @@ import groovy.json.JsonSlurper
 
 plugins {
     id 'org.jetbrains.kotlin.jvm'
+    id 'java-library'
+    id 'java-test-fixtures'
 }
 
 group = 'org.exploit'
-version = '1.0.7'
+version = '2.0.0'
 
 ext {
-    projectName = "TKeeper SDK"
-    projectDescription = "API Client to communicate with TKeeper nodes"
+    projectName = "Integration Tests"
+    projectDescription = "Test Fixtures for all testing submodules"
 }
 
 repositories {
@@ -18,21 +20,38 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.jetbrains.kotlin:kotlin-test'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.11.4'
+    testFixturesApi 'org.jetbrains.kotlin:kotlin-test'
+    testFixturesApi 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testFixturesApi 'org.junit.jupiter:junit-jupiter-params:5.11.4'
 
-    implementation 'org.testcontainers:testcontainers-bom:1.21.4'
-    testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
-    testImplementation(project(":sdk"))
-    testImplementation 'ch.qos.logback:logback-classic:1.5.20'
-    testImplementation 'org.exploit:tss4j:0.0.12'
-    testImplementation 'org.exploit:ed25519:0.0.12'
-    testImplementation 'org.exploit:secp256k1:0.0.12'
-    testImplementation 'org.exploit:secp256r1:0.0.12'
-    testImplementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
-    testImplementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
-    testImplementation("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
+    testFixturesApi 'org.testcontainers:testcontainers-bom:1.21.4'
+    testFixturesApi 'org.testcontainers:junit-jupiter:1.21.4'
+    testFixturesApi(project(":sdk"))
+
+    testFixturesApi('org.bitcoinj:bitcoinj-core:0.17.1')
+    testFixturesApi('org.web3j:core:4.12.3')
+
+    testFixturesApi('com.fasterxml.jackson.core:jackson-databind:2.21.2')
+    testFixturesApi('com.fasterxml.jackson.module:jackson-module-kotlin:2.21.2')
+
+    testFixturesApi 'ch.qos.logback:logback-classic:1.5.20'
+
+    testFixturesApi 'org.exploit:bigint:0.0.12'
+    testFixturesApi 'org.exploit:ed25519:0.0.12'
+    testFixturesApi 'org.exploit:secp256k1:0.0.12'
+    testFixturesApi 'org.exploit:secp256r1:0.0.12'
+    testFixturesApi 'org.exploit:sodium:0.0.12'
+    testFixturesApi 'org.exploit:tss4j:0.0.12'
+    testFixturesApi 'org.exploit:frost:0.0.12'
+    testFixturesApi 'org.exploit:gg20:0.0.12'
+    testFixturesApi 'org.exploit:ecies:0.0.12'
+    testFixturesApi 'org.exploit:frost-ed25519:0.0.12'
+    testFixturesApi 'org.exploit:frost-secp256k1:0.0.12'
+    testFixturesApi 'org.exploit:frost-secp256r1:0.0.12'
+
+    testFixturesApi("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
+    testFixturesApi("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
+    testFixturesApi("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
 }
 
 test {
