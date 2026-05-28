@@ -17,24 +17,23 @@ The Compose runtime is resolved automatically:
 - Docker Compose:
   - `docker-compose` **or**
   - `docker compose`
-- Java **21**
+- Java **25**
 
 ---
 
 ## Runing tests
 
-### Build the project
+### Build test docker image
 Run from root project directory:
 ```bash
-./gradlew prepareDocker
+./gradlew dockerBuildIntegration -Pkeeper.docker.features=all
 ```
+`keeper.docker.features=all` includes test-only integration helpers such as `feature-failure-injection`.
+Regular runtime builds with `keeper.features=all` do not include those helpers.
 
-It will build and create jar file in side `build/docker` folder.
-
-### Build test docker image
-Then you need to build docker image. From root project directory call:
+Or select only the modules needed for a test run:
 ```bash
-docker build -f integration-tests/docker/Dockerfile -t exploit/tkeeper:dev .
+./gradlew dockerBuildIntegration -Pkeeper.docker.features=authority-evm,seal-aws,failure-injection
 ```
 
 Run the full test suite:
@@ -61,4 +60,3 @@ Client with `idx = 2` uses `hsm` as seal provider
 ## macOS notes (Colima)
 
 On macOS, Docker **MUST** be provided by Colima. If your setup uses a non-default Docker socket, configure it via environment variables (`DOCKER_HOST`) before running tests. See [build.gradle](build.gradle) for details.
-
