@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '1.0.7'
+version = '2.0.0'
 
 def projectName = "TKeeper SDK"
 def projectDescription = "API client for TKeeper in Java"
@@ -45,55 +45,14 @@ jar {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            from components.java
+        maven(MavenPublication) {
+            groupId = 'org.exploit'
             artifactId = 'tkeeper-sdk'
+            version = '2.0.0'
 
-            pom {
-                name = projectName
-                description = projectDescription
-                url = 'https://github.com/tkeeper-org/tkeeper/sdk'
-
-                licenses {
-                    license {
-                        name = 'Apache License, Version 2.0'
-                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = '0'
-                        name = 'tkeeper-org'
-                        email = 'labs@tkeeper.org'
-                    }
-                }
-
-                scm {
-                    connection = 'scm:git:https://github.com/tkeeper-org/tkeeper.git'
-                    developerConnection = 'scm:git:git@github.com:tkeeper-org/tkeeper.git'
-                    url = 'https://github.com/tkeeper-org/tkeeper/tree/main/tkeeper/sdk'
-                }
-            }
+            from components.java
         }
     }
-
-    repositories {
-        maven {
-            name = "Local"
-            url = file("${buildDir}/repos/bundles")
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
-mavenCentral {
-    repoDir = layout.buildDirectory.dir('repos/bundles')
-
-    authToken = System.getenv("CENTRAL_MAVEN_TOKEN")
 }
 
 test {
