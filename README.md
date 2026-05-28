@@ -2,18 +2,46 @@
 
 <div align="center">
 
-# TKeeper (Threshold Key Management System)
+# TKeeper
 
-[TKeeper Labs](https://tkeeper.org) • [Documentation](https://tkeeper.org/docs) • [OpenAPI](openapi.yaml)
+[TKeeper Labs](https://tkeeper.org) • [exploit.org](https://exploit.org) • [Documentation](https://tkeeper.org/docs) • [OpenAPI](openapi.yaml)
 
 </div>
 
 
-TKeeper is a distributed, threshold KMS for environments where no single machine should have unilateral key authority. It runs as a network of cooperating peers and performs cryptographic operations under a **t-of-n** threshold model: at least **t distinct peers** must participate in every sign, decrypt, or key management operation.
+TKeeper controls machine authority.
 
-> The private key is split into shares via Shamir Secret Sharing and is **never reconstructed**: not during signing, not during decryption, not during key generation. Compromising up to t−1 peers yields nothing.
+A machine becomes risky when it can cause a real effect: move funds, approve a spender, issue a certificate, decrypt data, rotate a key, import key material, or delegate power. Classic access control answers who can call an API. TKeeper answers what this call is allowed to cause.
 
-Built on [tss4j](https://github.com/tkeeper-org/tss4j): a purpose-built threshold cryptography library implementing GG20, FROST, and verifiable threshold ECIES.
+TKeeper places policy on the authority path. Before sign/decrypt/rotate/refresh/destroy/import starts, it evaluates configured controls (auth, permissions, key lifecycle, time policy, four-eye policy, authority policy, audit, integrity).
+
+Built on [Anvil](https://github.com/exploit-org/anvil): cryptographic building blocks for threshold ECDSA (GG20), FROST, and verifiable threshold ECIES.
+
+See the high-level system framing in [docs/overview.md](docs/overview.md).
+
+---
+
+## Quorum Modes
+
+TKeeper supports two quorum modes:
+
+- `mono` (`1-of-1`): local key material, same authority controls, no threshold custody
+- `threshold` (`t-of-n`): key shares across peers, quorum required for operations
+
+Mono is a simple starting path when you need policy enforcement first. It can be promoted into threshold mode with `POST /v2/keeper/quorum/promote`.
+
+In threshold mode, private key material is never reconstructed and compromising up to `t-1` peers does not recover the key.
+
+---
+
+## Authorities
+
+Authorities describe what kind of consequence a key may authorize.
+
+- `arbitrary` authority supports raw signing and is intentionally low-context
+- concrete authorities bind keys to typed policy (for example EVM, Bitcoin, X.509)
+
+A sign request carries a command artifact with `authorityId`. TKeeper materializes command data into a typed intent and evaluates policy before key material participates.
 
 ---
 
@@ -110,20 +138,9 @@ Asset inventory endpoints expose key metadata (curve, scheme, generation, creati
 
 ---
 
-## When TKeeper Is Not the Right Tool
-
-TKeeper is built for environments where the cost of a key compromise is high.
-If that's not your constraint, a simpler setup will serve you better.
-
-- You need basic secret storage or envelope encryption without quorum operations
-- You cannot reliably operate multiple peers (networking, monitoring, availability)
-- You need a general-purpose secrets manager, then consider HashiCorp Vault instead
-
----
-
 ## Threat Model
 - **TKeeper**: See [TKeeper Threat Model](docs/threat-model.md) in this repository
-- **tss4j**: See [tss4j Threat Model](https://github.com/tkeeper-org/tss4j/blob/main/THREAT_MODEL.md) for cryptographic protocols' threat model.
+- **Anvil**: See the [Anvil repository](https://github.com/exploit-org/anvil) for protocol-level cryptographic components and security references.
 
 ## API Reference
 
