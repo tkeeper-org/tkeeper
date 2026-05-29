@@ -17,7 +17,7 @@ TKeeper places policy on the authority path. Before sign/decrypt/rotate/refresh/
 
 Built on [Anvil](https://github.com/exploit-org/anvil): cryptographic building blocks for threshold ECDSA (GG20), FROST, and verifiable threshold ECIES.
 
-See the high-level system framing in [docs/overview.md](docs/overview.md).
+See [Documentation](https://tkeeper.org/docs) for all details.
 
 ---
 
