@@ -64,7 +64,7 @@ Audit events are signed with the integrity key. When audit is enabled, at least 
 
 Client to Keeper:
 
-Requests are untrusted until authenticated and authorized. JWT mode validates token signature, `kid`, audience, and subject. Dev token mode is for controlled environments.
+Requests are untrusted until authenticated and authorized. JWT mode validates token signature, `kid`, audience, configured issuer, token lifetime, and subject. Dev token mode is for controlled environments.
 
 Keeper to Keeper:
 
@@ -97,7 +97,7 @@ An attacker uses a forged or stolen token to call signing, decrypt, lifecycle, o
 Mitigation:
 
 - JWT signature and `kid` are checked against JWKS.
-- Audience and subject are checked.
+- Audience, configured issuer, lifetime, and subject are checked.
 - Permissions are enforced per operation.
 - Key operations use key-scoped permissions such as `tkeeper.key.<keyId>.sign`.
 
@@ -345,6 +345,7 @@ Bad CSP or weak browser session handling can expose operators to web attacks. Ke
 ## Operational Checklist
 
 - Use short-lived JWTs.
+- Configure the expected JWT issuer and audience explicitly.
 - Keep dev token mode out of production.
 - Avoid broad wildcard permissions.
 - Treat `arbitrary` keys as raw signing keys.

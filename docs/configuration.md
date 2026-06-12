@@ -141,6 +141,30 @@ keeper.client {
 }
 ```
 
+## Authentication
+
+JWT authentication is configured under `auth.jwt`:
+
+```hocon
+auth {
+  type = "jwt"
+
+  jwt {
+    jwks-location = "https://issuer.example/.well-known/jwks.json"
+    issuer = "https://issuer.example"
+    audience = "tkeeper"
+    refresh = 15m
+    clock-skew = 15s
+  }
+}
+```
+
+When `issuer` is configured, it must match the token `iss` claim. Configure it in production to bind tokens to the expected identity provider.
+
+`audience` must be present in the token `aud` claim. Tokens must contain `exp`; `nbf` is honored when present.
+
+`clock-skew` defaults to `15s` and must not be negative.
+
 ## Sessions
 
 Session limits live under `keeper.session`:

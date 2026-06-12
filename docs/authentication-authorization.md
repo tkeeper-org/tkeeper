@@ -42,8 +42,10 @@ auth {
 
   jwt {
     jwks-location = "https://issuer.example/.well-known/jwks.json"
+    issuer = "https://issuer.example"
     audience = "tkeeper"
     refresh = 15m
+    clock-skew = 15s
   }
 }
 ```
@@ -52,11 +54,16 @@ JWT tokens must contain:
 
 - `sub`
 - `aud`
+- `exp`
 - `permissions` as a string list claim
 
 `aud` may be a single value or an array. TKeeper checks that it contains `auth.jwt.audience`.
 
-TKeeper does not validate issuer directly. Trust is anchored in the configured JWKS and audience.
+If `auth.jwt.issuer` is configured, the token `iss` claim must match it. Configure `issuer` in production to bind tokens to the expected identity provider.
+
+`exp` is required. `nbf` is optional, but when present TKeeper rejects the token before that time.
+
+`auth.jwt.clock-skew` defaults to `15s` and must not be negative. It is used as a small tolerance for `exp` and `nbf` checks to handle clock drift between the issuer and Keeper nodes.
 
 Common permissions:
 
