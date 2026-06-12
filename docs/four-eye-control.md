@@ -76,18 +76,38 @@ base64(sha256(compressed-public-key))
 
 ## Signed Fields
 
-TKeeper uses a canonical JSON mapper for approval hashes. Object properties are sorted alphabetically, map entries are sorted by key, and null fields are omitted.
+TKeeper uses canonical JSON for approval hashes.
+
+Canonicalization rules for SDKs and non-Java clients:
+
+- serialize compact UTF-8 JSON with no insignificant whitespace
+- omit fields whose value is `null`
+- sort JSON object field names lexicographically at every object level
+- sort map entries by key
+- preserve JSON array element order exactly as supplied
+- apply the same object-field sorting to objects inside arrays
+- keep string values byte-exact, including base64 strings, enum names, nonce, and tweak
+
+Do not sort arrays globally. JSON arrays are ordered data. If a request contains `authorities`, `fourEye.keys`, Bitcoin previous transactions, typed JSON arrays, or any other array, the approval hash uses that array order. If the order matters to an application, send and approve the exact same body.
+
+The approval hash is:
+
+```text
+sha256(canonical-json-bytes)
+```
+
+Approvers sign that 32-byte hash. `approvals.proofs` is not part of the hash.
 
 The exact fields are operation-specific:
 
 | Operation | Fields |
 | --- | --- |
-| DKG | `keeperId`, `keyId`, `curve`, sorted `authorities`, `mode`, optional `policy`, optional `assetOwner`, `nonce`, `timestamp` |
+| DKG | `keeperId`, `keyId`, `curve`, `authorities`, `mode`, optional `policy`, optional `assetOwner`, `nonce`, `timestamp` |
 | Sign | `keeperId`, `keyId`, `command`, optional `tweak`, `nonce`, `timestamp` |
 | ECIES decrypt | `keeperId`, `keyId`, optional `generation`, `algorithm`, `ciphertext64`, optional `tweak`, `nonce`, `timestamp` |
 | Destroy | `keeperId`, `keyId`, `generation`, `nonce`, `timestamp` |
 
-Any change to those fields changes the approval hash.
+The table describes the logical fields, not serialization order. Serialization order is defined by the canonicalization rules above. Any change to those fields changes the approval hash.
 
 ## Frequent Problems
 
