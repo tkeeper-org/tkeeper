@@ -95,7 +95,7 @@ dependencies {
     api 'org.rocksdb:rocksdbjni:10.2.1'
     api 'org.exploit:secure-buffer:0.1.0'
 
-    api platform('org.exploit.anvil:bom:0.1.1')
+    api platform('org.exploit.anvil:bom:0.1.2')
     api 'org.exploit.anvil:bigint'
     api 'org.exploit.anvil:shamir'
     api 'org.exploit.anvil:ecc-secp256k1'
