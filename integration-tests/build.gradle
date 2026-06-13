@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '2.0.0'
+version = '2.1.0'
 
 ext {
     projectName = "Integration Tests"

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '2.0.0'
+version = '2.1.0'
 
 def projectName = "TKeeper SDK"
 def projectDescription = "API client for TKeeper in Java"
@@ -48,7 +48,7 @@ publishing {
         maven(MavenPublication) {
             groupId = 'org.exploit'
             artifactId = 'tkeeper-sdk'
-            version = '2.0.0'
+            version = '2.1.0'
 
             from components.java
         }
