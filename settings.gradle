@@ -27,3 +27,5 @@ include 'features:recovery:ecc'
 include 'features:recovery:pqc'
 
 include 'features:dry-run'
+
+include 'features:agentic-payments'

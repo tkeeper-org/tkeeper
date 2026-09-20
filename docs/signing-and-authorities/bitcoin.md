@@ -28,10 +28,10 @@ TKeeper does not select coins, construct change, choose fees, broadcast transact
 ```yaml
 type: bitcoin.transaction
 config:
-  protocol: BTC
+  network: MAINNET
 ```
 
-Known protocols are `BTC`, `LTC`, `DASH`, and `BCH`. Custom protocols pin their asset symbol, address versions, Bech32 prefix, and decimals in the authority config.
+Verdict 0.2 supports Bitcoin networks `MAINNET`, `TESTNET`, `REGTEST`, and `SIGNET`. TKeeper signs the selected artifact input with `SIGHASH_ALL`.
 
 Effects:
 
@@ -42,7 +42,7 @@ Effects:
 
 Strict CEL roots:
 
-- `protocol`, `asset`, `assetDecimals`
+- `protocol`, `network`, `asset`, `assetDecimals`
 - `txId`, `wtxId`, `version`, `lockTime`
 - `sighash`, `signing`
 - `inputs`, `outputs`, `previousTransactions`
@@ -64,7 +64,7 @@ metadata:
   title: BTC sweep to cold storage
 
 config:
-  protocol: BTC
+  network: MAINNET
 
 policy:
   id: btc-cold-storage-sweep

@@ -8,7 +8,7 @@ metadata:
     suite: integration
     intent: bitcoin
 config:
-  protocol: BTC
+  network: MAINNET
 policy:
   id: test-bitcoin-btc-small-output
   fallback: DENY

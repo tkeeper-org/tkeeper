@@ -39,7 +39,8 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit:verdict-intent-bitcoin:0.1.2'
+    implementation 'org.exploit:verdict-intent-bitcoin:0.2.0-SNAPSHOT'
+    implementation 'org.exploit.signet:crypto-util:0.1.0-SNAPSHOT'
 }
 
 tasks.named('shadowJar') {
