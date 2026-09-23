@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = findProperty('releaseVersion') ?: '2.4.1'
+version = findProperty('releaseVersion') ?: '2.5.0'
 
 def projectName = "TKeeper SDK"
 def projectDescription = "API client for TKeeper in Java"

@@ -3,7 +3,7 @@
 The Java SDK provides typed modules for the public TKeeper API:
 
 - [SDK README](../../sdk/README.md)
-- Maven coordinate: `org.exploit:tkeeper-sdk:2.4.1`
+- Maven coordinate: `org.exploit:tkeeper-sdk:2.5.0`
 - Java toolchain: 17 or newer
 
 The SDK follows the same module boundaries as the API: system, DKG, signing, storage/import, quorum promotion, ECIES, dry run, compliance, expiration, audit, integrity, consistency, destroy, and control-plane reads.

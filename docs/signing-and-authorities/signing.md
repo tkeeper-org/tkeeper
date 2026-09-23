@@ -85,7 +85,7 @@ Typed command:
         "action": "deploy",
         "service": "billing-api",
         "environment": "production",
-        "releaseVersion": "2.4.1",
+        "releaseVersion": "2.5.0",
         "sequence": 10000000000000000001,
         "riskScore": 0.20,
         "roles": ["release-manager", "production"],

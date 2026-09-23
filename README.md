@@ -212,7 +212,7 @@ vectors and executable evidence.
 
 The HTTP contract is described by [openapi.yaml](openapi.yaml).
 
-Java integrations can use [`org.exploit:tkeeper-sdk:2.4.1`](sdk/README.md).
+Java integrations can use [`org.exploit:tkeeper-sdk:2.5.0`](sdk/README.md).
 
 ## Verification
 
