@@ -55,4 +55,4 @@ For `tools/call`, set `Mcp-Method: tools/call`, set `Mcp-Name` to the tool name,
 
 Attach a digest-pinned authority to each signing key and grant the host `tkeeper.key.<keyId>.sign` only for the keys it may use. `action.sign` and `action.compose` run the regular policy, approval, audit, and signing pipeline. The system that performs the action must verify the returned proof and enforce freshness or replay rules.
 
-[For AI](../use-cases/for-ai.md#govern-an-mcp-action) has a complete governed action and `tools/call` request. See [agentic payment authorities](agentic-payments.md) and [digital asset authorities](digital-assets/README.md) for command examples. The [feature reference](../../features/mcp/README.md) lists each tool.
+[For AI](../use-cases/for-ai.md#govern-an-mcp-action) has a complete governed action and `tools/call` request. See [agentic payment authorities](agentic-payments/README.md) and [digital asset authorities](digital-assets/README.md) for command examples. The [feature reference](../../features/mcp/README.md) lists each tool.

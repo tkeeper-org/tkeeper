@@ -99,7 +99,7 @@ Typed command:
 }
 ```
 
-See the [typed authority example](authorities.md#custom-authority-example) for the matching schema, payload, effects, and policy. [Digital assets](digital-assets/README.md), [agentic payments](agentic-payments.md), and [X.509](x509.md) have their own authority guides.
+See the [typed authority example](authorities.md#custom-authority-example) for the matching schema, payload, effects, and policy. [Digital assets](digital-assets/README.md), [agentic payments](agentic-payments/README.md), and [X.509](x509.md) have their own authority guides.
 The exact typed JSON byte encoding and hashing contract is documented in
 [Typed JSON signing material](arbitrary-and-typed.md#typed-json-signing-material).
 

@@ -27,4 +27,4 @@ String transactionHash = result.transactionHash();
 
 Use `signature().compose(request)` for an untyped JSON result, or pass the expected result class. `signature().sign(request)` still returns only the raw signature.
 
-See the [digital asset authorities](digital-assets/README.md) and [agentic payments](agentic-payments.md) for input formats, policies, and result limits.
+See the [digital asset authorities](digital-assets/README.md) and [agentic payments](agentic-payments/README.md) for input formats, policies, and result limits.

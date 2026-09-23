@@ -219,8 +219,8 @@ Authority `type` selects the payload format and policy context.
 | [`tron.transaction`](digital-assets/tron.md) | `tron` | unsigned transaction JSON | contracts, fee limit, `effects` |
 | [`xrp.transaction`](digital-assets/xrp.md) | `xrp` | unsigned transaction hex | payment, fee, ledger limit, `effects` |
 | [`solana.transaction`](digital-assets/solana.md) | `solana` | unsigned transaction Base64 | instructions, signers, `effects` |
-| [`ap2.mandate`](agentic-payments.md) | `ap2` | JWS signing input and SD-JWT disclosures | payment, checkout, request total |
-| [`mcintent.mandate`](agentic-payments.md) | `mc-vi` | JWS signing input and SD-JWT disclosures | payment, checkout, request total |
+| [`ap2.mandate`](agentic-payments/ap2.md) | `ap2` | JWS signing input and SD-JWT disclosures | payment, checkout, request total |
+| [`mcintent.mandate`](agentic-payments/mcintent.md) | `mc-vi` | JWS signing input and SD-JWT disclosures | payment, checkout, request total |
 | [`x509.tbs-certificate`](x509.md) | `authority-x509` | DER-encoded TBS certificate | subject, issuer, validity, extensions |
 | `arbitrary` | core | raw bytes | no Verdict policy |
 

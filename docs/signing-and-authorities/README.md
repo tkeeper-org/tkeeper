@@ -17,7 +17,9 @@ Read:
   - [Tron](digital-assets/tron.md)
   - [XRP](digital-assets/xrp.md)
   - [Solana](digital-assets/solana.md)
-- [Agentic Payment Authorities](agentic-payments.md)
+- [Agentic Payment Authorities](agentic-payments/README.md)
+  - [AP2](agentic-payments/ap2.md)
+  - [MC Intent](agentic-payments/mcintent.md)
 - [X.509 Authorities](x509.md)
 
 ## Core rule
