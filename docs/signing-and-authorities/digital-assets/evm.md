@@ -1,11 +1,11 @@
 # EVM Authorities
 
-EVM authority support lives in the `authority-evm` feature and currently requires the `ecc` platform.
+EVM authority support lives in the `digital-assets:evm` module and currently requires the `ecc` platform.
 
 Build example:
 
 ```bash
-./gradlew shadowJar -Pkeeper.features=authority-evm -Pkeeper.platforms=ecc
+./gradlew shadowJar -Pkeeper.features=evm -Pkeeper.platforms=ecc
 ```
 
 An EVM authority lets TKeeper parse an unsigned serialized transaction, decode configured contract calls, expose normalized effects to policy, and sign after the resulting allow decision and any approval requirements are satisfied.
@@ -24,6 +24,18 @@ The authority should pin the intended chain and describe every contract call the
 TKeeper signs the approved transaction. The surrounding wallet or custody service remains responsible for transaction construction, nonce and gas strategy, broadcast, replacement, receipt tracking, and settlement state. It must broadcast exactly the transaction that policy approved.
 
 External risk verdicts must be bound to the same transaction intent; a verdict for an address or amount outside the signed transaction is only advisory metadata.
+
+## Compose a signed transaction
+
+Pass the serialized unsigned transaction bytes as Base64 in `UnsignedEvmTransaction.message64` to `/v2/keeper/compose`. The EVM composer applies the Keeper signature to that transaction and returns `SignedEvmTransaction` with `rawTransaction` (hex for `eth_sendRawTransaction`), `transactionHash`, `generation`, and `imposters`. The regular sign endpoint still returns the signature alone.
+
+```java
+var command = Command.of(authorityId, new UnsignedEvmTransaction(message64));
+var signed = client.signature().compose(Sign.of(keyId, command), SignedEvmTransaction.class);
+var rawTransaction = signed.rawTransaction();
+```
+
+The result covers legacy and typed transactions 1–4. For type 3 blob transactions, `rawTransaction` contains the signed transaction envelope; broadcasting also requires the blob sidecar.
 
 ## Authority config
 
@@ -127,4 +139,4 @@ policy:
 
 Replace the token contract, recipient, limits, and `publicKey64` with trusted production values. A transfer to another wallet should use another authority id and document.
 
-See [Authorities](authorities.md) for the document and policy schema and [CEL Functions](cel-functions.md) for policy helpers.
+See [Authorities](../authorities.md) for the document and policy schema, [CEL Functions](../cel-functions.md) for policy helpers, and [Composer](../composer.md) for response behavior.
