@@ -1,0 +1,19 @@
+schemaVersion: verdict.authority/v1
+id: test:solana/native-transfer
+type: solana.transaction
+version: 1.0.0
+config: {}
+policy:
+  id: solana-native-transfer
+  fallback: DENY
+  variables:
+    recipient: "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+  allow:
+    - id: small-transfer
+      where:
+        - "requiredSignatures == 1"
+        - "effect.onlyTypes(effects, ['native.transfer'])"
+        - "effect.one(effects, 'native.transfer')"
+        - "effect.all(effects, 'native.transfer', {'asset': 'sol', 'to': recipient})"
+        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
+        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100')"

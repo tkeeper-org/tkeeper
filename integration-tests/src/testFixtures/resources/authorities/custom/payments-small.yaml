@@ -4,6 +4,7 @@ type: custom
 version: 1.0.0
 metadata:
   title: Small USD payment signing
+  description: Sign USD payment requests of up to 1000 units.
   labels:
     suite: integration
     intent: custom

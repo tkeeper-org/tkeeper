@@ -1,0 +1,21 @@
+schemaVersion: verdict.authority/v1
+id: test:tron/native-transfer
+type: tron.transaction
+version: 1.0.0
+metadata:
+  description: Sign a TRON native transfer of up to 100 TRX to the configured recipient.
+config: {}
+policy:
+  id: tron-native-transfer
+  fallback: DENY
+  variables:
+    recipient: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+  allow:
+    - id: small-transfer
+      where:
+        - "feeLimit <= 30000000"
+        - "effect.onlyTypes(effects, ['native.transfer'])"
+        - "effect.one(effects, 'native.transfer')"
+        - "effect.all(effects, 'native.transfer', {'asset': 'trx', 'to': recipient})"
+        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
+        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100000000')"
