@@ -1,14 +1,22 @@
 # Bitcoin Authorities
 
-Bitcoin authority support lives in the `authority-bitcoin` feature and currently requires the `ecc` platform.
+Bitcoin authority support lives in the `digital-assets:bitcoin` module and currently requires the `ecc` platform.
 
 Build example:
 
 ```bash
-./gradlew shadowJar -Pkeeper.features=authority-bitcoin -Pkeeper.platforms=ecc
+./gradlew shadowJar -Pkeeper.features=bitcoin -Pkeeper.platforms=ecc
 ```
 
 A Bitcoin authority lets TKeeper parse unsigned transaction data, previous transactions, signing input, sighash settings, and policy effects before signing.
+
+```java
+var input = new UtxoInput(unsignedTransaction64, previousTransactions64, inputIndex);
+var command = Command.of("btc-cold-storage-sweep", input);
+var signature = client.signature().sign(Sign.of(bitcoinKeyId, command));
+```
+
+`unsignedTransaction64` and each previous transaction are Base64-encoded transaction bytes. The wallet attaches the returned signature to the selected input. Bitcoin has no registered composer; `/v2/keeper/compose` returns the raw `ThresholdSignature`.
 
 Use Bitcoin authorities for:
 
@@ -108,4 +116,4 @@ policy:
 
 Replace the address, limits, and `publicKey64` with trusted production values. A payout, consolidation with change, or sweep to another vault should use another authority id and document.
 
-See [Authorities](authorities.md) for the document and policy schema and [CEL Functions](cel-functions.md) for policy helpers.
+See [Authorities](../authorities.md) for the document and policy schema, [CEL Functions](../cel-functions.md) for policy helpers, and [Composer](../composer.md) for response behavior.
