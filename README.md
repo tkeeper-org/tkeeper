@@ -1,240 +1,90 @@
 ![TKeeper logo](assets/tk-bg.png)
 
-<div align="center">
-
 # TKeeper
 
-[TKeeper Labs](https://tkeeper.org) • [exploit.org](https://exploit.org) • [Documentation](docs/README.md) • [OpenAPI](openapi.yaml)
+[Website](https://tkeeper.org) · [Documentation](docs/README.md) · [OpenAPI](openapi.yaml) · [Java SDK](sdk/README.md)
 
-</div>
+TKeeper provides cryptographic identities for AI agents, services, and other non-human actors. Each identity combines:
 
-TKeeper is a governed cryptographic identity layer for machines, agents, services, and workflows.
+- a key, held by one node or split across a threshold quorum;
+- an authority manifest attached to that key, defining which actions it can authorize;
+- controls for callers, policy, approvals, audit, and key lifecycle.
 
-A TKeeper identity combines:
+As agents move from proposing actions to moving funds and changing production systems, applications need verifiable authorization for each action. TKeeper checks the identity's manifest and controls, then signs the approved action. The receiving system verifies that signature before executing it. Teams use this boundary to build and secure agent tools and payments, digital asset applications, PKI, and internal automation.
 
-- cryptographic key material, held locally or split across peers
-- an authority manifest that defines which typed actions the identity can authorize
-- controls for callers, policy, approvals, quorum, lifecycle, and audit
+## How an identity authorizes an action
 
-While traditional access control decides whether a caller may reach an API, TKeeper also decides whether the selected identity may authorize the exact requested action.
+1. A caller authenticates and requests a signature with a specific key.
+2. TKeeper checks the caller's permission and the key's authority. For a typed command, the authority interprets the action and its policy checks it.
+3. TKeeper collects required approvals and, in threshold mode, a signing quorum. An allowed command gets a signature.
+4. The receiving system verifies the signature or artifact, then executes the authorized action (for example, broadcasting the transaction).
 
-For typed authorities, the enforcement contract is simple: \
-**If TKeeper can't understand and approve the action, it won't produce signature.**
+`POST /v2/keeper/sign` returns a signature. 
+`POST /v2/keeper/compose` runs the same checks and can return a signed transaction, payment credential or any other "composed" artifact. [Signing and Authorities](docs/signing-and-authorities/README.md) explains the request and policy model.
 
-## How it works
+Raw `arbitrary` signing has no intent policy and is disabled by default.
 
-```text
-Machine / Agent              TKeeper                             Backend
-───────────────              ───────                             ───────
+## What you can govern
 
-Requests an action    ────>   Understands the exact intent
-                              Enforces authority and policy
-                              Collects approval / quorum
-                              Produces signature           ────>  Verifies the signature
-                                                                  Executes the action
-```
+| Work                                             | Guide                                                                                                                                      |
+|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| Agent tools over MCP; AP2 and MC Intent payments | [For AI](docs/use-cases/for-ai.md) · [AI guides](docs/ai/README.md)                                                                        |
+| Bitcoin, EVM, Tron, XRP, and Solana transactions | [For Digital Assets](docs/use-cases/for-digital-assets.md) · [Chain authorities](docs/digital-assets/README.md)                            |
+| X.509 certificate signing                        | [For PKI](docs/use-cases/for-pki.md) · [X.509 authority](docs/pki/README.md)                                                               |
+| Typed commands for internal systems              | [For Other Activities](docs/use-cases/for-other-activities.md) · [Custom authorities](docs/signing-and-authorities/arbitrary-and-typed.md) |
 
-TKeeper signs only after the request passes the identity's controls. For supported types, compose also returns a signed transaction or payment credential. The downstream system verifies the signature before acting; a CA assembles the final certificate.
 
-## Use cases
+## Multi-Party Computation and compromise resistance
 
-Build TKeeper with the feature modules each use case needs.
+TKeeper supports `mono` (single instance) and `threshold` operating modes.
 
-| Use case         | What the identity governs                                     |
-|------------------|---------------------------------------------------------------|
-| [For AI](docs/use-cases/for-ai.md) | MCP actions, AP2 and MC VI payments, signed decisions |
-| [For Digital Assets](docs/use-cases/for-digital-assets.md) | EVM, Bitcoin, Tron, XRP, Solana transactions |
-| [For PKI](docs/use-cases/for-pki.md) | X.509 issuance and workload identities |
-| [For Other Activities](docs/use-cases/for-other-activities.md) | typed commands and privileged automation |
+In `threshold` mode, TKeeper uses multi-party computation (MPC) for operations. Each peer holds one key share and checks the operation before contributing. A signature needs `t` accepted contributions from `n` peers. Operations never reconstruct the key.
 
-See [Use Cases](docs/use-cases/README.md).
+For a `2-of-3` identity, one compromised peer cannot sign alone or recover the key from its share. One unavailable peer leaves two that can still sign. The protection boundary ends at two compromised peers, and signing stops if fewer than two healthy peers can participate.
 
-### Quick example
+Place peers across separate hosts and failure domains to distribute compromise risk. Honest peers with matching authority and policy state reject actions that violate those rules, even if a minority peer is compromised. Keys created with distributed key generation never exist whole on one peer; imported or promoted keys may have existed whole earlier. See [Quorum Modes](docs/security-model/quorum-modes.md) and the [Threat Model](docs/security-model/threat-model.md).
 
-An AI support agent can refund small orders automatically. Larger refunds require human approval.
 
-```yaml
-id: refund-order
-type: custom
+## Example: a production restart
 
-config:
-  fields:
-    orderId: { type: string }
-    amount: { type: bigint }
-    expiresAt: { type: time }
-
-policy:
-  fallback: DENY
-
-  approvers:
-    support-lead:
-      algorithm: ED25519
-      publicKey64: "..."
-
-  allow:
-    - id: automatic-refund
-      where:
-        - "bigint.lte(amount, '100')"
-        - "!time.after(time.now(), expiresAt)"
-
-    - id: reviewed-refund
-      where:
-        - "bigint.gt(amount, '100')"
-        - "bigint.lte(amount, '1000')"
-        - "!time.after(time.now(), expiresAt)"
-      approvals:
-        threshold: 1
-        approvers: [support-lead]
-```
-
-Now when AI agent asks TKeeper to sign a refund request
-- If refund amount is less or equal `100`, it will approve request and produce signature, that backend must verify before execution.
-- If refund amount is in `100.1000`, TKeeper will require [human approval](docs/security-model/four-eye-control.md) to produce proof.
-- If refund amount is more than `1000`, TKeeper will decline the request.
+The [restart authority](docs/use-cases/for-ai.md#govern-an-mcp-action) allows one key to authorize a restart of `billing-api` in production. Attach that authority to the key through a digest-pinned OCI reference. A request to `POST /v2/keeper/sign` is:
 
 ```json
 {
-  "keyId": "support-agent",
+  "keyId": "agent-billing",
   "command": {
     "type": "custom",
-    "authorityId": "refund-order",
+    "authorityId": "billing-api-restart",
     "artifact": {
       "scheme": "ECDSA",
       "hash": "SHA256",
       "typed": {
-        "orderId": "ord_123",
-        "amount": "<amount>",
-        "expiresAt": "2030-01-02T03:09:05Z"
+        "operation": "restart",
+        "service": "billing-api",
+        "environment": "production",
+        "changeId": "CHG-42",
+        "nonce": "n-123",
+        "expiresAt": "2030-01-02T03:04:05Z"
       }
     }
   }
 }
 ```
 
-## Authorities
+TKeeper checks the service and environment against the authority before signing. The restart service verifies the signature over this command, rejects expired requests, and consumes the nonce once. [For AI](docs/use-cases/for-ai.md#govern-an-mcp-action) shows the full authority and the same request through MCP.
 
-Authorities define what a key identity may authorize.
+## Get started
 
-| Authority type         | Use                                                     |
-|------------------------|---------------------------------------------------------|
-| `arbitrary`            | raw signing; high-risk, no semantic intent in TKeeper   |
-| `custom`               | typed JSON commands, internal systems, AI-agent actions |
-| `evm.transaction`      | governed EVM transaction signing                        |
-| `bitcoin.transaction`  | governed Bitcoin transaction signing                    |
-| `tron.transaction`     | governed Tron transaction signing                       |
-| `xrp.transaction`      | governed XRP transaction signing                        |
-| `solana.transaction`   | governed Solana transaction signing                     |
-| `ap2.mandate`          | governed AP2 payment credential signing                |
-| `mcintent.mandate`     | governed Mastercard Verifiable Intent signing          |
-| `x509.tbs-certificate` | governed certificate issuance                           |
+Follow [Local Single Node](docs/getting-started/local-single-node.md) to try TKeeper. A default production build requires Java 25:
 
-Concrete authorities use digest-pinned authority documents that act as capability manifests. TKeeper materializes the command into an intent, evaluates policy, and signs only when the final decision is `ALLOW`.
-`custom` is available out of the box. Raw `arbitrary` signing is built in but disabled by default;
-enable `keeper.authority.arbitrary.enabled` only when raw signing is intentional. Other authority
-types can be included during the build.
-
-See [Signing and Authorities](docs/signing-and-authorities/README.md) for the shared rules, then choose the [AI and agentic payment](docs/ai/README.md), [digital asset](docs/digital-assets/README.md), or [PKI](docs/pki/README.md) guide.
-
-## Deployment modes
-
-TKeeper supports 2 deployment modes, one for low-risk and the other for mid-high risk organizations.
-
-### Mono
-TKeeper is deployed as single instance. It is the simplest form designed for small orgs where no high-risk (e.g money transfers) actions are executed.
-
-### Threshold
-TKeeper is deployed as `t` of `n` quorum, where `n` defines total number of TKeeper nodes, `t` defines **compromise tolerance** and `n-t` defines **fault tolerance**.
-
-Simply talking, if you deployed `2-of-3` configuration, it means that:
-
-- While **2** nodes are not compromised, attacker can't produce fake proof, steal key or tamper policies.
-- If **1** node is unavailable (e.g. network error), the system continues to work without interruptions.
-
-This mode is designed for high-risk organizations, as it allows to distribute risks inside/across organizations, prevents silent policy weakening, and even allows control to be shared externally (for example, between a platform and users of a crypto wallet).
-
-> 
-> TKeeper can be first configured in mono mode and then promoted to `t-of-n` quorum.
-> 
-
-See [Quorum Modes](docs/security-model/quorum-modes.md).
-
-## Documentation
-
-- [Documentation index](docs/README.md)
-- [Product Overview](docs/overview/README.md)
-- [Use Cases](docs/use-cases/README.md)
-- [Getting Started](docs/getting-started/README.md)
-- [Cryptographic Identities](docs/key-management/README.md)
-- [Signing and Authorities](docs/signing-and-authorities/README.md)
-- [AI and Agentic Payments](docs/ai/README.md)
-- [Digital Asset Authorities](docs/digital-assets/README.md)
-- [PKI Authorities](docs/pki/README.md)
-- [Crypto Platforms](docs/crypto-platforms/README.md)
-- [API Reference](docs/api-reference/README.md)
-- [Deployment](docs/deployment/README.md)
-- [Security Model](docs/security-model/README.md)
-- [Operations](docs/operations/README.md)
-
-## Build
-
-Cryptographic implementations are selected at build time.
-
-| Platform | Provides                                                                     |
-|----------|------------------------------------------------------------------------------|
-| `ecc`    | `SECP256K1`, `P256`, `ED25519`, ECDSA, FROST, BIP-340/Taproot, ECIES support |
-| `pqc`    | `MLDSA44`, `MLDSA65`, `MLDSA87`, threshold ML-DSA DKG and signing            |
-
-A deployable artifact must include at least one platform.
-
-Build all default production features and platforms:
-
-```bash
+```sh
 ./gradlew :build -Pkeeper.features=all -Pkeeper.platforms=all
 ```
 
-Build only what you need:
+`all` includes default production features. MCP, developer authentication, policy dry run, and recovery require explicit selectors. See [Build and Features](docs/deployment/build-and-features.md) before building a smaller artifact.
 
-```bash
-./gradlew :build -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
-```
+Use the [Java SDK](sdk/README.md) or [OpenAPI](openapi.yaml) to integrate. For production boundaries, read the [Threat Model](docs/security-model/threat-model.md) and [Status and Limitations](docs/overview/status-and-limitations.md).
 
-See [Build and Features](docs/deployment/build-and-features.md).
-
-## Security references
-
-**Security assurance:** 367 automated functional scenarios, including 90
-protocol and corruption failure-injection scenarios plus one 3-of-5 share-recovery scenario, run
-for every pull request and commit to `main`. See
-[Security Assurance](docs/security-model/security-assurance.md) for tested attack
-vectors and executable evidence.
-
-- [TKeeper Threat Model](docs/security-model/threat-model.md)
-- [Anvil](https://github.com/exploit-org/anvil) for protocol-level cryptographic components
-
-## API
-
-The HTTP contract is described by [openapi.yaml](openapi.yaml).
-
-Java integrations can use [`org.exploit:tkeeper-sdk:2.5.0`](sdk/README.md).
-
-## Verification
-
-Build a selected production artifact and run its root, SDK, feature, and platform unit tests:
-
-```bash
-./gradlew build -Pkeeper.features=all -Pkeeper.platforms=all
-```
-
-Run the complete release gate:
-
-```bash
-./gradlew releaseGate
-```
-
-`releaseGate` runs every module's unit tests, verifies artifact isolation, builds `exploit/tkeeper:dev` and `exploit/tkeeper:production-it`, and runs the functional integration suite. Performance benchmarks remain separate. Do not deploy either test image as production runtime.
-
-See [integration-tests](integration-tests/README.md).
-
-## License
+Run the full release checks with `./gradlew releaseGate`. See [Integration Tests](integration-tests/README.md) for the Docker-backed suite.
 
 Apache License 2.0. See [LICENSE.md](LICENSE.md).
