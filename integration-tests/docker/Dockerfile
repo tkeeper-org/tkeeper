@@ -1,7 +1,7 @@
 FROM eclipse-temurin:25-jdk-jammy AS native-build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates git wget xz-utils \
+    ca-certificates git xz-utils \
     build-essential autoconf automake libtool pkg-config m4 \
     libssl-dev opensc \
  && rm -rf /var/lib/apt/lists/*
@@ -29,8 +29,10 @@ RUN git clone https://github.com/bitcoin-core/secp256k1.git \
  && make -j"$(nproc)" \
  && make install
 
-RUN wget -O gmp.tar.xz https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz \
- && tar -xf gmp.tar.xz \
+COPY vendor/gmp/gmp-6.3.0.tar.xz vendor/gmp/SHA256SUMS ./
+
+RUN sha256sum --check --strict SHA256SUMS \
+ && tar -xf gmp-6.3.0.tar.xz \
  && cd gmp-6.3.0 \
  && ./configure --enable-shared --disable-static --enable-fat \
  && make -j"$(nproc)" \
