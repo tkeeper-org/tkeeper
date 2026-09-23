@@ -36,7 +36,7 @@ TKeeper requires Java 25.
 Example: EVM signing, ECIES, and the UI:
 
 ```bash
-./gradlew :build -Pkeeper.features=authority-evm,ecies,ui -Pkeeper.platforms=ecc
+./gradlew :build -Pkeeper.features=evm,ecies,ui -Pkeeper.platforms=ecc
 ```
 
 Example: ML-DSA only:
@@ -45,14 +45,26 @@ Example: ML-DSA only:
 ./gradlew :build -Pkeeper.platforms=pqc
 ```
 
-Feature names match child project names. The module `:features:authority-evm` is selected with `authority-evm`.
+Feature names match child project names. `:features:digital-assets:evm` is selected with `evm`.
+Use `digital-assets` for Bitcoin, EVM, Tron, XRP, and Solana, and `agentic-payments` for both AP2 and MC VI:
+
+```bash
+./gradlew :build -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
+```
+
+The earlier `authority-bitcoin` and `authority-evm` selectors remain accepted.
 
 ## Feature and platform matrix
 
 | Need | Feature selector | Platform selector |
 | --- | --- | --- |
-| EVM transaction authority | `authority-evm` | `ecc` |
-| Bitcoin transaction authority | `authority-bitcoin` | `ecc` |
+| EVM transaction authority | `evm` or `digital-assets` | `ecc` |
+| Bitcoin transaction authority | `bitcoin` or `digital-assets` | `ecc` |
+| Tron transaction authority | `tron` or `digital-assets` | `ecc` |
+| XRP transaction authority | `xrp` or `digital-assets` | `ecc` |
+| Solana transaction authority | `solana` or `digital-assets` | `ecc` |
+| AP2 payment authority | `ap2` or `agentic-payments` | `ecc` |
+| MC VI payment authority | `mc-vi` or `agentic-payments` | `ecc` |
 | X.509 certificate authority | `authority-x509` | `ecc` |
 | ECIES | `ecies` | `ecc` |
 | Peer share recovery | `recovery` (explicit opt-in) | `ecc`, `pqc`, or both |
@@ -61,6 +73,7 @@ Feature names match child project names. The module `:features:authority-evm` is
 | Google Cloud KMS seal provider | `seal-gcloud` | any required crypto platform |
 | Developer token authentication | `auth-dev` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Authority policy dry run | `dry-run` (explicit opt-in, excluded from `all`) | any required crypto platform |
+| MCP discovery, utilities, signing, and composition | `mcp` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | ML-DSA identities | none | `pqc` |
 | Default production set | `all` | `all` |
 
@@ -77,7 +90,7 @@ recovery module for each selected platform:
 
 The first command includes `:features:recovery` and `:features:recovery:ecc`; the second includes
 `:features:recovery` and `:features:recovery:pqc`; the third includes all three. The platform modules
-are not selected separately. Recovery, `auth-dev`, and `dry-run` are excluded from `keeper.features=all` and
+are not selected separately. Recovery, `auth-dev`, `dry-run`, and `mcp` are excluded from `keeper.features=all` and
 must be requested explicitly.
 
 Treat this as a maintenance artifact. After recovery, rebuild and redeploy the normal production
@@ -96,6 +109,15 @@ Build the dry-run endpoint explicitly in the same way:
 ./gradlew :build -Pkeeper.features=dry-run -Pkeeper.platforms=ecc
 ```
 
+Build the MCP endpoint into the same public Keeper server:
+
+```bash
+./gradlew :build -Pkeeper.features=mcp,digital-assets -Pkeeper.platforms=ecc
+```
+
+The endpoint is `POST /mcp` and uses the configured Keeper authentication provider. See
+[MCP connection and tools](../signing-and-authorities/mcp.md) for setup and request format.
+
 ## Selection properties
 
 | Scope | Features | Platforms |
@@ -105,7 +127,7 @@ Build the dry-run endpoint explicitly in the same way:
 | Select all | `keeper.features.all=true` | `keeper.platforms.all=true` |
 
 Comma-separated selectors accept short names such as `ecies`, `ecc`, and `pqc`. `all` selects every
-default production module in that category. Explicit features such as `recovery`, `auth-dev`, and `dry-run` are
+default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, and `mcp` are
 not included.
 
 ## Docker
@@ -195,7 +217,7 @@ The platform was not included in the artifact.
 Rebuild with the required platform, for example:
 
 ```bash
-./gradlew :build -Pkeeper.features=authority-evm -Pkeeper.platforms=ecc
+./gradlew :build -Pkeeper.features=evm -Pkeeper.platforms=ecc
 ```
 
 ### Native access warning
