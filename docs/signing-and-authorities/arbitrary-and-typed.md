@@ -180,6 +180,8 @@ The declared fields and `effects` become strict CEL roots. See [Authorities](aut
 | Govern a typed business action | `custom` |
 | Govern an EVM transaction | `evm.transaction` |
 | Govern a Bitcoin transaction | `bitcoin.transaction` |
+| Govern a Tron, XRP, or Solana transaction | `tron.transaction`, `xrp.transaction`, or `solana.transaction` |
+| Govern an AP2 or MC VI mandate | `ap2.mandate` or `mcintent.mandate` |
 | Govern certificate issuance | `x509.tbs-certificate` |
 
 `arbitrary` cannot be mixed with concrete authorities on the same key identity.

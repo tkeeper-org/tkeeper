@@ -214,8 +214,13 @@ Authority `type` selects the payload format and policy context.
 | Authority type | Build feature | Command data | Main policy surface |
 | --- | --- | --- | --- |
 | [`custom`](arbitrary-and-typed.md) | core | typed JSON | declared fields and configured `effects` |
-| [`evm.transaction`](evm.md) | `authority-evm` | unsigned serialized EVM transaction | transaction fields, decoded call, `effects` |
-| [`bitcoin.transaction`](bitcoin.md) | `authority-bitcoin` | unsigned tx, previous txs, signing input, sighash | inputs, outputs, fee, sighash, `effects` |
+| [`evm.transaction`](digital-assets/evm.md) | `evm` | unsigned serialized EVM transaction | transaction fields, decoded call, `effects` |
+| [`bitcoin.transaction`](digital-assets/bitcoin.md) | `bitcoin` | unsigned tx, previous txs, signing input, sighash | inputs, outputs, fee, sighash, `effects` |
+| [`tron.transaction`](digital-assets/tron.md) | `tron` | unsigned transaction JSON | contracts, fee limit, `effects` |
+| [`xrp.transaction`](digital-assets/xrp.md) | `xrp` | unsigned transaction hex | payment, fee, ledger limit, `effects` |
+| [`solana.transaction`](digital-assets/solana.md) | `solana` | unsigned transaction Base64 | instructions, signers, `effects` |
+| [`ap2.mandate`](agentic-payments.md) | `ap2` | JWS signing input and SD-JWT disclosures | payment, checkout, request total |
+| [`mcintent.mandate`](agentic-payments.md) | `mc-vi` | JWS signing input and SD-JWT disclosures | payment, checkout, request total |
 | [`x509.tbs-certificate`](x509.md) | `authority-x509` | DER-encoded TBS certificate | subject, issuer, validity, extensions |
 | `arbitrary` | core | raw bytes | no Verdict policy |
 
@@ -224,7 +229,7 @@ If a feature module is missing, TKeeper cannot process that command type and ret
 Build example:
 
 ```bash
-./gradlew shadowJar -Pkeeper.features=authority-evm,authority-bitcoin,authority-x509 -Pkeeper.platforms=ecc
+./gradlew shadowJar -Pkeeper.features=agentic-payments,digital-assets,authority-x509 -Pkeeper.platforms=ecc
 ```
 
 ## Effects
