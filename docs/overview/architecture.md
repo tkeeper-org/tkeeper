@@ -39,8 +39,13 @@ Examples:
 
 | Feature | Adds |
 | --- | --- |
-| `authority-evm` | EVM transaction intent support |
-| `authority-bitcoin` | Bitcoin transaction intent support |
+| `digital-assets:evm` | EVM transaction intent support |
+| `digital-assets:bitcoin` | Bitcoin transaction intent support |
+| `digital-assets:tron` | Tron transaction intent and composition |
+| `digital-assets:xrp` | XRP transaction intent and composition |
+| `digital-assets:solana` | Solana transaction intent and composition |
+| `agentic-payments` | AP2 and MC VI mandate signing and composition |
+| `mcp` | MCP discovery, utility, signing, and composition tools |
 | `authority-x509` | Certificate issuance intent support |
 | `ecies` | ECIES encryption and threshold decryption |
 | `ui` | Control-plane UI |
@@ -58,7 +63,7 @@ Platforms add algorithm implementations. They are selected separately from featu
 | `ecc` | `SECP256K1`, `P256`, `ED25519`, ECC signing protocols, ECC key derivation, ECIES support |
 | `pqc` | `MLDSA44`, `MLDSA65`, `MLDSA87`, ML-DSA DKG, ML-DSA signing |
 
-Features that depend on a platform require that platform explicitly. For example, EVM, Bitcoin, X.509, and ECIES currently require `ecc`.
+Features that depend on a platform require that platform explicitly. Digital assets, agentic payments, X.509, and ECIES require `ecc`.
 
 ## Mono and threshold
 

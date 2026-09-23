@@ -30,7 +30,7 @@ A normalized consequence derived from an intent and exposed to policy, such as a
 
 A build-time module that adds product functionality, endpoints, authority types, UI, or providers.
 
-Examples: `authority-evm`, `authority-bitcoin`, `authority-x509`, `ecies`, `ui`, `seal-aws`, `seal-gcloud`.
+Examples: `digital-assets`, `agentic-payments`, `authority-x509`, `ecies`, `ui`, `seal-aws`, `seal-gcloud`.
 
 ## Four-eye control
 

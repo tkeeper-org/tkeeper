@@ -6,12 +6,12 @@ Every supported use case has the same enforcement shape:
 identity -> understood action -> policy -> proof -> verified execution
 ```
 
-Read:
+## Guides
 
-- [For AI Agents](for-ai-agents.md)
-- [For Crypto Assets](for-crypto-assets.md)
-- [For Certificates](for-certificates.md)
-- [For Internal Systems](for-internal-systems.md)
+- [For AI](for-ai.md): MCP, governing MCP actions, AP2 and MC VI payments
+- [For Digital Assets](for-digital-assets.md): Bitcoin, EVM, Tron, XRP, Solana
+- [For PKI](for-pki.md): X.509 certificate issuance
+- [For Other Activities](for-other-activities.md): typed internal commands
 
 The integration is a good fit when:
 

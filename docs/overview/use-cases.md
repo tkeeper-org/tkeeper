@@ -4,17 +4,17 @@ TKeeper fits workflows where a cryptographic identity is the final authority for
 
 | Scenario | Governed intent | Verifier | TKeeper does not replace |
 | --- | --- | --- | --- |
-| AI agent | typed tool call, payment, or production action | tool backend or workflow engine | model security, sandboxing, or risk detection |
-| Crypto assets | exact EVM or Bitcoin transaction | chain client, broadcaster, or custody backend | transaction construction, broadcast, or settlement monitoring |
-| Certificates | DER-encoded TBS certificate | relying party or CA pipeline | enrollment, serial allocation, revocation, or certificate publication |
-| Internal systems | typed privileged command | service that performs the command | business logic or host authorization |
+| AI | MCP tool call, AP2 or MC VI payment, production action | tool backend or credential verifier | model security, sandboxing, or risk detection |
+| Digital assets | Bitcoin, EVM, Tron, XRP, or Solana transaction | chain client, broadcaster, or custody backend | transaction construction, broadcast, or settlement monitoring |
+| PKI | DER-encoded TBS certificate | relying party or CA pipeline | enrollment, serial allocation, revocation, or certificate publication |
+| Other activities | typed privileged command | service that performs the command | business logic or host authorization |
 
 Detailed integration guidance:
 
-- [For AI Agents](../use-cases/for-ai-agents.md)
-- [For Crypto Assets](../use-cases/for-crypto-assets.md)
-- [For Certificates](../use-cases/for-certificates.md)
-- [For Internal Systems](../use-cases/for-internal-systems.md)
+- [For AI](../use-cases/for-ai.md)
+- [For Digital Assets](../use-cases/for-digital-assets.md)
+- [For PKI](../use-cases/for-pki.md)
+- [For Other Activities](../use-cases/for-other-activities.md)
 
 ## Fit test
 

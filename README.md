@@ -34,18 +34,18 @@ Requests an action    ────>   Understands the exact intent
                                                                   Executes the action
 ```
 
-TKeeper produces a signature/transaction/certificate only after the request passes the identity's controls. The downstream system must enforce signature validation before executing the effect.
+TKeeper signs only after the request passes the identity's controls. For supported types, compose also returns a signed transaction or payment credential. The downstream system verifies the signature before acting; a CA assembles the final certificate.
 
 ## Use cases
 
-For each use case you can build TKeeper which its own feature modules.
+Build TKeeper with the feature modules each use case needs.
 
 | Use case         | What the identity governs                                     |
 |------------------|---------------------------------------------------------------|
-| AI agents        | typed tool and production actions, spending, signed decisions |
-| Crypto assets    | exact EVM and Bitcoin transactions, treasury workflows        |
-| Certificates     | X.509 issuance and workload identity operations               |
-| Internal systems | typed commands, privileged automation, break-glass flows      |
+| [For AI](docs/use-cases/for-ai.md) | MCP actions, AP2 and MC VI payments, signed decisions |
+| [For Digital Assets](docs/use-cases/for-digital-assets.md) | EVM, Bitcoin, Tron, XRP, Solana transactions |
+| [For PKI](docs/use-cases/for-pki.md) | X.509 issuance and workload identities |
+| [For Other Activities](docs/use-cases/for-other-activities.md) | typed commands and privileged automation |
 
 See [Use Cases](docs/use-cases/README.md).
 
@@ -121,6 +121,11 @@ Authorities define what a key identity may authorize.
 | `custom`               | typed JSON commands, internal systems, AI-agent actions |
 | `evm.transaction`      | governed EVM transaction signing                        |
 | `bitcoin.transaction`  | governed Bitcoin transaction signing                    |
+| `tron.transaction`     | governed Tron transaction signing                       |
+| `xrp.transaction`      | governed XRP transaction signing                        |
+| `solana.transaction`   | governed Solana transaction signing                     |
+| `ap2.mandate`          | governed AP2 payment credential signing                |
+| `mcintent.mandate`     | governed Mastercard Verifiable Intent signing          |
 | `x509.tbs-certificate` | governed certificate issuance                           |
 
 Concrete authorities use digest-pinned authority documents that act as capability manifests. TKeeper materializes the command into an intent, evaluates policy, and signs only when the final decision is `ALLOW`.
@@ -187,7 +192,7 @@ Build all default production features and platforms:
 Build only what you need:
 
 ```bash
-./gradlew :build -Pkeeper.features=authority-evm -Pkeeper.platforms=ecc
+./gradlew :build -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
 ```
 
 See [Build and Features](docs/deployment/build-and-features.md).

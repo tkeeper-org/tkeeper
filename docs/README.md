@@ -15,6 +15,13 @@ TKeeper gives machines, agents, services, and workflows a cryptographic identity
 - [API Reference](api-reference/README.md)
 - [Operations](operations/README.md)
 
+## Use cases
+
+- [For AI](use-cases/for-ai.md)
+- [For Digital Assets](use-cases/for-digital-assets.md)
+- [For PKI](use-cases/for-pki.md)
+- [For Other Activities](use-cases/for-other-activities.md)
+
 ## Common paths
 
 | Goal | Start here |
@@ -27,6 +34,7 @@ TKeeper gives machines, agents, services, and workflows a cryptographic identity
 | Choose mono or threshold | [Quorum Modes](security-model/quorum-modes.md) |
 | Create and govern identities | [Create, Rotate, and Refresh](key-management/key-lifecycle.md) |
 | Govern signing | [Authorities](signing-and-authorities/authorities.md) |
+| Connect an agent over MCP | [MCP connection and tools](signing-and-authorities/mcp.md) |
 | Preview an authority-policy decision | [Dry Run Policy Evaluation](signing-and-authorities/dry-run.md) |
 | Select cryptographic platforms | [Platforms](crypto-platforms/platforms.md) |
 | Use the HTTP API | [OpenAPI](api-reference/openapi.md) |
