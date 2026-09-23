@@ -10,7 +10,7 @@ The `mcp` feature adds `POST /mcp` to TKeeper's public HTTP server. An agent hos
 | `utility.keeper_status` | Sealed and ready state | `tkeeper.system.status` |
 | `utility.get_public_key` | Public key for an identity | `tkeeper.key.<keyId>.public` |
 | `utility.verify_signature` | Cryptographic command verification | `tkeeper.key.<keyId>.verify` |
-| `action.sign`, `action.compose` | Signature or [composed result](composer.md) | `tkeeper.key.<keyId>.sign` |
+| `action.sign`, `action.compose` | Signature or [composed result](../signing-and-authorities/composer.md) | `tkeeper.key.<keyId>.sign` |
 
 `tools/list` shows tools available to the caller. Each tool call checks permission again for its target key. `identity.describe_authority` exposes the input schema; the attached authority and policy decide whether a submitted command may be signed.
 
@@ -55,4 +55,4 @@ For `tools/call`, set `Mcp-Method: tools/call`, set `Mcp-Name` to the tool name,
 
 Attach a digest-pinned authority to each signing key and grant the host `tkeeper.key.<keyId>.sign` only for the keys it may use. `action.sign` and `action.compose` run the regular policy, approval, audit, and signing pipeline. The system that performs the action must verify the returned proof and enforce freshness or replay rules.
 
-[For AI](../use-cases/for-ai.md#govern-an-mcp-action) has a complete governed action and `tools/call` request. See [agentic payment authorities](agentic-payments/README.md) and [digital asset authorities](digital-assets/README.md) for command examples. The [feature reference](../../features/mcp/README.md) lists each tool.
+[For AI](../use-cases/for-ai.md#govern-an-mcp-action) has a complete governed action and `tools/call` request. See [agentic payment authorities](agentic-payments/README.md) and [digital asset authorities](../digital-assets/README.md) for command examples. The [feature reference](../../features/mcp/README.md) lists each tool.

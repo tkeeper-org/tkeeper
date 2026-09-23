@@ -10,4 +10,4 @@ Build all chains with `-Pkeeper.features=digital-assets -Pkeeper.platforms=ecc`,
 | XRP | `xrp.transaction` | secp256k1 or Ed25519 | Signed hex and hash | [XRP](xrp.md) |
 | Solana | `solana.transaction` | Ed25519 | Signed Base64, completeness, and optional hash | [Solana](solana.md) |
 
-The caller constructs the unsigned transaction and handles fees, submission, and confirmation. For Bitcoin, Tron, XRP, or Solana signing with a `tweak`, construct the transaction from `central().getPublicKey(keyId, tweak)`; TKeeper checks that derived key against the transaction's owner or required signer. See [Composer](../composer.md) for result behavior.
+The caller constructs the unsigned transaction and handles fees, submission, and confirmation. For Bitcoin, Tron, XRP, or Solana signing with a `tweak`, construct the transaction from `central().getPublicKey(keyId, tweak)`; TKeeper checks that derived key against the transaction's owner or required signer. See [Composer](../signing-and-authorities/composer.md) for result behavior.

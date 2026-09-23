@@ -4,7 +4,7 @@
 
 ## Example: one recipient, at most 100 TRX
 
-Tron amounts and `feeLimit` use [sun](https://developers.tron.network/docs/token-standards-trx); 100 TRX is 100,000,000 sun. This [authority](../../../integration-tests/src/testFixtures/resources/authorities/tron/native-transfer.yaml) limits the recipient, amount, fee limit, and effect type:
+Tron amounts and `feeLimit` use [sun](https://developers.tron.network/docs/token-standards-trx); 100 TRX is 100,000,000 sun. This [authority](../../integration-tests/src/testFixtures/resources/authorities/tron/native-transfer.yaml) limits the recipient, amount, fee limit, and effect type:
 
 ```yaml
 schemaVersion: verdict.authority/v1
@@ -39,4 +39,4 @@ String transactionJson = signed.rawTransaction();
 String transactionHash = signed.transactionHash();
 ```
 
-The composer keeps the approved transaction body and adds the signature. The broadcaster submits `transactionJson`. With a `tweak`, derive the owner address from `central().getPublicKey(tronKeyId, tweak)`. [Composer](../composer.md) describes the common response contract.
+The composer keeps the approved transaction body and adds the signature. The broadcaster submits `transactionJson`. With a `tweak`, derive the owner address from `central().getPublicKey(tronKeyId, tweak)`. [Composer](../signing-and-authorities/composer.md) describes the common response contract.

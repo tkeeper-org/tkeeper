@@ -133,7 +133,7 @@ Concrete authorities use digest-pinned authority documents that act as capabilit
 enable `keeper.authority.arbitrary.enabled` only when raw signing is intentional. Other authority
 types can be included during the build.
 
-See [Signing and Authorities](docs/signing-and-authorities/README.md).
+See [Signing and Authorities](docs/signing-and-authorities/README.md) for the shared rules, then choose the [AI and agentic payment](docs/ai/README.md), [digital asset](docs/digital-assets/README.md), or [PKI](docs/pki/README.md) guide.
 
 ## Deployment modes
 
@@ -160,16 +160,19 @@ See [Quorum Modes](docs/security-model/quorum-modes.md).
 
 ## Documentation
 
+- [Documentation index](docs/README.md)
 - [Product Overview](docs/overview/README.md)
 - [Use Cases](docs/use-cases/README.md)
 - [Getting Started](docs/getting-started/README.md)
-- [Deployment](docs/deployment/README.md)
-- [Security Model](docs/security-model/README.md)
-- [Status and Limitations](docs/overview/status-and-limitations.md)
 - [Cryptographic Identities](docs/key-management/README.md)
 - [Signing and Authorities](docs/signing-and-authorities/README.md)
+- [AI and Agentic Payments](docs/ai/README.md)
+- [Digital Asset Authorities](docs/digital-assets/README.md)
+- [PKI Authorities](docs/pki/README.md)
 - [Crypto Platforms](docs/crypto-platforms/README.md)
 - [API Reference](docs/api-reference/README.md)
+- [Deployment](docs/deployment/README.md)
+- [Security Model](docs/security-model/README.md)
 - [Operations](docs/operations/README.md)
 
 ## Build

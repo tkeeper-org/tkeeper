@@ -116,7 +116,7 @@ Build the MCP endpoint into the same public Keeper server:
 ```
 
 The endpoint is `POST /mcp` and uses the configured Keeper authentication provider. See
-[MCP connection and tools](../signing-and-authorities/mcp.md) for setup and request format.
+[MCP connection and tools](../ai/mcp.md) for setup and request format.
 
 ## Selection properties
 

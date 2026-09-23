@@ -20,7 +20,7 @@ Build the `mcp` feature with the authority modules the agent needs:
 | `utility.verify_signature` | `tkeeper.key.<keyId>.verify` | Verify a command signature |
 | `action.sign`, `action.compose` | `tkeeper.key.<keyId>.sign` | Sign; compose a credential or transaction when supported |
 
-The tool list reflects the token's permissions. Every call checks permission again for its target key. `identity.describe_authority` returns `metadata.description` and a JSON Schema for the command. The schema describes valid input; the authority policy decides whether that input is allowed. See [MCP connection and tools](../signing-and-authorities/mcp.md) for setup and the full tool list.
+The tool list reflects the token's permissions. Every call checks permission again for its target key. `identity.describe_authority` returns `metadata.description` and a JSON Schema for the command. The schema describes valid input; the authority policy decides whether that input is allowed. See [MCP connection and tools](../ai/mcp.md) for setup and the full tool list.
 
 ## Govern an MCP action
 
@@ -74,7 +74,7 @@ The restart service verifies the signature against `agent-billing` and the exact
 
 ## Agentic payments
 
-The `agentic-payments` feature adds AP2 (`ap2.mandate`) and Mastercard Verifiable Intent (`mcintent.mandate`). Both require a P-256 key and ES256. A policy can limit merchants, payment methods, each purchase, and the total request. For example, the [AP2 purchase authority](../signing-and-authorities/agentic-payments/ap2.md) allows the configured shop and card, at most USD 100 per purchase and USD 150 per request; the [MC VI authority](../signing-and-authorities/agentic-payments/mcintent.md) applies the same limits.
+The `agentic-payments` feature adds AP2 (`ap2.mandate`) and Mastercard Verifiable Intent (`mcintent.mandate`). Both require a P-256 key and ES256. A policy can limit merchants, payment methods, each purchase, and the total request. For example, the [AP2 purchase authority](../ai/agentic-payments/ap2.md) allows the configured shop and card, at most USD 100 per purchase and USD 150 per request; the [MC VI authority](../ai/agentic-payments/mcintent.md) applies the same limits.
 
 ```java
 var artifact = new Ap2Mandates(PaymentRequestMode.PAIRED, signingInput, disclosures);

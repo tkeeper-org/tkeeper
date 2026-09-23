@@ -4,7 +4,7 @@
 
 ## Example: bounded native payment
 
-This [authority](../../../integration-tests/src/testFixtures/resources/authorities/xrp/native-payment.yaml) permits one recipient, at most 100 [drops](https://xrpl.org/docs/introduction/transactions-and-requests), a fee of at most 12 drops, and a ledger expiry:
+This [authority](../../integration-tests/src/testFixtures/resources/authorities/xrp/native-payment.yaml) permits one recipient, at most 100 [drops](https://xrpl.org/docs/introduction/transactions-and-requests), a fee of at most 12 drops, and a ledger expiry:
 
 ```yaml
 schemaVersion: verdict.authority/v1
@@ -41,4 +41,4 @@ String transactionHex = signed.rawTransaction();
 String transactionHash = signed.transactionHash();
 ```
 
-With a `tweak`, derive those fields from `central().getPublicKey(xrpKeyId, tweak)`. The caller submits the signed hex and tracks its ledger result. [Composer](../composer.md) describes the common response contract.
+With a `tweak`, derive those fields from `central().getPublicKey(xrpKeyId, tweak)`. The caller submits the signed hex and tracks its ledger result. [Composer](../signing-and-authorities/composer.md) describes the common response contract.

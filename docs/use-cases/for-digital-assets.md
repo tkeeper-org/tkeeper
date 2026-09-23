@@ -59,4 +59,4 @@ When signing with a `tweak`, build Bitcoin, Tron, XRP, or Solana transactions fr
 
 For XRP, policy amounts are [drops](https://xrpl.org/docs/introduction/transactions-and-requests); for Solana, native transfer amounts are [lamports](https://solana.com/docs/references/terminology). Use raw protocol units in limits. EVM composition covers legacy and typed transactions 1–4; type 3 broadcast also needs its blob sidecar. Solana can return a partial transaction: check `complete` before broadcasting.
 
-See the separate [Bitcoin](../signing-and-authorities/digital-assets/bitcoin.md), [EVM](../signing-and-authorities/digital-assets/evm.md), [Tron](../signing-and-authorities/digital-assets/tron.md), [XRP](../signing-and-authorities/digital-assets/xrp.md), and [Solana](../signing-and-authorities/digital-assets/solana.md) authority guides.
+See the separate [Bitcoin](../digital-assets/bitcoin.md), [EVM](../digital-assets/evm.md), [Tron](../digital-assets/tron.md), [XRP](../digital-assets/xrp.md), and [Solana](../digital-assets/solana.md) authority guides.

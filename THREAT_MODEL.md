@@ -1,6 +1,6 @@
 # TKeeper Threat Model
 
-The maintained threat model lives in [docs/threat-model.md](docs/threat-model.md).
+The maintained threat model lives in [docs/security-model/threat-model.md](docs/security-model/threat-model.md).
 
 Protocol-level details for FROST, GG20, ECIES, ZK proofs, nonce handling, Paillier, and curve math live in the tss4j threat model:
 

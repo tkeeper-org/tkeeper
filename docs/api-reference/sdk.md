@@ -32,4 +32,4 @@ The wire contract remains [`../../openapi.yaml`](../../openapi.yaml). Treat gene
 | `xrp.transaction` | `SignedXrpTransaction` |
 | `solana.transaction` | `SignedSolanaTransaction` |
 
-For other types, compose returns `ThresholdSignature`, the same raw signature result as sign. To inspect an unknown result, use `signature().compose(request)` for JSON. The signed Solana result can be partial; check `complete` before broadcast. See [agentic payments](../signing-and-authorities/agentic-payments/README.md) and [digital assets](../signing-and-authorities/digital-assets/README.md) for examples.
+For other types, compose returns `ThresholdSignature`, the same raw signature result as sign. To inspect an unknown result, use `signature().compose(request)` for JSON. The signed Solana result can be partial; check `complete` before broadcast. See [agentic payments](../ai/agentic-payments/README.md) and [digital assets](../digital-assets/README.md) for examples.

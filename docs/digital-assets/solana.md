@@ -4,7 +4,7 @@
 
 ## Example: one native transfer
 
-This [authority](../../../integration-tests/src/testFixtures/resources/authorities/solana/native-transfer.yaml) permits one required signer and a transfer of at most 100 [lamports](https://solana.com/docs/references/terminology) to one recipient:
+This [authority](../../integration-tests/src/testFixtures/resources/authorities/solana/native-transfer.yaml) permits one required signer and a transfer of at most 100 [lamports](https://solana.com/docs/references/terminology) to one recipient:
 
 ```yaml
 schemaVersion: verdict.authority/v1
@@ -40,4 +40,4 @@ String transaction64 = signed.rawTransaction();
 String transactionHash = signed.transactionHash();
 ```
 
-For policies that allow multiple signers, the composer can return a partial transaction with `complete: false` and no hash. With a `tweak`, build the message using `central().getPublicKey(solanaKeyId, tweak)`. The caller submits the complete transaction. [Composer](../composer.md) describes the common response contract.
+For policies that allow multiple signers, the composer can return a partial transaction with `complete: false` and no hash. With a `tweak`, build the message using `central().getPublicKey(solanaKeyId, tweak)`. The caller submits the complete transaction. [Composer](../signing-and-authorities/composer.md) describes the common response contract.

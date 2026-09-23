@@ -24,10 +24,10 @@ accepted.
 
 For tweaked Bitcoin, Tron, XRP, or Solana signatures, construct the unsigned transaction with the derived public key from `central().getPublicKey(keyId, tweak)`.
 
-See the separate [Bitcoin](../../docs/signing-and-authorities/digital-assets/bitcoin.md),
-[EVM](../../docs/signing-and-authorities/digital-assets/evm.md),
-[Tron](../../docs/signing-and-authorities/digital-assets/tron.md),
-[XRP](../../docs/signing-and-authorities/digital-assets/xrp.md), and
-[Solana](../../docs/signing-and-authorities/digital-assets/solana.md) authority guides.
+See the separate [Bitcoin](../../docs/digital-assets/bitcoin.md),
+[EVM](../../docs/digital-assets/evm.md),
+[Tron](../../docs/digital-assets/tron.md),
+[XRP](../../docs/digital-assets/xrp.md), and
+[Solana](../../docs/digital-assets/solana.md) authority guides.
 
 See [For Digital Assets](../../docs/use-cases/for-digital-assets.md) for a policy and SDK example.

@@ -139,4 +139,4 @@ policy:
 
 Replace the token contract, recipient, limits, and `publicKey64` with trusted production values. A transfer to another wallet should use another authority id and document.
 
-See [Authorities](../authorities.md) for the document and policy schema, [CEL Functions](../cel-functions.md) for policy helpers, and [Composer](../composer.md) for response behavior.
+See [Authorities](../signing-and-authorities/authorities.md) for the document and policy schema, [CEL Functions](../signing-and-authorities/cel-functions.md) for policy helpers, and [Composer](../signing-and-authorities/composer.md) for response behavior.

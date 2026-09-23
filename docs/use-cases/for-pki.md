@@ -30,7 +30,7 @@ policy:
         - "extensions.extKeyUsage.serverAuth"
 ```
 
-The [integration fixture](../../integration-tests/src/testFixtures/resources/authorities/x509/service-leaf.yaml) uses this rule. The [X.509 authority guide](../signing-and-authorities/x509.md#authority-example-workload-server-certificate) adds issuer, DNS SAN, validity, signature algorithm, and operator approval checks for a stricter profile.
+The [integration fixture](../../integration-tests/src/testFixtures/resources/authorities/x509/service-leaf.yaml) uses this rule. The [X.509 authority guide](../pki/x509.md#authority-example-workload-server-certificate) adds issuer, DNS SAN, validity, signature algorithm, and operator approval checks for a stricter profile.
 
 The CA service submits exactly the TBS bytes it will publish:
 

@@ -31,4 +31,4 @@ X-JWT-TOKEN: <raw-jwt>
 
 `server/discover` and `tools/list` are also supported. Browser requests with an `Origin` header are rejected; connect from a server-side agent host.
 
-See [MCP connection and tools](../../docs/signing-and-authorities/mcp.md) for setup and [For AI](../../docs/use-cases/for-ai.md#govern-an-mcp-action) for a governed tool call.
+See [MCP connection and tools](../../docs/ai/mcp.md) for setup and [For AI](../../docs/use-cases/for-ai.md#govern-an-mcp-action) for a governed tool call.
