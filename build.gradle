@@ -28,18 +28,24 @@ allprojects {
 }
 
 def featureModules = [
-        'features:seal-aws'          : 'keeper.feature.seal.aws',
-        'features:seal-gcloud'       : 'keeper.feature.seal.gcloud',
-        'features:authority-bitcoin' : 'keeper.feature.authority.bitcoin',
-        'features:authority-evm'     : 'keeper.feature.authority.evm',
-        'features:authority-x509'    : 'keeper.feature.authority.x509',
-        'features:ecies'             : 'keeper.feature.ecies',
-        'features:ui'                : 'keeper.feature.ui'
+        'features:seal-aws'               : 'keeper.feature.seal.aws',
+        'features:seal-gcloud'            : 'keeper.feature.seal.gcloud',
+        'features:digital-assets:bitcoin' : 'keeper.feature.digital-assets.bitcoin',
+        'features:digital-assets:evm'     : 'keeper.feature.digital-assets.evm',
+        'features:digital-assets:tron'    : 'keeper.feature.digital-assets.tron',
+        'features:digital-assets:xrp'     : 'keeper.feature.digital-assets.xrp',
+        'features:digital-assets:solana'  : 'keeper.feature.digital-assets.solana',
+        'features:authority-x509'         : 'keeper.feature.authority.x509',
+        'features:ecies'                  : 'keeper.feature.ecies',
+        'features:ui'                     : 'keeper.feature.ui',
+        'features:agentic-payments:ap2'   : 'keeper.feature.agentic-payments.ap2',
+        'features:agentic-payments:mc-vi' : 'keeper.feature.agentic-payments.mc-vi'
 ]
 
 def explicitFeatureModules = [
         'features:auth-dev'          : 'keeper.feature.auth.dev',
         'features:dry-run'           : 'keeper.feature.dry-run',
+        'features:mcp'               : 'keeper.feature.mcp',
         'features:recovery'          : 'keeper.feature.recovery',
 ]
 
@@ -59,7 +65,8 @@ def shadowedRuntimeModules =
         featureModules.keySet() +
                 explicitFeatureModules.keySet() +
                 recoveryPlatformModules.values() +
-                testOnlyFeatureModules
+                testOnlyFeatureModules +
+                ['features:agentic-payments']
 
 shadowedRuntimeModules.each { moduleName ->
     def moduleProject = project(":$moduleName")
@@ -71,10 +78,15 @@ shadowedRuntimeModules.each { moduleName ->
 }
 
 def featurePlatformRequirements = [
-        'features:authority-bitcoin'        : ['platform-ecc'],
-        'features:authority-evm'            : ['platform-ecc'],
+        'features:digital-assets:bitcoin'   : ['platform-ecc'],
+        'features:digital-assets:evm'       : ['platform-ecc'],
+        'features:digital-assets:tron'      : ['platform-ecc'],
+        'features:digital-assets:xrp'       : ['platform-ecc'],
+        'features:digital-assets:solana'    : ['platform-ecc'],
         'features:authority-x509'           : ['platform-ecc'],
-        'features:ecies'                    : ['platform-ecc']
+        'features:ecies'                    : ['platform-ecc'],
+        'features:agentic-payments:ap2'      : ['platform-ecc'],
+        'features:agentic-payments:mc-vi'    : ['platform-ecc']
 ]
 
 def truthy = { value ->
@@ -96,6 +108,11 @@ def selectedProductionFeatures = [selectedRuntimeFeatures, selectedDockerFeature
         .flatten()
         .toSet()
 
+def legacyDigitalAssetSelectors = [
+        'features:digital-assets:bitcoin': ['authority-bitcoin', 'keeper.feature.authority.bitcoin'],
+        'features:digital-assets:evm'    : ['authority-evm', 'keeper.feature.authority.evm']
+]
+
 def explicitlySelectedFeature = { Set<String> features, String moduleName ->
     def shortName = moduleName.tokenize(':').last()
     features.contains(moduleName) || features.contains(shortName) || features.contains("feature-$shortName")
@@ -107,8 +124,15 @@ def allProductionFeaturesSelected =
                 selectedDockerFeatures.contains('all')
 
 def shouldIncludeProductionFeature = { String moduleName, String propertyName ->
+    def path = moduleName.tokenize(':')
+    def groupSelected = path.size() == 3 &&
+            explicitlySelectedFeature(selectedProductionFeatures, "features:${path[1]}")
+    def legacySelectors = legacyDigitalAssetSelectors.get(moduleName, [])
+
     allProductionFeaturesSelected ||
             explicitlySelectedFeature(selectedProductionFeatures, moduleName) ||
+            groupSelected ||
+            legacySelectors.any { selectedProductionFeatures.contains(it) || truthy(findProperty(it)) } ||
             truthy(findProperty(propertyName))
 }
 
@@ -198,10 +222,10 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit:verdict:0.2.0-SNAPSHOT'
+    api 'org.exploit.verdict:core:0.2.0'
 
-    api 'org.exploit:verdict-authority:0.2.0-SNAPSHOT'
-    api 'org.exploit:verdict-authority-oci:0.2.0-SNAPSHOT'
+    api 'org.exploit.verdict:authority:0.2.0'
+    api 'org.exploit.verdict:authority-oci:0.2.0'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
@@ -211,7 +235,7 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit:verdict-intent-typed:0.2.0-SNAPSHOT'
+    implementation 'org.exploit.verdict:typed:0.2.0'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.84'
 
@@ -375,8 +399,17 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
 
     doLast {
         def forbidden = [
+                'bitcoin'         : 'org/exploit/keeper/authority/bitcoin/UtxoInputCommandMaterializer.class',
+                'evm'             : 'org/exploit/keeper/authority/evm/EvmCommandMaterializer.class',
+                'tron'            : 'org/exploit/keeper/authority/tron/TronCommandMaterializer.class',
+                'xrp'             : 'org/exploit/keeper/authority/xrp/XrpCommandMaterializer.class',
+                'solana'          : 'org/exploit/keeper/authority/solana/SolanaCommandMaterializer.class',
+                'ap2'             : 'org/exploit/keeper/payment/ap2/Ap2CommandMaterializer.class',
+                'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
+                'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
+                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
@@ -404,8 +437,17 @@ tasks.register('artifactIsolationTest') {
 
     doLast {
         def markers = [
+                'bitcoin'         : 'org/exploit/keeper/authority/bitcoin/UtxoInputCommandMaterializer.class',
+                'evm'             : 'org/exploit/keeper/authority/evm/EvmCommandMaterializer.class',
+                'tron'            : 'org/exploit/keeper/authority/tron/TronCommandMaterializer.class',
+                'xrp'             : 'org/exploit/keeper/authority/xrp/XrpCommandMaterializer.class',
+                'solana'          : 'org/exploit/keeper/authority/solana/SolanaCommandMaterializer.class',
+                'ap2'             : 'org/exploit/keeper/payment/ap2/Ap2CommandMaterializer.class',
+                'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
+                'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
+                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',

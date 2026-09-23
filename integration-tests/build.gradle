@@ -39,6 +39,11 @@ dependencies {
 
     testFixturesApi('org.bitcoinj:bitcoinj-core:0.17.1')
     testFixturesApi('org.web3j:core:4.12.3')
+    testFixturesApi platform('org.exploit.signet:bom:0.1.0')
+    testFixturesApi 'org.exploit.signet:tron'
+    testFixturesApi 'org.exploit.signet:xrp'
+    testFixturesApi 'org.exploit.signet:solana'
+    testFixturesApi 'org.exploit.signet:evm'
 
     testFixturesApi('com.fasterxml.jackson.core:jackson-databind:2.22.0')
     testFixturesApi('com.fasterxml.jackson.module:jackson-module-kotlin:2.22.0')
