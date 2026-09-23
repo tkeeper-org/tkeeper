@@ -93,7 +93,7 @@ Legacy unversioned generation zero is outside the recovery boundary.
    ```bash
    curl --fail-with-body \
      --cacert public-ca.crt \
-     -H 'Authorization: Bearer <token>' \
+     -H 'X-JWT-TOKEN: <raw-jwt>' \
      -H 'Content-Type: application/json' \
      -d '{"keyId":"signing-key","helperIds":[1,2,3]}' \
      https://keeper-4:8080/v1/keeper/recovery/recover
