@@ -26,7 +26,7 @@ approval requirements are retained. `context` is empty.
 
 See the executable [AP2 authority](../../integration-tests/src/testFixtures/resources/authorities/payments/ap2-purchases.yaml)
 and [MC VI authority](../../integration-tests/src/testFixtures/resources/authorities/payments/mcintent-purchases.yaml).
-The [agentic payment authority guide](../../docs/signing-and-authorities/agentic-payments.md) has a policy and SDK example.
+The [AP2 guide](../../docs/signing-and-authorities/agentic-payments/ap2.md) and [MC Intent guide](../../docs/signing-and-authorities/agentic-payments/mcintent.md) have complete authorities and SDK examples.
 
 ## SDK and signing contract
 

@@ -74,7 +74,7 @@ The restart service verifies the signature against `agent-billing` and the exact
 
 ## Agentic payments
 
-The `agentic-payments` feature adds AP2 (`ap2.mandate`) and Mastercard Verifiable Intent (`mcintent.mandate`). Both require a P-256 key and ES256. A policy can limit merchants, payment methods, each purchase, and the total request. For example, the [AP2 purchase authority](../../integration-tests/src/testFixtures/resources/authorities/payments/ap2-purchases.yaml) allows the configured shop and card, at most USD 100 per purchase and USD 150 per request; the [MC VI authority](../../integration-tests/src/testFixtures/resources/authorities/payments/mcintent-purchases.yaml) applies the same limits.
+The `agentic-payments` feature adds AP2 (`ap2.mandate`) and Mastercard Verifiable Intent (`mcintent.mandate`). Both require a P-256 key and ES256. A policy can limit merchants, payment methods, each purchase, and the total request. For example, the [AP2 purchase authority](../signing-and-authorities/agentic-payments/ap2.md) allows the configured shop and card, at most USD 100 per purchase and USD 150 per request; the [MC VI authority](../signing-and-authorities/agentic-payments/mcintent.md) applies the same limits.
 
 ```java
 var artifact = new Ap2Mandates(PaymentRequestMode.PAIRED, signingInput, disclosures);
@@ -83,4 +83,4 @@ var credential = client.signature().compose(
         Sign.of(p256KeyId, command), PaymentCredential.class).credential();
 ```
 
-`signingInput` is the encoded JWS header and payload joined by `.`; `disclosures` contains every referenced SD-JWT disclosure. Keeper checks their commitments, runs the authority policy, signs the exact JWS input, and returns a credential layer. Use `McMandates` for MC VI. The recipient must verify the credential chain, audience, expiry, replay rules, and merchant identity. See [agentic payment authorities](../signing-and-authorities/agentic-payments.md) for the policy and SDK contract.
+`signingInput` is the encoded JWS header and payload joined by `.`; `disclosures` contains every referenced SD-JWT disclosure. Keeper checks their commitments, runs the authority policy, signs the exact JWS input, and returns a credential layer. Use `McMandates` for MC VI. The recipient must verify the credential chain, audience, expiry, replay rules, and merchant identity.
