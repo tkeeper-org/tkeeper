@@ -50,6 +50,8 @@ FROM registry.access.redhat.com/ubi9/openjdk-25:1.24
 
 ARG TKEEPER_VERSION=dev
 ARG TKEEPER_JAR=build/docker/tkeeper.jar
+ARG TKEEPER_TARGET=all
+ARG TKEEPER_ECC=true
 
 LABEL maintainer="TKeeper Labs" \
       app.name="tkeeper" \
@@ -64,6 +66,8 @@ ENV JAVA_OPTS_APPEND="\
   -Dcom.sun.management.jmxremote=false \
   -Djdk.serialFilter=!* \
   -Djdk.tls.client.protocols=TLSv1.3,TLSv1.2 \
+  -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib \
+  -Dmsgpack.universal-buffer=true \
   -XX:+UseCompactObjectHeaders \
   --enable-native-access=ALL-UNNAMED"
 
@@ -71,6 +75,7 @@ COPY --from=native-build /usr/local/lib/libgmp.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsecp256k1.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsodium.so* /usr/local/lib/
 COPY --chown=185:0 ${TKEEPER_JAR} /deployments/tkeeper.jar
+COPY --chown=185:0 tools/NativeJarSmoke.java /tmp/NativeJarSmoke.java
 
 RUN printf '%s\n' \
       'public class NativeSmoke {' \
@@ -84,7 +89,12 @@ RUN printf '%s\n' \
  && java \
       -Djava.library.path=/usr/local/lib \
       /tmp/NativeSmoke.java \
- && rm /tmp/NativeSmoke.java
+ && java \
+      --enable-native-access=ALL-UNNAMED \
+      -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib \
+      -cp /deployments/tkeeper.jar \
+      /tmp/NativeJarSmoke.java "${TKEEPER_TARGET}" "${TKEEPER_ECC}" \
+ && rm /tmp/NativeSmoke.java /tmp/NativeJarSmoke.java
 
 ENV JAVA_APP_JAR="/deployments/tkeeper.jar"
 

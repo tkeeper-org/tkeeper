@@ -97,6 +97,7 @@ ENV JAVA_TOOL_OPTIONS="\
 -Dcom.sun.management.jmxremote=false \
 -Djdk.serialFilter=!* \
 -Djdk.tls.client.protocols=TLSv1.3,TLSv1.2 \
+-Dmsgpack.universal-buffer=true \
 -XX:+UseCompactObjectHeaders"
 
 ENTRYPOINT ["/opt/tkeeper/entrypoint.sh"]
