@@ -19,59 +19,29 @@ As agents move from proposing actions to moving funds and changing production sy
 3. TKeeper collects required approvals and, in threshold mode, a signing quorum. An allowed command gets a signature.
 4. The receiving system verifies the signature or artifact, then executes the authorized action (for example, broadcasting the transaction).
 
-`POST /v2/keeper/sign` returns a signature. 
+`POST /v2/keeper/sign` returns a signature.
 `POST /v2/keeper/compose` runs the same checks and can return a signed transaction, payment credential or any other "composed" artifact. [Signing and Authorities](docs/signing-and-authorities/README.md) explains the request and policy model.
 
 Raw `arbitrary` signing has no intent policy and is disabled by default.
 
 ## What you can govern
 
-| Work                                             | Guide                                                                                                                                      |
-|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| Agent tools over MCP; AP2 and MC Intent payments | [For AI](docs/use-cases/for-ai.md) · [AI guides](docs/ai/README.md)                                                                        |
-| Bitcoin, EVM, Tron, XRP, and Solana transactions | [For Digital Assets](docs/use-cases/for-digital-assets.md) · [Chain authorities](docs/digital-assets/README.md)                            |
-| X.509 certificate signing                        | [For PKI](docs/use-cases/for-pki.md) · [X.509 authority](docs/pki/README.md)                                                               |
-| Typed commands for internal systems              | [For Other Activities](docs/use-cases/for-other-activities.md) · [Custom authorities](docs/signing-and-authorities/arbitrary-and-typed.md) |
-
+| Work                                                                | Guide                                                                                                                                                    |
+|---------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Agent tools over MCP; AP2 and Mastercard Verifiable Intent payments | [MCP action](docs/use-cases/for-ai.md#govern-an-mcp-action) · [AP2](docs/ai/agentic-payments/ap2.md) · [MC Intent](docs/ai/agentic-payments/mcintent.md) |
+| Bitcoin, EVM, Tron, XRP, and Solana transactions                    | [For Digital Assets](docs/use-cases/for-digital-assets.md) · [Chain authorities](docs/digital-assets/README.md)                                          |
+| X.509 certificate signing                                           | [For PKI](docs/use-cases/for-pki.md) · [X.509 example](docs/pki/x509.md#authority-example-workload-server-certificate)                                   |
+| Typed commands for internal systems                                 | [For Other Activities](docs/use-cases/for-other-activities.md) · [Custom authorities](docs/signing-and-authorities/arbitrary-and-typed.md)               |
 
 ## Multi-Party Computation and compromise resistance
 
-TKeeper supports `mono` (single instance) and `threshold` operating modes.
+TKeeper supports `mono` and `threshold` operating modes. In `mono`, one host holds the full key material; compromising that host compromises the identity.
 
-In `threshold` mode, TKeeper uses multi-party computation (MPC) for operations. Each peer holds one key share and checks the operation before contributing. A signature needs `t` accepted contributions from `n` peers. Operations never reconstruct the key.
+In `threshold` mode, TKeeper uses multi-party computation (MPC) for operations. Each peer holds one key share and checks the operation before contributing. A signature needs `t` accepted contributions from `n` peers. Normal threshold signing does not reconstruct the private key.
 
 For a `2-of-3` identity, one compromised peer cannot sign alone or recover the key from its share. One unavailable peer leaves two that can still sign. The protection boundary ends at two compromised peers, and signing stops if fewer than two healthy peers can participate.
 
 Place peers across separate hosts and failure domains to distribute compromise risk. Honest peers with matching authority and policy state reject actions that violate those rules, even if a minority peer is compromised. Keys created with distributed key generation never exist whole on one peer; imported or promoted keys may have existed whole earlier. See [Quorum Modes](docs/security-model/quorum-modes.md) and the [Threat Model](docs/security-model/threat-model.md).
-
-
-## Example: a production restart
-
-The [restart authority](docs/use-cases/for-ai.md#govern-an-mcp-action) allows one key to authorize a restart of `billing-api` in production. Attach that authority to the key through a digest-pinned OCI reference. A request to `POST /v2/keeper/sign` is:
-
-```json
-{
-  "keyId": "agent-billing",
-  "command": {
-    "type": "custom",
-    "authorityId": "billing-api-restart",
-    "artifact": {
-      "scheme": "ECDSA",
-      "hash": "SHA256",
-      "typed": {
-        "operation": "restart",
-        "service": "billing-api",
-        "environment": "production",
-        "changeId": "CHG-42",
-        "nonce": "n-123",
-        "expiresAt": "2030-01-02T03:04:05Z"
-      }
-    }
-  }
-}
-```
-
-TKeeper checks the service and environment against the authority before signing. The restart service verifies the signature over this command, rejects expired requests, and consumes the nonce once. [For AI](docs/use-cases/for-ai.md#govern-an-mcp-action) shows the full authority and the same request through MCP.
 
 ## Get started
 
