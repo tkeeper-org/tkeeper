@@ -3,7 +3,7 @@ plugins {
     id 'java-test-fixtures'
     id 'org.jetbrains.kotlin.jvm'
     id 'com.gradleup.shadow' version '9.4.1'
-    id 'com.google.devtools.ksp' version '2.3.6'
+    id 'com.google.devtools.ksp' version '2.3.10'
 }
 
 group = 'org.exploit'
