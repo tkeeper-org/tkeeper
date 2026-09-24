@@ -37,7 +37,9 @@ dependencies {
     testFixturesApi 'org.testcontainers:junit-jupiter:1.21.4'
     testFixturesApi(project(":sdk"))
 
-    testFixturesApi('org.bitcoinj:bitcoinj-core:0.17.1')
+    testFixturesApi('org.bitcoinj:bitcoinj-core:0.17.1') {
+        exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+    }
     testFixturesApi('org.web3j:core:4.12.3')
     testFixturesApi platform('org.exploit.signet:bom:0.1.0')
     testFixturesApi 'org.exploit.signet:tron'

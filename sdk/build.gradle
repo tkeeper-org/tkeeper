@@ -30,7 +30,7 @@ dependencies {
     api 'org.exploit:jettyx:0.1.7'
     api 'org.exploit:jettyx-jackson:0.1.7'
     api 'org.exploit:jettyx-http2:0.1.7'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.22.0'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.22.3'
 }
 
 java {
