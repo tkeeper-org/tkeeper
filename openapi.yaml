@@ -5,6 +5,8 @@ info:
   description: |
     TKeeper public HTTP API.
     JSON request bodies reject unknown properties and are limited to 10 MiB by the HTTP server.
+    Digital asset, agentic payment, and PKI commands use the shared signing API.
+    Enabled features add their command types and, where available, composed results.
 
 servers:
   - url: /
@@ -14,6 +16,11 @@ tags:
   - name: Keys
   - name: DKG
   - name: Signing
+    description: Shared signing and verification for AI, digital assets, PKI, and custom authorities.
+  - name: Composition
+    description: Signed digital asset transactions and agentic payment credentials; other types return a raw signature.
+  - name: MCP
+    description: AI agent tools over the optional MCP feature.
   - name: TrustedDealer
   - name: Quorum
   - name: DryRun
@@ -338,6 +345,38 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
+  /v2/keeper/compose:
+    post:
+      tags: [Composition]
+      operationId: compose
+      summary: Sign and compose an artifact
+      description: |
+        Uses the same request, permission, authority, policy, approval, and signing checks as `/v2/keeper/sign`.
+        EVM, TRON, XRP, and Solana commands return signed transactions. AP2 and MC Intent
+        commands return payment credentials. Types without a composer, including Bitcoin and X.509,
+        return `CalculatedSignature`. Composition does not broadcast or submit the result.
+      x-permissions:
+        template: tkeeper.key.{keyId}.sign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sign'
+      responses:
+        '200':
+          description: Composed artifact or raw signature fallback
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/SignedTransaction'
+                  - $ref: '#/components/schemas/SignedSolanaTransaction'
+                  - $ref: '#/components/schemas/PaymentCredential'
+                  - $ref: '#/components/schemas/CalculatedSignature'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /v2/keeper/sign/verify:
     post:
       tags: [Signing]
@@ -358,6 +397,70 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VerifyResult'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /mcp:
+    post:
+      tags: [MCP]
+      operationId: mcp
+      summary: Discover and call agent tools
+      description: |
+        Optional `mcp` feature. Supports `server/discover`, `tools/list`, and `tools/call`
+        over HTTP POST with JSON-RPC 2.0. The host authenticates with the same Keeper token
+        used by the public API. Tool discovery is permission filtered; calls check permission
+        again. Requests with an `Origin` header are rejected.
+      parameters:
+        - name: MCP-Protocol-Version
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: ['2026-07-28']
+        - name: Mcp-Method
+          in: header
+          required: true
+          description: Must match the JSON-RPC `method`.
+          schema:
+            type: string
+            enum: [server/discover, tools/list, tools/call]
+        - name: Mcp-Name
+          in: header
+          required: false
+          description: Required for `tools/call`; must match `params.name`.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/McpRequest'
+      responses:
+        '200':
+          description: JSON-RPC result, including tool errors and some protocol errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpResponse'
+        '400':
+          description: Invalid JSON-RPC request, headers, or protocol version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpErrorResponse'
+        '403':
+          description: Browser origin rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpErrorResponse'
+        '404':
+          description: Unknown MCP method
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/McpErrorResponse'
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -1499,10 +1602,13 @@ components:
           $ref: '#/components/schemas/Artifact'
 
     Artifact:
+      description: The command type selects the artifact format and its authority checks.
       oneOf:
         - $ref: '#/components/schemas/ArbitraryArtifact'
         - $ref: '#/components/schemas/TypedArtifact'
         - $ref: '#/components/schemas/EvmTransactionArtifact'
+        - $ref: '#/components/schemas/TransactionArtifact'
+        - $ref: '#/components/schemas/PaymentMandatesArtifact'
         - $ref: '#/components/schemas/BitcoinTransactionArtifact'
         - $ref: '#/components/schemas/X509TbsCertificateArtifact'
 
@@ -1550,6 +1656,39 @@ components:
         message64:
           $ref: '#/components/schemas/NonEmptyBase64'
 
+    TransactionArtifact:
+      type: object
+      additionalProperties: false
+      description: |
+        For `tron.transaction`, `transaction` is unsigned transaction JSON.
+        For `xrp.transaction`, it is unsigned transaction hex.
+        For `solana.transaction`, it is an unsigned transaction encoded as Base64.
+      required: [transaction]
+      properties:
+        transaction:
+          type: string
+          minLength: 1
+
+    PaymentMandatesArtifact:
+      type: object
+      additionalProperties: false
+      description: Artifact for `ap2.mandate` and `mcintent.mandate`.
+      required: [mode, signingInput, disclosures]
+      properties:
+        mode:
+          type: string
+          enum: [PAIRED, PAYMENTS, CHECKOUTS]
+        signingInput:
+          type: string
+          minLength: 1
+          description: Unsigned JWS protected header and payload.
+        disclosures:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            minLength: 1
+
     BitcoinTransactionArtifact:
       type: object
       additionalProperties: false
@@ -1589,6 +1728,7 @@ components:
 
     CalculatedSignature:
       type: object
+      additionalProperties: false
       required: [type, generation, imposters]
       properties:
         type:
@@ -1605,6 +1745,191 @@ components:
           description: Peers identified as bad during threshold protocols. Empty in mono mode.
           items:
             type: string
+
+    SignedTransaction:
+      type: object
+      additionalProperties: false
+      description: EVM, TRON, or XRP composed transaction.
+      required: [type, rawTransaction, transactionHash, generation, imposters]
+      properties:
+        type:
+          type: string
+          enum: [evm.transaction, tron.transaction, xrp.transaction]
+        rawTransaction:
+          type: string
+          description: Signed hex for EVM and XRP; signed JSON for TRON.
+        transactionHash:
+          type: string
+        generation:
+          $ref: '#/components/schemas/Generation'
+        imposters:
+          type: array
+          items:
+            type: string
+
+    SignedSolanaTransaction:
+      type: object
+      additionalProperties: false
+      required: [type, rawTransaction, transactionHash, complete, generation, imposters]
+      properties:
+        type:
+          type: string
+          enum: [solana.transaction]
+        rawTransaction:
+          type: string
+          description: Signed or partially signed transaction encoded as Base64.
+        transactionHash:
+          type: string
+          nullable: true
+          description: Available when the transaction is complete.
+        complete:
+          type: boolean
+        generation:
+          $ref: '#/components/schemas/Generation'
+        imposters:
+          type: array
+          items:
+            type: string
+
+    PaymentCredential:
+      type: object
+      additionalProperties: false
+      required: [type, credential, generation, imposters]
+      properties:
+        type:
+          type: string
+          enum: [ap2.mandate, mcintent.mandate]
+        credential:
+          type: string
+          description: Signed JWS with the referenced SD-JWT disclosures.
+        generation:
+          $ref: '#/components/schemas/Generation'
+        imposters:
+          type: array
+          items:
+            type: string
+
+    McpRequest:
+      type: object
+      required: [jsonrpc, id, method, params]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ['2.0']
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+          description: JSON-RPC request id; notifications are not supported.
+        method:
+          type: string
+          enum: [server/discover, tools/list, tools/call]
+        params:
+          type: object
+          required: [_meta]
+          description: '`tools/call` also requires `name` and an object `arguments`.'
+          properties:
+            name:
+              type: string
+            arguments:
+              type: object
+            _meta:
+              type: object
+              required: [io.modelcontextprotocol/protocolVersion, io.modelcontextprotocol/clientCapabilities]
+              properties:
+                io.modelcontextprotocol/protocolVersion:
+                  type: string
+                  enum: ['2026-07-28']
+                io.modelcontextprotocol/clientCapabilities:
+                  type: object
+      example:
+        jsonrpc: '2.0'
+        id: 1
+        method: tools/list
+        params:
+          _meta:
+            io.modelcontextprotocol/protocolVersion: '2026-07-28'
+            io.modelcontextprotocol/clientCapabilities: {}
+
+    McpResponse:
+      oneOf:
+        - $ref: '#/components/schemas/McpSuccessResponse'
+        - $ref: '#/components/schemas/McpErrorResponse'
+
+    McpSuccessResponse:
+      type: object
+      required: [jsonrpc, id, result]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ['2.0']
+        id:
+          description: Echoes the string or integer request id.
+        result:
+          type: object
+          required: [resultType, _meta]
+          description: |
+            Discovery returns `supportedVersions`, `capabilities`, `ttlMs`, and `cacheScope`.
+            Tool listing returns `tools`, `ttlMs`, and `cacheScope`. Tool calls return `content`,
+            `structuredContent`, and `isError`; tool failures set `isError` to `true`.
+          properties:
+            resultType:
+              type: string
+              enum: [complete]
+            _meta:
+              type: object
+              description: Includes `io.modelcontextprotocol/serverInfo`.
+            supportedVersions:
+              type: array
+              items:
+                type: string
+            capabilities:
+              type: object
+            tools:
+              type: array
+              items:
+                type: object
+            ttlMs:
+              type: integer
+              enum: [0]
+            cacheScope:
+              type: string
+              enum: [private]
+            content:
+              type: array
+              items:
+                type: object
+                required: [type, text]
+                properties:
+                  type:
+                    type: string
+                    enum: [text]
+                  text:
+                    type: string
+            structuredContent:
+              description: Tool-specific JSON result or error object.
+            isError:
+              type: boolean
+
+    McpErrorResponse:
+      type: object
+      required: [jsonrpc, id, error]
+      properties:
+        jsonrpc:
+          type: string
+          enum: ['2.0']
+        id:
+          description: Request id, or null when the request could not be parsed.
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+            data:
+              type: object
 
     VerifyResult:
       type: object

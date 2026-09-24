@@ -53,6 +53,8 @@ Follow [Local Single Node](docs/getting-started/local-single-node.md) to try TKe
 
 `all` includes default production features. MCP, developer authentication, policy dry run, and recovery require explicit selectors. See [Build and Features](docs/deployment/build-and-features.md) before building a smaller artifact.
 
+To package native libraries for one OS/CPU instead of all bundled variants, add `-Ptarget=linux-amd64` (or another [supported target](docs/deployment/build-and-features.md#select-a-native-oscpu-target)). The default `-Ptarget=all` keeps all bundled variants.
+
 Use the [Java SDK](sdk/README.md) or [OpenAPI](openapi.yaml) to integrate. For production boundaries, read the [Threat Model](docs/security-model/threat-model.md) and [Status and Limitations](docs/overview/status-and-limitations.md).
 
 Run the full release checks with `./gradlew releaseGate`. See [Integration Tests](integration-tests/README.md) for the Docker-backed suite.
