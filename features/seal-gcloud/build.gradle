@@ -1,11 +1,11 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'com.gradleup.shadow' version '9.4.1'
-    id 'com.google.devtools.ksp' version '2.3.6'
+    id 'com.google.devtools.ksp' version '2.3.10'
 }
 
 group = 'org.exploit'
-version = '2.4.1'
+version = '2.5.0'
 
 repositories {
     mavenCentral()
@@ -37,13 +37,6 @@ dependencies {
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
     implementation('com.google.cloud:google-cloud-kms:2.88.0')
-}
-
-configurations.configureEach {
-    resolutionStrategy.force(
-        "com.google.protobuf:protobuf-java:4.33.5",
-        "com.google.protobuf:protobuf-java-util:4.33.5"
-    )
 }
 
 tasks.named('shadowJar') {

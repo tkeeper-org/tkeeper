@@ -1,24 +1,23 @@
 # Signing and Authorities
 
-Signing is an identity action. TKeeper produces a signature only after the requested action is understood through an authority and allowed by policy.
+TKeeper signs a command after its authority turns it into an intent and policy allows it.
 
-Read:
+## Sign and compose
 
-- [Signing](signing.md)
-- [Authorities](authorities.md)
-- [Dry Run Policy Evaluation](dry-run.md)
-- [CEL Functions](cel-functions.md)
-- [Arbitrary and Typed Authorities](arbitrary-and-typed.md)
-- [EVM Authorities](evm.md)
-- [Bitcoin Authorities](bitcoin.md)
-- [X.509 Authorities](x509.md)
+- [Signing](signing.md): command requests and verification
+- [Composer](composer.md): protocol results from signed commands
 
-## Core rule
+## Define and check policy
 
-```text
-command -> authority -> intent -> policy -> proof
-```
+- [Authorities](authorities.md): attach and govern an identity's capabilities
+- [Arbitrary and Typed Authorities](arbitrary-and-typed.md): raw and JSON commands
+- [CEL Functions](cel-functions.md): policy expressions
+- [Dry Run Policy Evaluation](dry-run.md): preview a decision
 
-Use `arbitrary` only when raw signing is intentional. Use concrete authorities when TKeeper must understand and govern the action.
+## Protocol guides
 
-The consumer remains part of the security boundary: it must trust the expected identity, verify the exact intent, and prevent replay where the action requires freshness.
+- [AI and Agentic Payments](../ai/README.md): MCP, AP2, MC Intent
+- [Digital Asset Authorities](../digital-assets/README.md): Bitcoin, EVM, Tron, XRP, Solana
+- [PKI Authorities](../pki/README.md): X.509 certificates
+
+The consumer must trust the expected identity, verify the signed command, and prevent replay where the action requires freshness.

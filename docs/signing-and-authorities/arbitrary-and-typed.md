@@ -60,7 +60,7 @@ For example, this submitted object:
 {
   "sequence": 7,
   "deployment": {
-    "version": "2.4.1",
+    "version": "2.5.0",
     "environment": "production"
   },
   "roles": [
@@ -73,7 +73,7 @@ For example, this submitted object:
 is serialized for signing as:
 
 ```json
-{"deployment":{"environment":"production","version":"2.4.1"},"roles":[{"name":"operator","priority":1},{"name":"auditor","priority":2}],"sequence":7}
+{"deployment":{"environment":"production","version":"2.5.0"},"roles":[{"name":"operator","priority":1},{"name":"auditor","priority":2}],"sequence":7}
 ```
 
 With `hash: SHA256`, the expected signing material is:
@@ -180,6 +180,8 @@ The declared fields and `effects` become strict CEL roots. See [Authorities](aut
 | Govern a typed business action | `custom` |
 | Govern an EVM transaction | `evm.transaction` |
 | Govern a Bitcoin transaction | `bitcoin.transaction` |
+| Govern a Tron, XRP, or Solana transaction | `tron.transaction`, `xrp.transaction`, or `solana.transaction` |
+| Govern an AP2 or MC VI mandate | `ap2.mandate` or `mcintent.mandate` |
 | Govern certificate issuance | `x509.tbs-certificate` |
 
 `arbitrary` cannot be mixed with concrete authorities on the same key identity.

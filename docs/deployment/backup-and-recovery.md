@@ -83,7 +83,7 @@ Legacy unversioned generation zero is outside the recovery boundary.
 3. Restart each participant with recovery mode enabled:
 
    ```bash
-   java -Dkeeper.recovery=true -jar build/libs/tkeeper-2.4.1.jar
+   java -Dkeeper.recovery=true -jar build/libs/tkeeper-2.5.0.jar
    ```
 
 4. Unseal the keepers if required and confirm health and status.
@@ -93,7 +93,7 @@ Legacy unversioned generation zero is outside the recovery boundary.
    ```bash
    curl --fail-with-body \
      --cacert public-ca.crt \
-     -H 'Authorization: Bearer <token>' \
+     -H 'X-JWT-TOKEN: <raw-jwt>' \
      -H 'Content-Type: application/json' \
      -d '{"keyId":"signing-key","helperIds":[1,2,3]}' \
      https://keeper-4:8080/v1/keeper/recovery/recover

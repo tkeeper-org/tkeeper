@@ -7,6 +7,7 @@ Signing is where a key identity produces proof. TKeeper signs only after the com
 ```http
 POST /v2/keeper/sign
 POST /v2/keeper/sign/verify
+POST /v2/keeper/compose
 ```
 
 Required permissions:
@@ -84,7 +85,7 @@ Typed command:
         "action": "deploy",
         "service": "billing-api",
         "environment": "production",
-        "releaseVersion": "2.4.1",
+        "releaseVersion": "2.5.0",
         "sequence": 10000000000000000001,
         "riskScore": 0.20,
         "roles": ["release-manager", "production"],
@@ -98,7 +99,7 @@ Typed command:
 }
 ```
 
-See the [typed authority example](authorities.md#custom-authority-example) for the matching schema, payload, effects, and policy. EVM, Bitcoin, and X.509 commands are documented on their intent-specific pages.
+See the [typed authority example](authorities.md#custom-authority-example) for the matching schema, payload, effects, and policy. [Digital assets](../digital-assets/README.md), [agentic payments](../ai/agentic-payments/README.md), and [X.509](../pki/x509.md) have their own authority guides.
 The exact typed JSON byte encoding and hashing contract is documented in
 [Typed JSON signing material](arbitrary-and-typed.md#typed-json-signing-material).
 
@@ -136,6 +137,8 @@ The command artifact decides the scheme and hash. The top-level sign request doe
 ```
 
 `imposters` is meaningful for threshold protocols. Mono signatures return an empty list.
+
+Use [Composer](composer.md) to turn supported signatures into signed transactions or payment credentials. Other command types return the raw signature result.
 
 Verify response:
 

@@ -1,0 +1,34 @@
+schemaVersion: verdict.authority/v1
+id: test:ap2/purchases
+type: ap2.mandate
+version: 2.0.0
+
+config:
+  merchants:
+    officeShop:
+      website: https://office.example
+  methods:
+    companyCard:
+      id: card-1
+      type: card
+
+policy:
+  id: office-purchases
+  fallback: DENY
+  variables:
+    maxPerPurchase: "100.00"
+    maxPerRequest: "150.00"
+
+  allow:
+    - id: office-purchase
+      where:
+        - "action.kind == 'purchase'"
+        - "checkout.merchantIs(merchants.officeShop)"
+        - "payment.payeeIs(merchants.officeShop)"
+        - "payment.methodIs(methods.companyCard)"
+        - "payment.amountAtMost(maxPerPurchase, 'USD')"
+
+  deny:
+    - id: request-total
+      where:
+        - "!request.totalAtMost(maxPerRequest, 'USD')"

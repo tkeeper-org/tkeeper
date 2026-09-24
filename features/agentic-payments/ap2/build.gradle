@@ -1,0 +1,70 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.gradleup.shadow' version '9.4.1'
+    id 'com.google.devtools.ksp' version '2.3.10'
+}
+
+group = 'org.exploit'
+version = '2.5.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "sonatypeCentralSnapshots"
+        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
+        mavenContent {
+            snapshotsOnly()
+        }
+    }
+}
+
+def jacksonGroups = [
+        'com.fasterxml.jackson.core',
+        'com.fasterxml.jackson.module',
+        'com.fasterxml.jackson.datatype',
+        'com.fasterxml.jackson.dataformat',
+        'com.fasterxml.jackson.jaxrs',
+        'com.fasterxml.jackson.jakarta.rs'
+]
+
+configurations.matching { it.name == 'runtimeClasspath' }.configureEach {
+    jacksonGroups.each { groupName -> exclude group: groupName }
+}
+
+configurations.testRuntimeClasspath {
+    exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
+}
+
+dependencies {
+    testImplementation testFixtures(project(':features:agentic-payments'))
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation testFixtures(project(':integration-tests'))
+    testImplementation(project(':'))
+    compileOnly(project(':'))
+    implementation(project(':features:agentic-payments'))
+
+    ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
+    implementation 'org.exploit.verdict:ap2:0.2.0'
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    exclude 'com/fasterxml/jackson/**'
+    exclude 'META-INF/services/com.fasterxml.jackson.*'
+    exclude 'io/netty/**'
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE*'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('shadowJar')
+}
+
+kotlin {
+    jvmToolchain(25)
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,21 @@
+schemaVersion: verdict.authority/v1
+id: test:xrp/native-payment
+type: xrp.transaction
+version: 1.0.0
+config: {}
+policy:
+  id: xrp-native-payment
+  fallback: DENY
+  variables:
+    recipient: "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+  allow:
+    - id: small-payment
+      where:
+        - "type == 'payment'"
+        - "lastLedgerSequence != null"
+        - "bigint.lte(fee, '12')"
+        - "effect.onlyTypes(effects, ['native.transfer'])"
+        - "effect.one(effects, 'native.transfer')"
+        - "effect.all(effects, 'native.transfer', {'asset': 'xrp', 'to': recipient, 'destinationTag': 0})"
+        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
+        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100')"

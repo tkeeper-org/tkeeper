@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = findProperty('releaseVersion') ?: '2.4.1'
+version = findProperty('releaseVersion') ?: '2.5.0'
 
 def projectName = "TKeeper SDK"
 def projectDescription = "API client for TKeeper in Java"
@@ -30,7 +30,7 @@ dependencies {
     api 'org.exploit:jettyx:0.1.7'
     api 'org.exploit:jettyx-jackson:0.1.7'
     api 'org.exploit:jettyx-http2:0.1.7'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.22.0'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.22.3'
 }
 
 java {

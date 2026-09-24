@@ -55,7 +55,7 @@ Performance tests are separate and do not use the automatic functional-suite ima
 Do not pass `keeper.features` or `keeper.platforms`. The dedicated integration classpath always includes:
 
 - every default production feature
-- the explicit opt-in `:features:auth-dev`, `:features:dry-run`, and `:features:recovery` modules
+- the explicit opt-in `:features:auth-dev`, `:features:dry-run`, `:features:mcp`, and `:features:recovery` modules
 - both recovery platform modules
 - `platform-ecc` and `platform-pqc`
 - the test-only `:integration-tests:failure-injection` module

@@ -33,8 +33,11 @@ Some features require a platform:
 
 | Feature | Required platform |
 | --- | --- |
-| `authority-evm` | `ecc` |
-| `authority-bitcoin` | `ecc` |
+| `evm` | `ecc` |
+| `bitcoin` | `ecc` |
+| `tron` | `ecc` |
+| `xrp` | `ecc` |
+| `solana` | `ecc` |
 | `authority-x509` | `ecc` |
 | `ecies` | `ecc` |
 

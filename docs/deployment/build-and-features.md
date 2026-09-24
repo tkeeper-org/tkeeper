@@ -26,7 +26,7 @@ Equivalent:
 The jar lands under:
 
 ```text
-build/libs/tkeeper-2.4.1.jar
+build/libs/tkeeper-2.5.0.jar
 ```
 
 TKeeper requires Java 25.
@@ -36,7 +36,7 @@ TKeeper requires Java 25.
 Example: EVM signing, ECIES, and the UI:
 
 ```bash
-./gradlew :build -Pkeeper.features=authority-evm,ecies,ui -Pkeeper.platforms=ecc
+./gradlew :build -Pkeeper.features=evm,ecies,ui -Pkeeper.platforms=ecc
 ```
 
 Example: ML-DSA only:
@@ -45,14 +45,88 @@ Example: ML-DSA only:
 ./gradlew :build -Pkeeper.platforms=pqc
 ```
 
-Feature names match child project names. The module `:features:authority-evm` is selected with `authority-evm`.
+Feature names match child project names. `:features:digital-assets:evm` is selected with `evm`.
+Use `digital-assets` for Bitcoin, EVM, Tron, XRP, and Solana, and `agentic-payments` for both AP2 and MC VI:
+
+```bash
+./gradlew :build -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
+```
+
+The earlier `authority-bitcoin` and `authority-evm` selectors remain accepted.
+
+## Select a native OS/CPU target
+
+`keeper.platforms` selects cryptographic modules (`ecc` and `pqc`). The separate `target`
+property selects native libraries packaged into the **production** fat jar. By default,
+`target=all` keeps native binaries for every bundled OS/CPU combination and produces
+`build/libs/tkeeper-2.5.0.jar`.
+
+Build the complete feature set for a Linux amd64 host with a smaller jar:
+
+```bash
+./gradlew shadowJar -Pkeeper.features=all -Pkeeper.platforms=all -Ptarget=linux-amd64
+```
+
+The output is `build/libs/tkeeper-2.5.0-linux-amd64.jar`. To keep every bundled native variant, use
+`-Ptarget=all` or omit `target`:
+
+```bash
+./gradlew shadowJar -Pkeeper.features=all -Pkeeper.platforms=all -Ptarget=all
+```
+
+| `target` | Output classifier |
+| --- | --- |
+| `all` (default) | none |
+| `linux-amd64` | `linux-amd64` |
+| `linux-arm64` | `linux-arm64` |
+| `macos-amd64` | `macos-amd64` |
+| `macos-aarch64` | `macos-aarch64` |
+| `windows-amd64` | `windows-amd64` |
+
+Targeted jars keep only the matching RocksDB, Netty, gRPC Netty, Conscrypt, Zstd, Jansi,
+GMP, secp256k1, and libsodium native files that are bundled by the dependencies. Java
+classes and selected features remain the same. The integration and production test jars
+always retain their full native set, regardless of `target`.
+
+On Linux arm64 and macOS amd64, GMP and libsodium are loaded from the system;
+secp256k1 is also loaded when `ecc` is selected.
+At startup Keeper tries the bundled libraries first, then calls `System.loadLibrary` for
+any that are absent. Install these shared libraries where the JVM can find them (for
+example via `-Djava.library.path`). The production Dockerfile builds all three for Linux
+and sets the JVM library path; a standalone jar does not install system libraries.
+Linux targets use glibc binaries. For musl-based distributions, use `target=all` and
+verify the remaining native dependencies. A targeted jar is specific to its OS/CPU.
+
+`shadowJar` checks the finished targeted archive: it requires the selected RocksDB
+binary and runtime classes, requires bundled GMP, secp256k1, and libsodium when the
+target has them, and rejects native files for other targets. This check also runs during
+a cross build. It verifies archive contents, not whether the libraries can load on the
+target machine.
+
+On the target host, load the native libraries from the built jar with:
+
+```bash
+./gradlew smokeTargetJar -Pkeeper.features=all -Pkeeper.platforms=all -Ptarget=linux-amd64
+```
+
+This checks the JVM OS/CPU against `target`, then loads RocksDB, GMP, libsodium, and
+secp256k1 when `ecc` is selected. It fails if a required library cannot load. For
+Linux arm64 or macOS amd64, provide these system libraries in the JVM library path.
+For example, set `JAVA_TOOL_OPTIONS=-Djava.library.path=/path/to/libs` for a standalone
+run. A cross build needs this smoke command run on the target OS/CPU; it cannot validate
+native loading on the build host.
 
 ## Feature and platform matrix
 
 | Need | Feature selector | Platform selector |
 | --- | --- | --- |
-| EVM transaction authority | `authority-evm` | `ecc` |
-| Bitcoin transaction authority | `authority-bitcoin` | `ecc` |
+| EVM transaction authority | `evm` or `digital-assets` | `ecc` |
+| Bitcoin transaction authority | `bitcoin` or `digital-assets` | `ecc` |
+| Tron transaction authority | `tron` or `digital-assets` | `ecc` |
+| XRP transaction authority | `xrp` or `digital-assets` | `ecc` |
+| Solana transaction authority | `solana` or `digital-assets` | `ecc` |
+| AP2 payment authority | `ap2` or `agentic-payments` | `ecc` |
+| MC VI payment authority | `mc-vi` or `agentic-payments` | `ecc` |
 | X.509 certificate authority | `authority-x509` | `ecc` |
 | ECIES | `ecies` | `ecc` |
 | Peer share recovery | `recovery` (explicit opt-in) | `ecc`, `pqc`, or both |
@@ -61,6 +135,7 @@ Feature names match child project names. The module `:features:authority-evm` is
 | Google Cloud KMS seal provider | `seal-gcloud` | any required crypto platform |
 | Developer token authentication | `auth-dev` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Authority policy dry run | `dry-run` (explicit opt-in, excluded from `all`) | any required crypto platform |
+| MCP discovery, utilities, signing, and composition | `mcp` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | ML-DSA identities | none | `pqc` |
 | Default production set | `all` | `all` |
 
@@ -77,7 +152,7 @@ recovery module for each selected platform:
 
 The first command includes `:features:recovery` and `:features:recovery:ecc`; the second includes
 `:features:recovery` and `:features:recovery:pqc`; the third includes all three. The platform modules
-are not selected separately. Recovery, `auth-dev`, and `dry-run` are excluded from `keeper.features=all` and
+are not selected separately. Recovery, `auth-dev`, `dry-run`, and `mcp` are excluded from `keeper.features=all` and
 must be requested explicitly.
 
 Treat this as a maintenance artifact. After recovery, rebuild and redeploy the normal production
@@ -96,6 +171,15 @@ Build the dry-run endpoint explicitly in the same way:
 ./gradlew :build -Pkeeper.features=dry-run -Pkeeper.platforms=ecc
 ```
 
+Build the MCP endpoint into the same public Keeper server:
+
+```bash
+./gradlew :build -Pkeeper.features=mcp,digital-assets -Pkeeper.platforms=ecc
+```
+
+The endpoint is `POST /mcp` and uses the configured Keeper authentication provider. See
+[MCP connection and tools](../ai/mcp.md) for setup and request format.
+
 ## Selection properties
 
 | Scope | Features | Platforms |
@@ -105,8 +189,11 @@ Build the dry-run endpoint explicitly in the same way:
 | Select all | `keeper.features.all=true` | `keeper.platforms.all=true` |
 
 Comma-separated selectors accept short names such as `ecies`, `ecc`, and `pqc`. `all` selects every
-default production module in that category. Explicit features such as `recovery`, `auth-dev`, and `dry-run` are
+default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, and `mcp` are
 not included.
+
+`target` is independent of these selectors. Invalid target names fail the Gradle build
+instead of silently producing a jar with mismatched native libraries.
 
 ## Docker
 
@@ -115,6 +202,16 @@ Build the production Docker image:
 ```bash
 ./gradlew dockerBuild -Pkeeper.features=all -Pkeeper.platforms=all
 ```
+
+For a Linux amd64 or arm64 image, pass `-Ptarget=linux-amd64` or
+`-Ptarget=linux-arm64`. The Docker build uses the matching `--platform` and the
+matching production jar. `target=all` preserves the existing Docker build with the
+multi-target native jar. macOS and Windows targets cannot be used with `dockerBuild` because the
+Dockerfile produces Linux images.
+
+`dockerBuild` also loads the jar's native libraries inside the target image before
+finishing. For `linux-arm64` on an amd64 host, Docker must be able to execute arm64
+build steps (for example through an arm64 builder or emulation).
 
 Build a recovery image with both platform implementations:
 
@@ -127,7 +224,7 @@ Build a recovery image with both platform implementations:
 Production image tags:
 
 ```text
-exploit/tkeeper:2.4.1
+exploit/tkeeper:2.5.0
 exploit/tkeeper:latest
 ```
 
@@ -146,7 +243,7 @@ docker run --rm \
   -v "$PWD/config:/etc/tkeeper:ro" \
   -v "$PWD/data:/var/lib/tkeeper" \
   -e KEEPER_CONFIG_LOCATION=/etc/tkeeper \
-  exploit/tkeeper:2.4.1
+  exploit/tkeeper:2.5.0
 ```
 
 ## Integration image
@@ -195,7 +292,7 @@ The platform was not included in the artifact.
 Rebuild with the required platform, for example:
 
 ```bash
-./gradlew :build -Pkeeper.features=authority-evm -Pkeeper.platforms=ecc
+./gradlew :build -Pkeeper.features=evm -Pkeeper.platforms=ecc
 ```
 
 ### Native access warning

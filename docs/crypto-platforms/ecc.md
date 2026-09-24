@@ -13,13 +13,13 @@ The `ecc` platform provides:
 
 Features that currently require `ecc`:
 
-- `authority-evm`
-- `authority-bitcoin`
+- Bitcoin, EVM, Tron, XRP, and Solana (`digital-assets`)
+- AP2 and MC VI (`agentic-payments`)
 - `authority-x509`
 - `ecies`
 
 Build example:
 
 ```bash
-./gradlew shadowJar -Pkeeper.features=authority-evm,ecies -Pkeeper.platforms=ecc
+./gradlew shadowJar -Pkeeper.features=evm,ecies -Pkeeper.platforms=ecc
 ```

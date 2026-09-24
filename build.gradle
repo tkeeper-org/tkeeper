@@ -1,14 +1,14 @@
 plugins {
     id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '2.3.20'
+    id 'org.jetbrains.kotlin.jvm' version '2.4.20'
     id 'com.gradleup.shadow' version '9.4.1'
-    id 'com.google.devtools.ksp' version '2.3.6'
+    id 'com.google.devtools.ksp' version '2.3.10'
 }
 
 def mainClassName = 'org.exploit.keeper.TKeeperKt'
 
 group = 'org.exploit'
-version = '2.4.1'
+version = '2.5.0'
 
 repositories {
     mavenCentral()
@@ -24,22 +24,111 @@ repositories {
 allprojects {
     tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
         jvmArgs '--enable-native-access=ALL-UNNAMED'
+        systemProperty 'msgpack.universal-buffer', System.getProperty('msgpack.universal-buffer', 'true')
+    }
+}
+
+def alignedRuntimeVersions = [
+        'com.fasterxml.jackson:jackson-bom'                : '2.22.3',
+        'com.google.auto.value:auto-value-annotations'    : '1.11.1',
+        'com.google.errorprone:error_prone_annotations'   : '2.50.0',
+        'com.google.guava:guava'                           : '33.7.1-jre',
+        'com.google.j2objc:j2objc-annotations'             : '3.1',
+        'com.google.protobuf:protobuf-java'               : '4.36.0',
+        'com.google.protobuf:protobuf-java-util'          : '4.36.0',
+        'commons-codec:commons-codec'                     : '1.22.1',
+        'org.apache.httpcomponents:httpclient'            : '4.5.14',
+        // t-mldsa:0.2.2 still uses org.bouncycastle.pqc.crypto.mldsa, removed in 1.86.
+        'org.bouncycastle:bcprov-jdk18on'                 : '1.85.2',
+        'org.jetbrains.kotlin:kotlin-reflect'             : '2.4.20',
+        'org.jetbrains.kotlin:kotlin-stdlib'              : '2.4.20',
+        'org.jetbrains:annotations'                       : '26.1.0',
+        'org.jspecify:jspecify'                            : '1.0.1',
+        'org.slf4j:slf4j-api'                              : '2.0.19'
+]
+
+// -Ptarget chooses the OS/CPU binaries in the production fat jar; it does not select crypto modules.
+// Keep "all" as the default. GMP, secp256k1, and libsodium loaders use system libraries
+// when a native is not bundled for the selected target.
+def nativeTargets = [
+        'linux-amd64'  : [rocksdb: 'librocksdbjni-linux64.so',           bundled: 'natives/linux-amd64/',
+                          jansi: 'Linux/x86_64/', zstd: 'linux/amd64/',  nativeArch: 'x86_64',  nativeExtensions: ['.so']],
+        'linux-arm64'  : [rocksdb: 'librocksdbjni-linux-aarch64.so',     bundled: null,
+                          jansi: 'Linux/arm64/',  zstd: 'linux/aarch64/', nativeArch: 'aarch_64', nativeExtensions: ['.so']],
+        'macos-amd64'  : [rocksdb: 'librocksdbjni-osx-x86_64.jnilib',    bundled: null,
+                          jansi: 'Mac/x86_64/',   zstd: 'darwin/x86_64/', nativeArch: 'x86_64',  nativeExtensions: ['.jnilib', '.dylib']],
+        'macos-aarch64': [rocksdb: 'librocksdbjni-osx-arm64.jnilib',     bundled: 'natives/macos-aarch64/',
+                          jansi: 'Mac/arm64/',    zstd: 'darwin/aarch64/', nativeArch: 'aarch_64', nativeExtensions: ['.jnilib', '.dylib']],
+        'windows-amd64': [rocksdb: 'librocksdbjni-win64.dll',           bundled: 'natives/windows-amd64/',
+                          jansi: 'Windows/x86_64/', zstd: 'win/amd64/', nativeArch: 'x86_64', nativeExtensions: ['.dll']]
+]
+def nativeTarget = findProperty('target') == null
+        ? 'all'
+        : findProperty('target').toString().trim().toLowerCase(java.util.Locale.ROOT)
+if (nativeTarget != 'all' && !nativeTargets.containsKey(nativeTarget)) {
+    throw new GradleException("Unknown -Ptarget=$nativeTarget. Use all or one of: ${nativeTargets.keySet().join(', ')}")
+}
+def selectedNatives = nativeTargets[nativeTarget]
+def excludesOtherTargetNative = { String path ->
+    if (path.startsWith('librocksdbjni-')) {
+        return path != selectedNatives.rocksdb
+    }
+    if (path.startsWith('natives/')) {
+        return selectedNatives.bundled == null || !path.startsWith(selectedNatives.bundled)
+    }
+    if (path.startsWith('org/fusesource/jansi/internal/native/')) {
+        return !path.startsWith("org/fusesource/jansi/internal/native/${selectedNatives.jansi}")
+    }
+    if (path ==~ /(?:aix|darwin|freebsd|linux|win)\/[^\/]+\/libzstd-jni-.*\.(?:so|dylib|dll)/) {
+        return !path.startsWith(selectedNatives.zstd)
+    }
+    if (path.startsWith('META-INF/native/')) {
+        return !selectedNatives.nativeExtensions.any { path.endsWith(it) } ||
+                !path.contains(selectedNatives.nativeArch)
+    }
+    return false
+}
+
+allprojects {
+    configurations.matching {
+        it.name in ['compileClasspath', 'runtimeClasspath', 'testCompileClasspath', 'testRuntimeClasspath',
+                    'testFixturesCompileClasspath', 'testFixturesRuntimeClasspath']
+    }.configureEach {
+        resolutionStrategy.eachDependency { details ->
+            def requested = details.requested
+            def version = alignedRuntimeVersions["${requested.group}:${requested.name}"]
+
+            if (requested.group == 'io.netty' && requested.name.startsWith('netty-')) {
+                // netty-handler 4.2.18 calls SSL.getGroupName, absent from tcnative 2.0.77.
+                version = requested.name.startsWith('netty-tcnative') ? '2.0.84.Final' : '4.2.18.Final'
+            }
+
+            if (version != null) {
+                details.useVersion(version)
+            }
+        }
     }
 }
 
 def featureModules = [
-        'features:seal-aws'          : 'keeper.feature.seal.aws',
-        'features:seal-gcloud'       : 'keeper.feature.seal.gcloud',
-        'features:authority-bitcoin' : 'keeper.feature.authority.bitcoin',
-        'features:authority-evm'     : 'keeper.feature.authority.evm',
-        'features:authority-x509'    : 'keeper.feature.authority.x509',
-        'features:ecies'             : 'keeper.feature.ecies',
-        'features:ui'                : 'keeper.feature.ui'
+        'features:seal-aws'               : 'keeper.feature.seal.aws',
+        'features:seal-gcloud'            : 'keeper.feature.seal.gcloud',
+        'features:digital-assets:bitcoin' : 'keeper.feature.digital-assets.bitcoin',
+        'features:digital-assets:evm'     : 'keeper.feature.digital-assets.evm',
+        'features:digital-assets:tron'    : 'keeper.feature.digital-assets.tron',
+        'features:digital-assets:xrp'     : 'keeper.feature.digital-assets.xrp',
+        'features:digital-assets:solana'  : 'keeper.feature.digital-assets.solana',
+        'features:authority-x509'         : 'keeper.feature.authority.x509',
+        'features:ecies'                  : 'keeper.feature.ecies',
+        'features:ui'                     : 'keeper.feature.ui',
+        'features:agentic-payments:ap2'   : 'keeper.feature.agentic-payments.ap2',
+        'features:agentic-payments:mc-vi' : 'keeper.feature.agentic-payments.mc-vi'
 ]
 
 def explicitFeatureModules = [
         'features:auth-dev'          : 'keeper.feature.auth.dev',
         'features:dry-run'           : 'keeper.feature.dry-run',
+        'features:mcp'               : 'keeper.feature.mcp',
         'features:recovery'          : 'keeper.feature.recovery',
 ]
 
@@ -59,7 +148,8 @@ def shadowedRuntimeModules =
         featureModules.keySet() +
                 explicitFeatureModules.keySet() +
                 recoveryPlatformModules.values() +
-                testOnlyFeatureModules
+                testOnlyFeatureModules +
+                ['features:agentic-payments']
 
 shadowedRuntimeModules.each { moduleName ->
     def moduleProject = project(":$moduleName")
@@ -68,13 +158,23 @@ shadowedRuntimeModules.each { moduleName ->
             archiveClassifier.set('plain')
         }
     }
+    moduleProject.pluginManager.withPlugin('com.gradleup.shadow') {
+        moduleProject.tasks.named('shadowJar') {
+            exclude 'org/slf4j/**'
+        }
+    }
 }
 
 def featurePlatformRequirements = [
-        'features:authority-bitcoin'        : ['platform-ecc'],
-        'features:authority-evm'            : ['platform-ecc'],
+        'features:digital-assets:bitcoin'   : ['platform-ecc'],
+        'features:digital-assets:evm'       : ['platform-ecc'],
+        'features:digital-assets:tron'      : ['platform-ecc'],
+        'features:digital-assets:xrp'       : ['platform-ecc'],
+        'features:digital-assets:solana'    : ['platform-ecc'],
         'features:authority-x509'           : ['platform-ecc'],
-        'features:ecies'                    : ['platform-ecc']
+        'features:ecies'                    : ['platform-ecc'],
+        'features:agentic-payments:ap2'      : ['platform-ecc'],
+        'features:agentic-payments:mc-vi'    : ['platform-ecc']
 ]
 
 def truthy = { value ->
@@ -96,6 +196,11 @@ def selectedProductionFeatures = [selectedRuntimeFeatures, selectedDockerFeature
         .flatten()
         .toSet()
 
+def legacyDigitalAssetSelectors = [
+        'features:digital-assets:bitcoin': ['authority-bitcoin', 'keeper.feature.authority.bitcoin'],
+        'features:digital-assets:evm'    : ['authority-evm', 'keeper.feature.authority.evm']
+]
+
 def explicitlySelectedFeature = { Set<String> features, String moduleName ->
     def shortName = moduleName.tokenize(':').last()
     features.contains(moduleName) || features.contains(shortName) || features.contains("feature-$shortName")
@@ -107,8 +212,15 @@ def allProductionFeaturesSelected =
                 selectedDockerFeatures.contains('all')
 
 def shouldIncludeProductionFeature = { String moduleName, String propertyName ->
+    def path = moduleName.tokenize(':')
+    def groupSelected = path.size() == 3 &&
+            explicitlySelectedFeature(selectedProductionFeatures, "features:${path[1]}")
+    def legacySelectors = legacyDigitalAssetSelectors.get(moduleName, [])
+
     allProductionFeaturesSelected ||
             explicitlySelectedFeature(selectedProductionFeatures, moduleName) ||
+            groupSelected ||
+            legacySelectors.any { selectedProductionFeatures.contains(it) || truthy(findProperty(it)) } ||
             truthy(findProperty(propertyName))
 }
 
@@ -179,7 +291,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
 
     api 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    api 'org.msgpack:jackson-dataformat-msgpack:0.9.10'
+    api 'org.msgpack:jackson-dataformat-msgpack:0.9.12'
 
     api 'org.exploit:jettyx:0.1.7'
     api 'org.exploit:jettyx-jackson:0.1.7'
@@ -198,10 +310,10 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit:verdict:0.1.2'
+    api 'org.exploit.verdict:core:0.2.0'
 
-    api 'org.exploit:verdict-authority:0.1.2'
-    api 'org.exploit:verdict-authority-oci:0.1.2'
+    api 'org.exploit.verdict:authority:0.2.0'
+    api 'org.exploit.verdict:authority-oci:0.2.0'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
@@ -211,9 +323,9 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit:verdict-intent-typed:0.1.2'
+    implementation 'org.exploit.verdict:typed:0.2.0'
 
-    implementation 'org.bouncycastle:bcprov-jdk18on:1.84'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
     implementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
     implementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
@@ -265,7 +377,7 @@ dependencies {
 
 tasks.named('shadowJar') {
     archiveBaseName.set('tkeeper')
-    archiveClassifier.set('')
+    archiveClassifier.set(nativeTarget == 'all' ? '' : nativeTarget)
 
     configurations = [
             project.configurations.runtimeClasspath,
@@ -286,6 +398,10 @@ tasks.named('shadowJar') {
             'META-INF/NOTICE',
             'META-INF/LICENSE*'
 
+    if (selectedNatives != null) {
+        exclude { element -> !element.directory && excludesOtherTargetNative(element.path) }
+    }
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     doFirst {
@@ -297,6 +413,63 @@ tasks.named('shadowJar') {
             )
         }
     }
+
+    doLast {
+        if (selectedNatives == null) {
+            return
+        }
+
+        def archive = new java.util.zip.ZipFile(archiveFile.get().asFile)
+        try {
+            def entries = [] as Set
+            def iterator = archive.entries()
+            while (iterator.hasMoreElements()) {
+                def entry = iterator.nextElement()
+                if (!entry.isDirectory()) {
+                    entries.add(entry.name)
+                }
+            }
+            def required = [selectedNatives.rocksdb,
+                            'org/rocksdb/RocksDB.class',
+                            'org/exploit/bigint/LibGMP.class',
+                            'org/exploit/sodium/LibSodium.class']
+            if (selectedNatives.bundled != null) {
+                def extension = nativeTarget.startsWith('linux-') ? '.so' :
+                        nativeTarget.startsWith('macos-') ? '.dylib' : '.dll'
+                required += ['libgmp', 'libsecp256k1', 'libsodium'].collect {
+                    "${selectedNatives.bundled}${it}${extension}"
+                }
+            }
+            if (enabledPlatformModules.containsKey('platform-ecc')) {
+                required += 'org/exploit/ecc/secp256k1/LibSecp256k1.class'
+            }
+
+            def missing = required.findAll { !entries.contains(it) }
+            def foreign = entries.findAll(excludesOtherTargetNative)
+            if (!missing.isEmpty() || !foreign.isEmpty()) {
+                throw new GradleException("Invalid $nativeTarget jar: missing $missing; foreign native files $foreign")
+            }
+            logger.lifecycle("Verified native contents of ${archiveFile.get().asFile.name} for $nativeTarget")
+        } finally {
+            archive.close()
+        }
+    }
+}
+
+tasks.register('smokeTargetJar', Exec) {
+    group = 'verification'
+    description = 'Loads native libraries from the production fat jar on the selected target OS/CPU.'
+    dependsOn tasks.named('shadowJar')
+
+    def java25 = javaToolchains.launcherFor {
+        languageVersion = org.gradle.jvm.toolchain.JavaLanguageVersion.of(25)
+    }
+    executable = java25.get().executablePath.asFile.absolutePath
+    args '--enable-native-access=ALL-UNNAMED',
+            '-cp', tasks.named('shadowJar').get().archiveFile.get().asFile.absolutePath,
+            'tools/NativeJarSmoke.java',
+            nativeTarget,
+            enabledPlatformModules.containsKey('platform-ecc').toString()
 }
 
 tasks.named('jar') {
@@ -375,8 +548,17 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
 
     doLast {
         def forbidden = [
+                'bitcoin'         : 'org/exploit/keeper/authority/bitcoin/UtxoInputCommandMaterializer.class',
+                'evm'             : 'org/exploit/keeper/authority/evm/EvmCommandMaterializer.class',
+                'tron'            : 'org/exploit/keeper/authority/tron/TronCommandMaterializer.class',
+                'xrp'             : 'org/exploit/keeper/authority/xrp/XrpCommandMaterializer.class',
+                'solana'          : 'org/exploit/keeper/authority/solana/SolanaCommandMaterializer.class',
+                'ap2'             : 'org/exploit/keeper/payment/ap2/Ap2CommandMaterializer.class',
+                'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
+                'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
+                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
@@ -404,8 +586,17 @@ tasks.register('artifactIsolationTest') {
 
     doLast {
         def markers = [
+                'bitcoin'         : 'org/exploit/keeper/authority/bitcoin/UtxoInputCommandMaterializer.class',
+                'evm'             : 'org/exploit/keeper/authority/evm/EvmCommandMaterializer.class',
+                'tron'            : 'org/exploit/keeper/authority/tron/TronCommandMaterializer.class',
+                'xrp'             : 'org/exploit/keeper/authority/xrp/XrpCommandMaterializer.class',
+                'solana'          : 'org/exploit/keeper/authority/solana/SolanaCommandMaterializer.class',
+                'ap2'             : 'org/exploit/keeper/payment/ap2/Ap2CommandMaterializer.class',
+                'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
+                'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
+                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
@@ -461,11 +652,22 @@ tasks.register('dockerBuild', Exec) {
     dependsOn tasks.named('prepareDocker')
 
     executable = 'docker'
-    args 'build',
-            '-f', 'Dockerfile',
+    args 'build'
+    if (nativeTarget in ['linux-amd64', 'linux-arm64']) {
+        args '--platform', nativeTarget == 'linux-amd64' ? 'linux/amd64' : 'linux/arm64'
+    }
+    args '-f', 'Dockerfile',
+            '--build-arg', "TKEEPER_TARGET=$nativeTarget",
+            '--build-arg', "TKEEPER_ECC=${enabledPlatformModules.containsKey('platform-ecc')}",
             '-t', "exploit/tkeeper:${project.version}",
             '-t', 'exploit/tkeeper:latest',
             '.'
+
+    doFirst {
+        if (nativeTarget != 'all' && !nativeTarget.startsWith('linux-')) {
+            throw new GradleException("Dockerfile builds Linux images; use -Ptarget=linux-amd64, -Ptarget=linux-arm64, or -Ptarget=all")
+        }
+    }
 }
 
 tasks.register('dockerBuildIntegration', Exec) {
@@ -545,10 +747,4 @@ test {
 
 kotlin {
     jvmToolchain(25)
-}
-
-compileKotlin {
-    compilerOptions {
-        freeCompilerArgs.set(["-Xannotation-default-target=param-property"])
-    }
 }
