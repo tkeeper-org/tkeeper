@@ -13,6 +13,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
     volumes:
@@ -26,6 +27,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
       HSM_ENABLED: "true"
@@ -42,6 +44,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         -Dkeeper.coordinator.enabled=false
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
@@ -56,6 +59,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
     volumes:
@@ -70,6 +74,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
     volumes:
@@ -84,6 +89,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
     volumes:
@@ -98,6 +104,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
     volumes:
@@ -110,6 +117,7 @@ services:
     environment:
       JAVA_TOOL_OPTIONS: >-
         -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib
+        -Dcom.linecorp.armeria.defaultRequestTimeoutMillis=60000
         --enable-native-access=ALL-UNNAMED
       LD_LIBRARY_PATH: /usr/local/lib:/usr/lib64:/lib64:/lib:/usr/lib
     volumes:
