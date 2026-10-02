@@ -38,7 +38,7 @@ def alignedRuntimeVersions = [
         'com.google.protobuf:protobuf-java-util'          : '4.36.0',
         'commons-codec:commons-codec'                     : '1.22.1',
         'org.apache.httpcomponents:httpclient'            : '4.5.14',
-        // t-mldsa:0.2.2 still uses org.bouncycastle.pqc.crypto.mldsa, removed in 1.86.
+        // t-mldsa:0.3.1 still uses org.bouncycastle.pqc.crypto.mldsa, removed in 1.86.
         'org.bouncycastle:bcprov-jdk18on'                 : '1.85.2',
         'org.jetbrains.kotlin:kotlin-reflect'             : '2.4.20',
         'org.jetbrains.kotlin:kotlin-stdlib'              : '2.4.20',
@@ -304,16 +304,16 @@ dependencies {
     api 'org.rocksdb:rocksdbjni:10.2.1'
     api 'org.exploit:secure-buffer:0.1.0'
 
-    api platform('org.exploit.anvil:bom:0.2.2')
+    api enforcedPlatform('org.exploit.anvil:bom:0.3.1')
     api 'org.exploit.anvil:bigint'
     api 'org.exploit.anvil:shamir'
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.2.0'
+    api 'org.exploit.verdict:core:0.2.1'
 
-    api 'org.exploit.verdict:authority:0.2.0'
-    api 'org.exploit.verdict:authority-oci:0.2.0'
+    api 'org.exploit.verdict:authority:0.2.1'
+    api 'org.exploit.verdict:authority-oci:0.2.1'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
@@ -323,7 +323,7 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit.verdict:typed:0.2.0'
+    implementation 'org.exploit.verdict:typed:0.2.1'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 

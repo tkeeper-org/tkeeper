@@ -27,16 +27,16 @@ dependencies {
     testImplementation(project(':'))
     compileOnly(project(':'))
 
-    api 'org.exploit.anvil:ecc-secp256k1:0.2.2'
-    api 'org.exploit.anvil:ecc-ed25519:0.2.2'
-    api 'org.exploit.anvil:ecc-p256:0.2.2'
+    api 'org.exploit.anvil:ecc-secp256k1:0.3.1'
+    api 'org.exploit.anvil:ecc-ed25519:0.3.1'
+    api 'org.exploit.anvil:ecc-p256:0.3.1'
 
-    implementation 'org.exploit.anvil:t-ecdsa:0.2.2'
-    implementation 'org.exploit.anvil:t-schnorr:0.2.2'
-    implementation 'org.exploit.anvil:frost-ed25519:0.2.2'
-    implementation 'org.exploit.anvil:frost-secp256k1:0.2.2'
-    implementation 'org.exploit.anvil:frost-p256:0.2.2'
-    implementation 'org.exploit.anvil:zk-dlog:0.2.2'
+    implementation 'org.exploit.anvil:t-ecdsa:0.3.1'
+    implementation 'org.exploit.anvil:t-schnorr:0.3.1'
+    implementation 'org.exploit.anvil:frost-ed25519:0.3.1'
+    implementation 'org.exploit.anvil:frost-secp256k1:0.3.1'
+    implementation 'org.exploit.anvil:frost-p256:0.3.1'
+    implementation 'org.exploit.anvil:zk-dlog:0.3.1'
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
 }

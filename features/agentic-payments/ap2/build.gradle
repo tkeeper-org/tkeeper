@@ -44,7 +44,7 @@ dependencies {
     implementation(project(':features:agentic-payments'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit.verdict:ap2:0.2.0'
+    implementation 'org.exploit.verdict:ap2:0.2.1'
 }
 
 tasks.named('shadowJar') {

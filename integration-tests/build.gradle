@@ -41,6 +41,7 @@ dependencies {
         exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
     }
     testFixturesApi('org.web3j:core:4.12.3')
+    testFixturesApi enforcedPlatform('org.exploit.anvil:bom:0.3.1')
     testFixturesApi platform('org.exploit.signet:bom:0.1.0')
     testFixturesApi 'org.exploit.signet:tron'
     testFixturesApi 'org.exploit.signet:xrp'

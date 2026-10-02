@@ -25,7 +25,7 @@ dependencies {
     testImplementation 'io.kotest:kotest-property:6.1.11'
     testImplementation 'com.code-intelligence:jazzer-junit:0.30.0'
     testImplementation(project(':'))
-    implementation ('org.exploit.anvil:t-mldsa:0.2.2')
+    implementation ('org.exploit.anvil:t-mldsa:0.3.1')
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
     compileOnly(project(':'))
 

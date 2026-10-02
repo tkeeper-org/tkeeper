@@ -37,7 +37,7 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit.anvil:t-ecies:0.2.2'
+    implementation 'org.exploit.anvil:t-ecies:0.3.1'
 }
 
 tasks.named('shadowJar') {

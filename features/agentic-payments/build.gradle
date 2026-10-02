@@ -41,13 +41,14 @@ dependencies {
     testFixturesImplementation(project(':'))
     testFixturesImplementation testFixtures(project(':integration-tests'))
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'io.kotest:kotest-property:6.1.11'
     testImplementation testFixtures(project(':integration-tests'))
     testImplementation(project(':'))
     compileOnly(project(':'))
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    api 'org.exploit.verdict:payments:0.2.0'
+    api 'org.exploit.verdict:payments:0.2.1'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
 }
 

@@ -8,9 +8,9 @@ verification pipeline as the other keeper authority modules.
 ```
 
 Select `ap2` or `mc-vi` independently when only one is needed. Their dependencies are
-`org.exploit.verdict:ap2:0.2.0` and
-`org.exploit.verdict:mc-vi:0.2.0`; shared request validation and CEL
-functions come from `org.exploit.verdict:payments:0.2.0`.
+`org.exploit.verdict:ap2:0.2.1` and
+`org.exploit.verdict:mc-vi:0.2.1`; shared request validation and CEL
+functions come from `org.exploit.verdict:payments:0.2.1`.
 
 ## Authority
 

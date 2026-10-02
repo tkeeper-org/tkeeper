@@ -22,11 +22,11 @@ dependencies {
     compileOnly(project(':'))
     compileOnly(project(':features:recovery'))
     compileOnly(project(':platform-pqc'))
-    compileOnly 'org.exploit.anvil:t-mldsa:0.2.2'
+    compileOnly 'org.exploit.anvil:t-mldsa:0.3.1'
     testImplementation(project(':'))
     testImplementation(project(':features:recovery'))
     testImplementation(project(':platform-pqc'))
-    testImplementation 'org.exploit.anvil:t-mldsa:0.2.2'
+    testImplementation 'org.exploit.anvil:t-mldsa:0.3.1'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
     testImplementation 'com.code-intelligence:jazzer-junit:0.30.0'

@@ -39,7 +39,7 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit.verdict:bitcoin:0.2.0'
+    implementation 'org.exploit.verdict:bitcoin:0.2.1'
     implementation 'org.exploit.signet:crypto-util:0.1.0-SNAPSHOT'
 }
 

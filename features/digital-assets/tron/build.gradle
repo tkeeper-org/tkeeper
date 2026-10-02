@@ -27,7 +27,7 @@ def jacksonGroups = [
         'com.fasterxml.jackson.jakarta.rs'
 ]
 
-configurations.matching { it.name.toLowerCase(java.util.Locale.ROOT).contains('runtime') }.configureEach {
+configurations.matching { it.name == 'runtimeClasspath' }.configureEach {
     jacksonGroups.each { groupName -> exclude group: groupName }
 }
 
@@ -40,7 +40,7 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit.verdict:tron:0.2.0'
+    implementation 'org.exploit.verdict:tron:0.2.1'
 }
 
 tasks.named('shadowJar') {
