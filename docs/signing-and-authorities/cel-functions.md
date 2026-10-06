@@ -1,6 +1,6 @@
 # CEL Functions
 
-TKeeper installs these functions for every authority policy. Intent-specific root variables are listed on the `custom`, EVM, Bitcoin, and X.509 authority pages. The [typed authority example](authorities.md#custom-authority-example) shows at least one function from each category below and includes a matching command.
+These functions are available in every authority policy. Each [authority type](authorities.md#intent-types) defines its own root variables. See the [typed authority example](authorities.md#custom-authority-example) for a policy and matching command.
 
 ## Standard CEL
 

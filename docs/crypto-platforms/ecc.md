@@ -11,7 +11,7 @@ The `ecc` platform provides:
 - deterministic ECC key derivation
 - ECIES support for compatible curves
 
-Features that currently require `ecc`:
+Features that require `ecc`:
 
 - Bitcoin, EVM, Tron, XRP, and Solana (`digital-assets`)
 - AP2 and MC VI (`agentic-payments`)

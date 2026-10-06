@@ -1,6 +1,6 @@
 # Crypto Platforms
 
-Platforms are build-time modules. They provide key algorithms and protocol implementations. Features provide product surfaces that may depend on those platforms.
+Select `ecc` or `pqc` when building TKeeper to include the algorithms your keys need. Features such as transaction authorities may also require a particular platform.
 
 Read:
 

@@ -1,6 +1,6 @@
 # AP2 Authority
 
-Use `type: ap2.mandate` for an AP2 payment mandate. The [tested authority](../../../integration-tests/src/testFixtures/resources/authorities/payments/ap2-purchases.yaml) permits the configured shop and card, at most USD 100 per purchase and USD 150 across the request:
+Use `type: ap2.mandate` for an AP2 payment mandate. This authority permits the configured shop and card, at most USD 100 per purchase and USD 150 across the request:
 
 ```yaml
 schemaVersion: verdict.authority/v1

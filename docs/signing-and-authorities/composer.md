@@ -1,6 +1,6 @@
 # Composer
 
-`POST /v2/keeper/compose` accepts the same `Sign` request as `/v2/keeper/sign` and requires `tkeeper.key.{keyId}.sign`. TKeeper checks the key's authority, policy, approvals, and signing controls, then passes the signature to the composer registered for the command type.
+`POST /v2/keeper/compose` accepts the same `Sign` request as `/v2/keeper/sign` and requires `tkeeper.key.{keyId}.sign`. TKeeper checks the key's authority, policy, and required approvals, signs the command, and returns the result listed below for its type.
 
 | Command type | Compose result |
 | --- | --- |

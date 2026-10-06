@@ -1,18 +1,12 @@
 # Authorities
 
-Authorities bind a key identity to the actions it may authorize.
+An authority attached to a key defines the commands that key may sign. Its document contains an input schema, trusted configuration, and policy. For example, a transfer authority can limit the recipient and amount.
 
-With concrete authorities, TKeeper checks the requested effect before signing starts.
-
-An authority document is security policy and an intent schema. Review changes to either with the same care as changes to signing code.
-
-TKeeper validates the document, intent config, public approver material, and CEL policy before creating or importing a key. The policy compiles against the selected intent's strict root schema.
+TKeeper validates the document, configuration, approver keys, and policy before creating or importing the key. Policy compiles against the root variables exposed by the authority type. Review schema and policy changes before attaching a new artifact digest.
 
 ## Threshold-backed authorization
 
-In threshold mode, authority enforcement is backed by the same `t-of-n` boundary as key use: fewer than `t` compromised peers cannot complete a threshold signature for an action rejected by the honest peers. This makes the governed identity the strongest authorization boundary in the stack.
-
-Treat authority documents accordingly: keep them narrow, review every schema and policy change, and attach them through digest-pinned references. See [Quorum Modes](../security-model/quorum-modes.md) and the [Threat Model](../security-model/threat-model.md) for detailed guarantees, assumptions, and residual risks.
+Each participating peer checks the authority and policy before contributing. With matching policy state on honest peers, fewer than `t` compromised peers cannot sign an action those peers reject. See [Quorum Modes](../security-model/quorum-modes.md) and the [Threat Model](../security-model/threat-model.md) for compromise and availability limits.
 
 ## Key authorities
 
@@ -58,11 +52,11 @@ Treat one authority document as one logical action. A document can technically c
 
 ## Authority document
 
-Concrete authorities are Verdict authority documents. `custom` defines a typed JSON request directly in the document and is the neutral starting point for a new integration.
+Concrete authorities use the `verdict.authority/v1` document format. For a service command without a protocol-specific authority, use `custom` to declare its JSON fields and effects.
 
 ### Custom authority example
 
-This example defines a custom typed authority and a matching command. Its policy shows standard CEL and at least one function from each helper category: effects, decimal, bigint, lists, network, semver, crypto, and time.
+This authority allows a production deployment when the submitted roles, source address, release version, sequence, risk score, change proof, and request window meet its policy. The matching command appears in [Request matching](#request-matching).
 
 ```yaml
 schemaVersion: verdict.authority/v1
@@ -136,7 +130,7 @@ policy:
   deny: []
 ```
 
-Each expression demonstrates a policy surface:
+The rule uses these checks:
 
 | Category | Expression in the example | Purpose |
 | --- | --- | --- |
@@ -203,7 +197,7 @@ The command `type` must match the authority document `type`.
 
 The authority document `id` must match the key authority id.
 
-If policy returns `ALLOW`, TKeeper starts threshold signing. If the policy returns `DENY`, signing does not start.
+After policy and key controls pass, TKeeper signs in the configured quorum mode. `ALLOW_WITH_REQUIREMENTS` also needs the required approvals; `DENY` prevents signing.
 
 For `arbitrary`, TKeeper only checks that the key allows `arbitrary` and that the command artifact type is `arbitrary`. No Verdict policy is loaded.
 
@@ -236,7 +230,7 @@ Build example:
 
 Effects are normalized consequences exposed to CEL as `effects`.
 
-Raw request fields explain the input. Effects describe what the input does.
+For example, a decoded token transfer produces an effect with the token, sender, recipient, and amount. Policy can check those fields without decoding the transaction again.
 
 Example effect:
 
@@ -394,9 +388,7 @@ For example, `purpoze == 'payment'` fails authority creation when the custom sch
 
 See [CEL functions](cel-functions.md) for the standard macros and installed `effect`, decimal, bigint, list, network, semver, crypto, and time helpers.
 
-The audit event stores the policy decision and matched rules.
-
-For a policy-checked sign request, the audit event always carries the Verdict policy evaluation.
+The audit event includes the policy decision, matched rules, and approval requirements.
 
 ## OCI artifacts
 
@@ -437,7 +429,7 @@ Use `custom` when the request is JSON and no native intent exists. The [custom a
 
 Only declared fields become CEL variables. Unknown JSON fields are rejected before signing. `effects` is reserved.
 
-This has an important integration consequence: a backend must not act on unknown fields that were invisible to policy. Reject extra fields before calling TKeeper, or construct the executed action exclusively from declared, governed fields.
+Construct the executed action from the declared fields in the signed command. Extra fields added after signing or taken from a separate request have not passed authority policy.
 
 Schema evolution should be explicit. Changing field meaning, effect mapping, or policy requires a new reviewed artifact digest; the human-readable `version` field is not a trust anchor.
 
@@ -447,7 +439,7 @@ Supported custom field types and validation rules are documented in [Arbitrary a
 
 ### Key with `arbitrary` plus another authority is rejected
 
-`arbitrary` means raw signing. Mixing it with concrete authorities makes the key ambiguous.
+Raw signing would let a caller bypass the concrete authority policy. Use a separate key for `arbitrary` signing.
 
 ### `INVALID_AUTHORITY`
 

@@ -2,7 +2,7 @@
 
 ## Start with the failed stage
 
-Most failures map to one authority-path stage:
+Use the error enum to identify the failed check:
 
 | Stage | Common symptom |
 | --- | --- |
@@ -67,7 +67,7 @@ The key's authority configuration is invalid. Check for an empty list, duplicate
 
 ## `POLICY_VIOLATION`
 
-The authority policy denied the intent. This is a normal fail-closed result.
+The authority policy denied the intent. Inspect the command and policy before retrying.
 
 Check the materialized intent and effects. If an external verdict is used, verify the verdict input is bound to the same action that will be signed.
 
@@ -75,7 +75,7 @@ Check the materialized intent and effects. If an external verdict is used, verif
 
 The session retry cap was exhausted.
 
-For threshold ML-DSA, this can happen from normal rejection sampling. Treat it as availability first, not automatic corruption.
+For threshold ML-DSA, healthy attempts can abort during rejection sampling. Check retries and latency before attributing the failure to a bad peer.
 
 Check:
 

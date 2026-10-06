@@ -1,8 +1,8 @@
 # Threat Model
 
-This page covers TKeeper service-level threats and residual risks.
+This page lists threats to TKeeper, the controls that address them, and the risks that remain.
 
-TKeeper's security boundary is the governed cryptographic identity. With a concrete authority, an identity can authorize an action only after TKeeper materializes the intent, accepts the authority and policy decision, passes audit and key controls, and produces proof that the downstream system verifies before execution. An `arbitrary` authority is raw signing and does not provide this semantic guarantee.
+For concrete authorities, TKeeper parses the command and checks policy, approvals, audit, and key state before signing. The receiving system must verify the signature and exact action before execution. Raw `arbitrary` signing has no intent policy.
 
 For protocol-level details in FROST, GG20, threshold ML-DSA, ECIES, ZK proofs, nonce handling, Paillier, and elliptic-curve math, use the Anvil threat model:
 
@@ -21,7 +21,7 @@ In scope:
 - key lifecycle operations
 - trusted dealer import
 - audit log integrity and sink enforcement
-- UI exposure through `:features:ui`
+- control-plane UI access
 
 Out of scope:
 
@@ -35,7 +35,7 @@ Out of scope:
 
 ## Assumptions
 
-TKeeper runs as a cluster of peers. Each peer has one local key share. A threshold operation needs enough peers to participate.
+In threshold mode, each peer holds a local key share and an operation requires a quorum. In mono mode, one host holds the full private key; compromising that host compromises the key.
 
 Compromising fewer than `threshold` peers must not give the attacker a usable private key. Compromising at least `threshold` peers breaks the threshold model.
 
@@ -45,7 +45,7 @@ Production artifacts include only explicitly selected platforms and features. Th
 
 Authorities are part of the signing boundary. A key either uses `arbitrary` for raw signing or uses concrete authority policies. `arbitrary` cannot be mixed with concrete authorities on the same key.
 
-Concrete authorities use digest-pinned OCI references. Tags are mutable and are only useful for local development.
+Concrete authorities use digest-pinned OCI references. A tag is mutable and does not identify a fixed policy artifact.
 
 Audit events are signed with the integrity key. When audit is enabled, at least one configured sink must accept the event.
 
@@ -86,11 +86,15 @@ Seal providers protect the DEK. Built-in providers are Shamir and HSM. External 
 
 Keeper storage:
 
-Stored key material is AEAD-encrypted. Integrity-sensitive records use one of two location-bound formats: signed records bind the column family, record id, and payload, while integrity private keys and audit-HMAC keys use encrypted envelopes bound to their exact record ids. This prevents a valid record or ciphertext from being moved into another storage slot. On a legacy V1 upgrade, rebinding internal secrets, signing the initialization envelope, relocating legacy key generations, deleting their source records, and advancing the marker are one cross-column-family transaction. Any validation failure rolls the whole V1 transaction back. The keeper reports not-ready throughout migration and stays sealed on failure, including auto-unseal failure. Relocation is allowed only when the isolated key-version store is empty; pending or mixed state is rejected; generation pointers must be canonical and match signed head/version metadata. Orphan records are not migration roots. Relocated key material remains explicitly legacy and unsigned; only a later refresh or rotate creates a signed, location-bound generation. The signed initialization envelope binds the peer id and quorum tuple after unseal. Integrity and HMAC version pointers are checked against the latest stored version; integrity-key rotation retains historical public keys but removes historical private keys.
+Stored key material is AEAD-encrypted. Integrity-sensitive records use one of two location-bound formats: signed records bind the column family, record id, and payload, while integrity private keys and audit-HMAC keys use encrypted envelopes bound to their exact record ids. This prevents a valid record or ciphertext from being moved into another storage slot.
+
+On a legacy V1 upgrade, rebinding internal secrets, signing the initialization envelope, relocating legacy key generations, deleting their source records, and advancing the marker are one cross-column-family transaction. Any validation failure rolls the whole V1 transaction back. The keeper reports not-ready throughout migration and stays sealed on failure, including auto-unseal failure. Relocation is allowed only when the isolated key-version store is empty; pending or mixed state is rejected; generation pointers must be canonical and match signed head/version metadata. Orphan records are not migration roots. Relocated key material remains explicitly legacy and unsigned; only a later refresh or rotate creates a signed, location-bound generation.
+
+The signed initialization envelope binds the peer id and quorum tuple after unseal. Integrity and HMAC version pointers are checked against the latest stored version; integrity-key rotation retains historical public keys but removes historical private keys.
 
 Browser to UI:
 
-`:features:ui` exposes the control-plane UI. It uses the same external API permissions as direct API clients. CSP configuration controls what the browser may load or connect to.
+The `ui` feature exposes the control-plane UI. It uses the same external API permissions as direct API clients. CSP configuration controls what the browser may load or connect to.
 
 ## Threats
 
@@ -178,7 +182,7 @@ Mitigation:
 
 Residual risk:
 
-Policy can only enforce the effects it can model. Raw bytes give policy almost no semantic context. Custom authorities ignore undeclared JSON fields, so a backend that acts on those fields can create a policy bypass.
+Policy can only enforce the effects it can model. Raw bytes give policy almost no semantic context. Custom authorities reject undeclared JSON fields. A backend can still bypass policy if it executes fields added after signing or taken from a separate request.
 
 ### T-6: Four Eye Replay or Bypass
 
@@ -251,7 +255,13 @@ Mitigation:
 
 Residual risk:
 
-Memory forensics against an unsealed keeper can expose runtime secrets. Signatures detect altered or relocated records, but they cannot by themselves detect a coherent same-location replay of an older record set. This includes replaying a key head with its matching key and metadata records, or rolling back the complete database. During the first upgrade from legacy V1 storage, TKeeper can authenticate the legacy ciphertext with the DEK and verify its signed metadata, but it cannot prove that an unbound ciphertext was not substituted before that migration. Relocation does not add a signature to that key material; it remains legacy until refresh or rotate. Pre-2.2 platform side-state and sessionless destroy-marker formats that do not embed their identity remain read-compatible until the corresponding key lifecycle rewrite; relocating one fails later consistency checks or can force a fail-closed denial of service. Verify and protect the existing database and backups before the first 2.2 unseal. Use host storage controls, encrypted swap, durable external audit export, an independently protected monotonic checkpoint where rollback detection is required, and protected backups.
+Memory forensics against an unsealed keeper can expose runtime secrets. Signatures detect altered or relocated records, but they cannot by themselves detect a coherent same-location replay of an older record set. This includes replaying a key head with its matching key and metadata records, or rolling back the complete database.
+
+During the first upgrade from legacy V1 storage, TKeeper can authenticate the legacy ciphertext with the DEK and verify its signed metadata, but it cannot prove that an unbound ciphertext was not substituted before that migration. Relocation does not add a signature to that key material; it remains legacy until refresh or rotate.
+
+Pre-2.2 platform side-state and sessionless destroy-marker formats that do not embed their identity remain read-compatible until the corresponding key lifecycle rewrite; relocating one fails later consistency checks or can force a fail-closed denial of service.
+
+Verify and protect the existing database and backups before the first 2.2 unseal. Use host storage controls, encrypted swap, durable external audit export, an independently protected monotonic checkpoint where rollback detection is required, and protected backups.
 
 ### T-10: Unseal Material Compromise
 
@@ -278,7 +288,7 @@ An attacker edits audit logs or makes sinks unavailable.
 
 Mitigation:
 
-- Audit events are Ed25519-signed payloads.
+- Audit events are signed with the integrity key: Ed25519 when `ecc` is included, or ML-DSA-44 in a PQC-only build.
 - Verification uses the integrity public key version recorded in the event.
 - If audit is enabled, protected operations require at least one available sink.
 - If all configured sinks fail or time out while writing, the operation fails.
@@ -296,7 +306,7 @@ An authorized caller imports weak or unauthorized key material through trusted d
 Mitigation:
 
 - Trusted dealer import is separately permissioned.
-- Import runs through key metadata, authorities, commitments, and audit.
+- Imported keys are checked against their declared algorithm, authorities, policy, and audit requirements.
 - Stored key records are integrity-protected.
 
 Residual risk:
@@ -406,7 +416,7 @@ TKeeper cannot enforce a downstream path that misinterprets or bypasses its proo
 | Sealed state | protected operations refused until unseal |
 | Storage confidentiality | DEK/KEK envelope encryption |
 | Storage integrity | signed key and metadata records |
-| Audit integrity | Ed25519-signed events |
+| Audit integrity | integrity-key signatures over encoded events |
 
 ## Operational checklist
 

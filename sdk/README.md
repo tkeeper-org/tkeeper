@@ -1,6 +1,6 @@
 # TKeeper Java SDK
 
-The SDK is a Java 17 client for the current TKeeper HTTP API.
+The SDK provides a typed client for the TKeeper HTTP API and requires Java 17 or newer.
 
 ## Dependency
 
@@ -90,7 +90,7 @@ try (var keeper = new TKeeperClient(baseUrl, new JwtTokenAuth(jwt))) {
 
 The short `Generate` constructors that omit `KeySetAuthorities` default to `arbitrary` raw signing. Pass authorities explicitly for governed identities.
 
-`Verify` is a cryptographic operation, not a policy reassessment. Its `VerificationCommand` may contain any supported material type, including typed or arbitrary material, regardless of the key's current authority manifest. The server still validates the material shape and key/scheme compatibility; `valid: true` proves only that the signature matches that material and key generation.
+`Verify` checks the signature against the supplied material and key generation. It validates the material format and key/scheme compatibility but does not load an authority or evaluate policy. Supported material can be verified even if the key's current authority would reject it for signing. `valid: true` does not mean the action is currently authorized.
 
 ## Modules
 
@@ -102,6 +102,7 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `storage()` | trusted-dealer import |
 | `quorum()` | mono-to-threshold promotion |
 | `destroy()` | generation destruction |
+| [`mandate()`](../features/mandate/README.md) | authorize an operation for later execution |
 | `consistency()` | threshold consistency repair |
 | `ecies()` | optional encrypt/decrypt feature |
 | [`dryRun()`](../docs/signing-and-authorities/dry-run.md) | optional authority-policy evaluation without execution |
@@ -128,4 +129,4 @@ Do not blindly retry policy, permission, or validation failures. Preserve `impos
 
 ## Contract
 
-[`../openapi.yaml`](../openapi.yaml) is the source of truth for routes and wire models. If an SDK helper and OpenAPI disagree, update the SDK rather than coding against the stale helper behavior.
+[OpenAPI](../openapi.yaml) defines the routes and wire models. Report discrepancies between the SDK, server, and specification as API contract bugs.

@@ -12,7 +12,7 @@ Use it for:
 - compatibility with systems that already govern the payload elsewhere
 - narrow raw-signing cases accepted by policy and security review
 
-Do not use it when TKeeper is expected to understand the business effect. Raw bytes do not tell TKeeper whether the action moves funds, changes production, issues a certificate, or approves a tool call.
+TKeeper does not parse these bytes into an action or evaluate intent policy. Use a typed authority when TKeeper must constrain the action being signed.
 
 ## `custom`
 
@@ -186,4 +186,4 @@ The declared fields and `effects` become strict CEL roots. See [Authorities](aut
 
 `arbitrary` cannot be mixed with concrete authorities on the same key identity.
 
-Do not describe an `arbitrary` integration as governed intent unless another trusted layer defines, validates, and binds the meaning of the signed bytes.
+If an integration uses `arbitrary`, its application must validate the meaning of the bytes before requesting a signature.

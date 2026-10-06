@@ -1,6 +1,6 @@
 # MC Intent Authority
 
-Use `type: mcintent.mandate` for a Mastercard Verifiable Intent mandate. The [tested authority](../../../integration-tests/src/testFixtures/resources/authorities/payments/mcintent-purchases.yaml) permits the configured shop and card, at most USD 100 per purchase and USD 150 across the request:
+Use `type: mcintent.mandate` for a Mastercard Verifiable Intent mandate. This authority permits the configured shop and card, at most USD 100 per purchase and USD 150 across the request:
 
 ```yaml
 schemaVersion: verdict.authority/v1

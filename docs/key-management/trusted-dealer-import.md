@@ -2,7 +2,7 @@
 
 Trusted dealer imports an existing private key into the current quorum mode.
 
-In mono mode, TKeeper stores the full key material locally and records the matching public side state.
+In mono mode, TKeeper stores the full key locally.
 
 In threshold mode, TKeeper splits the key into peer shares and distributes them to the cluster.
 
@@ -38,14 +38,7 @@ Required permission:
 tkeeper.storage.write
 ```
 
-Important details:
-
-- the dealer sees the raw private key
-- threshold mode splits the raw key into peer shares
-- mono mode stores the raw key locally
-- algorithm-specific public side state is stored too: ECC commitments or the aggregate ML-DSA public key
-- the imported key can sign and verify like a DKG-created key
-- for `ED25519`, import the standard seed, not an expanded private scalar
+The imported key uses the same signing, verification, authority, and policy controls as a key created in TKeeper.
 
 Response:
 
@@ -61,7 +54,7 @@ Import does not erase the dealer's copy, backups, or handling history. Threshold
 
 ### Imported key exists but signing fails
 
-Trusted dealer import must store the algorithm-specific public side state with the imported material. Without ECC commitments or the ML-DSA public key, public key checks and later protocols cannot prove the same key state.
+Check the declared algorithm, attached authority, caller permissions, and peer state. Compare the public key with the expected imported key. If inventory reports tampering or peers disagree on the generation, stop and investigate before retrying.
 
 ### Wrong algorithm
 

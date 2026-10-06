@@ -7,11 +7,12 @@ Each line contains:
 - `event`: audit event payload
 - `signature`: Signature over the encoded `event`
 
-> Signature algorithm depends on the backend
-> - If `platform-ecc` is included signature algorithm always would be `Ed25519`
-> - If **ONLY** `platform-pqc` is included signature algorithm always would be `ML-DSA-44`
->
-> Ed25519 currently has a higher priority because the present threat model does not yet require post-quantum signatures for every audit event, while ML-DSA signatures would significantly increase audit-log storage and network traffic. The priority can be switched to ML-DSA as the quantum threat becomes more immediate.
+The audit signature algorithm depends on the platforms in the build:
+
+| Platforms | Audit signature |
+| --- | --- |
+| `ecc`, with or without `pqc` | Ed25519 |
+| `pqc` only | ML-DSA-44 |
 
 The signing key is TKeeper's integrity key. `event.integrityKeyVersion` tells the verifier which integrity public key version to use.
 
@@ -75,7 +76,7 @@ Some fields depend on the operation. `approvers` appears only for approved opera
 
 `auth.subject` is the identity authenticated on the current HTTP hop. For a direct public request it is the external principal. For a protected peer request it is the keeper peer that signed the internal request, while optional `auth.actor` preserves the original external principal. Peer-only protocol rounds omit `actor`.
 
-The policy object is Verdict's `PolicyEvaluation`: `decision`, matched rules, and any `approvalRequirements`. `ALLOW_WITH_REQUIREMENTS` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
+The `policy` object contains the evaluation `decision`, matched rules, and any `approvalRequirements`. `ALLOW_WITH_REQUIREMENTS` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
 
 ## Integrity boundary
 
@@ -238,7 +239,7 @@ Restart every peer after rotating an integrity key. Peer integrity-key pins are 
 
 Rotation keeps historical public keys for log verification and removes the corresponding historical private keys. Replaying only the current-version pointer fails closed when it no longer matches the stored history. A coordinated same-location replay of the pointer and its matching records can still pass local verification, as can a complete database rollback. Detecting that class of rollback requires an independently protected monotonic checkpoint or external audit anchor.
 
-Audit-HMAC keys are encrypted in record-id-bound envelopes and must decode to exactly 32 bytes. TKeeper migrates older unbound HMAC records during unseal and does not become ready until the bound form validates.
+During a legacy storage upgrade, TKeeper migrates audit-HMAC records during unseal. The node remains unready if record validation fails.
 
 Peers expose their current integrity public key on the internal API:
 
@@ -258,7 +259,7 @@ When audit is enabled, TKeeper checks sink availability before protected operati
 
 When an event is written, the operation continues if at least one configured sink accepts the event before the audit timeout. If all configured sinks fail or miss the timeout, the operation fails with `AUDIT_FAILED`.
 
-Multiple configured sinks are therefore redundant destinations, not an all-sinks durability guarantee. If policy requires delivery to a particular archive, enforce and monitor that requirement at the deployment or collector layer.
+With multiple sinks, one acceptance is enough for the operation to continue. If delivery to a particular archive is mandatory, enforce and monitor it at the collector or deployment layer.
 
 ## Common problems
 
@@ -268,4 +269,4 @@ If at least one sink is alive, operations continue. If no sink is available, pro
 
 ### Verification fails
 
-Check the line encoding, the Ed25519 signature, and `event.integrityKeyVersion`.
+Check the exact event encoding, the signature algorithm for the build, and the public key version in `event.integrityKeyVersion`.

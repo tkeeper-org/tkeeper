@@ -8,12 +8,4 @@ Read:
 - [Failure Injection](failure-injection.md)
 - [Error Tracking](error-tracking.md)
 
-Operationally, watch the authority path:
-
-```text
-auth -> permission -> authority -> policy -> audit -> quorum/session -> proof
-```
-
-If any stage fails, TKeeper should fail closed: no proof is produced.
-
-Operational dashboards should distinguish an intentional denial from loss of service. See [Monitoring](monitoring.md) for the signals and [Troubleshooting](troubleshooting.md) for stage-by-stage diagnosis.
+Track denied requests separately from service failures. [Monitoring](monitoring.md) lists the signals to collect; [Troubleshooting](troubleshooting.md) maps errors to checks and corrective actions.

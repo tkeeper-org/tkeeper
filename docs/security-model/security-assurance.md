@@ -1,49 +1,31 @@
 # Security Assurance
 
-TKeeper security assurance currently comprises **367 automated functional scenarios across 19 test
-classes**, including **90 protocol and corruption failure-injection scenarios** and one 3-of-5
-share-recovery scenario, executed against multi-node Keeper deployments.
+The functional suites exercise signing, decryption, authorization, transport,
+storage, lifecycle operations, and recovery in multi-node TKeeper deployments.
+Adversarial scenarios inject invalid protocol messages, replay requests, corrupt
+stored state, and interrupt operations.
 
-The standard Testcontainers topology runs a 2-of-3 quorum with peer communication, storage,
-SoftHSM, restarts, and malicious protocol injection. Production integration uses a three-node
-transport cluster and a 3-of-5 recovery cluster with per-run PKI, TLS, mTLS, peer authentication,
-and SPKI pinning. The transport cluster also exercises JWT and JWKS behavior.
+The development topology uses a `2-of-3` quorum with storage, SoftHSM, restarts,
+and injected protocol failures. Production tests use TLS, mTLS, peer signatures,
+and per-peer SPKI pins in a three-node transport cluster and a `3-of-5` recovery
+cluster. The transport tests also exercise JWT and JWKS behavior.
 
-Every pull request targeting `main` and every commit pushed to `main` runs the Release Gate. A
-passing revision completes the module test tasks, all 367 functional scenarios, artifact isolation,
-and both container builds.
-
-> **In short:** TKeeper tests cover production identity and transport,
-> authorization and four-eye policy, malicious coordinators and Byzantine
-> peers, FROST/GG20/ML-DSA transcript attacks, ECIES contribution integrity,
-> tamper-evident key state and lifecycle, generative and coverage-guided binary
-> parser and protocol-state testing, invalid transition order, concurrent
-> duplicate delivery, crash-safe session cleanup, audit persistence, ECC and
-> ML-DSA share recovery, and production artifact isolation.
-
-Every claim below maps to an executable scenario, generated property, fuzz
-target, or release check.
+The Release Gate runs module tests, functional scenarios, artifact-isolation checks,
+and both container builds on pull requests to `main` and pushes to `main`. A passing
+revision confirms the tested cases for that artifact. The evidence below identifies
+the scenarios and their limits.
 
 ## Security posture
 
-The tests demonstrate these properties:
+The suites check that:
 
-- **Quorum-enforced key use.** Threshold signing and decryption operate on
-  shares while key material remains distributed.
-- **Fail-closed peer validation.** Peers validate signer sets, proofs,
-  commitments, contributions, and one-shot protocol state at the consuming
-  trust boundary.
-- **Intent-bound authorization.** Authorities, typed commands, policy, and
-  four-eye approvals are bound to the requested cryptographic operation and
-  cannot be substituted or replayed through the tested paths.
-- **Authenticated transport identity.** Production public access uses TLS and
-  JWT validation; peer access combines mTLS, signed peer authentication, and
-  per-peer certificate pinning.
-- **Tamper-evident state.** Signed metadata, location-bound key records,
-  generation pointers, migrations, and audit records fail closed under the
-  tested storage mutations.
-- **Production build separation.** Development authentication, failure injection, and recovery are
-  verified absent from the default production test artifact. Recovery appears only when selected.
+- threshold signing and decryption use distributed shares;
+- peers reject invalid signer sets, proofs, contributions, and reused session state;
+- authority policy and approvals bind to the requested operation in the tested paths;
+- public TLS/JWT and peer mTLS/signatures reject tested identity and transport attacks;
+- storage mutations fail validation, and failed migrations leave the node sealed;
+- default production test artifacts exclude development authentication, dry run,
+  failure injection, and recovery.
 
 ## Evidence quality
 
@@ -54,10 +36,10 @@ The tests demonstrate these properties:
 | Protocol failure injection | A test-only module introduces one security-relevant mutation at a time into FROST, GG20, ML-DSA, ECIES, and keeper protocol transitions. | Demonstrates rejection at the peer that consumes untrusted protocol data. |
 | Failure contracts | Negative cases assert rejection reason and, where the protocol supports it, attribution of the malicious peer. | Detects regressions that crash or reject for the wrong reason. |
 | Recovery checks | Every FROST, ML-DSA, and keeper-transition mutation is followed by a distributed signature. A separate 3-of-5 topology rebuilds ECC and ML-DSA histories on two damaged peers. | Confirms continued key use after rejected protocol input and checks full key-scoped state reconstruction. |
-| Generative parser testing | Five serialization properties generate 2,500 cases per run with shrinking; a seeded Jazzer target coverage-guides malformed inputs through five security-sensitive binary decoders. | Checks round-trip, canonical encoding, record binding, key-kind preservation, bounded parsing, and controlled rejection beyond hand-written examples. |
-| Stateful protocol modeling | Fifteen lifecycle and protocol-state properties exercise 7,350 generated participant topologies, action sequences, and concurrent schedules per run. Jazzer targets cover the protocol state containers used by ECC DKG, PQC DKG, FROST, GG20, threshold ML-DSA signing, and ECC/PQC recovery payload handling. | Compares state containers against legal-transition, uniqueness, operation-isolation, order-independence, single-winner consumption, destroy-state, transcript-binding, and recovery-payload models. |
+| Generative parser testing | Serialization properties generate inputs and shrink failures; a seeded Jazzer target explores malformed inputs in security-sensitive binary decoders. | Checks round-trip, canonical encoding, record binding, key-kind preservation, bounded parsing, and controlled rejection beyond hand-written examples. |
+| Stateful protocol modeling | Lifecycle and protocol-state properties generate participant topologies, action sequences, and concurrent schedules. Jazzer targets cover the protocol state containers used by ECC DKG, PQC DKG, FROST, GG20, threshold ML-DSA signing, and ECC/PQC recovery payload handling. | Compares state containers against legal-transition, uniqueness, operation-isolation, order-independence, single-winner consumption, destroy-state, transcript-binding, and recovery-payload models. |
 | Concurrency and crash recovery | Eight simultaneous deliveries race for one signing session or one keeper protocol transition. Container-restart cases stop a keeper after FROST nonce generation, GG20 ephemeral initialization, or ML-DSA round 1. | Checks one-winner transitions, terminal session state, durable key state, safe session recreation, and post-failure signing. |
-| Release isolation | The release gate checks module tests, functional behavior, container builds, and separation of integration-only and explicit recovery code from the default production artifact. | Prevents the security harness from entering production and prevents recovery endpoints from appearing unless selected. |
+| Release isolation | The release gate checks module tests, functional behavior, container builds, and separation of integration-only and explicit recovery code from the default production artifact. | Checks that production artifacts exclude the test harness and recovery endpoints unless recovery is selected. |
 
 ## Assurance by domain
 
@@ -194,7 +176,7 @@ whether that contract passes for a given artifact.
 | FROST commitment and signature transcript (T-7) | A remote Keeper produces the commitment and signature share. Changed proof material, malformed encoding, identity mismatch, missing or duplicate contributions, cross-context replay, changed nonce commitment, changed signature share, and consumed nonce reuse fail closed. Attributable failures identify the remote peer. | [FailureInjectionTests]: `validFrostSigningTranscriptPasses`, `frostSigningTranscriptRejectsMaliciousInput` |
 | GG20 MtA and Paillier input (T-7) | Valid transcripts pass on both supported GG20 curves. Small, even, or oversized moduli, invalid generator, zero, non-coprime, or out-of-range ciphertexts, non-coprime biprime witnesses, and mutated or truncated range, biprime, and no-small-factor proof material produce an identifiable abort attributed to the initiator. | [FailureInjectionTests]: `validGg20MtATranscriptsPassOnSupportedCurves`, `gg20MtARejectsMaliciousInput` |
 | Threshold ML-DSA commit/reveal transcript (T-7) | A valid stored-key transcript passes. Changed or truncated commitments and reveals, duplicate, missing, or out-of-range round senders, commitment-opening mismatch, and reuse of consumed round state fail closed as independently reported cases. | [FailureInjectionTests]: `validMLDSASigningTranscriptPasses`, `mldsaSigningTranscriptRejectsMaliciousInput` |
-| Generated protocol-state transitions (T-7) | Valid threshold participant sets are order-independent; omission, duplication, wrong size, and out-of-range mutation fail with the expected contract. FROST nonce pairs and shares remain operation-scoped and one-shot, GG20 MtA values remain per-peer unique and order-independent, and ML-DSA batches and round stores match explicit transition and destruction models across generated action sequences. Concurrent nonce/share/MtA/round-state races have exactly one winner. Session-map close is terminal and revokes each remaining value once; the first concurrency run exposed and fixed post-close state resurrection. | [ProtocolStateMachineProperties]; [SecurityProtocolStateFuzzTest]; [MLDSAStateMachineProperties]; [MLDSAStateMachineFuzzTest]; [InMemoryTemporaryMapConcurrencyTest] |
+| Generated protocol-state transitions (T-7) | Valid threshold participant sets are order-independent; omission, duplication, wrong size, and out-of-range mutation fail with the expected contract. FROST nonce pairs and shares remain operation-scoped and one-shot, GG20 MtA values remain per-peer unique and order-independent, and ML-DSA batches and round stores match explicit transition and destruction models across generated action sequences. Concurrent nonce/share/MtA/round-state races have exactly one winner. Session-map close is terminal, revokes each remaining value once, and prevents state from being restored after closure. | [ProtocolStateMachineProperties]; [SecurityProtocolStateFuzzTest]; [MLDSAStateMachineProperties]; [MLDSAStateMachineFuzzTest]; [InMemoryTemporaryMapConcurrencyTest] |
 | Keeper protocol transition order (T-7) | ECC DKG completion before computation, FROST signing before commitment collection, and GG20 signing before setup are rejected. PQC DKG and ML-DSA signing reject sequential round-1 replay; eight simultaneous round-1 deliveries produce one winner. Generated actions cover these production transition guards and failure rollback. | [FailureInjectionTests]: `keeperProtocolStateRejectsReorderedReplayAndConcurrentTransitions`; [KeeperProtocolStateFuzzTest]; [KeeperMLDSAProtocolStateFuzzTest] |
 | In-flight keeper crash (T-7) | A keeper is restarted after FROST nonce generation, GG20 ephemeral initialization, or ML-DSA round 1. Persistent RocksDB and HSM key state survive, but the process-local session cannot resume and returns `SESSION_NOT_FOUND`. The same session id can then be created and cleared safely, followed by a valid distributed signature. | [FailureInjectionTests]: `inFlightProtocolStateDoesNotSurviveKeeperRestart` |
 | Supported protocol paths | Threshold and mono signing and verification execute across GG20 ECDSA, FROST Schnorr/BIP-340/Taproot, threshold Ed25519, and ML-DSA-44/65/87, including supported tweak paths. ECIES executes with AES-GCM and ChaCha20-Poly1305 on secp256k1 and P-256. | [SignatureTests]: scheme-specific sign/verify tests; [ECIESTests]: `encryptDecryptSuccessful`, `encryptDecryptSuccessfulWithTweak`, `ensureDleqProofPassesAfterRefresh` |
@@ -247,10 +229,12 @@ paths are covered in [SignatureTests].
 | Stored-record tampering, relocation, or pointer rollback (T-9) | Changed metadata and signed generations are exposed as tampered. Moving a location-bound active record, restoring an old generation pointer, or mixing legacy and signed storage fails closed with `TAMPERED_KEEPER`. | [FailureInjectionTests]: `tamperedMetadataIsVisibleInInventory`, `tamperedSignedKeyGenerationIsFlaggedInInventory`, `relocatedSignedActiveRecordFailsClosed`, `rolledBackGenerationPointerFailsClosedWithoutFallback`, `refreshRejectsMixedLegacyAndSignedStorage` |
 | Malicious or mixed migration state (T-9, T-13) | Migration refuses non-empty targets and synthetic roots. Failed migration is not committed, remains sealed across restart, and does not expose protected operations. Valid migration runs once and preserves key and audit state. | [LegacyStorageMixedStateTests]: `migrationRefusesToOverwriteNonEmptyTargetStore`; [LegacyStorageUntrustedRootTests]: `migrationRejectsRandomAuthenticatedDataWithSyntheticPointer`; [LegacyStorageMigrationTests]: `v211V1KeyStorageMigratesOnceBeforeRefreshAndRotate` |
 | Destructive or conflicting lifecycle mutation (partial T-12, T-13) | Duplicate create/import, invalid imported encoding, algorithm-changing refresh, and current-generation destruction fail. Old-generation destruction propagates across peers. | [KeyImportTests]: `invalidBase64ImportFails`, `duplicateImportFails`; [KeyLifecycleTests]: `duplicateCreateFails`, `refreshMLDSAWithDifferentAlgorithmFailsWithoutChangingGeneration`, `destroyActualGenerationFails`, `ensureDestroyedSecp256k1KeyGenerationOnAllKeepers` |
+| Concurrent DKG and signing | Admitted FROST sessions complete with their original generation across refresh and rotation. ML-DSA sessions retain their selected generation and reject round replay. Duplicate DKG and consistency repair cannot remove another active attempt or its pending state, including after a partially successful remote initialization. | [KeyLifecycleConcurrencyTests](../../integration-tests/functional/src/test/kotlin/org/exploit/test/functional/KeyLifecycleConcurrencyTests.kt) |
+| Generation change during authorization | Generation and metadata are captured together. A change before admission rejects the request; admitted signing stays on the captured generation. DKG rejects a target derived from a generation promoted after authorization. | [SigningGenerationRaceTest](../../platform-ecc/src/test/kotlin/org/exploit/keeper/platform/ecc/lifecycle/SigningGenerationRaceTest.kt); [KeyGenerationAuthorizationRaceTest](../../platform-ecc/src/test/kotlin/org/exploit/keeper/platform/ecc/lifecycle/KeyGenerationAuthorizationRaceTest.kt) |
 | Mono-to-threshold promotion | Promotion preserves the active identity, destroys mono history, and requires restart before threshold use. | [QuorumPromotionTests]: `promoteMonoKeeperAndRequireRestart`, `promotedInventoryKeepsMetadataAndDestroysMonoHistory`, `promotedKeysSignAndVerifyAsThresholdKeys` |
 | Inventory query scope | Historical inventory without a logical id and cursors outside that logical scope are rejected. Owner filters do not expose records owned by another or unknown owner. | [InventoryIndexTest]: `inventoryHistoricalRequiresLogicalId`, `inventoryRejectsCursorOutsideLogicalScope`, `historicalInventoryForMismatchedOwnerReturnsEmptyPage`, `monoInventoryIndexesOwnerAndValidatesCursors` |
 | Audit integrity and persistence (partial T-11) | Audit records have distinct verifiable signatures and remain present and verifiable across storage migration and restart. | [LegacyStorageMigrationTests]: `v211V1KeyStorageMigratesOnceBeforeRefreshAndRotate` |
-| Binary record parsing (T-9) | Signed payloads, record-bound secrets, typed keys, DKG commitments, and imported keys preserve their security metadata across canonical round trips. Generated malformed inputs terminate at the documented controlled error boundary. The first generative run exposed truncated commitment inputs escaping as `BufferUnderflowException`; the parser now performs bounded reads, canonical UTF-8 validation, and trailing-byte rejection. | [SecuritySerializationProperties]; [SecurityBinaryParserFuzzTest] |
+| Binary record parsing (T-9) | Signed payloads, record-bound secrets, typed keys, DKG commitments, and imported keys preserve their security metadata across canonical round trips. Generated malformed inputs terminate at the documented controlled error boundary. Parsing checks input bounds, canonical UTF-8 encoding, and trailing bytes, including truncated commitment inputs. | [SecuritySerializationProperties]; [SecurityBinaryParserFuzzTest] |
 
 ### Output integrity
 

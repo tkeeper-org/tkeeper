@@ -95,8 +95,16 @@ Common fields:
 | `keeper.client.tls` | TLS for peer clients |
 | `keeper.recovery` | Recovery-only runtime mode; defaults to `false` |
 | `keeper.authority.arbitrary.enabled` | Enables raw `arbitrary` signing; defaults to `false` |
-| `keeper.approval.ttl` | Four-eye approval lifetime and persistent nonce replay-retention window |
+| `keeper.approval.ttl` | Four-eye approval lifetime |
+| `keeper.nonce-ttl` | Persistent nonce replay retention and FIFO file TTL; defaults to `12h` (`KEEPER_NONCE_TTL`) |
+| `keeper.mandate.max-ttl` | Maximum mandate lifetime; defaults to the smaller of `15m` and nonce retention |
+| `keeper.mandate.max-attempts` | Maximum protocol attempts per mandate; defaults to `12`, range `1` to `1024` |
 | `keeper.session.*` | DKG, FROST, GG20, ML-DSA, ECIES, destroy session limits |
+
+`keeper.nonce-ttl` must be strictly greater than `keeper.approval.ttl` and the internal
+authentication replay window of 60 seconds (a timestamp can be accepted up to 30 seconds
+before and after its value). Invalid combinations are rejected when the keeper config is created.
+Physical FIFO cleanup is asynchronous and can occur after the configured TTL.
 
 Raw `arbitrary` signing must be enabled explicitly and consistently on every keeper in the cluster:
 

@@ -1,8 +1,8 @@
 # Monitoring
 
-Monitor the authority path, not only process uptime. A ready node can still be unable to authorize an action because policy, audit, platform, or quorum state is failing.
+Monitor signing and decryption outcomes alongside node readiness. A ready node can still reject or fail requests because of policy, audit, platform, or quorum state.
 
-Use service logs, API outcomes, signed audit events, and infrastructure telemetry together. Do not treat audit logs as a high-volume metrics transport or ordinary logs as compliance evidence.
+Use API outcomes and service logs to diagnose requests, infrastructure telemetry to assess hosts and networks, and signed audit events to investigate security decisions. Retain audit evidence separately from ordinary logs.
 
 ## Core signals
 
@@ -31,7 +31,7 @@ Define signing availability over well-formed, authenticated, authorized requests
 
 ## Quorum capacity
 
-Alert before the cluster loses quorum. Track healthy and unsealed peers against the configured threshold, not just against total node count.
+Track healthy, unsealed peers against the configured threshold. Alert when failures reduce the cluster's remaining capacity to tolerate another peer loss.
 
 Useful views:
 
@@ -41,7 +41,7 @@ Useful views:
 - generation consistency and repair events
 - version, feature, and platform drift between peers
 
-A single unhealthy peer may not break a `t-of-n` operation, but it removes fault tolerance and should not remain invisible until the next peer fails.
+For a `2-of-3` key, losing one peer leaves signing available but removes the capacity to tolerate another failure.
 
 ## ML-DSA
 

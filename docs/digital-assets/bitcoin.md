@@ -1,14 +1,12 @@
 # Bitcoin Authorities
 
-Bitcoin authority support lives in the `digital-assets:bitcoin` module and currently requires the `ecc` platform.
-
-Build example:
+The `bitcoin.transaction` authority checks transaction inputs, outputs, and fees before signing a selected input. Build with `bitcoin` and `ecc`:
 
 ```bash
 ./gradlew shadowJar -Pkeeper.features=bitcoin -Pkeeper.platforms=ecc
 ```
 
-A Bitcoin authority lets TKeeper parse unsigned transaction data, previous transactions, signing input, sighash settings, and policy effects before signing.
+Supply the unsigned transaction, previous transactions, and input to sign:
 
 ```java
 var input = new UtxoInput(unsignedTransaction64, previousTransactions64, inputIndex);
@@ -17,13 +15,6 @@ var signature = client.signature().sign(Sign.of(bitcoinKeyId, command));
 ```
 
 `unsignedTransaction64` and each previous transaction are Base64-encoded transaction bytes. The wallet attaches the returned signature to the selected input. Bitcoin has no registered composer; `/v2/keeper/compose` returns the raw `ThresholdSignature`.
-
-Use Bitcoin authorities for:
-
-- governed UTXO spending
-- treasury withdrawals
-- fee and output policy
-- external risk verdicts before signing
 
 ## Enforcement boundary
 
@@ -39,7 +30,7 @@ config:
   network: MAINNET
 ```
 
-Verdict 0.2 supports Bitcoin networks `MAINNET`, `TESTNET`, `REGTEST`, and `SIGNET`. TKeeper signs the selected artifact input with `SIGHASH_ALL`.
+Supported networks are `MAINNET`, `TESTNET`, `REGTEST`, and `SIGNET`. TKeeper signs the selected artifact input with `SIGHASH_ALL`.
 
 Effects:
 
@@ -60,7 +51,7 @@ Intent validation rejects malformed or signed transactions, missing or duplicate
 
 ## Authority example: cold-storage sweep
 
-This authority represents one logical action: sweep BTC into one cold-storage address. It allows sweeps up to 0.25 BTC directly and requires one treasury approval above 0.25 and up to 1 BTC. The fee is capped at 100,000 satoshis. A transaction with change, an additional output, another destination, or another sighash mode is denied.
+This authority allows a sweep to one cold-storage address: up to 0.25 BTC without approval, or above 0.25 and up to 1 BTC with one treasury approval. The fee cap is 100,000 satoshis. Change, additional outputs, another destination, and other sighash modes are denied.
 
 ```yaml
 schemaVersion: verdict.authority/v1

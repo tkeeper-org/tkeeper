@@ -1,69 +1,33 @@
 # Governed Cryptographic Identity
 
-TKeeper treats a key as a governed cryptographic identity.
+A governed cryptographic identity is a key with rules for its use. An authority document attached to the key defines the accepted command format and policy. A caller with signing permission still has to satisfy that policy.
 
-Authentication identifies the caller, while key possession enables cryptographic action. A governed cryptographic identity adds a declared authority boundary: which actions the identity may authorize and which verifiable proof represents that authorization.
+For example, a treasury key can allow USDC transfers only to one operating wallet. A CA key can allow certificates only for a specified DNS name and validity period. An agent key can allow a typed restart command only for one service and environment.
 
-The identity is defined by:
-
-- the key
-- the authorities attached to that key
-- the typed intents those authorities understand
-- the policy that governs those intents
-- the proof format downstream systems verify
-
-Examples:
-
-- a treasury identity that may sign only understood transaction intents
-- a CA identity that may sign only certificate requests matching its authority policy
-- an AI-agent identity that may sign only typed tool/action intents declared by an authority document attached to the key
-- an internal-service identity that may sign only typed commands accepted by a backend
-- a key lifecycle operation accepted by a quorum
-
-These outputs matter because other systems trust them. TKeeper places controls before the output exists.
-
-For AI agents, the model is not "sign whatever tool call the agent produced." The tool or action shape should be represented as a typed authority document, or manifest, attached to the key. TKeeper materializes the request into an intent, evaluates the declared policy and effects, and signs only the exact approved intent.
+TKeeper parses each command into an intent for policy evaluation and signs the command's defined signing material after the checks pass. The receiving system verifies that material against the expected key. See [Typed JSON signing material](../signing-and-authorities/arbitrary-and-typed.md#typed-json-signing-material) for the `custom` encoding.
 
 ## Why this matters
 
-Many automated systems can already decide what they want to do. The risky part is when the system can make the decision real.
+An agent or service can hold permission to request signatures without having unrestricted use of the key. Authority policy can constrain recipients, amounts, certificate fields, or service commands.
 
-TKeeper separates the request from the authority to complete it:
-
-```text
-Requesting an action is not the same as being allowed to authorize it as this cryptographic identity.
-```
-
-The caller submits an intent. TKeeper checks authentication, permissions, authority rules, key lifecycle state, optional four-eye approvals, audit requirements, quorum participation, and platform-specific cryptographic constraints.
-
-Only then does it produce the signature, certificate, or key operation result.
+TKeeper also checks key lifecycle state, required approvals, audit availability, and quorum participation. A denied request returns no signature. Raw `arbitrary` signing has no intent policy and is disabled by default.
 
 ## Enforcement boundary
 
-TKeeper is strongest when the downstream system requires the cryptographic proof before executing the effect.
-
-Good integration shape:
+The receiving system must require a valid signature before executing the action:
 
 ```text
-1. Caller prepares intent
-2. TKeeper approves or rejects the intent
-3. TKeeper returns proof only if approved
-4. Downstream system verifies proof
-5. Downstream system executes the effect
+1. Caller prepares a command
+2. TKeeper checks the command and returns a signature if allowed
+3. Receiving system verifies the key, signature, and signed content
+4. Receiving system checks freshness and executes the action
 ```
 
-Weak integration shape:
-
-```text
-1. Caller asks TKeeper for an opinion
-2. Downstream system can ignore the answer
-```
-
-If the downstream system can bypass the governed identity, TKeeper cannot enforce that boundary by itself.
+If another API or credential can perform the same action without this verification, that path bypasses TKeeper's policy.
 
 ## Verifier contract
 
-A valid signature proves that the corresponding key signed specific bytes. A secure integration must also decide what those bytes mean and whether they are acceptable now.
+A valid signature binds a key to specific bytes. The verifier must check that those bytes describe the action it will execute and that the authorization is still acceptable.
 
 The verifier should:
 
@@ -73,13 +37,11 @@ The verifier should:
 - enforce nonce, expiry, sequence, or idempotency rules where replay matters
 - reject fields or effects that were not covered by the governed intent
 
-TKeeper cannot repair a verifier that accepts a different payload, ignores unsigned fields, or allows the same proof to authorize unintended repeats.
+Accepting different content, acting on unsigned fields, or reusing a one-time authorization can bypass the policy that approved the original command.
 
 ## Authority path
 
-The authority path is the part of the system where an intent becomes a consequence.
-
-TKeeper keeps these pieces together:
+The authority path runs from the request to the system that executes it. Each stage checks the same action:
 
 | Stage | Question |
 | --- | --- |
@@ -89,13 +51,11 @@ TKeeper keeps these pieces together:
 | Audit | Can the decision be recorded before the effect? |
 | Proof | What cryptographic output binds this identity to the approved action? |
 
-If these pieces split apart, control weakens. A valid signature over the wrong data, a policy check not bound to the signed action, or an unverifiable approval record can all create bypasses.
+Bind policy inputs and approvals to the signed command. A verdict about a different recipient or amount does not authorize the transaction being signed.
 
 ## Relation to external risk systems
 
-TKeeper does not need to be the system that detects every risk.
-
-Other systems may provide verdicts:
+External checks can supply decisions used by authority policy:
 
 - prompt-injection detection
 - AML or KYT checks
@@ -104,4 +64,4 @@ Other systems may provide verdicts:
 - SIEM or SOAR decisions
 - human review
 
-TKeeper's job is to make the final cryptographic action depend on the accepted verdict and local policy state. The integration must bind that verdict to the same intent that is ultimately signed and executed.
+Include the decision and its action binding in the governed command, and validate them in policy. The binding must cover the action that is signed and executed.

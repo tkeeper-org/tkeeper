@@ -2,7 +2,9 @@
 
 Build with `-Pkeeper.features=mcp` to add `POST /mcp` to Keeper's existing public HTTP server. It uses the same authentication provider and token as the other public endpoints. The agent host supplies the token; this module does not issue credentials.
 
-The endpoint supports MCP `2026-07-28` over Streamable HTTP with JSON responses. Tools are grouped by name:
+The endpoint supports MCP `2026-07-28` over Streamable HTTP with JSON responses. Compatible protocol updates retain that version identifier. Clients must support per-request metadata and `server/discover`; the older `initialize` handshake is unsupported. Unsupported versions return `-32022` with the supported version list.
+
+Tools are grouped by name:
 
 - `identity.list`: paged active keys the caller can sign with, their algorithms, generations, and authority IDs.
 - `identity.describe_authority`: an authority's `metadata.description` and the JSON Schema of its `{type, authorityId, artifact}` command.
@@ -12,7 +14,7 @@ The endpoint supports MCP `2026-07-28` over Streamable HTTP with JSON responses.
 - `action.sign`: sign an authority command. Requires `tkeeper.key.<keyId>.sign`.
 - `action.compose`: sign and compose a transaction. Requires `tkeeper.key.<keyId>.sign`.
 
-`tools/list` only advertises tools for which the caller has an applicable permission. Every call checks permission again for its target key. Signing and compose run the same authority and approval guards as the regular API. Each artifact deserializer supplies its own artifact schema; the schema describes command shape, while the authority policy decides whether a particular transaction is allowed.
+`tools/list` only advertises tools for which the caller has an applicable permission. Every call checks permission again for its target key. Signing and compose run the same authority and approval guards as the regular API. The command schema describes valid input; authority policy decides whether an action is allowed.
 
 `server/discover` and `tools/list` return `ttlMs: 0` and `cacheScope: private`. Refresh the catalog after a permission, identity, or authority change.
 

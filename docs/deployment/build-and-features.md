@@ -2,8 +2,8 @@
 
 TKeeper has two build-time selectors:
 
-- features: product surface such as authorities, ECIES, UI, and seal providers
-- platforms: cryptographic algorithms and protocols
+- `keeper.features`: command types, endpoints, ECIES, UI, and seal providers
+- `keeper.platforms`: cryptographic algorithms and protocols
 
 A usable production artifact must include at least one platform.
 
@@ -13,9 +13,7 @@ A usable production artifact must include at least one platform.
 ./gradlew build -Pkeeper.features=all -Pkeeper.platforms=all
 ```
 
-`build` runs the root and SDK tests plus the unit tests of every selected feature and platform module before producing the artifact.
-
-The root `build` task runs the normal verification lifecycle and produces the deployable fat jar through `shadowJar`.
+`build` runs the root, SDK, and selected module unit tests, then produces a deployable jar through `shadowJar`.
 
 Equivalent:
 
@@ -45,7 +43,7 @@ Example: ML-DSA only:
 ./gradlew :build -Pkeeper.platforms=pqc
 ```
 
-Feature names match child project names. `:features:digital-assets:evm` is selected with `evm`.
+Use `evm` to include EVM transactions.
 Use `digital-assets` for Bitcoin, EVM, Tron, XRP, and Solana, and `agentic-payments` for both AP2 and MC VI:
 
 ```bash
@@ -83,10 +81,9 @@ The output is `build/libs/tkeeper-2.5.1-linux-amd64.jar`. To keep every bundled 
 | `macos-aarch64` | `macos-aarch64` |
 | `windows-amd64` | `windows-amd64` |
 
-Targeted jars keep only the matching RocksDB, Netty, gRPC Netty, Conscrypt, Zstd, Jansi,
-GMP, secp256k1, and libsodium native files that are bundled by the dependencies. Java
-classes and selected features remain the same. The integration and production test jars
-always retain their full native set, regardless of `target`.
+A targeted jar contains native libraries for the selected OS/CPU. Java classes and
+features stay the same. Both test jars retain every bundled native variant regardless
+of `target`.
 
 On Linux arm64 and macOS amd64, GMP and libsodium are loaded from the system;
 secp256k1 is also loaded when `ecc` is selected.
@@ -97,11 +94,9 @@ and sets the JVM library path; a standalone jar does not install system librarie
 Linux targets use glibc binaries. For musl-based distributions, use `target=all` and
 verify the remaining native dependencies. A targeted jar is specific to its OS/CPU.
 
-`shadowJar` checks the finished targeted archive: it requires the selected RocksDB
-binary and runtime classes, requires bundled GMP, secp256k1, and libsodium when the
-target has them, and rejects native files for other targets. This check also runs during
-a cross build. It verifies archive contents, not whether the libraries can load on the
-target machine.
+`shadowJar` checks that the targeted archive contains the required runtime classes
+and native libraries and excludes other targets. Run the loading check on the target
+host as well; archive validation cannot detect host library-loading failures.
 
 On the target host, load the native libraries from the built jar with:
 
@@ -129,6 +124,7 @@ native loading on the build host.
 | MC VI payment authority | `mc-vi` or `agentic-payments` | `ecc` |
 | X.509 certificate authority | `authority-x509` | `ecc` |
 | ECIES | `ecies` | `ecc` |
+| Deferred operations authorized by a mandate | `mandate` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Peer share recovery | `recovery` (explicit opt-in) | `ecc`, `pqc`, or both |
 | Control-plane UI | `ui` | any required crypto platform |
 | AWS KMS seal provider | `seal-aws` | any required crypto platform |
@@ -139,7 +135,7 @@ native loading on the build host.
 | ML-DSA identities | none | `pqc` |
 | Default production set | `all` | `all` |
 
-Features with platform dependencies require the matching platform. The build should fail early instead of producing an artifact with a missing runtime provider.
+Include the platform required by each selected feature and key algorithm.
 
 Recovery is an explicit artifact capability. Selecting it adds the base recovery API and the
 recovery module for each selected platform:
@@ -150,16 +146,15 @@ recovery module for each selected platform:
 ./gradlew :build -Pkeeper.features=recovery -Pkeeper.platforms=ecc,pqc
 ```
 
-The first command includes `:features:recovery` and `:features:recovery:ecc`; the second includes
-`:features:recovery` and `:features:recovery:pqc`; the third includes all three. The platform modules
-are not selected separately. Recovery, `auth-dev`, `dry-run`, and `mcp` are excluded from `keeper.features=all` and
-must be requested explicitly.
+These commands build recovery for ECC, ML-DSA, or both. Select `recovery` once;
+the selected platforms determine which recovery protocols are included. Recovery,
+`auth-dev`, `dry-run`, `mandate`, and `mcp` are excluded from `keeper.features=all`.
 
 Treat this as a maintenance artifact. After recovery, rebuild and redeploy the normal production
 artifact without the `recovery` selector; setting `keeper.recovery=false` alone leaves the recovery
 code and routes in the artifact.
 
-`auth-dev` is deliberately excluded from `all`, but it may be included in any deployable artifact by requesting it explicitly:
+To include developer authentication, select `auth-dev` explicitly:
 
 ```bash
 ./gradlew :build -Pkeeper.features=auth-dev -Pkeeper.platforms=ecc
@@ -189,7 +184,7 @@ The endpoint is `POST /mcp` and uses the configured Keeper authentication provid
 | Select all | `keeper.features.all=true` | `keeper.platforms.all=true` |
 
 Comma-separated selectors accept short names such as `ecies`, `ecc`, and `pqc`. `all` selects every
-default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, and `mcp` are
+default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, `mandate`, and `mcp` are
 not included.
 
 `target` is independent of these selectors. Invalid target names fail the Gradle build

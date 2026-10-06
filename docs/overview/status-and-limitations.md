@@ -1,10 +1,10 @@
 # Status and Limitations
 
-These boundaries are part of the security contract, not implementation footnotes.
+These limits affect signing availability, key custody, and the checks required in an integration.
 
 ## Current shape
 
-TKeeper currently provides:
+TKeeper supports:
 
 - mono and threshold key modes
 - governed signing
@@ -22,11 +22,7 @@ TKeeper currently provides:
 
 Features and platforms are selected when the artifact is built.
 
-If a feature is missing, the related endpoint or command type is unavailable. If a required platform is missing, the build should fail early or the runtime cannot find the algorithm provider.
-
-Use the build docs before deploying a custom artifact:
-
-- [Build and Features](../deployment/build-and-features.md)
+Missing features make their endpoints or command types unavailable. Include the platforms required by the selected features and key algorithms. See [Build and Features](../deployment/build-and-features.md).
 
 ## ML-DSA limits
 
@@ -48,12 +44,7 @@ ML-DSA refresh advances the generation while carrying each peer's existing share
 
 Failure injection is only for integration tests.
 
-The integration image includes every default production feature, the explicit recovery and
-development-authentication features, every platform, both recovery platform modules, and the
-test-only failure-injection module. Regular production builds do not include failure injection;
-recovery is included only when selected.
-
-Do not deploy the integration image as a production runtime.
+The development integration image includes controls that can corrupt or delete key state. Do not deploy it in production. Regular production builds exclude failure injection. Recovery requires explicit selection and a temporary maintenance deployment; see [Backup and Recovery](../deployment/backup-and-recovery.md).
 
 ## Trusted dealer import
 
@@ -63,9 +54,7 @@ Threshold mode after trusted dealer import still requires quorum for later opera
 
 ## Policy limits
 
-TKeeper can enforce only the boundaries it controls.
-
-It cannot prevent an action if:
+Policy can be bypassed when:
 
 - the downstream system accepts another key
 - the caller can bypass the governed proof
@@ -93,4 +82,4 @@ Do not assume mixed-version peer compatibility. Validate the exact upgrade path 
 
 ## Security review boundary
 
-TKeeper relies on Anvil for protocol-level cryptographic implementations. Review TKeeper docs for product behavior and operational controls. Review Anvil materials for protocol-level assumptions, proofs, and implementation details.
+The [Threat Model](../security-model/threat-model.md) lists trust assumptions and residual risks. [Security Assurance](../security-model/security-assurance.md) maps tested behavior to executable evidence; passing those tests does not prove security outside their coverage.

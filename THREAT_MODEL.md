@@ -2,6 +2,4 @@
 
 The maintained threat model lives in [docs/security-model/threat-model.md](docs/security-model/threat-model.md).
 
-Protocol-level details for FROST, GG20, ECIES, ZK proofs, nonce handling, Paillier, and curve math live in the tss4j threat model:
-
-[tss4j THREAT_MODEL.md](https://github.com/tkeeper-org/tss4j/blob/main/THREAT_MODEL.md)
+For tested behavior and executable evidence, see [Security Assurance](docs/security-model/security-assurance.md).

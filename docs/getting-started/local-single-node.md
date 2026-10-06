@@ -1,26 +1,24 @@
 # Local Single Node
 
-This guide runs one local node with developer authentication, initializes it, creates one demo key identity, signs one request, and verifies the returned proof.
-
-This is not a production deployment guide. It uses:
+Run a local node, create a key, sign `hello`, and verify the signature. The setup uses:
 
 - one node
 - `mono` key mode
-- Shamir seal provider with `1-of-1` recovery
+- Shamir seal provider with `1-of-1` unseal shares
 - developer token authentication
-- the `arbitrary` authority only to demonstrate the sign/verify path
+- the `arbitrary` authority for raw signing
 
-For real governed identities, use typed or concrete authorities so TKeeper can understand the requested action before signing it. `arbitrary` does not give TKeeper a structured intent or policy surface.
+Keep this configuration local. It uses a fixed developer token and no TLS. For production setup, see [Deployment](../deployment/README.md).
 
 ## What this proves
 
-The local flow proves that configuration, initialization, sealing, key creation, signing, and verification work end to end:
+The flow checks initialization, unseal, key creation, signing, and verification:
 
 ```text
 request -> raw-signing identity -> signature -> verification
 ```
 
-It does not prove that TKeeper understands a business action or enforces intent policy. That begins when `arbitrary` is replaced by a `custom` or native typed authority.
+To check intent policy, replace `arbitrary` with a `custom` or protocol-specific authority after completing this flow.
 
 ## Requirements
 
@@ -93,7 +91,7 @@ keeper.dev {
 }
 ```
 
-This guide uses developer authentication locally. The feature may be selected for any build, but enabling it in production is an explicit operator risk decision and requires production-grade token protection and least-privilege permissions.
+The example token and bootstrap token are local credentials. Use [JWT authentication](../security-model/authentication-authorization.md#jwt-authentication) and permissions scoped to the required keys for a production integration.
 
 ## Run TKeeper
 
@@ -150,7 +148,7 @@ curl -s \
   http://localhost:8080/v2/keeper/dkg
 ```
 
-For production-like flows, attach a real authority document to the key, such as `custom`, `evm.transaction`, `bitcoin.transaction`, or `x509.tbs-certificate`. Those authorities let TKeeper parse the request into an understood intent and evaluate policy before signing.
+See [Authorities](../signing-and-authorities/authorities.md) to create a key with intent policy.
 
 ## Sign
 
@@ -175,7 +173,7 @@ curl -s \
   http://localhost:8080/v2/keeper/sign
 ```
 
-The response contains the signature proof:
+The response contains the Base64 signature and key generation:
 
 ```json
 {
@@ -215,7 +213,7 @@ Expected response:
 { "valid": true }
 ```
 
-This verifies raw bytes. A production verifier must additionally trust the expected identity, bind the proof to the action it will execute, and enforce replay or expiry rules required by that action.
+`valid: true` confirms that the signature matches the message and key. Verification does not evaluate authority policy. An executing application must also check the expected key, action, expiry, and replay rules.
 
 ## Turn the smoke test into a governed integration
 

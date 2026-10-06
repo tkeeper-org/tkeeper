@@ -1,6 +1,6 @@
 # Signing
 
-Signing is where a key identity produces proof. TKeeper signs only after the command is accepted by the key's authorities and any configured policy, audit, lifecycle, and quorum controls.
+`POST /v2/keeper/sign` returns a signature for a command accepted by the key's authority. Signing also requires caller permission and any configured approvals, audit, lifecycle, and quorum checks.
 
 ## Endpoints
 
@@ -148,7 +148,7 @@ Verify response:
 
 `generation` is optional on verify. If omitted, TKeeper uses the active generation.
 
-Verify is purely cryptographic. Its command contains only `type` and `artifact`; it does not contain `authorityId`, load an authority manifest, or evaluate policy. A caller may verify any supported material type, including `custom` typed data or `arbitrary` bytes, even when that type or payload would not be authorized for signing by the key's current manifest. The type still selects structural material validation and canonical serialization before the signature is checked, and a successful result proves only cryptographic validity, not current policy authorization.
+Verify checks the signature against the supplied `type` and `artifact`. It validates the material format and uses the type's signing encoding, but does not take `authorityId`, load an authority, or evaluate policy. Supported material can be verified even if the key's current policy would reject it for signing. `valid: true` confirms the signature and material match; it does not establish current authorization.
 
 ```json
 {
@@ -181,9 +181,7 @@ The default is `12`. Exhaustion returns `SESSION_MAX_ROUNDS_EXCEEDED`; treat it 
 
 ## Downstream verification
 
-The downstream system should verify that the proof matches the exact command it is about to execute and the identity it intended to trust.
-
-Signature validity alone is insufficient. The acceptance contract should cover:
+Before executing the action, the receiving system must check:
 
 - expected key identity or public key
 - canonical command and every field that changes the effect

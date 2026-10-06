@@ -59,16 +59,16 @@ tkeeper.system.unseal
 tkeeper.system.seal
 ```
 
-Seal providers:
+Select a provider and include its build feature when required:
 
-| Provider | Where it lives |
-| --- | --- |
-| `shamir` | core |
-| `hsm` | core |
-| `aws` | `:features:seal-aws` |
-| `google` | `:features:seal-gcloud` |
+| Provider | Unseal method | Build feature |
+| --- | --- | --- |
+| `shamir` | submit unseal shares | built in |
+| `hsm` | PKCS#11 wrapping key | built in |
+| `aws` | AWS KMS key | `seal-aws` |
+| `google` | Google Cloud KMS key | `seal-gcloud` |
 
-Feature seal providers must be included at build time. If `keeper.providers.selected = "aws"` but the jar was built without `:features:seal-aws`, startup will not find the provider.
+A selected provider must be present in the artifact. For example, `keeper.providers.selected = "aws"` requires `-Pkeeper.features=seal-aws`.
 
 ## Provider selection
 
@@ -143,7 +143,7 @@ AES_CBC
 
 ## AWS KMS provider
 
-`aws` lives in `:features:seal-aws`.
+Use provider id `aws` with the `seal-aws` feature.
 
 Build with it:
 
@@ -167,7 +167,7 @@ keeper.providers {
 
 ## Google Cloud KMS provider
 
-`google` lives in `:features:seal-gcloud`.
+Use provider id `google` with the `seal-gcloud` feature.
 
 Build with it:
 

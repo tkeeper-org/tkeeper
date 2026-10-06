@@ -1,13 +1,13 @@
 # Use-case fit
 
-TKeeper fits workflows where a cryptographic identity is the final authority for an action and the consumer can verify proof before producing the effect.
+Use TKeeper when the executing system can require a signature from a specific key before acting.
 
-| Scenario | Governed intent | Verifier | TKeeper does not replace |
+| Scenario | Command | Verifier | Application responsibilities |
 | --- | --- | --- | --- |
-| AI | MCP tool call, AP2 or MC VI payment, production action | tool backend or credential verifier | model security, sandboxing, or risk detection |
-| Digital assets | Bitcoin, EVM, Tron, XRP, or Solana transaction | chain client, broadcaster, or custody backend | transaction construction, broadcast, or settlement monitoring |
-| PKI | DER-encoded TBS certificate | relying party or CA pipeline | enrollment, serial allocation, revocation, or certificate publication |
-| Other activities | typed privileged command | service that performs the command | business logic or host authorization |
+| AI | MCP tool call, AP2 or MC VI payment, production action | tool backend or credential verifier | model security, sandboxing, and risk detection |
+| Digital assets | Bitcoin, EVM, Tron, XRP, or Solana transaction | chain client, broadcaster, or custody backend | transaction construction, broadcast, and settlement monitoring |
+| PKI | DER-encoded TBS certificate | relying party or CA pipeline | enrollment, serial allocation, revocation, and certificate publication |
+| Other activities | typed privileged command | service that performs the command | business logic and host authorization |
 
 Detailed integration guidance:
 
@@ -18,7 +18,7 @@ Detailed integration guidance:
 
 ## Fit test
 
-Before adopting TKeeper, answer these questions:
+Define the integration before choosing a key or authority:
 
 1. What exact effect requires cryptographic authorization?
 2. Can that effect be represented as a stable, canonical intent?
@@ -28,4 +28,4 @@ Before adopting TKeeper, answer these questions:
 6. Which context must be covered: environment, target, amount, chain, expiry, nonce, or approver verdict?
 7. Is one compromised TKeeper node allowed to act as the identity?
 
-If the effect can occur without the proof, TKeeper is advisory on that path. If the payload has no stable meaning, use of raw `arbitrary` signing must be an explicit security decision rather than a governed-intent claim.
+An execution path that skips signature verification bypasses TKeeper's controls. If the payload cannot be parsed into an action, `arbitrary` can sign its bytes but cannot enforce intent policy.

@@ -53,7 +53,7 @@ String transactionJson = signed.rawTransaction();
 String transactionHash = signed.transactionHash();
 ```
 
-The integration test checks the owner key, policy boundary, unchanged transaction body, signature, and returned hash. The broadcaster still decides when and where to submit `transactionJson`.
+The result contains the approved transaction body with its signature. Submit `transactionJson` through the broadcaster and track confirmation there.
 
 When signing with a `tweak`, build Bitcoin, Tron, XRP, or Solana transactions from the public key returned by `central().getPublicKey(keyId, tweak)`. Keeper checks the transaction's owner or required signer against that derived key on every participating peer.
 

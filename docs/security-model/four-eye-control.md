@@ -118,7 +118,7 @@ Approval payload:
 }
 ```
 
-At the coordinator boundary, the nonce is one-time and is consumed only after enough signatures verify. Consumed nonces are persisted in RocksDB for `keeper.approval.ttl`, so a coordinator restart does not reopen the replay window. The timestamp must not be in the future and must fit the same TTL.
+At the coordinator boundary, the nonce is one-time and is consumed only after enough signatures verify. Consumed nonces are retained for `keeper.nonce-ttl` (12 hours by default), so a coordinator restart does not reopen the replay window. The approval timestamp must not be in the future and must fit `keeper.approval.ttl`. Nonce retention must be strictly longer than the approval lifetime; physical FIFO cleanup can occur later.
 
 Threshold protocol retries reuse the same approval. Non-coordinator peers therefore verify its signatures, approved request fields, and TTL without independently consuming the nonce. If the coordinator is compromised, it can replay an approval with those same fields only while it remains fresh; see the threat model.
 
@@ -145,11 +145,11 @@ base64(sha256(encoded-public-key))
 
 ### One format for key-bound and policy-bound approvals
 
-Key-bound Four-Eye loads approval keys from the policy stored with the selected key generation. Policy-bound Four-Eye loads approval groups from every matching authority allow rule. The guard merges both sources before verification.
+Key-bound approval keys come from the selected generation's policy. Authority-policy groups come from matching allow rules or the fallback. TKeeper requires every applicable group before proceeding.
 
 All approvers sign one `hashForSigning`. All proofs travel in one `approvals.proofs` array with one `keeperId`, nonce, and timestamp. Combined enforcement requires every key-bound and policy-bound group; it creates no second request or hash.
 
-Policy-bound groups currently apply to typed `Sign` requests. Key-bound groups apply according to their mode:
+Policy-bound groups apply to typed `Sign` requests. Key-bound groups apply according to their mode:
 
 | Key policy mode | Protected operations |
 | --- | --- |
@@ -315,7 +315,7 @@ Optional request fields `policy` and `assetOwner` enter the preimage recursively
 | --- | --- |
 | `CREATE` | No previous generation supplies a key-bound group. The request's `policy` and `assetOwner` become generation 1 metadata. |
 | `ROTATE` | The active generation's policy authorizes replacement. The request's optional `policy` and `assetOwner` become metadata for the new key material. |
-| `REFRESH` | The active generation's policy authorizes refreshed shares. The request's optional `policy` and `assetOwner` become metadata for the refreshed generation. |
+| `REFRESH` | The active generation's policy authorizes a new generation with the same public key. The request's optional `policy` and `assetOwner` become its metadata. Material behavior depends on the algorithm and quorum mode. |
 
 For Java SDK requests, pass `KeyGenMode.CREATE`, `KeyGenMode.ROTATE`, or `KeyGenMode.REFRESH` to `Generate.builder(...)`, attach `.approvals(approvals)`, and call `hashForSigning()` before adding proofs.
 

@@ -1,9 +1,9 @@
 # Use Cases
 
-Every supported action follows the same path:
+Typed signing follows this path:
 
 ```text
-identity -> understood action -> policy -> proof -> verified execution
+command -> authority policy -> signature -> verification -> execution
 ```
 
 | Use case | Workflow | Authority guide |

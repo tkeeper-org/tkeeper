@@ -1,10 +1,6 @@
 # Deployment
 
-Deployment has three decisions:
-
-1. Which product features are included in the artifact.
-2. Which cryptographic platforms are included in the artifact.
-3. Which runtime mode the node is initialized with.
+Select the required features and algorithms when building the artifact, then initialize each node in mono or threshold mode. Configure authentication, TLS, sealing, and audit before accepting signing traffic.
 
 Read:
 
@@ -25,7 +21,7 @@ Read:
 | Production mono | Lower-impact workflows that accept single-node compromise | One node holds full key authority |
 | Threshold cluster | High-risk workflows | Quorum of peers must authorize and participate |
 
-Mono and threshold use the same public API model. The difference is where key authority lives.
+Both modes use the same public API. Mono stores a full key on one host; threshold splits it across peers.
 
 ## Production defaults
 

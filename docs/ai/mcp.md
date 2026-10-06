@@ -6,7 +6,7 @@ The `mcp` feature adds `POST /mcp` to TKeeper's public HTTP server. An agent hos
 
 | Tools | Result | Permission |
 | --- | --- | --- |
-| `identity.list`, `identity.describe_authority` | Active signing identities, authority descriptions, command JSON Schemas | `tkeeper.key.<keyId>.sign` |
+| `identity.list`, `identity.describe_authority` | Active cryptographic identities, authority descriptions, command JSON Schemas | `tkeeper.key.<keyId>.sign` |
 | `utility.keeper_status` | Sealed and ready state | `tkeeper.system.status` |
 | `utility.get_public_key` | Public key for an identity | `tkeeper.key.<keyId>.public` |
 | `utility.verify_signature` | Cryptographic command verification | `tkeeper.key.<keyId>.verify` |
@@ -36,6 +36,10 @@ The `mcp` feature adds `POST /mcp` to TKeeper's public HTTP server. An agent hos
    Send the token from the host on every request. Browser requests with an `Origin` header are rejected, so connect from a server-side host. Keeper accepts HTTP POST and returns JSON.
 
 ## Check the connection
+
+Compatible protocol updates retain the `2026-07-28` version identifier. Clients
+that only support the older `initialize` handshake cannot connect. A version mismatch
+returns `-32022` with the supported version list, which a modern client can use to retry.
 
 With a JWT for the agent host, list the available tools:
 

@@ -8,7 +8,7 @@ The recovery plan must account for:
 
 | Asset | Why it is needed |
 | --- | --- |
-| Peer database | encrypted key shares, generations, authorities, peer identity, integrity state, and platform side state |
+| Peer database | encrypted key shares, generations, authorities, peer identity, integrity state, and public verification data |
 | Runtime configuration | peer id, cluster topology, TLS, auth, selected features, platforms, and seal provider |
 | Seal dependency | Shamir shares, HSM key, or cloud KMS key and its authorization path |
 | TLS and trust material | public/internal API identity and peer connectivity |
@@ -32,7 +32,7 @@ Restore a peer in an isolated environment before reconnecting it to the cluster.
 1. Use the expected TKeeper artifact and configuration for that peer id.
 2. Restore the database and required TLS/trust material.
 3. Confirm the configured seal provider can unseal the restored state.
-4. Check node status, inventory integrity, public keys, active generations, authorities, and platform side state.
+4. Check node status, inventory integrity, public keys, active generations, and authorities.
 5. Compare the restored generation state with healthy peers and the audit history.
 6. Rejoin only after the state difference is understood.
 
@@ -40,8 +40,8 @@ An older backup may represent a generation that the cluster has already rotated,
 
 ## Share recovery mode
 
-Share recovery is an explicit build capability. Select `recovery` and the platforms used by the
-key histories that need repair. Gradle adds the corresponding platform recovery modules.
+Select `recovery` and the platforms used by the key histories that need repair.
+The platform selection enables ECC recovery, ML-DSA recovery, or both.
 
 ECC recovery artifact:
 
@@ -103,10 +103,10 @@ Legacy unversioned generation zero is outside the recovery boundary.
    the expected state. Read every generation's public key while recovery mode is still enabled.
 7. Repeat for each damaged logical key.
 8. Rebuild the normal production artifact with the deployment's regular feature and platform
-   selectors, without `recovery`:
+   selectors, without `recovery`. For example, the default production features and both platforms:
 
    ```bash
-   ./gradlew :build -Pkeeper.features=<production-features> -Pkeeper.platforms=<production-platforms>
+   ./gradlew :build -Pkeeper.features=all -Pkeeper.platforms=all
    ```
 
 9. Replace the maintenance artifact on every participant and restart with
@@ -163,8 +163,8 @@ configuration.
 Recovery repairs keeper state. It does not determine whether the lost or modified share was exposed.
 Rotate or reshare after recovery when required by the incident response decision.
 
-Disabling the runtime flag is not the final deployment state. The normal artifact must exclude the
-recovery base module and both platform recovery implementations.
+After repair, use a normal artifact built without `recovery`, as described in the
+[recovery steps](#run-recovery). Setting the runtime flag to `false` leaves recovery code in the artifact.
 
 ### ECC mask boundary
 
@@ -181,9 +181,9 @@ pair mask in a session with a different helper set (and therefore a different La
 would reveal that helper's share; the signed transcript binds the session id, target, canonical
 helper set, algorithm, generation, commitments, metadata, and expiry, and rejects such reuse.
 
-The complete graph contains `t(t - 1) / 2` mask deliveries. The implementation bounds setup to 64
-concurrent requests; validate recovery latency at the deployment's largest supported `t` before
-relying on the default session lifetime.
+Mask exchange needs `t(t - 1) / 2` deliveries and allows at most 64 concurrent
+setup requests. Test recovery latency at the deployment's largest supported `t`
+before relying on the default session lifetime.
 
 ## Recovery objectives
 

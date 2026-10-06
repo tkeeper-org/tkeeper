@@ -1,31 +1,27 @@
 # Agentic payments
 
-AP2 and Mastercard Verifiable Intent use the same authority, approval, signing and
-verification pipeline as the other keeper authority modules.
+The `agentic-payments` feature signs AP2 and Mastercard Verifiable Intent mandates
+with a P-256 key. It checks the mandate contents, authority policy, and required
+approvals before producing an ES256 credential layer.
 
 ```sh
 ./gradlew shadowJar -Pkeeper.features=agentic-payments -Pkeeper.platforms=ecc
 ```
 
-Select `ap2` or `mc-vi` independently when only one is needed. Their dependencies are
-`org.exploit.verdict:ap2:0.2.1` and
-`org.exploit.verdict:mc-vi:0.2.1`; shared request validation and CEL
-functions come from `org.exploit.verdict:payments:0.2.1`.
+Select `ap2` or `mc-vi` when only one protocol is needed.
 
 ## Authority
 
 Use `type: ap2.mandate` or `type: mcintent.mandate`.
-`config.merchants` and `config.methods` are the named identity catalogs validated
-by Verdict. `config.mode` is `PAIRED` by default; explicitly select `PAYMENTS` or
+`config.merchants` and `config.methods` define the merchant and payment-method
+identities available to policy. `config.mode` is `PAIRED` by default; explicitly select `PAYMENTS` or
 `CHECKOUTS` for a standalone signing stage. The artifact mode must match it.
 
-The policy receives Verdict's action schema: `action`, `payment`, `checkout`,
+Policy receives these roots: `action`, `payment`, `checkout`,
 `delegation`, `request`, `mandates`, `context`, `merchants`, and `methods`.
 Every action is evaluated; a denied action denies the complete request, and all
 approval requirements are retained. `context` is empty.
 
-See the executable [AP2 authority](../../integration-tests/src/testFixtures/resources/authorities/payments/ap2-purchases.yaml)
-and [MC VI authority](../../integration-tests/src/testFixtures/resources/authorities/payments/mcintent-purchases.yaml).
 The [AP2 guide](../../docs/ai/agentic-payments/ap2.md) and [MC Intent guide](../../docs/ai/agentic-payments/mcintent.md) have complete authorities and SDK examples.
 
 ## SDK and signing contract
@@ -63,7 +59,7 @@ MC VI supports L2 Immediate/Autonomous (`kb-sd-jwt`/`kb-sd-jwt+kb`) and terminal
 `sha-256`, required binding claims, compatible mandate kinds and P-256 public agent
 JWKs; L3 requires `kid` and a validity interval of at most one hour.
 
-The signing adapter validates the outgoing credential and its content commitments.
+TKeeper validates the outgoing credential and its content commitments.
 The caller supplies issuer/audience/nonce/time claims and `sd_hash` computed from
 the exact parent presentation. Parent-chain authentication, trust roots, replay,
 expiry at presentation time and merchant-signature verification belong to the

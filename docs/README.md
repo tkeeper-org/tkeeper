@@ -1,6 +1,6 @@
 # TKeeper Docs
 
-TKeeper gives machines, agents, services, and workflows a cryptographic identity constrained by authorities and policy. Start with the [overview](overview/README.md), [use cases](use-cases/README.md), or [local setup](getting-started/local-single-node.md).
+TKeeper checks permissions and policy before signing an action with a key. Start with the [overview](overview/README.md) to understand the model, a [use case](use-cases/README.md) to build an integration, or the [local setup](getting-started/local-single-node.md) to try signing.
 
 ## Use cases
 

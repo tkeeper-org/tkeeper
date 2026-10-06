@@ -61,17 +61,15 @@ Rules:
 - every peer in a threshold cluster must use the same `threshold` and `total`
 - run init once per peer
 
-For threshold mode, all peers must be initialized with the same `threshold` and `total`. If one peer is initialized with different cluster parameters, reset that peer's database and initialize it again with the correct parameters.
+If a fresh peer with no keys has incorrect quorum parameters, recreate its database and initialize it with the correct values. For a peer that already holds key state, stop and follow [Backup and Recovery](backup-and-recovery.md) before replacing its database.
 
 Peers can be initialized independently. The threshold parameters are the part that must match.
 
 ## Choosing a mode
 
-Use mono when one Keeper is enough for custody, but you still want TKeeper's authority controls around the key. Mono operations are local. There is no peer quorum, no distributed signing protocol, and no protection against compromise of that one node.
+Mono holds the full private key on one host. It retains authority policy and other controls, but host compromise exposes the key.
 
-Use threshold when no single machine should be able to use the key alone. Keys are split across peers. Signing and decrypting need enough healthy peers to participate. For ECDSA TKeeper uses GG20. For Schnorr-style schemes it uses FROST. Threshold ECIES decrypts through peer partial decrypts.
-
-Use threshold mode when one compromised node must not be enough to act as the identity. Mono is appropriate for development, explicitly lower-impact deployments, bootstrap phases, and systems that plan to promote into a quorum later.
+Threshold splits the key across peers. Signing and decryption need enough healthy peers, and fewer than `threshold` compromised peers cannot act alone. Choose the mode according to this custody requirement; see [Quorum Modes](../security-model/quorum-modes.md).
 
 ## Promoting mono to threshold
 
@@ -130,4 +128,4 @@ In threshold mode, peer ids are part of protocol state. Each node needs its own 
 
 ### Wrong threshold or total
 
-Reset the local database for the bad peer and run init again with the same `threshold` and `total` as the rest of the cluster.
+For a fresh peer with no keys, recreate its database and initialize it with the cluster's `threshold` and `total`. Preserve existing key state through the [recovery procedure](backup-and-recovery.md).

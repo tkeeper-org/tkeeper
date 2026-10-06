@@ -1,6 +1,6 @@
 # Cryptographic Identities
 
-In TKeeper, a key is the identity boundary. The key's authorities define what the identity can authorize, and lifecycle operations change the generations through which that identity operates.
+A key id identifies a key and its generation history. Attached authorities define what it may sign. Create, import, rotate, refresh, promote, and destroy manage its material and custody.
 
 Read:
 

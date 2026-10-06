@@ -14,7 +14,7 @@ Build the `mcp` feature with the authority modules the agent needs:
 
 | Tool | Permission | Use |
 | --- | --- | --- |
-| `identity.list`, `identity.describe_authority` | `tkeeper.key.<keyId>.sign` | Find active signing identities and their command schemas |
+| `identity.list`, `identity.describe_authority` | `tkeeper.key.<keyId>.sign` | Find active cryptographic identities and their command schemas |
 | `utility.keeper_status` | `tkeeper.system.status` | Check readiness |
 | `utility.get_public_key` | `tkeeper.key.<keyId>.public` | Read a public key |
 | `utility.verify_signature` | `tkeeper.key.<keyId>.verify` | Verify a command signature |

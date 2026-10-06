@@ -2,21 +2,21 @@
 
 ## Authority
 
-The declared capability attached to a key identity. An authority defines what kind of action the identity can authorize and how TKeeper should understand and govern requests for that action.
+Rules attached to a key that define an accepted command type and its policy. Raw `arbitrary` authority accepts bytes without intent policy.
 
 Examples: arbitrary bytes signing, typed commands, EVM transactions, Bitcoin transactions, X.509 certificate issuance.
 
 ## Authority path
 
-The path where a requested action becomes a real effect. TKeeper is meant to sit on this path, so the effect depends on the cryptographic proof TKeeper controls.
+The sequence from a request to its execution, including TKeeper's checks and the receiving system's signature verification.
 
 ## Command
 
-The API object that describes what the caller wants to sign or authorize. A command is materialized into an intent before policy and signing.
+The API object that describes what the caller wants to sign. For concrete authorities, TKeeper parses it into an intent before policy evaluation.
 
 ## Cryptographic proof
 
-The output another system can verify before executing an effect. Usually this is a signature or certificate. Some optional features expose other governed cryptographic results.
+A signature or signed artifact that a receiving system can verify before executing an action.
 
 ## DKG
 
@@ -28,7 +28,7 @@ A normalized consequence derived from an intent and exposed to policy, such as a
 
 ## Feature
 
-A build-time module that adds product functionality, endpoints, authority types, UI, or providers.
+A build option that adds endpoints, authority types, the UI, or seal providers.
 
 Examples: `digital-assets`, `agentic-payments`, `authority-x509`, `ecies`, `ui`, `seal-aws`, `seal-gcloud`.
 
@@ -42,11 +42,11 @@ A version of key material or key-share state for the same key id. Lifecycle oper
 
 ## Governed cryptographic identity
 
-A key identity whose allowed actions are declared through authorities, governed by policy, and bound to cryptographic proof that downstream systems can verify before execution.
+A key with attached authorities and policy that limit what it may sign. The receiving system verifies the signature and signed action before execution.
 
 ## Intent
 
-The exact action being requested after TKeeper has parsed and normalized command data.
+Parsed command fields and effects exposed to authority policy.
 
 ## Mono
 
@@ -56,11 +56,11 @@ The quorum mode where one local node holds and uses key material. Mono still use
 
 A build-time module that provides cryptographic algorithms and protocol implementations.
 
-Examples: `platform-ecc`, `platform-pqc`.
+Build selectors: `ecc`, `pqc`.
 
 ## Quorum
 
-The number of peers required to complete a threshold operation.
+A set of enough peers to complete an operation. In a `t-of-n` configuration, at least `t` peers must participate.
 
 ## Refresh
 
@@ -76,8 +76,8 @@ The quorum mode where key material is split across peers and an operation needs 
 
 ## Trusted dealer
 
-An import model where a trusted source splits or provides key material to peers. It is useful for migration and external key onboarding, but the import path depends on trusting the dealer and imported material.
+A source that holds an existing private key and imports it into TKeeper. Threshold import splits that key into peer shares; copies retained by the dealer remain usable.
 
 ## Verifier
 
-The downstream component that accepts a TKeeper proof and decides whether to execute the corresponding effect. It must validate the expected identity and exact intent, not only the signature equation.
+The component that checks the expected key, signature, signed action, and freshness before accepting an operation.

@@ -1,6 +1,6 @@
 # Control Plane UI
 
-The control-plane UI lives in `:features:ui`.
+The `ui` feature provides a browser interface for key management, inventory, and system state.
 
 Build with it:
 
@@ -132,7 +132,7 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains
 
 ### `/ui/` returns 404
 
-Rebuild with `:features:ui`.
+Include `-Pkeeper.features=ui` when building, and confirm the UI is enabled at startup.
 
 ### OIDC login cannot reach the issuer
 

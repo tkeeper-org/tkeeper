@@ -10,7 +10,7 @@
 - [ ] Pin the release artifact used by every peer.
 - [ ] Verify artifact provenance and integrity before rollout.
 - [ ] Confirm every peer runs the same feature and platform set.
-- [ ] Confirm every peer uses the same Anvil protocol version; do not mix Fiat-Shamir domain or GG20 MtA wire versions during a rolling upgrade.
+- [ ] Validate protocol compatibility before a rolling upgrade; changes to Fiat-Shamir domains or GG20 MtA wire formats require a coordinated upgrade.
 
 ## Authentication and permissions
 
@@ -36,7 +36,7 @@
 - [ ] Store Shamir shares or provider recovery material outside the node.
 - [ ] Test unseal after restart.
 - [ ] Restrict access to HSM/KMS keys used for sealing.
-- [ ] Back up each peer's database and platform side state according to the recovery design.
+- [ ] Back up each peer's full database according to the recovery design.
 - [ ] Test restoring a peer without placing enough key shares and unseal material in one failure domain.
 - [ ] Validate the full [Backup and Recovery](backup-and-recovery.md) procedure before go-live.
 
@@ -81,4 +81,4 @@
 - [ ] Test denied policy and denied permission paths.
 - [ ] Keep a runbook for `SESSION_MAX_ROUNDS_EXCEEDED`, quorum failure, and audit outage.
 - [ ] Define the response to suspected mono-key exposure before quorum promotion; promotion alone does not remove prior copies.
-- [ ] Rotate, rather than refresh, any GG20 generation exposed to a protocol version that transmitted MtA masks or permitted reusable signing state.
+- [ ] Rotate any GG20 generation exposed to a protocol version that transmitted MtA masks or permitted reusable signing state; refresh does not remove that exposure.

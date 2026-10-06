@@ -1,6 +1,6 @@
 # Authentication and Authorization
 
-External requests are authenticated before controller logic runs. Authorization is permission-string based and enforced before key material participates in the operation.
+Protected public API requests require authentication and an operation-specific permission. Key permissions can be scoped to a key id.
 
 ## Authentication modes
 
@@ -9,12 +9,11 @@ External requests are authenticated before controller logic runs. Authorization 
 | `dev` | `X-DEV-TOKEN` | explicit opt-in deployments |
 | `jwt` | `X-JWT-TOKEN` | production deployments |
 
-Developer authentication is never selected implicitly. The feature may be packaged into a production artifact, but enabling it there is outside the recommended production profile. An operator who accepts that risk must protect its token, configuration, and permissions as production credentials.
+Use JWT for production. Developer authentication requires an explicit build feature and runtime setting. If a deployment uses it outside development, protect the token and configuration as production credentials and restrict its permissions.
 
 ## Developer authentication
 
-Developer auth loads a separate config file from `keeper.dev.config.location`.
-Its implementation lives in the optional `auth-dev` feature. It is excluded from `keeper.features=all` but may be explicitly selected for any deployable artifact.
+Developer authentication reads its token and permissions from `keeper.dev.config.location`. Build with `auth-dev`, which is excluded from `keeper.features=all`.
 
 Example:
 
@@ -77,6 +76,11 @@ If `auth.jwt.issuer` is configured, `iss` must match it. Configure issuer in pro
 `nbf` is optional. When present, TKeeper rejects the token before that time.
 
 ## Permission model
+
+The optional [mandate module](../../features/mandate/README.md) authorizes a specific
+operation for later execution. Issue it with a primary credential, then submit the
+operation with `X-KEEPER-MANDATE` and any required approvals. The mandate replaces
+the primary credential for that request; current policies are checked again.
 
 Permissions are explicit strings:
 
@@ -150,13 +154,13 @@ X-BOOT-PROOF
 X-SIGNATURE
 ```
 
-The request signature binds the HTTP method, path, canonical query, body hash, intended peer, timestamp, nonce, boot proof, and any forwarded actor token. The nonce must be unique and the timestamp must be fresh. Accepted nonces share the persistent RocksDB replay store with four-eye approvals and are retained for `keeper.approval.ttl`.
+The request signature binds the HTTP method, path, canonical query, body hash, intended peer, timestamp, nonce, boot proof, and any forwarded actor token. The nonce must be unique and the timestamp must be fresh. Accepted nonces share the persistent RocksDB replay store with four-eye approvals and are retained for `keeper.nonce-ttl` (12 hours by default). The configured retention must exceed the full 60-second internal request acceptance window; physical FIFO cleanup can occur later.
 
 The external JWT or dev token is forwarded only on internal operation entrypoints that independently enforce actor permissions, such as signing or DKG initialization, trusted-dealer import, destroy prepare, and consistency mutations. Protocol rounds and marker-bound commit or abort calls use peer authentication and existing session state without repeatedly forwarding the actor credential.
 
 On first contact, a peer proves its integrity key with the shared bootstrap token. After that, the integrity key is pinned for the lifetime of the process. If `keeper.peers[].tls-spki-sha256` is configured, TKeeper first verifies that the mTLS client certificate matches the claimed peer id; this removes network-first bootstrap enrollment from the trust decision.
 
-Authenticated internal responses carry the peer identity, request hash and nonce, response timestamp, body hash, boot proof, and `X-RESPONSE-SIGNATURE`. The caller verifies the raw status, content type, and body before completing the response future used by protocol code. Unsigned, replayed, cross-peer, or request-substituted responses are rejected.
+Authenticated internal responses carry the peer identity, request hash and nonce, response timestamp, body hash, boot proof, and `X-RESPONSE-SIGNATURE`. The caller verifies the status, content type, and body before accepting the response. Unsigned, replayed, cross-peer, or request-substituted responses are rejected.
 
 Protected internal routes require TLS outside dev mode. Mutual TLS with per-peer SPKI binding authenticates the transport peer; signed requests and responses separately bind protocol content and session intent.
 

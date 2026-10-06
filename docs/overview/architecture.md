@@ -1,6 +1,6 @@
 # Architecture
 
-TKeeper is split into a core runtime, build-time feature modules, and build-time cryptographic platforms.
+The public API accepts client requests; the internal API carries threshold protocol messages between peers. Each node has its own database and seal provider. Features and cryptographic platforms are selected when building the artifact.
 
 ## Main path
 
@@ -33,9 +33,7 @@ For threshold operations, the coordinator starts the session, but peers validate
 
 ## Features
 
-Features add product surface area. They are selected at build time.
-
-Examples:
+Features add command types, endpoints, the UI, or seal providers:
 
 | Feature | Adds |
 | --- | --- |
@@ -56,7 +54,7 @@ If a feature is not included in the artifact, its endpoints or command types are
 
 ## Platforms
 
-Platforms add algorithm implementations. They are selected separately from features.
+Platforms supply cryptographic algorithms and are selected separately from features.
 
 | Platform | Adds |
 | --- | --- |
@@ -72,22 +70,8 @@ Features that depend on a platform require that platform explicitly. Digital ass
 | `mono` | One local node | Same policy controls, no distributed key custody |
 | `threshold` | Quorum of peers | Key use requires enough peers to accept and participate |
 
-Threshold mode protects against a single peer using the key alone. It does not remove the need for host security, network security, backups, monitoring, and careful permission design.
+In threshold mode, fewer than `t` peers cannot sign alone. Peers need matching authority and policy state to enforce the same rules, and enough healthy peers to complete an operation.
 
 ## Integration boundary
 
-TKeeper should sit on the authority path, not beside it.
-
-Good placement:
-
-```text
-Business system requires TKeeper proof before executing the effect.
-```
-
-Weak placement:
-
-```text
-Business system can execute the same effect without the governed identity.
-```
-
-The second shape may still provide logging or advisory checks, but it is not strong enforcement.
+The executing system must verify the expected key, signature, and command before acting. It must also enforce the action's expiry and replay rules. If the same action can run through an API that skips verification, TKeeper cannot enforce policy on that path.

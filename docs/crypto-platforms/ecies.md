@@ -1,16 +1,8 @@
 # ECIES
 
-ECIES lives in `:features:ecies`.
+ECIES encrypts data for a TKeeper key and decrypts it under the key's access controls. It combines an ElGamal-style key encapsulation mechanism with an authenticated payload cipher.
 
-It uses an ElGamal-style KEM over the key curve plus an AEAD payload cipher.
-
-Encryption uses the public key, so it does not need peer participation in either quorum mode.
-
-In `mono` mode, decrypt is local. TKeeper reads the active private key material, applies the optional tweak, unwraps the KEM secret, and decrypts the payload.
-
-In `threshold` mode, decrypt needs a quorum. Each peer returns a partial decrypt with a DLEQ proof. The coordinator verifies each proof against the ciphertext point, the peer public share, and the partial decrypt before combining the plaintext.
-
-In threshold mode the private key is never reconstructed.
+Encryption uses only the public key and needs no peer participation. In `mono`, decryption uses the local private key. In `threshold`, a quorum supplies partial decrypts; the coordinator checks each DLEQ proof before combining the result. Threshold decryption does not reconstruct the private key.
 
 Build with it:
 
@@ -98,17 +90,17 @@ SECP256K1
 P256
 ```
 
-Decrypt requests can carry four eye approvals. The approval hash binds the decrypt request fields, including key id, algorithm, ciphertext, generation, tweak, nonce, and timestamp.
+Decrypt requests can require four-eye approvals under key policy. The approval hash binds the decrypt request fields, including key id, algorithm, ciphertext, generation, tweak, nonce, and timestamp.
 
 `imposters` contains peers that returned invalid partial decrypt proofs. It is only meaningful in threshold mode. Mono decrypt returns an empty list.
 
-If quorum is still honest, threshold decrypt can succeed and report the bad peers.
+Decryption can succeed after rejecting invalid contributions if enough valid partial decrypts remain.
 
 ## Common problems
 
 ### ECIES endpoints are missing
 
-Rebuild with `:features:ecies`.
+Rebuild with `-Pkeeper.features=ecies -Pkeeper.platforms=ecc`.
 
 ### `INVALID_CIPHERTEXT`
 

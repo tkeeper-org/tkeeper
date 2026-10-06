@@ -1,21 +1,12 @@
 # EVM Authorities
 
-EVM authority support lives in the `digital-assets:evm` module and currently requires the `ecc` platform.
-
-Build example:
+The `evm.transaction` authority checks an unsigned transaction and its decoded effects before signing. Build with `evm` and `ecc`:
 
 ```bash
 ./gradlew shadowJar -Pkeeper.features=evm -Pkeeper.platforms=ecc
 ```
 
-An EVM authority lets TKeeper parse an unsigned serialized transaction, decode configured contract calls, expose normalized effects to policy, and sign after the resulting allow decision and any approval requirements are satisfied.
-
-Use EVM authorities for:
-
-- treasury transactions
-- spender approvals
-- contract-specific governed actions
-- policy inputs from AML, KYT, fraud, or business systems
+Policy can constrain native transfers, token transfers, spender approvals, and configured contract calls. Signing requires an allow decision and any approvals selected by policy.
 
 ## Enforcement boundary
 
@@ -87,7 +78,7 @@ Intent validation rejects unsigned-data violations, chain mismatch, unlisted con
 
 ## Authority example: treasury USDC transfer
 
-This authority represents one logical action: transfer mainnet USDC from the treasury to one operating wallet. It allows transfers up to 100 USDC directly and requires one treasury approval above 100 and up to 1,000 USDC. Other recipients, effects, contracts, chains, and larger amounts fall through to `DENY`.
+This authority allows mainnet USDC transfers to one operating wallet: up to 100 USDC without approval, or above 100 and up to 1,000 USDC with one treasury approval. Other recipients, effects, contracts, chains, and larger amounts are denied.
 
 ```yaml
 schemaVersion: verdict.authority/v1

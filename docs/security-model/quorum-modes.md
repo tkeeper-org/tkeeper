@@ -7,7 +7,7 @@ TKeeper supports two custody modes:
 | `mono` | `1-of-1` | one TKeeper host can use the key |
 | `threshold` | `t-of-n` | fewer than `t` peers cannot use the key alone |
 
-Choose the mode from the failure you need to survive. Threshold mode is appropriate when compromise of one host, operator, VM, or cluster zone must not grant the identity's full authority.
+Choose threshold mode when one compromised peer must not be able to sign alone. Place shares across independent hosts and administrative domains so one compromise cannot reach the threshold.
 
 ## Threshold guarantees
 
@@ -69,10 +69,4 @@ Target peers must already be initialized and unsealed with matching `threshold` 
 
 ## Decision rule
 
-Use threshold when the answer to this question is no:
-
-```text
-May one compromised TKeeper host authorize as this identity?
-```
-
-If operational constraints force mono for a high-impact identity, document that exception as a security risk rather than presenting policy controls as a substitute for distributed custody.
+Use threshold when a single-host compromise must not expose the key. If operational constraints require mono, account for full-key exposure in the risk and recovery plan.

@@ -1,12 +1,8 @@
 # Security Model
 
-For typed authorities, TKeeper enforces a cryptographic authority boundary:
+For concrete authorities, TKeeper checks caller permissions, authority policy, required approvals, key state, and configured audit before signing. In threshold mode, enough peers must accept the operation and contribute.
 
-```text
-no accepted identity intent -> no proof -> no downstream effect
-```
-
-This boundary is effective only when the downstream system refuses to execute the action without verifying TKeeper proof.
+The executing system must verify the expected key and signed action, then enforce expiry and replay rules. An execution path that skips these checks bypasses TKeeper's controls.
 
 Read:
 

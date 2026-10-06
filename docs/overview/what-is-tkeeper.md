@@ -1,35 +1,32 @@
 # What is TKeeper?
 
-TKeeper is an authority layer for cryptographic identity. It treats each key as an identity with attached authorities: what the identity can authorize, how a request is understood, which policy governs it, and what proof another system should verify before execution.
+TKeeper manages cryptographic identities for applications, agents, and other autonomous systems. Each identity has a key and attached authorities that define accepted commands, how their fields are interpreted, and which actions are allowed. TKeeper checks policy and controls before authorizing an action with that key.
 
-It is useful when a machine action has real consequences:
+See [Product goals](README.md#goals).
 
-- move funds
-- sign a transaction
-- issue a certificate
-- approve a spender
-- rotate, import, refresh, or destroy a key
-- let an automated agent request a governed tool or production action
+Use it to control:
 
-Classic access control answers whether a caller can reach an API. TKeeper also answers whether the selected cryptographic identity may authorize the exact requested action.
+- fund transfers and spender approvals
+- transaction signing
+- certificate issuance
+- key import, rotation, refresh, and destruction
+- agent tool calls and production actions
+
+Caller permissions grant access to a key. Authority policy limits what that key may sign, such as a transfer to a particular recipient below an amount limit.
 
 ## The basic flow
 
 ```text
-Caller -> typed intent -> TKeeper controls -> bound proof -> downstream effect
+Caller -> command -> permission and policy checks -> signature -> verified action
 ```
 
-The downstream system should execute the effect only after it verifies the expected identity, proof, and exact intent. It must also enforce freshness or replay protection where the action requires it.
-
-If TKeeper does not approve the intent, it does not produce the proof. Without the proof, the action cannot continue in systems that depend on the governed identity.
+TKeeper returns a signature only when the request passes its controls. The receiving system checks the expected key and signed content before executing the action. It also checks expiry and prevents replay when required.
 
 ## Product boundaries
 
-TKeeper combines governed signing, key lifecycle control, threshold cryptography, and audit at the point where an identity uses its key.
+TKeeper generates and imports keys, manages their generations, signs approved commands, and records audit events. Threshold mode splits key custody across peers.
 
-It is not a generic secrets manager, a replacement for host or network security, or a standalone fraud, AML, prompt-injection, or risk engine. It can participate in wallet, CA, KMS, and agent workflows, but it does not replace the surrounding transaction builder, certificate authority, business system, or verifier.
-
-External systems can detect, score, or decide. TKeeper enforces the cryptographic boundary: no approval, no signature; no approval, no lifecycle operation.
+The integrating application builds transactions or certificate requests, supplies any external risk decisions, verifies results, and submits or executes the approved action. A path that can execute without the signature bypasses TKeeper's controls. Host security and risk detection remain deployment and application responsibilities.
 
 ## Main concepts
 
@@ -50,7 +47,7 @@ TKeeper supports two operating modes:
 | `mono` | You need the same authority controls with local key material |
 | `threshold` | You need key shares split across peers so one node cannot act alone |
 
-Mono is useful for development, lower-impact deployments, and bootstrap phases. Threshold mode is the safer default for high-stakes keys because key use requires quorum participation.
+In `mono`, compromising the host exposes the full key. Choose `threshold` when one compromised peer must not be able to sign alone. See [Quorum Modes](../security-model/quorum-modes.md) for compromise and availability limits.
 
 ## Build-time platforms
 
@@ -58,7 +55,7 @@ Cryptographic implementations are selected at build time:
 
 | Platform | Provides |
 | --- | --- |
-| `platform-ecc` | ECC algorithms and protocols such as ECDSA, FROST, BIP-340, Taproot, and ECIES |
-| `platform-pqc` | ML-DSA algorithms, threshold ML-DSA DKG, and threshold ML-DSA signing |
+| `ecc` | ECC algorithms and protocols such as ECDSA, FROST, BIP-340, Taproot, and ECIES |
+| `pqc` | ML-DSA algorithms, threshold ML-DSA DKG, and threshold ML-DSA signing |
 
 A deployable build must include at least one platform.

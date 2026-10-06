@@ -1,15 +1,6 @@
 # Asset Inventory
 
-Asset inventory is the read model for keys.
-
-Use it when you need to answer:
-
-- what keys exist
-- which generation is active
-- which authorities are attached
-- which asset owner owns the key
-- whether a key is destroyed
-- whether old generations are included
+Asset inventory lists keys, active generations, authorities, owners, destruction state, and integrity status. Use `historical=true` with a `logicalId` to include that key's older generations.
 
 Endpoint:
 
@@ -23,7 +14,7 @@ Query params:
 | --- | --- |
 | `logicalId` | filter by key id |
 | `assetOwner` | filter by owner |
-| `historical` | include old generations |
+| `historical` | include old generations; requires `logicalId` |
 | `lastSeen` | cursor |
 | `limit` | max 200 |
 
@@ -38,7 +29,7 @@ Example:
 ```bash
 curl \
   -H 'X-DEV-TOKEN: dev-token' \
-  'http://localhost:8080/v1/keeper/compliance/inventory?assetOwner=customer-42&historical=true'
+  'http://localhost:8080/v1/keeper/compliance/inventory?logicalId=deployment-signing&assetOwner=customer-42&historical=true'
 ```
 
 Response shape:
@@ -77,15 +68,13 @@ Response shape:
 }
 ```
 
-Asset Inventory is exportable from the control-plane UI when `:features:ui` is enabled.
-
-See [Control Plane UI](../deployment/control-plane-ui.md).
+The [Control Plane UI](../deployment/control-plane-ui.md) can export inventory when the `ui` feature is included.
 
 `tampered = true` means local signed metadata failed integrity verification while inventory was being read.
 
-Treat `tampered = true` as a security incident, not a stale-data warning. Stop relying on that node's inventory or key state until the cause is understood.
+Investigate `tampered = true` as a security incident. Stop relying on that node's inventory or key state until the cause is understood.
 
-Inventory is a control-plane read model. It does not replace comparison of peer generation state, audit history, or external asset ownership records during reconciliation.
+During reconciliation, compare this node's inventory with peer generations, audit history, and external ownership records.
 
 ## Common problems
 

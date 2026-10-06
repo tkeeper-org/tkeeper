@@ -1,9 +1,9 @@
 # Digital assets
 
-Bitcoin, EVM, Tron, XRP, and Solana transaction authorities are separate modules under
-`digital-assets`. They use the normal authority, policy, approval, and signing
-pipeline and require the `ecc` platform. Tron uses secp256k1, Solana uses Ed25519,
-and XRP accepts either. Pass the unsigned Signet dump in the SDK artifact's
+Build `digital-assets` with `ecc` to sign Bitcoin, EVM, Tron, XRP, and Solana
+transactions. Each authority parses an unsigned transaction and checks its policy
+and required approvals before signing. Tron uses secp256k1, Solana uses Ed25519,
+and XRP accepts either. Pass the unsigned transaction in the SDK artifact's
 `transaction` field: JSON for Tron, hex for XRP, and Base64 for Solana.
 `signature().compose(...)` signs and returns `SignedTronTransaction`,
 `SignedXrpTransaction`, or `SignedSolanaTransaction`. Each contains the signed

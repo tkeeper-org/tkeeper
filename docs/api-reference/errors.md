@@ -1,6 +1,6 @@
 # Errors
 
-TKeeper fails closed. If a protected operation cannot pass auth, policy, audit, lifecycle, or quorum checks, no proof is produced.
+Protected operations return an error when authentication, permissions, policy, audit, lifecycle, or quorum checks fail. Clients should branch on the `error` enum.
 
 ## Error response shape
 

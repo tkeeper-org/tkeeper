@@ -131,7 +131,7 @@ The generated `.cifuzz-corpus/` is local build state and is ignored. Minimize
 any finding and retain it as an explicit seed or property regression before
 merging the fix.
 
-Do not pass `keeper.features` or `keeper.platforms` to `buildTestContainers`. The development integration artifact uses its own classpath and includes:
+Do not pass `keeper.features` or `keeper.platforms` to `buildTestContainers`. The development integration image includes:
 
 - every default production feature
 - the explicit recovery feature and both recovery platform modules

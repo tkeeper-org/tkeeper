@@ -1,6 +1,6 @@
 # Contributing to TKeeper
 
-Thanks for contributing to TKeeper. It's a security-critical, distributed system, so we keep changes disciplined: clear intent, clear tests, and minimal noise.
+Keep changes focused and explain their effect on behavior, compatibility, and security.
 
 ## Where to post what
 
@@ -48,6 +48,16 @@ If the direction is agreed, convert it to an issue.
 - Add tests for behavior changes when practical.
 - Don’t mix large refactors with bug fixes. Keep fixes small and reviewable.
 - Keep public API changes explicit.
+
+## Documentation
+
+- Keep the existing section layout and write for the task the reader is completing.
+- Explain behavior, required inputs, results, and relevant limits. Include a detail only if it helps the reader act, verify a result, or make a decision.
+- Name dependencies or internal classes only when the reader needs them to build, configure, troubleshoot, or assess a specific security assumption.
+- Use direct sentences and concrete examples. Remove promotional claims, slogans, rhetorical contrasts, generic introductions, and repeated summaries.
+- Use lists for steps or parallel items and tables for comparisons; use prose for connected explanations. Avoid mechanical bold labels and unnecessary emphasis.
+- Document stable behavior. Avoid vague status words and predictions; include versions when compatibility depends on them.
+- Check claims against code and the API contract. Preserve security assumptions and residual risks, and verify examples, relative links, and heading anchors after editing.
 
 ## Commit messages
 

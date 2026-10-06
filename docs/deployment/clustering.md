@@ -60,14 +60,13 @@ or:
 
 ## Failure model
 
-Threshold mode removes a single cryptographic control point, but it adds distributed-system failure modes:
+A threshold operation can fail when:
 
-- a peer may be sealed
-- a peer may be unreachable
-- an internal certificate or trust setting may be wrong
-- peers may disagree on key generation state
-- a session may time out
-- consistency repair may be required after partial failure
+- a peer is sealed or unreachable
+- an internal certificate or trust setting is incorrect
+- peers disagree on the active key generation
+- a session times out
+- an interrupted lifecycle operation leaves inconsistent state
 
 Use [Troubleshooting](../operations/troubleshooting.md) for operator symptoms.
 
@@ -86,6 +85,6 @@ During a rollout:
 
 - one compromised peer should not be enough to authorize as the identity
 - policy integrity becomes quorum-bound only if enough peers enforce the same policy state
-- lifecycle permissions are more dangerous than signing permissions
+- restrict lifecycle permissions separately; they can replace or destroy key state
 - trusted-dealer import depends on trusting the dealer path
 - threshold mode does not replace host, network, seal, or audit hardening

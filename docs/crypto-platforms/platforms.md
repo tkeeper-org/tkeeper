@@ -1,11 +1,11 @@
 # Platforms
 
-Platforms provide algorithm implementations. They are selected separately from features.
+`keeper.platforms` selects the key algorithms included in the artifact. Set it separately from `keeper.features`.
 
-| Platform value | Module | Provides |
-| --- | --- | --- |
-| `ecc` | `:platform-ecc` | `SECP256K1`, `P256`, `ED25519`, ECDSA, FROST, BIP-340/Taproot support, ECIES side support |
-| `pqc` | `:platform-pqc` | `MLDSA44`, `MLDSA65`, `MLDSA87`, ML-DSA DKG, signing, import, and promotion support |
+| Platform value | Provides |
+| --- | --- |
+| `ecc` | `SECP256K1`, `P256`, `ED25519`, ECDSA, FROST, BIP-340/Taproot, and ECIES |
+| `pqc` | `MLDSA44`, `MLDSA65`, `MLDSA87`, key generation, signing, import, and promotion |
 
 ## Build examples
 
@@ -41,8 +41,8 @@ Some features require a platform:
 | `authority-x509` | `ecc` |
 | `ecies` | `ecc` |
 
-If a feature needs a platform, include both. The build should fail early when the graph is incomplete.
+Include the required platform with each feature. See the [full feature matrix](../deployment/build-and-features.md#feature-and-platform-matrix), including agentic payments and recovery.
 
 ## Operational note
 
-Platform selection is not runtime configuration. If an algorithm provider is missing, rebuild the artifact.
+To use an algorithm absent from the running build, rebuild the artifact with its platform.

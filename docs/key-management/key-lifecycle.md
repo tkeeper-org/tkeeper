@@ -45,9 +45,20 @@ Required permission is selected from `mode`:
 
 Successful lifecycle requests return `204 No Content`.
 
-## Quorum mode behavior
+## Concurrent operations
 
-The endpoint name is the same in both quorum modes, but the work is different.
+DKG can run alongside signing. An admitted native signing session keeps its selected
+generation when a refresh or rotation promotes a new one. New requests use the active
+generation and its controls. If generation or metadata changes between policy checks
+and admission, the request fails with `INCONSISTENT_KEEPER`.
+
+Each DKG attempt owns the key's session and pending state on its participating peers.
+Another attempt cannot run phases or abort that session. Consistency repair, import,
+and quorum promotion reject changes to pending state while its DKG owner is active.
+After an interrupted attempt ends or expires, consistency repair can handle the
+remaining pending generation.
+
+## Quorum mode behavior
 
 In `mono` mode, TKeeper manages full key material locally:
 
@@ -55,7 +66,7 @@ In `mono` mode, TKeeper manages full key material locally:
 - `ROTATE` creates a new local key pair under the same logical id
 - `REFRESH` creates a new generation with the same private key and public key
 
-Mono refresh is useful when lifecycle history must move forward without changing the identity. It does not create peer shares because there are no peers in mono mode.
+Mono refresh advances the generation while retaining the same key material.
 
 In `threshold` mode, TKeeper coordinates lifecycle changes across peers:
 
@@ -64,9 +75,9 @@ In `threshold` mode, TKeeper coordinates lifecycle changes across peers:
 - ECC `REFRESH` creates new shares for the same public key
 - ML-DSA `REFRESH` carries each peer's existing share and public key into the new generation unchanged; it does not replace shares or refresh cryptographic material
 
-Threshold lifecycle state stores the key share and metadata for each generation. ECC commitments are later used to derive peer public shares for signing, ECIES, consistency checks, and Byzantine detection. ML-DSA stores its aggregate public key as signed side state.
+Each peer stores its share, metadata, and public verification data for every generation. Back up the full peer database; key-share bytes alone are insufficient for restore.
 
-During the first storage upgrade, marker-gated migration relocates legacy AEAD-protected generations into the isolated key-version store without signing or activating new key material. `REFRESH` is the online conversion path that preserves the public key; `ROTATE` converts by creating a new public key. Both write a new signed generation and activate it through the normal pending-generation workflow. The old legacy generation remains physically available for consistency rollback and inventory, but it is inactive and cannot be selected for historical processing after conversion. A storage read never performs an implicit migration.
+A legacy storage upgrade moves existing generations without changing their key material. Run `REFRESH` to create a signed generation with the same public key, or `ROTATE` to create one with a new key. After conversion, the legacy generation remains available for consistency rollback and inventory but cannot be used for historical processing. Reading storage does not trigger conversion.
 
 ## Public key
 
@@ -150,8 +161,6 @@ tkeeper.key.{keyId}.destroy
 
 Destroy works on a specific generation. `generation` must be greater than zero. You cannot sign with an old generation after it is destroyed.
 
-Destroy follows the quorum mode too.
-
 In mono mode, destroy is local-only. Any non-current generation can be destroyed. The current generation cannot be destroyed.
 
 In threshold mode, destroy is coordinated across peers. Commit and abort are bound to the peer that prepared the signed destroy session. The current generation cannot be destroyed, and a generation must be at least two generations behind the active one. This keeps the cluster away from deleting material that may still be needed while a lifecycle operation is settling.
@@ -171,8 +180,6 @@ tkeeper.consistency.fix
 Use consistency fix when peers disagree about active key state and the system can safely repair from quorum data.
 
 It is meant for interrupted `CREATE`, `ROTATE`, or `REFRESH` flows. It can sync a pending generation, clean stale pending state, or roll back to a majority-active generation when that is the only safe result. If no safe active generation has quorum support, TKeeper fails closed and does not start another DKG automatically; repair the inconsistency before rotating.
-
-If the repair cannot prove a safe state, it fails.
 
 Consistency fix is for threshold mode. Mono lifecycle operations are local, so there is no peer state to reconcile.
 

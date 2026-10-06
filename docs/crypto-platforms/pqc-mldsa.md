@@ -19,16 +19,7 @@ Build example:
 
 ## Authority model
 
-ML-DSA changes the signature algorithm, not the authority model.
-
-The same identity rules apply:
-
-- attach authorities to the key identity
-- materialize the command into an understood intent
-- evaluate policy
-- produce proof only after approval
-
-Use `MLDSA` as the signature scheme for ML-DSA algorithms.
+Use `MLDSA` as the signature scheme. Attach authorities and submit commands as described in [Signing](../signing-and-authorities/signing.md). Authority policy and approval requirements also apply to ML-DSA keys.
 
 ## Threshold protocol
 
@@ -81,4 +72,4 @@ Use rotate or a new DKG when new ML-DSA material is required.
 
 ## Import and promotion
 
-Trusted-dealer import and quorum promotion must store the aggregate ML-DSA public key as platform side state. Without that side state, later public-key checks and threshold protocols cannot prove the same key identity state.
+Use [Trusted Dealer Import](../key-management/trusted-dealer-import.md) to bring in an existing key, or [Quorum Promotion](../key-management/quorum-promotion.md) to move a mono deployment to threshold custody. Both preserve the public key. Copies of the original full key remain usable; rotate when prior exposure is unacceptable.

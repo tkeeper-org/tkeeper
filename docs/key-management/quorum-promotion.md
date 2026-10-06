@@ -1,31 +1,32 @@
 # Quorum Promotion
 
-Quorum promotion turns an existing local key into distributed threshold key state. Use it when a key started in mono mode for adoption or bootstrap and later needs quorum protection.
+Quorum promotion moves all active keys on a mono node into threshold custody while preserving their public keys. The source becomes peer `1`; later signing requires a quorum.
 
 ## What promotion does
 
-Promotion:
+Before promotion, configure the source with peers `2` through `total`. Initialize and unseal every target peer with the requested `threshold` and `total`.
 
-- reads the current mono key material
-- splits or imports threshold shares for the selected peers
-- writes threshold metadata and platform side state
-- creates a pending generation
-- requires restart before normal operations continue
+Call the source node with `tkeeper.quorum.promote`:
 
-After promotion, later signing uses threshold mode.
+```http
+POST /v2/keeper/quorum/promote
+```
+
+For a `2-of-3` quorum:
+
+```json
+{ "threshold": 2, "total": 3 }
+```
+
+Promotion distributes shares for each active key, creates a new generation, preserves authorities and policy, and destroys the source's old mono generations. The response reports `promotedKeys` and `restartRequired: true`. Restart the source before resuming normal operations.
 
 ## What promotion does not do
 
 Promotion does not make the original mono period retroactively threshold-secure and cannot erase every backup or captured copy of the full key. If prior exposure is possible, rotate or create a new identity instead of relying on promotion.
 
-## Platform side state
+## Verify the result
 
-The promotion path must store platform-specific public side state:
-
-- ECC commitments for ECC algorithms
-- aggregate ML-DSA public key for ML-DSA algorithms
-
-Without side state, later public-key checks and threshold protocols cannot prove the same key state.
+After restart, compare public keys with their pre-promotion values. Check that inventory retains the expected authorities, policy, and owner, and that old mono generations are destroyed. Complete a normal threshold signature before returning the deployment to service.
 
 ## When to use rotate instead
 

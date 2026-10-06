@@ -1,8 +1,8 @@
 # Dry Run Policy Evaluation
 
-The optional `dry-run` module evaluates an `AuthorityCommand` against the policy attached to a key's current authority without executing the command.
+Dry run evaluates a command against the key's current authority policy and returns `ALLOW`, `DENY`, or `ALLOW_WITH_REQUIREMENTS`. Use it to inspect a decision before requesting a signature.
 
-Use it to preview whether the same command would be allowed, denied, or require authority-policy approvals before submitting it for signing. Dry run does not create a signature, verify or consume approvals, or mutate key state.
+It does not execute the command, verify or consume approvals, or change key state. An allow decision is a preview of authority policy; the later signing request must still pass all signing controls.
 
 ## Enable the module
 
