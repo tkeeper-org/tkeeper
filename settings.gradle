@@ -36,3 +36,5 @@ include 'features:mcp'
 include 'features:agentic-payments'
 include 'features:agentic-payments:ap2'
 include 'features:agentic-payments:mc-vi'
+
+include 'features:mandate'

@@ -127,6 +127,7 @@ def featureModules = [
 
 def explicitFeatureModules = [
         'features:auth-dev'          : 'keeper.feature.auth.dev',
+        'features:mandate'           : 'keeper.feature.mandate',
         'features:dry-run'           : 'keeper.feature.dry-run',
         'features:mcp'               : 'keeper.feature.mcp',
         'features:recovery'          : 'keeper.feature.recovery',
@@ -317,6 +318,7 @@ dependencies {
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
+    api 'com.nimbusds:nimbus-jose-jwt:10.2'
 
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
 
@@ -330,8 +332,6 @@ dependencies {
     implementation("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
     implementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
     implementation("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
-
-    implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
 
     implementation 'org.exploit:jettyx-http2:0.1.7'
     implementation 'io.sentry:sentry:8.35.0'
@@ -557,6 +557,7 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
                 'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
                 'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
+                'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
                 'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
@@ -595,6 +596,7 @@ tasks.register('artifactIsolationTest') {
                 'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
                 'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
+                'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
                 'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
