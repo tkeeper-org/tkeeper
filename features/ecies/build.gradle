@@ -27,12 +27,14 @@ def jacksonGroups = [
         'com.fasterxml.jackson.jakarta.rs'
 ]
 
-configurations.matching { it.name.toLowerCase(java.util.Locale.ROOT).contains('runtime') }.configureEach {
+configurations.matching { it.name in ['runtimeClasspath', 'runtimeElements'] }.configureEach {
     jacksonGroups.each { groupName -> exclude group: groupName }
 }
 
 dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
+    testImplementation(project(':'))
     compileOnly(project(':'))
     compileOnly(project(':platform-ecc'))
 
