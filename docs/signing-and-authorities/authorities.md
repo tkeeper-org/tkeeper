@@ -109,7 +109,7 @@ policy:
     allowedEnvironments: [production]
     requiredRoles: [release-manager, production]
     allowedCidrs: ["10.20.0.0/16", "fd00:20::/48"]
-    minimumReleaseVersion: "2.5.1"
+    minimumReleaseVersion: "2.6.0"
     maximumRiskScore: "0.25"
     minimumSequence: "10000000000000000000"
     maximumWindowSeconds: 300
@@ -177,7 +177,7 @@ For a concrete authority, the sign command must reference an authority attached 
         "action": "deploy",
         "service": "billing-api",
         "environment": "production",
-        "releaseVersion": "2.5.1",
+        "releaseVersion": "2.6.0",
         "sequence": 10000000000000000001,
         "riskScore": 0.20,
         "roles": ["release-manager", "production"],
@@ -240,7 +240,7 @@ Example effect:
   "action": "deploy",
   "service": "billing-api",
   "environment": "production",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "sequence": 10000000000000000001
 }
 ```
