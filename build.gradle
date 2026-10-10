@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'java-test-fixtures'
     id 'org.jetbrains.kotlin.jvm' version '2.4.20'
     id 'com.gradleup.shadow' version '9.4.1'
     id 'com.google.devtools.ksp' version '2.3.10'
@@ -650,7 +651,7 @@ tasks.named('shadowJar') {
 
 tasks.register('artifactIsolationTest') {
     group = 'verification'
-    description = 'Verifies module boundaries of the production transport test and integration jars.'
+    description = 'Verifies module boundaries and bundled dependency classes in production test and integration jars.'
 
     dependsOn tasks.named('shadowJarProductionTest'), tasks.named('shadowJarIntegration')
 
@@ -680,6 +681,9 @@ tasks.register('artifactIsolationTest') {
         def integrationZip = new java.util.zip.ZipFile(integrationJar)
 
         try {
+            verifyBundledRuntimeDependencies(productionZip)
+            verifyBundledRuntimeDependencies(integrationZip)
+
             markers.each { name, entry ->
                 if (productionZip.getEntry(entry) != null) {
                     throw new GradleException("Production transport test jar contains $name marker: $entry")
