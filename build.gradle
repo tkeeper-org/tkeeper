@@ -133,7 +133,6 @@ def featureModules = [
         'features:digital-assets:solana'  : 'keeper.feature.digital-assets.solana',
         'features:authority-x509'         : 'keeper.feature.authority.x509',
         'features:ecies'                  : 'keeper.feature.ecies',
-        'features:ui'                     : 'keeper.feature.ui',
         'features:agentic-payments:ap2'   : 'keeper.feature.agentic-payments.ap2',
         'features:agentic-payments:mc-vi' : 'keeper.feature.agentic-payments.mc-vi'
 ]
@@ -142,7 +141,6 @@ def explicitFeatureModules = [
         'features:auth-dev'          : 'keeper.feature.auth.dev',
         'features:mandate'           : 'keeper.feature.mandate',
         'features:dry-run'           : 'keeper.feature.dry-run',
-        'features:mcp'               : 'keeper.feature.mcp',
         'features:recovery'          : 'keeper.feature.recovery',
 ]
 
@@ -303,6 +301,8 @@ dependencies {
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
+    testImplementation project(':platform-ecc')
+    testFixturesImplementation 'com.upokecenter:cbor'
 
     api 'com.fasterxml.jackson.module:jackson-module-kotlin'
     api 'org.msgpack:jackson-dataformat-msgpack:0.9.12'
@@ -324,10 +324,10 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.2.1'
+    api 'org.exploit.verdict:core:0.3.0-SNAPSHOT'
 
-    api 'org.exploit.verdict:authority:0.2.1'
-    api 'org.exploit.verdict:authority-oci:0.2.1'
+    api 'org.exploit.verdict:authority:0.3.0-SNAPSHOT'
+    api 'org.exploit.verdict:authority-oci:0.3.0-SNAPSHOT'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
@@ -335,11 +335,12 @@ dependencies {
 
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
     implementation 'com.yubico:webauthn-server-core:2.10.1'
+    implementation 'com.upokecenter:cbor'
 
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit.verdict:typed:0.2.1'
+    implementation 'org.exploit.verdict:typed:0.3.0-SNAPSHOT'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
@@ -432,7 +433,7 @@ tasks.named('shadowJar') {
             project.configurations.productionFeatureRuntime
     ]
 
-    zip64 true
+    zip64 = true
     manifest { attributes 'Main-Class': mainClassName }
 
     mergeServiceFiles()
@@ -547,7 +548,7 @@ tasks.register('shadowJarIntegration', com.github.jengelman.gradle.plugins.shado
             project.configurations.integrationFeatureRuntime
     ]
 
-    zip64 true
+    zip64 = true
     manifest { attributes 'Main-Class': mainClassName }
 
     mergeServiceFiles()
@@ -578,7 +579,7 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
             project.configurations.productionTestRuntime
     ]
 
-    zip64 true
+    zip64 = true
     manifest { attributes 'Main-Class': mainClassName }
 
     mergeServiceFiles()
@@ -607,7 +608,6 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
-                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
@@ -668,7 +668,6 @@ tasks.register('artifactIsolationTest') {
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
-                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
