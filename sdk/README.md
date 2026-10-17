@@ -38,6 +38,11 @@ try (var keeper = new TKeeperClient(
 
 `DevTokenAuth` and the `TKeeperClient(baseUrl, devToken)` convenience constructor are for development environments.
 
+`keeper.central().getConfig()` returns `threshold`, `total`, sorted loaded module ids
+in `features`, sorted supported authority types in `authorities`, and `sealProvider`.
+It requires authentication without an additional permission and
+works on an initialized sealed Keeper.
+
 ## Governed typed signing
 
 This example assumes the digest-pinned `payments-small` custom authority already exists in the referenced OCI registry.
@@ -102,6 +107,7 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `storage()` | trusted-dealer import |
 | `quorum()` | mono-to-threshold promotion |
 | `destroy()` | generation destruction |
+| [`approvers()`](../docs/api-reference/approvers.md) | core credential registry, exact versions, filters, and conditional metadata replacement |
 | [`mandate()`](../features/mandate/README.md) | authorize an operation for later execution |
 | `consistency()` | threshold consistency repair |
 | `ecies()` | optional encrypt/decrypt feature |
@@ -112,6 +118,74 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `controlPlane()` | control-plane reads |
 
 Feature-specific calls fail when the server artifact does not include the required feature or cryptographic platform.
+
+## Approvers
+
+```java
+import org.exploit.tkeeper.sdk.model.approver.*;
+import java.util.Map;
+
+var registered = keeper.approvers().register(new RegisterApprover(
+        "alice", new SignatureCredentialRegistration("ED25519", publicKey64),
+        Map.of("team", "treasury")
+));
+var current = keeper.approvers().get(registered.ref());
+var updated = keeper.approvers().replaceMetadata(
+        current.ref(), current.metadataRevision(), Map.of("team", "operations")
+);
+var page = keeper.approvers().list(new ApproverFilter(
+        "alice", ApproverType.SIGNATURE, Map.of("team", "operations"), null, 50
+));
+```
+
+Registration, reads and metadata replacement require `tkeeper.approvers.register`,
+`tkeeper.approvers.read` and `tkeeper.approvers.metadata` respectively. The permissions are
+independent. The module URL-encodes complete refs and sends the quoted revision as `If-Match`.
+Reconcile `APPROVER_METADATA_REVISION_MISMATCH` by reading the current record before retrying.
+Registration and metadata updates require every current member online and persisted before
+success. Requests may use any peer. A 503 can leave durable reservations or deliveries. Surviving
+members finish fully confirmed deliveries after writer failure. TTL limits new WebAuthn/PREPARE
+confirmations; partial signed reservations keep their protective locks until coordinated settlement.
+An identical registration retry is safe. Pin the returned ref in a key policy:
+
+```java
+var fourEye = KeySetPolicy.FourEyeControlPolicy.of(2, 2, List.of(
+        new KeySetPolicy.FourEyeControlPolicy.Reference(alice.ref()),
+        new KeySetPolicy.FourEyeControlPolicy.Reference(bob.ref())
+));
+var policy = KeySetPolicy.builder().fourEye(fourEye).build();
+```
+
+FourEye permits `1 <= m <= n <= 256`, including `1 of 1` and `1 of n` with Signature or WebAuthn refs.
+
+An OCI authority's `policy.approvers` values likewise accept `{ref: "id@sha256:<digest>"}`.
+References pin the exact credential and approval method; metadata and new registrations do
+not change existing policies. Key policies can mix `Reference` and legacy `PublicKey` entries.
+Audit `ApprovalRequirement.approvers` values decode as `Approver` or
+`model.authority.RegistryApprover`; rules still select their manifest aliases.
+When reading `fourEye.keys()` or `ApprovalRequirement.approvers()`, check the entry type
+before accessing inline key fields. Existing inline constructors and policy builders remain available.
+
+For a WebAuthn hub, obtain standard browser creation options and finish with browser credential JSON:
+
+```java
+var options = client.approvers().webAuthnRegistrationOptions(
+        new WebAuthnRegistrationOptionsRequest("alice", Map.of("team", "treasury"))
+);
+// Pass options.publicKey() to the browser and receive its serialized credential.
+var approver = client.approvers().finishWebAuthnRegistration(
+        new WebAuthnRegistrationFinishRequest(options.invitation(), credentialJson)
+);
+```
+
+Issuing options requires `tkeeper.approvers.register`. Pass `options.invitation()` and the browser
+options to the intended credential holder. The holder finishes using a client authenticated with
+their own JWT and can target another peer. Finish requires both the JWT and invitation, with no
+additional registry permission. The public
+`registrationId()` is only a session identifier. Identical finish retries return the same record;
+another response cannot reuse the invitation. Returned credentials decode as `SignatureCredential`
+or `WebAuthnApproverCredential`.
+Configure `keeper.webauthn` on the cluster for the hub's RP ID and exact frontend origins.
 
 ## Errors
 

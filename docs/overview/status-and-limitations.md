@@ -11,6 +11,8 @@ TKeeper supports:
 - key lifecycle operations: DKG, import, refresh, rotate, destroy
 - authority-based signing commands
 - four-eye control for supported operations
+- replicated signature and WebAuthn approver registry with immutable policy references
+- core runtime configuration and permitted signing identity catalog
 - signed audit records and audit sink enforcement
 - build-time feature selection
 - build-time cryptographic platform selection

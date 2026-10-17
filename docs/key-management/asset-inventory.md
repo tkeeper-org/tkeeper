@@ -68,7 +68,7 @@ Response shape:
 }
 ```
 
-The [Control Plane UI](../deployment/control-plane-ui.md) can export inventory when the `ui` feature is included.
+External [control-plane clients](../deployment/control-plane-ui.md) can call the inventory APIs with the same permissions.
 
 `tampered = true` means local signed metadata failed integrity verification while inventory was being read.
 

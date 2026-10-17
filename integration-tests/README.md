@@ -55,7 +55,7 @@ Performance tests are separate and do not use the automatic functional-suite ima
 Do not pass `keeper.features` or `keeper.platforms`. The dedicated integration classpath always includes:
 
 - every default production feature
-- the explicit opt-in `:features:auth-dev`, `:features:dry-run`, `:features:mcp`, and `:features:recovery` modules
+- the explicit opt-in `:features:auth-dev`, `:features:dry-run`, `:features:mandate`, and `:features:recovery` modules
 - both recovery platform modules
 - `platform-ecc` and `platform-pqc`
 - the test-only `:integration-tests:failure-injection` module
@@ -70,6 +70,10 @@ failure injection while the integration artifact contains all four:
 ./gradlew artifactIsolationTest
 ```
 
+This also verifies that bundled Jackson, Bouncy Castle, Guava, Yubico, CBOR, HTTP client,
+and SLF4J classes match their resolved runtime dependencies. It rejects conflicting
+copies hidden inside shaded module jars. The production `shadowJar` applies the same check.
+
 The functional suite is split by boundary:
 
 | Class | Coverage |
@@ -79,11 +83,18 @@ The functional suite is split by boundary:
 | `AuthorityPolicyTests` | typed authority materialization and policy decisions |
 | `DryRunTests` | opt-in policy evaluation, authentication, and fail-closed request validation |
 | `FailureInjectionTests` | corruption, malicious signing packages, transcript mutations, ECC/PQC DKG and FROST/GG20/ML-DSA protocol-order violations, sequential replay, eight-way transition races, in-flight protocol restarts, demotion, and consistency repair |
-| `RecoveryFailureInjectionTests` | production-TLS 3-of-5 ECC/PQC recovery, two differently damaged peers, explicit healthy helpers, mode restarts, full historical state rebuild, destroyed generations, transaction rollback, prefix isolation, and post-recovery signing |
+| `RecoveryFailureInjectionTests` | production-TLS 3-of-5 ECC/PQC recovery, two differently damaged peers, explicit healthy helpers, mode restarts, full historical state and Approvers rebuild, WebAuthn runtime/certificates, destroyed generations, transaction rollback, prefix isolation, and post-recovery signing |
 | `ProductionTransportSecurityTests` | generated PKI, public HTTPS/JWT, HTTPS JWKS rotation, internal mTLS/SPKI, and fail-closed startup variants |
 | `QuorumPromotionTests` | mono-to-threshold promotion |
 | `KeyImportTests` | trusted-dealer import |
 | `FourEyeControlTests` | approval binding and replay rejection |
+| `ApproversTests` | core registry over HTTPS/JWT, independent permissions, normalized versions, metadata revisions, races across nodes, filtering, pagination, replication to every peer and restart persistence |
+| `KeeperConfigurationTests` | authenticated configuration without permissions, sealed access, current quorum, authority types and seal provider, core module identity in the production artifact |
+| `ApprovalExpirationTests` | seconds-based deadlines, stable repeated preparation, insufficient and accepted proofs, expired windows without renewal |
+| `WebAuthnApproversTests` | JWT and invitation required on finish, independent registrar and recipient, invitation scope and context substitution, invalid tokens and ceremonies, competing credential races, session quotas, durable consumption after peer/writer restart |
+| `ApproverProtocolFailureTests` | independent follower permissions and enrollment command restrictions against a forged writer, real challenge expiry, complete confirmation delivered by survivors after writer failure and restart, signing/read/health progress while peer PREPARE is held |
+| `ApproverPromotionTests` | mono registry and active WebAuthn sessions transferred without key sets, future targets offline during mono registration, promotion permissions, restored ownership indexes and threshold mutations |
+| `FourEyeWebAuthnTests` | ES256 assertions, mixed quorum, method isolation, peer verification, nonce races, decrypt, and lifecycle policies |
 | `SealManagerTests` | seal and unseal providers |
 | `ECIESTests` | optional ECIES paths |
 

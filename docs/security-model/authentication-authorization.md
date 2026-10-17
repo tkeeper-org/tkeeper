@@ -156,7 +156,13 @@ X-SIGNATURE
 
 The request signature binds the HTTP method, path, canonical query, body hash, intended peer, timestamp, nonce, boot proof, and any forwarded actor token. The nonce must be unique and the timestamp must be fresh. Accepted nonces share the persistent RocksDB replay store with four-eye approvals and are retained for `keeper.nonce-ttl` (12 hours by default). The configured retention must exceed the full 60-second internal request acceptance window; physical FIFO cleanup can occur later.
 
-The external JWT or dev token is forwarded only on internal operation entrypoints that independently enforce actor permissions, such as signing or DKG initialization, trusted-dealer import, destroy prepare, and consistency mutations. Protocol rounds and marker-bound commit or abort calls use peer authentication and existing session state without repeatedly forwarding the actor credential.
+The external JWT or dev token is forwarded on protected internal entrypoints. Signing,
+DKG initialization, trusted-dealer import, destroy prepare and consistency mutations
+independently enforce actor permissions. Registry management entrypoints also check
+their respective Approvers permissions. WebAuthn registration finish requires a valid
+primary token and invitation, with no additional permission; the writer validates
+the forwarded token independently. Protocol rounds, certified registry delivery and
+marker-bound commit or abort calls use peer authentication and stored state.
 
 On first contact, a peer proves its integrity key with the shared bootstrap token. After that, the integrity key is pinned for the lifetime of the process. If `keeper.peers[].tls-spki-sha256` is configured, TKeeper first verifies that the mTLS client certificate matches the claimed peer id; this removes network-first bootstrap enrollment from the trust decision.
 

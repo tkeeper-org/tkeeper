@@ -33,7 +33,7 @@ Raw `arbitrary` signing has no intent policy and is disabled by default.
 
 | Work | Guide |
 | --- | --- |
-| Agent tools over MCP; AP2 and Mastercard Verifiable Intent payments | [MCP action](docs/use-cases/for-ai.md#govern-an-mcp-action) · [AP2](docs/ai/agentic-payments/ap2.md) · [MC Intent](docs/ai/agentic-payments/mcintent.md) |
+| Agent signing APIs; AP2 and Mastercard Verifiable Intent payments | [Govern an action](docs/use-cases/for-ai.md#govern-an-action) · [AP2](docs/ai/agentic-payments/ap2.md) · [MC Intent](docs/ai/agentic-payments/mcintent.md) |
 | Bitcoin, EVM, Tron, XRP, and Solana transactions                    | [For Digital Assets](docs/use-cases/for-digital-assets.md) · [Chain authorities](docs/digital-assets/README.md)                                          |
 | X.509 certificate signing                                           | [For PKI](docs/use-cases/for-pki.md) · [X.509 example](docs/pki/x509.md#authority-example-workload-server-certificate)                                   |
 | Typed commands for internal systems                                 | [For Other Activities](docs/use-cases/for-other-activities.md) · [Custom authorities](docs/signing-and-authorities/arbitrary-and-typed.md)               |
@@ -56,7 +56,7 @@ Follow [Local Single Node](docs/getting-started/local-single-node.md) to try TKe
 ./gradlew :build -Pkeeper.features=all -Pkeeper.platforms=all
 ```
 
-`all` includes default production features. Mandates, MCP, developer authentication, policy dry run, and recovery require explicit selectors. See [Build and Features](docs/deployment/build-and-features.md) to select features, cryptographic platforms, and an OS/CPU target.
+`all` includes default production features. Mandates, developer authentication, policy dry run, and recovery require explicit selectors. See [Build and Features](docs/deployment/build-and-features.md) to select features, cryptographic platforms, and an OS/CPU target.
 
 Use the [Java SDK](sdk/README.md) or [OpenAPI](openapi.yaml) to integrate. For production boundaries, read the [Threat Model](docs/security-model/threat-model.md) and [Status and Limitations](docs/overview/status-and-limitations.md).
 

@@ -96,6 +96,9 @@ Common fields:
 | `keeper.recovery` | Recovery-only runtime mode; defaults to `false` |
 | `keeper.authority.arbitrary.enabled` | Enables raw `arbitrary` signing; defaults to `false` |
 | `keeper.approval.ttl` | Four-eye approval lifetime |
+| `keeper.webauthn.enabled` | Enables approver registration; defaults to `false` |
+| `keeper.webauthn.rp-id`, `rp-name`, `origins` | Registration RP and exact browser origins |
+| `keeper.webauthn.registration-ttl` | Registration session lifetime; defaults to `5m`, positive and at most `10m` |
 | `keeper.nonce-ttl` | Persistent nonce replay retention and FIFO file TTL; defaults to `12h` (`KEEPER_NONCE_TTL`) |
 | `keeper.mandate.max-ttl` | Maximum mandate lifetime; defaults to the smaller of `15m` and nonce retention |
 | `keeper.mandate.max-attempts` | Maximum protocol attempts per mandate; defaults to `12`, range `1` to `1024` |
@@ -326,9 +329,11 @@ oras {
 
 `allowed-registries` is mandatory for OCI authorities and matches the exact registry authority, including the port. An empty list denies all OCI pulls. HTTPS is the default; use `insecure = true` only for an explicitly allowed local plain HTTP registry.
 
-## UI CSP
+## External control-plane clients
 
-The UI has its own CSP config under `keeper.csp`. See [Control Plane UI](control-plane-ui.md).
+The bundled UI and its `keeper.csp` configuration have been removed. Configure browser
+security headers on the server hosting your frontend. See [Control-plane clients](control-plane-ui.md)
+for the available discovery APIs and authentication requirements.
 
 ## Environment aliases
 

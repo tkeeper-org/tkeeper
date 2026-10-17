@@ -2,7 +2,7 @@
 
 TKeeper has two build-time selectors:
 
-- `keeper.features`: command types, endpoints, ECIES, UI, and seal providers
+- `keeper.features`: command types, endpoints, ECIES, and seal providers
 - `keeper.platforms`: cryptographic algorithms and protocols
 
 A usable production artifact must include at least one platform.
@@ -31,10 +31,10 @@ TKeeper requires Java 25.
 
 ## Build a smaller artifact
 
-Example: EVM signing, ECIES, and the UI:
+Example: EVM signing and ECIES:
 
 ```bash
-./gradlew :build -Pkeeper.features=evm,ecies,ui -Pkeeper.platforms=ecc
+./gradlew :build -Pkeeper.features=evm,ecies -Pkeeper.platforms=ecc
 ```
 
 Example: ML-DSA only:
@@ -126,12 +126,10 @@ native loading on the build host.
 | ECIES | `ecies` | `ecc` |
 | Deferred operations authorized by a mandate | `mandate` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Peer share recovery | `recovery` (explicit opt-in) | `ecc`, `pqc`, or both |
-| Control-plane UI | `ui` | any required crypto platform |
 | AWS KMS seal provider | `seal-aws` | any required crypto platform |
 | Google Cloud KMS seal provider | `seal-gcloud` | any required crypto platform |
 | Developer token authentication | `auth-dev` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Authority policy dry run | `dry-run` (explicit opt-in, excluded from `all`) | any required crypto platform |
-| MCP discovery, utilities, signing, and composition | `mcp` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | ML-DSA identities | none | `pqc` |
 | Default production set | `all` | `all` |
 
@@ -148,7 +146,7 @@ recovery module for each selected platform:
 
 These commands build recovery for ECC, ML-DSA, or both. Select `recovery` once;
 the selected platforms determine which recovery protocols are included. Recovery,
-`auth-dev`, `dry-run`, `mandate`, and `mcp` are excluded from `keeper.features=all`.
+`auth-dev`, `dry-run`, and `mandate` are excluded from `keeper.features=all`.
 
 Treat this as a maintenance artifact. After recovery, rebuild and redeploy the normal production
 artifact without the `recovery` selector; setting `keeper.recovery=false` alone leaves the recovery
@@ -166,14 +164,9 @@ Build the dry-run endpoint explicitly in the same way:
 ./gradlew :build -Pkeeper.features=dry-run -Pkeeper.platforms=ecc
 ```
 
-Build the MCP endpoint into the same public Keeper server:
-
-```bash
-./gradlew :build -Pkeeper.features=mcp,digital-assets -Pkeeper.platforms=ecc
-```
-
-The endpoint is `POST /mcp` and uses the configured Keeper authentication provider. See
-[MCP connection and tools](../ai/mcp.md) for setup and request format.
+The bundled UI and MCP endpoint have been removed. The `ui` and `mcp` selectors are
+no longer supported. External clients can use the core [configuration and identity
+catalog APIs](../api-reference/configuration.md).
 
 ## Selection properties
 
@@ -184,7 +177,7 @@ The endpoint is `POST /mcp` and uses the configured Keeper authentication provid
 | Select all | `keeper.features.all=true` | `keeper.platforms.all=true` |
 
 Comma-separated selectors accept short names such as `ecies`, `ecc`, and `pqc`. `all` selects every
-default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, `mandate`, and `mcp` are
+default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, and `mandate` are
 not included.
 
 `target` is independent of these selectors. Invalid target names fail the Gradle build
@@ -261,7 +254,7 @@ The test task reuses these images. Re-run the build after changing application c
 
 Do not pass `keeper.features` or `keeper.platforms` to this task. The development integration image
 uses a dedicated classpath containing every default production feature, the explicit `auth-dev`,
-`dry-run`, and `recovery` features, both recovery platform modules, every platform, and the test-only
+`dry-run`, `mandate`, and `recovery` features, both recovery platform modules, every platform, and the test-only
 failure-injection module.
 
 Never deploy either test image as production runtime.

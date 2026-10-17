@@ -137,6 +137,7 @@ Do not pass `keeper.features` or `keeper.platforms` to `buildTestContainers`. Th
 - the explicit recovery feature and both recovery platform modules
 - development authentication
 - dry-run policy evaluation
+- one-time operation mandates
 - every platform
 - the test-only failure-injection module
 

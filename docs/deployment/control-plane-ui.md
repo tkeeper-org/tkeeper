@@ -1,139 +1,30 @@
-# Control Plane UI
+# Control-plane clients
 
-The `ui` feature provides a browser interface for key management, inventory, and system state.
+Keeper no longer serves a bundled browser UI. The `ui` build selector, `/ui/` routes,
+and `keeper.ui` and `keeper.csp` settings have been removed. Host the operator interface
+separately and connect it to the public API.
 
-Build with it:
+The core control plane provides:
 
-```bash
-./gradlew shadowJar -Pkeeper.features=ui
-```
+| Endpoint | Result |
+| --- | --- |
+| `GET /v1/keeper/control/auth/config` | Public authentication and OIDC configuration |
+| `GET /v1/keeper/control/capabilities` | Installed cryptographic algorithms and supported operations |
+| `GET /v2/keeper/config` | Current quorum, loaded modules, authority types and seal provider |
+| `GET /v1/keeper/control/identities` | Active identities the caller may sign with |
+| `GET /v1/keeper/control/identities/authority` | An attached authority's description and command schema |
+| `GET /v1/keeper/control/me` | Current authenticated subject and permissions |
 
-Open:
+Except for public authentication configuration, these endpoints require the configured
+primary authentication. Production clients send a JWT in `X-JWT-TOKEN` over HTTPS.
+System and audit sink endpoints require their respective control-plane permissions.
+Catalog access depends on signing permission for each key.
 
-```http
-GET /ui/
-```
+[Approvers](../api-reference/approvers.md) provides credential registration and metadata
+management. WebAuthn finish requires both a valid primary token and the issued invitation.
+The browser origin and RP ID must match the cluster's registration configuration.
 
-Disable the UI at startup:
-
-```bash
-java \
-  -Dkeeper.ui.enabled=false \
-  -jar build/libs/tkeeper-2.6.0.jar
-```
-
-## Authentication
-
-The UI uses the same external auth mode as the API.
-
-With dev auth, the browser sends:
-
-```text
-X-DEV-TOKEN
-```
-
-With JWT auth, the browser sends:
-
-```text
-X-JWT-TOKEN
-```
-
-If `auth.jwt.oidc` is configured, the UI reads OIDC settings from:
-
-```http
-GET /v1/keeper/control/auth/config
-```
-
-After authentication, the UI discovers the key algorithms included in the running build from:
-
-```http
-GET /v1/keeper/control/capabilities
-```
-
-Key generation, trusted-dealer import, and four-eye approver forms use this runtime list instead of assuming a fixed platform set.
-
-## Content Security Policy
-
-The UI feature adds security headers under `/ui`.
-
-Default CSP:
-
-```hocon
-keeper.csp {
-  default-src = ["'self'"]
-  base-uri = ["'self'"]
-  object-src = ["'none'"]
-  frame-ancestors = ["'none'"]
-  script-src = ["'self'"]
-  style-src = ["'self'"]
-  img-src = ["'self'", "data:"]
-  font-src = ["'self'", "data:"]
-  connect-src = ["'self'"]
-  form-action = ["'self'"]
-}
-```
-
-Report-only mode:
-
-```hocon
-keeper.csp {
-  report-only = true
-}
-```
-
-Extra origins:
-
-```hocon
-keeper.csp {
-  connect-extra = [
-    "https://issuer.example"
-  ]
-
-  form-action-extra = [
-    "https://issuer.example"
-  ]
-
-  img-extra = [
-    "https://assets.example"
-  ]
-}
-```
-
-OIDC origins are added to `connect-src` automatically when:
-
-```hocon
-keeper.csp {
-  oidc-auto-connect = true
-}
-```
-
-Set it to `false` when `connect-src` is managed manually.
-
-## Headers
-
-The UI also sends:
-
-```text
-Referrer-Policy: no-referrer
-X-Content-Type-Options: nosniff
-X-Frame-Options: DENY
-Permissions-Policy: geolocation=(), microphone=(), camera=()
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Resource-Policy: same-origin
-```
-
-When public TLS is enabled:
-
-```text
-Strict-Transport-Security: max-age=31536000; includeSubDomains
-```
-
-## Common problems
-
-### `/ui/` returns 404
-
-Include `-Pkeeper.features=ui` when building, and confirm the UI is enabled at startup.
-
-### OIDC login cannot reach the issuer
-
-Check `keeper.csp.connect-extra` or keep `keeper.csp.oidc-auto-connect = true`.
+Configure CSP, browser credential storage and OIDC callbacks on the external frontend.
+Keeper does not supply browser security headers for that frontend. See
+[authentication](../security-model/authentication-authorization.md) and the
+[configuration API](../api-reference/configuration.md) for the remaining API contract.

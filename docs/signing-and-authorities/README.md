@@ -16,7 +16,7 @@ TKeeper signs a command after its authority turns it into an intent and policy a
 
 ## Protocol guides
 
-- [AI and Agentic Payments](../ai/README.md): MCP, AP2, MC Intent
+- [AI and Agentic Payments](../ai/README.md): agent APIs, AP2, MC Intent
 - [Digital Asset Authorities](../digital-assets/README.md): Bitcoin, EVM, Tron, XRP, Solana
 - [PKI Authorities](../pki/README.md): X.509 certificates
 

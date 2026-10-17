@@ -7,6 +7,10 @@ info:
     JSON request bodies reject unknown properties and are limited to 10 MiB by the HTTP server.
     Digital asset, agentic payment, and PKI commands use the shared signing API.
     Enabled features add their command types and, where available, composed results.
+    Approval preparation, WebAuthn enrollment options, and operations with collected approval
+    requirements return X-EXPIRES-AT as a Unix timestamp in seconds. Approval errors include
+    the same deadline once the requirements have been collected. JSON expiresAt fields remain
+    in milliseconds. Retrying does not extend the original approval window.
 
 servers:
   - url: /
@@ -17,10 +21,11 @@ tags:
   - name: DKG
   - name: Signing
     description: Shared signing and verification for AI, digital assets, PKI, and custom authorities.
+  - name: Approvals
+  - name: Approvers
+    description: Local versioned credential registry in the TKeeper core.
   - name: Composition
     description: Signed digital asset transactions and agentic payment credentials; other types return a raw signature.
-  - name: MCP
-    description: AI agent tools over the optional MCP feature.
   - name: TrustedDealer
   - name: Quorum
   - name: DryRun
@@ -38,6 +43,260 @@ security:
   - JwtToken: []
 
 paths:
+  /v2/keeper/config:
+    get:
+      tags: [System]
+      operationId: getKeeperConfiguration
+      summary: Get quorum settings, loaded features and seal provider
+      description: |
+        Requires primary authentication without an additional permission. Available after
+        initialization, including while sealed or waiting for a promotion restart. Threshold
+        and total reflect the current stored quorum. Features are sorted, distinct ids of
+        loaded KeeperModule implementations; cryptographic platforms and build aggregation
+        projects are not features. Does not return private provider or server configuration.
+      responses:
+        '200':
+          description: Current Keeper configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeeperConfiguration'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/approvers:
+    post:
+      tags: [Approvers]
+      operationId: registerApprover
+      summary: Register a signature approver version
+      description: |
+        Requires tkeeper.approvers.register independently of read and metadata permissions.
+        Available on any initialized, unsealed Keeper. Validates and normalizes the public key
+        with the installed signature providers before computing the immutable ref.
+        A new credential under the same id creates another version. An identical registration
+        returns the existing record without replacing its metadata. A normalized key already
+        registered under another id is a conflict. Registration does not grant approval rights.
+        Duplicate JSON keys, unknown fields, null metadata, and scalar coercions are rejected.
+        Every current member must be ready and independently authorize and prepare the request.
+        Success requires persistence on every member. A 503 can leave durable reservations or
+        a fully confirmed delivery that surviving members complete after writer failure.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterApprover'
+      responses:
+        '201':
+          $ref: '#/components/responses/ApproverResponse'
+        '200':
+          $ref: '#/components/responses/ApproverResponse'
+        '409':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+    get:
+      tags: [Approvers]
+      operationId: listApprovers
+      summary: List all matching approver versions
+      description: |
+        Requires tkeeper.approvers.read. Filters use exact matches and combine with AND.
+        Metadata filters are query parameters named metadata.<key>, for example metadata.team=treasury.
+        URL-encode query names and values. Duplicate query parameters are rejected.
+        Versions sort by full ref. Pagination is not a snapshot; concurrent registrations and
+        metadata changes can affect subsequent pages. The cursor is the last returned full ref.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            $ref: '#/components/schemas/ApproverId'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [SIGNATURE, WEBAUTHN]
+        - name: cursor
+          in: query
+          description: nextCursor from the preceding page; must belong to id when that filter is set.
+          schema:
+            $ref: '#/components/schemas/ApproverRef'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+      responses:
+        '200':
+          description: Matching versions; nextCursor is null on the final page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApproversPage'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/approvers/{ref}:
+    get:
+      tags: [Approvers]
+      operationId: getApprover
+      summary: Read an exact approver version
+      description: Requires tkeeper.approvers.read. Reads this Keeper's replica of the distributed core registry.
+      parameters:
+        - $ref: '#/components/parameters/ApproverRefPath'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApproverResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/approvers/{ref}/metadata:
+    put:
+      tags: [Approvers]
+      operationId: replaceApproverMetadata
+      summary: Replace metadata with revision checking
+      description: |
+        Requires tkeeper.approvers.metadata independently of read and register permissions.
+        Replaces the complete metadata map; an empty map clears it. Ref, credential, and createdAt
+        remain unchanged. Requires exactly one strong quoted numeric If-Match value matching
+        metadataRevision. Weak validators, wildcards, lists, and stale revisions return 412;
+        a missing If-Match returns 428. Each successful update increments metadataRevision.
+        Every current member must be ready and independently authorize and prepare the change.
+        Success requires persistence on every member; delivery of fully confirmed changes survives writer failure.
+      parameters:
+        - $ref: '#/components/parameters/ApproverRefPath'
+        - name: If-Match
+          in: header
+          required: true
+          schema:
+            type: string
+            pattern: '^"[1-9][0-9]{0,18}"$'
+            example: '"1"'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateApproverMetadata'
+      responses:
+        '200':
+          $ref: '#/components/responses/ApproverResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '412':
+          $ref: '#/components/responses/ErrorResponse'
+        '428':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/approvers/webauthn/registration/options:
+    post:
+      tags: [Approvers]
+      operationId: webAuthnRegistrationOptions
+      summary: Start WebAuthn approver registration
+      description: |
+        Requires primary authentication and tkeeper.approvers.register. Every current member
+        must be ready. The session pins the actor, id, metadata, configured RP, origins and
+        deadline, and is mirrored to every member before success. Returns a single-use bearer
+        invitation for the credential holder to finish with their own valid primary token, including through another peer. TTL defaults to five minutes and
+        cannot exceed ten minutes. The RP and exact frontend origins must be configured on
+        every member. Registration requires ES256, user presence and user verification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebAuthnRegistrationOptionsRequest'
+      responses:
+        '200':
+          description: Registrar-bound session, bearer invitation and browser creation options with Base64url binary fields.
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnRegistrationOptions'
+        '429':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/approvers/webauthn/registration/finish:
+    post:
+      tags: [Approvers]
+      operationId: finishWebAuthnRegistration
+      summary: Verify and register a WebAuthn approver
+      description: |
+        Requires primary authentication and the invitation in the request body, with no
+        additional permission. The recipient may have a different JWT subject from the
+        registrar. The writer independently validates a forwarded primary token. Operation
+        mandates cannot authorize finish. The public registrationId cannot replace the
+        invitation. Accepts standard browser credential JSON. Every current member
+        independently verifies the ceremony and prepares the same immutable record before
+        commit. Success requires persistence on every member. An identical completed retry within the session deadline
+        returns 200; a different response for that session is rejected. New confirmations
+        cannot be issued after the deadline. An already complete all-member confirmation
+        remains deliverable after expiry or writer failure. Partial signed reservations
+        retain their protective locks until coordinated settlement; TTL does not remove them.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebAuthnRegistrationFinishRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/ApproverResponse'
+        '200':
+          $ref: '#/components/responses/ApproverResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '503':
+          $ref: '#/components/responses/ErrorResponse'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/approvals/prepare:
+    post:
+      tags: [Approvals]
+      operationId: prepareApprovals
+      summary: Prepare WebAuthn approvals for an operation
+      description: |
+        Requires primary authentication and the permission for the enclosed operation.
+        Evaluates the operation and current policies without consuming its approval nonce.
+        The operation must contain keeperId, nonce, timestamp, and an empty proofs list.
+        Returns a signed challenge binding and browser options for each WebAuthn credential.
+        Authority requirements may pin signature or WebAuthn credentials through approver refs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrepareApprovals'
+      responses:
+        '200':
+          description: Operation-bound WebAuthn challenge and browser options
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreparedApprovals'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /v1/keeper/system/status:
     get:
       tags: [System]
@@ -238,6 +497,9 @@ paths:
       responses:
         '204':
           description: Lifecycle operation completed
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -338,6 +600,9 @@ paths:
       responses:
         '200':
           description: Signature result
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
           content:
             application/json:
               schema:
@@ -366,6 +631,9 @@ paths:
       responses:
         '200':
           description: Composed artifact or raw signature fallback
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
           content:
             application/json:
               schema:
@@ -397,70 +665,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VerifyResult'
-        default:
-          $ref: '#/components/responses/ErrorResponse'
-
-  /mcp:
-    post:
-      tags: [MCP]
-      operationId: mcp
-      summary: Discover and call agent tools
-      description: |
-        Optional `mcp` feature. Supports `server/discover`, `tools/list`, and `tools/call`
-        over HTTP POST with JSON-RPC 2.0. The host authenticates with the same Keeper token
-        used by the public API. Tool discovery is permission filtered; calls check permission
-        again. Requests with an `Origin` header are rejected.
-      parameters:
-        - name: MCP-Protocol-Version
-          in: header
-          required: true
-          schema:
-            type: string
-            enum: ['2026-07-28']
-        - name: Mcp-Method
-          in: header
-          required: true
-          description: Must match the JSON-RPC `method`.
-          schema:
-            type: string
-            enum: [server/discover, tools/list, tools/call]
-        - name: Mcp-Name
-          in: header
-          required: false
-          description: Required for `tools/call`; must match `params.name`.
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/McpRequest'
-      responses:
-        '200':
-          description: JSON-RPC result, including tool errors and some protocol errors
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/McpResponse'
-        '400':
-          description: Invalid JSON-RPC request, headers, or protocol version
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/McpErrorResponse'
-        '403':
-          description: Browser origin rejected
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/McpErrorResponse'
-        '404':
-          description: Unknown MCP method
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/McpErrorResponse'
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -829,11 +1033,11 @@ paths:
     get:
       tags: [ControlPlane]
       operationId: controlPlaneAuthConfig
-      summary: Get UI auth config
+      summary: Get control-plane authentication configuration
       security: []
       responses:
         '200':
-          description: UI auth config
+          description: Control-plane authentication configuration
           content:
             application/json:
               schema:
@@ -845,7 +1049,7 @@ paths:
     get:
       tags: [ControlPlane]
       operationId: controlPlaneSystem
-      summary: Get cluster status for UI
+      summary: Get control-plane cluster status
       x-permissions:
         required: [tkeeper.control.system]
       responses:
@@ -906,6 +1110,17 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
 
 components:
+  headers:
+    ExpiresAt:
+      description: |
+        Operation approval or enrollment deadline as a Unix timestamp in whole seconds.
+        Approval windows are anchored to the original envelope timestamp; retries do not
+        renew them. JSON expiresAt fields use milliseconds. Credentials and other policies
+        can independently reject an operation before this deadline.
+      schema:
+        type: integer
+        format: int64
+
   securitySchemes:
     DevToken:
       type: apiKey
@@ -917,6 +1132,13 @@ components:
       name: X-JWT-TOKEN
 
   parameters:
+    ApproverRefPath:
+      name: ref
+      in: path
+      required: true
+      description: URL-encoded full ref, including id, sha256 tag, and lowercase digest. Bare ids are invalid.
+      schema:
+        $ref: '#/components/schemas/ApproverRef'
     KeyIdQuery:
       name: keyId
       in: query
@@ -948,9 +1170,27 @@ components:
         $ref: '#/components/schemas/Cursor'
 
   responses:
+    ApproverResponse:
+      description: Exact approver version with its current metadata.
+      headers:
+        ETag:
+          description: Quoted metadataRevision to send as If-Match on metadata replacement.
+          schema:
+            type: string
+            example: '"1"'
+        Cache-Control:
+          schema:
+            type: string
+            enum: [no-store]
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApproverRecord'
     ErrorResponse:
       description: Error response
       headers:
+        X-EXPIRES-AT:
+          $ref: '#/components/headers/ExpiresAt'
         WWW-Authenticate:
           description: Authentication challenge included on `401 Unauthorized` responses.
           schema:
@@ -962,6 +1202,261 @@ components:
             $ref: '#/components/schemas/ErrorMessage'
 
   schemas:
+    KeeperConfiguration:
+      type: object
+      additionalProperties: false
+      required: [threshold, total, features, authorities, sealProvider]
+      properties:
+        threshold:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 255
+        total:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 255
+        features:
+          type: array
+          uniqueItems: true
+          description: Sorted unique ids of loaded modules, including core and runtime dependencies.
+          items:
+            type: string
+          example: [core, ecies, mandate]
+        authorities:
+          type: array
+          uniqueItems: true
+          description: Sorted unique authority types supported by the loaded modules.
+          items:
+            type: string
+          example: [arbitrary, custom]
+        sealProvider:
+          type: string
+          description: Id of the configured seal provider.
+          example: shamir
+
+    ApproverId:
+      type: string
+      minLength: 1
+      maxLength: 128
+      pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$'
+
+    ApproverRef:
+      type: string
+      pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}@sha256:[0-9a-f]{64}$'
+      description: |
+        id@sha256:lowercaseHex(SHA256(UTF8("TKEEPER_APPROVER_V1") || 0x00 || canonicalJson(descriptor))).
+        The descriptor is normalized first. JSON keys are sorted recursively. Id, metadata,
+        ref, and timestamps are excluded from the digest.
+
+    ApproverMetadata:
+      type: object
+      maxProperties: 32
+      additionalProperties:
+        type: string
+      description: |
+        String pairs only. Keys use 1–64 UTF-8 bytes, values at most 512 UTF-8 bytes;
+        total key and value bytes must not exceed 16384. Metadata does not affect approval rights.
+
+    SignatureCredentialRegistration:
+      type: object
+      additionalProperties: false
+      required: [type, algorithm, publicKey64]
+      properties:
+        type:
+          type: string
+          enum: [SIGNATURE]
+        algorithm:
+          type: string
+          description: Signature algorithm supported by an installed approval verifier; names are case-insensitive.
+        publicKey64:
+          type: string
+          description: Base64 public key in the selected provider's format. Keeper validates and normalizes it.
+
+    SignatureCredential:
+      type: object
+      additionalProperties: false
+      required: [version, type, algorithm, publicKey64]
+      properties:
+        version:
+          type: integer
+          enum: [1]
+        type:
+          type: string
+          enum: [SIGNATURE]
+        algorithm:
+          type: string
+        publicKey64:
+          type: string
+
+    RegisterApprover:
+      type: object
+      additionalProperties: false
+      required: [id, credential]
+      properties:
+        id:
+          $ref: '#/components/schemas/ApproverId'
+        credential:
+          $ref: '#/components/schemas/SignatureCredentialRegistration'
+        metadata:
+          $ref: '#/components/schemas/ApproverMetadata'
+
+    WebAuthnApproverCredential:
+      type: object
+      additionalProperties: false
+      required: [version, type, credentialId, publicKeyCose, rpId, origins, userVerification, userHandle, backupEligible]
+      properties:
+        version:
+          type: integer
+          enum: [1]
+        type:
+          type: string
+          enum: [WEBAUTHN]
+        credentialId:
+          type: string
+          description: Canonical unpadded Base64url credential id from verified attestation data.
+        publicKeyCose:
+          type: string
+          description: Canonical unpadded Base64url public EC2/P-256 ES256 COSE key.
+        rpId:
+          type: string
+        origins:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+          description: Exact allowed origins in sorted order.
+        userVerification:
+          type: string
+          enum: [REQUIRED]
+        userHandle:
+          type: string
+          description: Server-generated 32-byte user handle as unpadded Base64url.
+        backupEligible:
+          type: boolean
+
+    ApproverCredential:
+      oneOf:
+        - $ref: '#/components/schemas/SignatureCredential'
+        - $ref: '#/components/schemas/WebAuthnApproverCredential'
+      discriminator:
+        propertyName: type
+        mapping:
+          SIGNATURE: '#/components/schemas/SignatureCredential'
+          WEBAUTHN: '#/components/schemas/WebAuthnApproverCredential'
+
+    WebAuthnRegistrationOptionsRequest:
+      type: object
+      additionalProperties: false
+      required: [id]
+      properties:
+        id:
+          $ref: '#/components/schemas/ApproverId'
+        metadata:
+          $ref: '#/components/schemas/ApproverMetadata'
+
+    WebAuthnRegistrationOptions:
+      type: object
+      required: [registrationId, invitation, expiresAt, publicKey]
+      properties:
+        registrationId:
+          type: string
+          description: Domain-separated SHA-256 hash of the invitation as unpadded Base64url; not an authorization token.
+        invitation:
+          type: string
+          description: Single-use bearer invitation, 32 random bytes as canonical unpadded Base64url. Pass it to the credential holder and submit it to finish.
+        expiresAt:
+          type: integer
+          format: int64
+          description: Exclusive Unix deadline in milliseconds.
+        publicKey:
+          type: object
+          description: PublicKeyCredentialCreationOptions JSON; challenge, user.id and credential ids are unpadded Base64url.
+          additionalProperties: true
+
+    WebAuthnRegistrationFinishRequest:
+      type: object
+      additionalProperties: false
+      required: [invitation, credential]
+      properties:
+        invitation:
+          type: string
+          description: Invitation returned by registration options, valid until its exclusive deadline.
+        credential:
+          type: object
+          required: [id, rawId, type, response]
+          description: Standard browser registration credential JSON, including clientExtensionResults and optional browser response fields.
+          properties:
+            id:
+              type: string
+            rawId:
+              type: string
+            type:
+              type: string
+              enum: [public-key]
+            response:
+              type: object
+              required: [clientDataJSON, attestationObject]
+              properties:
+                clientDataJSON:
+                  type: string
+                attestationObject:
+                  type: string
+                transports:
+                  type: array
+                  items:
+                    type: string
+            clientExtensionResults:
+              type: object
+
+    UpdateApproverMetadata:
+      type: object
+      additionalProperties: false
+      required: [metadata]
+      properties:
+        metadata:
+          $ref: '#/components/schemas/ApproverMetadata'
+
+    ApproverRecord:
+      type: object
+      required: [id, ref, credential, metadata, createdAt, updatedAt, metadataRevision]
+      properties:
+        id:
+          $ref: '#/components/schemas/ApproverId'
+        ref:
+          $ref: '#/components/schemas/ApproverRef'
+        credential:
+          $ref: '#/components/schemas/ApproverCredential'
+        metadata:
+          $ref: '#/components/schemas/ApproverMetadata'
+        createdAt:
+          type: integer
+          format: int64
+          description: Unix timestamp in milliseconds.
+        updatedAt:
+          type: integer
+          format: int64
+          description: Unix timestamp in milliseconds of the most recent metadata update.
+        metadataRevision:
+          type: integer
+          format: int64
+          minimum: 1
+
+    ApproversPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApproverRecord'
+        nextCursor:
+          type: string
+          nullable: true
+          description: Full last returned ref, or null when there are no further matches.
+
     ErrorMessage:
       type: object
       required: [error, imposters, dead]
@@ -1028,6 +1523,16 @@ components:
         - INVALID_PAYLOAD
         - INVALID_SIG_SCHEME
         - INVALID_KEY_ID
+        - INVALID_APPROVER
+        - INVALID_APPROVER_REF
+        - APPROVER_NOT_FOUND
+        - APPROVER_ALREADY_REGISTERED
+        - WEBAUTHN_REGISTRATION_INVALID
+        - WEBAUTHN_REGISTRATION_LIMIT
+        - WEBAUTHN_NOT_AVAILABLE
+        - APPROVER_REPLICATION_UNAVAILABLE
+        - APPROVER_METADATA_REVISION_REQUIRED
+        - APPROVER_METADATA_REVISION_MISMATCH
         - INVALID_ASSET_OWNER
         - INVALID_EXPIRE_TYPE
         - INVALID_TWEAK
@@ -1436,20 +1941,34 @@ components:
         m:
           type: integer
           format: int32
-          minimum: 2
+          minimum: 1
           maximum: 256
         n:
           type: integer
           format: int32
-          minimum: 2
+          minimum: 1
           maximum: 256
         keys:
           type: array
-          minItems: 2
+          minItems: 1
           maxItems: 256
           uniqueItems: true
           items:
-            $ref: '#/components/schemas/ApproverPublicKey'
+            oneOf:
+              - $ref: '#/components/schemas/ApproverPublicKey'
+              - $ref: '#/components/schemas/ApproverReference'
+
+    ApproverReference:
+      type: object
+      additionalProperties: false
+      required: [ref]
+      description: |
+        Pins an immutable SIGNATURE or WEBAUTHN descriptor already registered on every current
+        member. Resolves only the complete ref; bare ids, latest and URLs are rejected. Duplicate
+        public keys are rejected after resolving references and inline entries together.
+      properties:
+        ref:
+          $ref: '#/components/schemas/ApproverRef'
 
     FourEyeControlMode:
       type: string
@@ -1466,6 +1985,45 @@ components:
           $ref: '#/components/schemas/KeyAlgorithm'
         publicKey64:
           $ref: '#/components/schemas/NonEmptyBase64'
+        webAuthn:
+          $ref: '#/components/schemas/WebAuthnCredential'
+
+    WebAuthnCredential:
+      type: object
+      additionalProperties: false
+      description: |
+        Pins a WebAuthn-only credential to a P256 approver public key. Omission means signature-only.
+        Credential id and user handle use canonical unpadded base64url. Public key uses the existing
+        P256 encoding and standard base64. Import these parameters from a trusted registration flow.
+        Every assertion requires user presence and user verification.
+      required: [credentialId, rpId, origins, userHandle]
+      properties:
+        credentialId:
+          type: string
+          minLength: 1
+          maxLength: 1364
+          pattern: '^[A-Za-z0-9_-]+$'
+        rpId:
+          type: string
+          minLength: 1
+          maxLength: 253
+        origins:
+          type: array
+          minItems: 1
+          maxItems: 16
+          uniqueItems: true
+          items:
+            type: string
+            format: uri
+          description: Exact HTTPS origins without path, query, credentials, or fragment. Explicit HTTP localhost is allowed for development.
+        userHandle:
+          type: string
+          minLength: 1
+          maxLength: 86
+          pattern: '^[A-Za-z0-9_-]+$'
+        backupEligible:
+          type: boolean
+          default: false
 
     Approvals:
       type: object
@@ -1492,6 +2050,11 @@ components:
           default: []
 
     Proof:
+      oneOf:
+        - $ref: '#/components/schemas/SignatureProof'
+        - $ref: '#/components/schemas/WebAuthnProof'
+
+    SignatureProof:
       type: object
       additionalProperties: false
       required: [fingerprint, signature64]
@@ -1500,6 +2063,94 @@ components:
           $ref: '#/components/schemas/NonEmptyBase64'
         signature64:
           $ref: '#/components/schemas/NonEmptyBase64'
+
+    WebAuthnProof:
+      type: object
+      additionalProperties: false
+      required: [fingerprint, binding, credential]
+      properties:
+        fingerprint:
+          $ref: '#/components/schemas/NonEmptyBase64'
+        binding:
+          $ref: '#/components/schemas/WebAuthnChallenge'
+        credential:
+          type: object
+          description: Standard PublicKeyCredential assertion JSON, including matching id/rawId and base64url response fields. Cross-origin ceremonies and extension outputs are rejected.
+
+    PrepareApprovals:
+      type: object
+      additionalProperties: false
+      required: [type, operation]
+      properties:
+        type:
+          type: string
+          description: Registered operation type; core provides sign, dkg, destroy, and ECIES adds decrypt.
+        operation:
+          type: object
+          description: Exact operation request with an approval envelope and empty proofs.
+
+    PreparedApprovals:
+      type: object
+      required: [hashForSigning64, binding, webAuthn]
+      properties:
+        hashForSigning64:
+          $ref: '#/components/schemas/NonEmptyBase64'
+        binding:
+          $ref: '#/components/schemas/WebAuthnChallenge'
+        webAuthn:
+          type: array
+          items:
+            type: object
+            required: [fingerprint, publicKey]
+            properties:
+              fingerprint:
+                $ref: '#/components/schemas/NonEmptyBase64'
+              publicKey:
+                type: object
+                description: JSON PublicKeyCredentialRequestOptions with userVerification required; decode challenge and allowCredentials ids before navigator.credentials.get.
+
+    WebAuthnChallenge:
+      type: object
+      additionalProperties: false
+      required: [payload, signature]
+      properties:
+        payload:
+          type: object
+          additionalProperties: false
+          required: [keeperId, operationType, hashForSigning64, generation, requirementsHash64, challenge, issuedAt, expiresAt]
+          properties:
+            keeperId:
+              type: integer
+            operationType:
+              type: string
+            hashForSigning64:
+              $ref: '#/components/schemas/NonEmptyBase64'
+            generation:
+              type: integer
+            requirementsHash64:
+              $ref: '#/components/schemas/NonEmptyBase64'
+            challenge:
+              type: string
+              description: 32 random bytes in canonical unpadded base64url.
+            issuedAt:
+              type: integer
+              format: int64
+            expiresAt:
+              type: integer
+              format: int64
+        signature:
+          type: object
+          additionalProperties: false
+          required: [version, algorithm, fingerprint, signature64]
+          properties:
+            version:
+              type: integer
+            algorithm:
+              type: string
+            fingerprint:
+              $ref: '#/components/schemas/NonEmptyBase64'
+            signature64:
+              $ref: '#/components/schemas/NonEmptyBase64'
 
     KeyDestroyReference:
       type: object
@@ -1809,128 +2460,6 @@ components:
           items:
             type: string
 
-    McpRequest:
-      type: object
-      required: [jsonrpc, id, method, params]
-      properties:
-        jsonrpc:
-          type: string
-          enum: ['2.0']
-        id:
-          oneOf:
-            - type: string
-            - type: integer
-          description: JSON-RPC request id; notifications are not supported.
-        method:
-          type: string
-          enum: [server/discover, tools/list, tools/call]
-        params:
-          type: object
-          required: [_meta]
-          description: '`tools/call` also requires `name` and an object `arguments`.'
-          properties:
-            name:
-              type: string
-            arguments:
-              type: object
-            _meta:
-              type: object
-              required: [io.modelcontextprotocol/protocolVersion, io.modelcontextprotocol/clientCapabilities]
-              properties:
-                io.modelcontextprotocol/protocolVersion:
-                  type: string
-                  enum: ['2026-07-28']
-                io.modelcontextprotocol/clientCapabilities:
-                  type: object
-      example:
-        jsonrpc: '2.0'
-        id: 1
-        method: tools/list
-        params:
-          _meta:
-            io.modelcontextprotocol/protocolVersion: '2026-07-28'
-            io.modelcontextprotocol/clientCapabilities: {}
-
-    McpResponse:
-      oneOf:
-        - $ref: '#/components/schemas/McpSuccessResponse'
-        - $ref: '#/components/schemas/McpErrorResponse'
-
-    McpSuccessResponse:
-      type: object
-      required: [jsonrpc, id, result]
-      properties:
-        jsonrpc:
-          type: string
-          enum: ['2.0']
-        id:
-          description: Echoes the string or integer request id.
-        result:
-          type: object
-          required: [resultType, _meta]
-          description: |
-            Discovery returns `supportedVersions`, `capabilities`, `ttlMs`, and `cacheScope`.
-            Tool listing returns `tools`, `ttlMs`, and `cacheScope`. Tool calls return `content`,
-            `structuredContent`, and `isError`; tool failures set `isError` to `true`.
-          properties:
-            resultType:
-              type: string
-              enum: [complete]
-            _meta:
-              type: object
-              description: Includes `io.modelcontextprotocol/serverInfo`.
-            supportedVersions:
-              type: array
-              items:
-                type: string
-            capabilities:
-              type: object
-            tools:
-              type: array
-              items:
-                type: object
-            ttlMs:
-              type: integer
-              enum: [0]
-            cacheScope:
-              type: string
-              enum: [private]
-            content:
-              type: array
-              items:
-                type: object
-                required: [type, text]
-                properties:
-                  type:
-                    type: string
-                    enum: [text]
-                  text:
-                    type: string
-            structuredContent:
-              description: Tool-specific JSON result or error object.
-            isError:
-              type: boolean
-
-    McpErrorResponse:
-      type: object
-      required: [jsonrpc, id, error]
-      properties:
-        jsonrpc:
-          type: string
-          enum: ['2.0']
-        id:
-          description: Request id, or null when the request could not be parsed.
-        error:
-          type: object
-          required: [code, message]
-          properties:
-            code:
-              type: integer
-            message:
-              type: string
-            data:
-              type: object
-
     VerifyResult:
       type: object
       required: [valid]
@@ -2204,6 +2733,14 @@ components:
         sid:
           type: string
           nullable: true
+        approverRef:
+          type: string
+          description: Exact registered or updated credential version; does not indicate an approval vote.
+        metadataRevision:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Resulting metadata revision for a successful registry write.
 
     Http:
       type: object
@@ -2339,16 +2876,38 @@ components:
             $ref: '#/components/schemas/PolicyApprover'
 
     PolicyApprover:
+      oneOf:
+        - $ref: '#/components/schemas/PublicKeyPolicyApprover'
+        - $ref: '#/components/schemas/RegistryPolicyApprover'
+
+    PublicKeyPolicyApprover:
       type: object
       additionalProperties: false
-      required: [algorithm, publicKey64, metadata]
+      required: [id, algorithm, publicKey64, metadata]
       properties:
+        id:
+          type: string
+          minLength: 1
         algorithm:
           $ref: '#/components/schemas/KeyAlgorithm'
         publicKey64:
           $ref: '#/components/schemas/NonEmptyBase64'
         metadata:
           type: object
+          additionalProperties:
+            type: string
+
+    RegistryPolicyApprover:
+      type: object
+      additionalProperties: false
+      required: [ref]
+      description: A Verdict authority alias pins this exact registry version, including its approval method.
+      properties:
+        ref:
+          $ref: '#/components/schemas/ApproverRef'
+        metadata:
+          type: object
+          nullable: true
           additionalProperties:
             type: string
 

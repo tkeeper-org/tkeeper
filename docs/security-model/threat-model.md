@@ -21,7 +21,7 @@ In scope:
 - key lifecycle operations
 - trusted dealer import
 - audit log integrity and sink enforcement
-- control-plane UI access
+- external control-plane client access
 
 Out of scope:
 
@@ -92,9 +92,10 @@ On a legacy V1 upgrade, rebinding internal secrets, signing the initialization e
 
 The signed initialization envelope binds the peer id and quorum tuple after unseal. Integrity and HMAC version pointers are checked against the latest stored version; integrity-key rotation retains historical public keys but removes historical private keys.
 
-Browser to UI:
+Browser to control-plane client:
 
-The `ui` feature exposes the control-plane UI. It uses the same external API permissions as direct API clients. CSP configuration controls what the browser may load or connect to.
+Keeper does not serve a bundled UI. A separately hosted browser client calls the authenticated
+public APIs. Its operator controls browser session handling and content security headers.
 
 ## Threats
 
@@ -196,7 +197,7 @@ Mitigation:
 - The hash includes nonce and timestamp.
 - Duplicate approver keys are rejected.
 - A coordinator consumes the nonce only after enough signatures have verified and persists it across restarts for the configured approval TTL.
-- `m` must be at least `2`, and `m` cannot exceed `n`.
+- `m` must be at least `1`, and `m` cannot exceed `n`; a threshold of `1` authorizes any one configured approver.
 
 Residual risk:
 
@@ -334,7 +335,7 @@ Residual risk:
 
 Authorized lifecycle operators can still break availability. A compromised ML-DSA share remains compromised after refresh; use rotate when new cryptographic material is required. Keep lifecycle permissions narrower than signing permissions.
 
-### T-14: UI Exposure
+### T-14: Browser client exposure
 
 Attack:
 
@@ -342,14 +343,14 @@ An attacker uses the UI to trigger privileged operations from a browser session.
 
 Mitigation:
 
-- UI calls the same authenticated external APIs.
-- UI can be disabled.
-- CSP limits script, connect, image, and form targets.
-- Browser-originated operations still require permissions and approvals.
+- Every API call requires the configured authentication.
+- Browser-originated operations require the same permissions and approvals as other clients.
+- The external frontend operator controls CSP and browser credential storage.
 
 Residual risk:
 
-Bad CSP or weak browser session handling can expose operators to web attacks. Keep UI access narrow.
+A compromised frontend or stolen browser token can act with the operator's permissions.
+Restrict frontend access and avoid persistent browser storage of privileged tokens.
 
 ### T-15: Probabilistic ML-DSA Signing Exhaustion
 

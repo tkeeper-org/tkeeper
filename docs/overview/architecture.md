@@ -31,9 +31,14 @@ For threshold operations, the coordinator starts the session, but peers validate
 | Audit layer | Records security-relevant decisions and can block operations if required sinks fail |
 | Storage | Local key share state, metadata, authorities, audit state, and side data |
 
+Approvers, WebAuthn enrollment, configuration discovery and the permitted identity
+catalog are core APIs. Registry writes require every current member; ordinary threshold
+signing still requires only its configured quorum. Registered references resolve from
+each peer's local copy of the registry.
+
 ## Features
 
-Features add command types, endpoints, the UI, or seal providers:
+Features add command types, endpoints, or seal providers:
 
 | Feature | Adds |
 | --- | --- |
@@ -43,10 +48,8 @@ Features add command types, endpoints, the UI, or seal providers:
 | `digital-assets:xrp` | XRP transaction intent and composition |
 | `digital-assets:solana` | Solana transaction intent and composition |
 | `agentic-payments` | AP2 and MC VI mandate signing and composition |
-| `mcp` | MCP discovery, utility, signing, and composition tools |
 | `authority-x509` | Certificate issuance intent support |
 | `ecies` | ECIES encryption and threshold decryption |
-| `ui` | Control-plane UI |
 | `seal-aws` | AWS KMS seal provider |
 | `seal-gcloud` | Google Cloud KMS seal provider |
 

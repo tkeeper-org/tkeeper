@@ -1,6 +1,6 @@
 # Four Eye Control
 
-Four-eye control can be unconditional at the key level or selected by an authority policy for a particular typed signing intent. In both cases, TKeeper requires the configured number of distinct approver signatures before continuing.
+Four-eye control can be unconditional at the key level or selected by an authority policy for a particular typed signing intent. TKeeper requires the configured number of distinct approver proofs before continuing. Both support ordinary signatures and WebAuthn assertions through pinned [Approvers registry refs](../api-reference/approvers.md#pin-a-registered-approver-in-a-policy).
 
 ## Key policy shape
 
@@ -31,12 +31,17 @@ Four-eye control can be unconditional at the key level or selected by an authori
 Rules:
 
 - `mode` is `STRICT` or `LENIENT`; omitted values default to `STRICT`
-- `m` must be at least `2`
+- `m` must be at least `1`; `1 of 1` and `1 of n` require one valid proof from a configured approver
 - `m` cannot be greater than `n`
 - `keys.size` must equal `n`
 - duplicate approver keys are rejected
 - approver public keys must decode under the declared algorithm
 - approver algorithms must be present in the runtime artifact; ECC provides `SECP256K1`, `P256`, and `ED25519`, while the optional PQC platform adds `MLDSA44`, `MLDSA65`, and `MLDSA87`
+
+An entry may instead be `{"ref":"alice@sha256:<digest>"}`. Use the complete ref returned by
+registration. References and inline entries can coexist in a group; mixed `ref` and inline fields
+in one entry are rejected. Duplicate-key checks run after resolution. The immutable descriptor
+selects SIGNATURE or WEBAUTHN, and a WebAuthn ref cannot be approved by a raw signature.
 
 `STRICT` preserves the original behavior: approvals are required for every operation protected by the key policy, including signing, decrypting, rotating, refreshing, and destroying a generation.
 
@@ -44,7 +49,7 @@ Rules:
 
 ## Policy-driven approvals
 
-An authority manifest can require approvals only when a particular allow rule matches. Approver public keys are declared once under `policy.approvers`; each rule selects a threshold and a set of approver ids:
+An authority manifest can require approvals only when a particular allow rule matches. Approvers are declared once under `policy.approvers`; each rule selects a threshold and a set of local aliases:
 
 ```yaml
 policy:
@@ -77,6 +82,12 @@ policy:
 
 If both rules match, both approval groups must be satisfied. Requirements from a key-level `fourEye` policy are cumulative with authority-policy requirements; one approval payload can carry proofs for every group.
 
+With Verdict `0.3.0-SNAPSHOT`, TKeeper registers its registry approver subtype with the authority
+parser. Replace any inline entry above with `ref: "alice@sha256:<digest>"` to pin a registered
+SIGNATURE or WEBAUTHN credential. New inline entries can supply `id`; legacy immutable
+artifacts without it use their map alias. All declared refs, including reserves, must resolve on
+each participant before generation activation. Authority metadata never selects a dynamic group.
+
 An `ALLOW_WITH_REQUIREMENTS` fallback uses the same model:
 
 ```yaml
@@ -92,7 +103,7 @@ policy:
     approvers: [operator]
 ```
 
-For an authority-policy challenge, TKeeper returns `APPROVAL_REQUIRED` with the `policyId`, rule or fallback `source`, and `threshold` for every required group. The public keys remain in the authority manifest. Sign the canonical request hash with enough keys from every group, attach all proofs to the same request, and resubmit it unchanged.
+For an authority-policy challenge, TKeeper returns `APPROVAL_REQUIRED` with the `policyId`, rule or fallback `source`, and `threshold` for every required group. Approver descriptors come from inline manifest entries or their pinned registry refs. Collect enough signature or WebAuthn proofs for every group, attach them to the same request, and resubmit it unchanged.
 
 Policy-driven approvals apply to typed signing through the selected authority. Arbitrary signing does not evaluate an authority policy. The audit event retains the `ALLOW_WITH_REQUIREMENTS` decision and its requirements after successful approval.
 
@@ -123,6 +134,57 @@ At the coordinator boundary, the nonce is one-time and is consumed only after en
 Threshold protocol retries reuse the same approval. Non-coordinator peers therefore verify its signatures, approved request fields, and TTL without independently consuming the nonce. If the coordinator is compromised, it can replay an approval with those same fields only while it remains fresh; see the threat model.
 
 The coordinator peer id in `approvals.keeperId` must match the peer coordinating the operation.
+
+## WebAuthn approvals
+
+A key-policy entry with `webAuthn` accepts WebAuthn assertions only. An entry without it accepts ordinary signatures only, even when the same P-256 public key produces a valid WebAuthn assertion. No automatic fallback or method substitution is allowed.
+
+```json
+{
+  "algorithm": "P256",
+  "publicKey64": "<standard base64 of the P256 public key>",
+  "webAuthn": {
+    "credentialId": "<unpadded base64url>",
+    "rpId": "approvals.example.com",
+    "origins": ["https://approvals.example.com"],
+    "userHandle": "<unpadded base64url>",
+    "backupEligible": false
+  }
+}
+```
+
+Use the complete ref returned by the [Approvers registration API](../api-reference/approvers.md#register-webauthn-from-a-hub) in a key or authority policy. Existing inline WebAuthn key policies remain supported; import their public key, credential id, user handle, and backup eligibility from a trusted registration flow. Changing pinned parameters on an existing key requires REFRESH/ROTATE approved under its current policy. Duplicate public keys are rejected across both methods and both representations; duplicate `(rpId, credentialId)` pairs are also rejected.
+
+The initial WebAuthn algorithm is ES256/P-256. User presence and user verification are mandatory. Origins match exactly, including port, and must use HTTPS; explicitly configured HTTP localhost origins are allowed for development. Subdomain matching, iframe/cross-origin ceremonies, and AppID compatibility are disabled. [Yubico server verification](https://developers.yubico.com/java-webauthn-server/) implements the WebAuthn assertion checks.
+
+`clientDataJSON` must contain UTF-8 JSON; a leading UTF-8 BOM is accepted. Duplicate object fields, trailing JSON values, invalid encodings, and oversized assertion fields are rejected before assertion signature verification. Both JSON and internal MessagePack reject null entries in proof lists.
+
+To collect approvals:
+
+1. Construct the operation with `approvals.keeperId`, a fresh nonce, timestamp, and an empty proofs list.
+2. Send `{ "type": "sign", "operation": <request> }` to `POST /v1/keeper/approvals/prepare`. Core types are `sign`, `dkg`, and `destroy`; ECIES adds `decrypt`. The caller needs primary authentication and permission for the enclosed operation. Preparation evaluates current policies without admitting the operation or consuming its nonce.
+3. Use the returned `webAuthn[].publicKey` options with `navigator.credentials.get`. Decode the base64url challenge and credential ids into byte arrays, or use `PublicKeyCredential.parseRequestOptionsFromJSON` where supported. `userVerification` is `required`.
+4. Attach the browser's standard assertion JSON with its matching credential id and the unchanged signed `binding`:
+
+```javascript
+const proof = {
+  fingerprint: approverFingerprint64,
+  binding: prepared.binding,
+  credential: assertion.toJSON()
+};
+```
+
+5. Add any ordinary signature proofs and submit the original operation. Adding proofs does not change `hashForSigning`. Both methods share the same approval envelope and cumulative group enforcement. A key counts once within a group, regardless of repeated proofs. Each entry requires the method selected by its descriptor; an authority group can contain both signature and WebAuthn registry refs.
+
+Preparation requires primary authentication (for example JWT) and the enclosed operation's permission. A one-time mandate cannot authorize the preparation wrapper. Preparation consumes neither an approval nonce nor a mandate. After collecting proofs, execute the operation with either JWT or an already issued mandate. Failed approval checks leave the mandate available for a corrected submission; successful admission consumes it through the existing mandate flow.
+
+WebAuthn uses the approval operation providers to resolve the operation type, permission, and external/internal representations. It does not require `HasGrantBinding` or registration as a mandate operation. JWT and mandate authentication retain their existing authorization checks; FourEye verifies approvals independently in both cases.
+
+The server creates a random 32-byte challenge and signs a binding containing the operation hash/type, coordinator, selected source generation, current approval requirements, and validity window. Its signature covers the canonical JSON with domain `TKEEPER_WEBAUTHN_CHALLENGE_V1`, payload, and signature metadata with an empty `signature64`. Peers verify the receipt against the authenticated coordinator's pinned integrity key and independently verify the assertion. Its expiry cannot exceed `approvals.timestamp + keeper.approval.ttl`; changed operations, generations, policies, or receipt fields fail verification.
+
+Verification has no mutable credential state. Zero counters and repeated internal checks are supported; signature counters are not used for clone detection. The existing durable, atomic approval nonce admission prevents external replay, including concurrent submissions and coordinator restarts. An incomplete quorum does not consume the nonce. Internal protocol retries retain the existing approval replay window described above. Integrity-key changes require fresh preparation when peers no longer pin the receipt's signing key. Roll out this format to all participating peers before enabling a WebAuthn policy.
+
+Java SDK: `client.approvals().prepare(new PrepareApprovals(type, operationJson))` returns the browser options and binding. Both `SignatureProof(fingerprint, signature64)` and `WebAuthnProof(fingerprint, binding, assertionJson)` implement `Proof`. Use `new WebAuthnProof(fingerprint, prepared.binding(), assertionJson)` to attach an assertion. SDK callers constructing the former `Approvals.Proof` record must switch to `new SignatureProof(fingerprint, signature64)`; the signature JSON format is unchanged.
 
 ## Signature algorithms
 
@@ -208,7 +270,7 @@ var request = Sign.builder(keyId, command)
 byte[] hashForSigning = request.hashForSigning();
 byte[] signatureBytes = approvalSigner.signDigest(hashForSigning);
 
-request.addProof(new Approvals.Proof(
+request.addProof(new SignatureProof(
         approverFingerprint64,
         Base64.getEncoder().encodeToString(signatureBytes)
 ));
