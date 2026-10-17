@@ -87,6 +87,7 @@ RUN printf '%s\n' \
       '}' \
       > /tmp/NativeSmoke.java \
  && java \
+      --enable-native-access=ALL-UNNAMED \
       -Djava.library.path=/usr/local/lib \
       /tmp/NativeSmoke.java \
  && java \
