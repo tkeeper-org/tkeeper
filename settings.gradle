@@ -18,7 +18,6 @@ include 'features:digital-assets:xrp'
 include 'features:digital-assets:solana'
 include 'features:authority-x509'
 include 'features:ecies'
-include 'features:ui'
 include 'integration-tests:failure-injection'
 
 include 'platform-ecc'
@@ -31,7 +30,6 @@ include 'features:recovery:ecc'
 include 'features:recovery:pqc'
 
 include 'features:dry-run'
-include 'features:mcp'
 
 include 'features:agentic-payments'
 include 'features:agentic-payments:ap2'
