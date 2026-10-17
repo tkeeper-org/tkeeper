@@ -103,7 +103,7 @@ signing {
         useInMemoryPgpKeys(decodedSigningKey, providers.gradleProperty('signingPassword').orNull)
     }
 
-    required {
+    required = {
         gradle.taskGraph.allTasks.any { task ->
             task.name.toLowerCase(Locale.ROOT).contains('publish') ||
                     task.name.toLowerCase(Locale.ROOT).contains('sign')
