@@ -1,0 +1,2670 @@
+{
+  "KeeperConfiguration": {
+    "threshold": 1,
+    "total": 1,
+    "features": [
+      "features-value"
+    ],
+    "authorities": [
+      "authorities-value"
+    ],
+    "sealProvider": "sealProvider-value"
+  },
+  "IdentityCatalogPage": {
+    "items": [
+      {
+        "keyId": "key-1",
+        "algorithm": "ED25519",
+        "generation": 1,
+        "authorities": [
+          "authorities-value"
+        ]
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "IdentityCatalogItem": {
+    "keyId": "key-1",
+    "algorithm": "ED25519",
+    "generation": 1,
+    "authorities": [
+      "authorities-value"
+    ]
+  },
+  "AuthorityCatalogItem": {
+    "id": "AQ",
+    "type": "sign",
+    "version": "version-value",
+    "description": "description-value",
+    "commandSchema": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "ApproverId": "alice",
+  "ApproverRef": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "ApproverMetadata": {
+    "sample": "sample-value"
+  },
+  "SignatureCredentialRegistration": {
+    "type": "SIGNATURE",
+    "algorithm": "ED25519",
+    "publicKey64": "AQ=="
+  },
+  "SignatureCredential": {
+    "version": 1,
+    "type": "SIGNATURE",
+    "algorithm": "ED25519",
+    "publicKey64": "AQ=="
+  },
+  "RegisterApprover": {
+    "id": "alice",
+    "credential": {
+      "type": "SIGNATURE",
+      "algorithm": "ED25519",
+      "publicKey64": "AQ=="
+    },
+    "metadata": {
+      "sample": "sample-value"
+    }
+  },
+  "WebAuthnApproverCredential": {
+    "version": 1,
+    "type": "WEBAUTHN",
+    "credentialId": "AQ",
+    "publicKeyCose": "AQ",
+    "rpId": "rpId-value",
+    "origins": [
+      "origins-value"
+    ],
+    "userVerification": "REQUIRED",
+    "userHandle": "AQ",
+    "backupEligible": true
+  },
+  "ApproverCredential": {
+    "version": 1,
+    "type": "SIGNATURE",
+    "algorithm": "ED25519",
+    "publicKey64": "AQ=="
+  },
+  "UpdateApproverMetadata": {
+    "metadata": {
+      "sample": "sample-value"
+    }
+  },
+  "ApproverRecord": {
+    "id": "alice",
+    "ref": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "credential": {
+      "version": 1,
+      "type": "SIGNATURE",
+      "algorithm": "ED25519",
+      "publicKey64": "AQ=="
+    },
+    "metadata": {
+      "sample": "sample-value"
+    },
+    "createdAt": 1729000123456,
+    "updatedAt": 1729000123456,
+    "metadataRevision": 1729000123456
+  },
+  "ApproversPage": {
+    "items": [
+      {
+        "id": "alice",
+        "ref": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "credential": {
+          "version": 1,
+          "type": "SIGNATURE",
+          "algorithm": "ED25519",
+          "publicKey64": "AQ=="
+        },
+        "metadata": {
+          "sample": "sample-value"
+        },
+        "createdAt": 1729000123456,
+        "updatedAt": 1729000123456,
+        "metadataRevision": 1729000123456
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "ErrorMessage": {
+    "error": "error-value",
+    "details": "details-value",
+    "imposters": [
+      "imposters-value"
+    ],
+    "dead": [
+      "dead-value"
+    ],
+    "approvals": [
+      {
+        "policyId": "policyId-value",
+        "source": "id: example",
+        "threshold": 1
+      }
+    ],
+    "message": "message-value"
+  },
+  "ErrorType": "-value",
+  "KeeperInitData": {
+    "peerId": 1,
+    "threshold": 1,
+    "total": 1
+  },
+  "ShamirInitData": {
+    "threshold": 1,
+    "total": 1,
+    "shares64": [
+      "AQ=="
+    ]
+  },
+  "Unseal": {
+    "payload64": "AQ==",
+    "payloads64": [
+      "AQ=="
+    ],
+    "reset": false
+  },
+  "StoreState": "UNINITIALIZED",
+  "Progress": {
+    "ready": true
+  },
+  "ReadyProgress": {
+    "ready": true
+  },
+  "ShamirUnsealProgress": {
+    "threshold": 1,
+    "total": 1,
+    "progress": 1,
+    "ready": true
+  },
+  "StatusResponse": {
+    "sealedBy": "sealedBy-value",
+    "state": "UNINITIALIZED",
+    "progress": {
+      "ready": true
+    }
+  },
+  "ShortStatus": {
+    "ready": true,
+    "peerId": 1,
+    "threshold": 1,
+    "total": 1
+  },
+  "IntValue": {
+    "serviceId": 1,
+    "result": 1
+  },
+  "PublicKeyDto": {
+    "data64": "AQ=="
+  },
+  "KeyId": "key-1",
+  "AssetOwner": "treasury",
+  "AuthorityId": "arbitrary",
+  "Tweak": "-value",
+  "Generation": 1,
+  "Cursor": "-value",
+  "Base64": "-value",
+  "NonEmptyBase64": "-value",
+  "KeyAlgorithm": "ED25519",
+  "QuorumPromotion": {
+    "threshold": 2,
+    "total": 2
+  },
+  "QuorumPromotionResult": {
+    "peerId": 1,
+    "threshold": 1,
+    "total": 1,
+    "promotedKeys": 1,
+    "restartRequired": true
+  },
+  "KeySetAuthority": {
+    "id": "arbitrary",
+    "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "KeySetPolicy": {
+    "apply": {
+      "unit": "MILLISECONDS",
+      "notAfter": 1729000123456
+    },
+    "process": {
+      "unit": "MILLISECONDS",
+      "notAfter": 1729000123456
+    },
+    "fourEye": {
+      "mode": "STRICT",
+      "m": 1,
+      "n": 1,
+      "keys": [
+        {
+          "algorithm": "ED25519",
+          "publicKey64": "AQ==",
+          "webAuthn": {
+            "credentialId": "AQ",
+            "rpId": "rpId-value",
+            "origins": [
+              "https://hub.example"
+            ],
+            "userHandle": "AQ",
+            "backupEligible": false
+          }
+        }
+      ]
+    },
+    "allowHistoricalProcess": true
+  },
+  "TimestampUnit": "MILLISECONDS",
+  "NotAfter": {
+    "unit": "MILLISECONDS",
+    "notAfter": 1729000123456
+  },
+  "FourEyeControlPolicy": {
+    "mode": "STRICT",
+    "m": 1,
+    "n": 1,
+    "keys": [
+      {
+        "algorithm": "ED25519",
+        "publicKey64": "AQ==",
+        "webAuthn": {
+          "credentialId": "AQ",
+          "rpId": "rpId-value",
+          "origins": [
+            "https://hub.example"
+          ],
+          "userHandle": "AQ",
+          "backupEligible": false
+        }
+      }
+    ]
+  },
+  "ApproverReference": {
+    "ref": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "FourEyeControlMode": "STRICT",
+  "ApproverPublicKey": {
+    "algorithm": "ED25519",
+    "publicKey64": "AQ==",
+    "webAuthn": {
+      "credentialId": "AQ",
+      "rpId": "rpId-value",
+      "origins": [
+        "https://hub.example"
+      ],
+      "userHandle": "AQ",
+      "backupEligible": false
+    }
+  },
+  "WebAuthnCredential": {
+    "credentialId": "AQ",
+    "rpId": "rpId-value",
+    "origins": [
+      "https://hub.example"
+    ],
+    "userHandle": "AQ",
+    "backupEligible": false
+  },
+  "Approvals": {
+    "keeperId": 0,
+    "nonce": "",
+    "timestamp": 1729000123456,
+    "proofs": [
+      {
+        "fingerprint": "AQ==",
+        "signature64": "AQ=="
+      }
+    ]
+  },
+  "Proof": {
+    "fingerprint": "AQ==",
+    "signature64": "AQ=="
+  },
+  "SignatureProof": {
+    "fingerprint": "AQ==",
+    "signature64": "AQ=="
+  },
+  "WebAuthnProof": {
+    "fingerprint": "AQ==",
+    "binding": {
+      "payload": {
+        "keeperId": 1,
+        "operationType": "operationType-value",
+        "hashForSigning64": "AQ==",
+        "generation": 1,
+        "requirementsHash64": "AQ==",
+        "challenge": "AQ",
+        "issuedAt": 1729000123456,
+        "expiresAt": 1729000123456
+      },
+      "signature": {
+        "version": 1,
+        "algorithm": "ED25519",
+        "fingerprint": "AQ==",
+        "signature64": "AQ=="
+      }
+    },
+    "credential": {
+      "id": "AQ",
+      "rawId": "AQ",
+      "type": "public-key",
+      "response": {
+        "clientDataJSON": "AQ",
+        "authenticatorData": "AQ",
+        "signature": "AQ",
+        "userHandle": "AQ"
+      },
+      "authenticatorAttachment": "authenticatorAttachment-value",
+      "clientExtensionResults": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    }
+  },
+  "PreparedApprovals": {
+    "hashForSigning64": "AQ==",
+    "binding": {
+      "payload": {
+        "keeperId": 1,
+        "operationType": "operationType-value",
+        "hashForSigning64": "AQ==",
+        "generation": 1,
+        "requirementsHash64": "AQ==",
+        "challenge": "AQ",
+        "issuedAt": 1729000123456,
+        "expiresAt": 1729000123456
+      },
+      "signature": {
+        "version": 1,
+        "algorithm": "ED25519",
+        "fingerprint": "AQ==",
+        "signature64": "AQ=="
+      }
+    },
+    "webAuthn": [
+      {
+        "fingerprint": "AQ==",
+        "publicKey": {
+          "challenge": "AQ",
+          "timeout": 1729000123456,
+          "rpId": "rpId-value",
+          "allowCredentials": [
+            {
+              "type": "public-key",
+              "id": "AQ",
+              "transports": [
+                "transports-value"
+              ]
+            }
+          ],
+          "userVerification": "required",
+          "extensions": {
+            "custom": {
+              "values": [
+                1,
+                null,
+                "arbitrary value"
+              ],
+              "enabled": true
+            }
+          }
+        }
+      }
+    ]
+  },
+  "WebAuthnChallenge": {
+    "payload": {
+      "keeperId": 1,
+      "operationType": "operationType-value",
+      "hashForSigning64": "AQ==",
+      "generation": 1,
+      "requirementsHash64": "AQ==",
+      "challenge": "AQ",
+      "issuedAt": 1729000123456,
+      "expiresAt": 1729000123456
+    },
+    "signature": {
+      "version": 1,
+      "algorithm": "ED25519",
+      "fingerprint": "AQ==",
+      "signature64": "AQ=="
+    }
+  },
+  "AuthorityCommand": {
+    "type": "sign",
+    "authorityId": "arbitrary",
+    "artifact": {
+      "scheme": "ED25519",
+      "hash": "NONE",
+      "data64": "AQ=="
+    }
+  },
+  "VerificationCommand": {
+    "type": "sign",
+    "artifact": {
+      "scheme": "ED25519",
+      "hash": "NONE",
+      "data64": "AQ=="
+    }
+  },
+  "Artifact": {
+    "scheme": "ED25519",
+    "hash": "NONE",
+    "data64": "AQ=="
+  },
+  "SignatureScheme": "ED25519",
+  "HashMethod": "NONE",
+  "ArbitraryArtifact": {
+    "scheme": "ED25519",
+    "hash": "NONE",
+    "data64": "AQ=="
+  },
+  "TypedArtifact": {
+    "scheme": "ED25519",
+    "hash": "NONE",
+    "typed": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "EvmTransactionArtifact": {
+    "message64": "AQ=="
+  },
+  "TransactionArtifact": {
+    "transaction": "transaction-value"
+  },
+  "PaymentMandatesArtifact": {
+    "mode": "PAIRED",
+    "signingInput": "signingInput-value",
+    "disclosures": [
+      "disclosures-value"
+    ]
+  },
+  "BitcoinTransactionArtifact": {
+    "transaction64": "AQ==",
+    "previousTransactions64": [
+      "AQ=="
+    ],
+    "input": 1,
+    "redeemScript64": "AQ==",
+    "witnessScript64": "AQ==",
+    "merkleRoot64": "AQ=="
+  },
+  "X509TbsCertificateArtifact": {
+    "der64": "AQ=="
+  },
+  "CalculatedSignature": {
+    "type": "ED25519",
+    "signature64": "AQ==",
+    "generation": 1,
+    "imposters": [
+      "imposters-value"
+    ]
+  },
+  "SignedTransaction": {
+    "type": "evm.transaction",
+    "rawTransaction": "rawTransaction-value",
+    "transactionHash": "transactionHash-value",
+    "generation": 1,
+    "imposters": [
+      "imposters-value"
+    ]
+  },
+  "SignedSolanaTransaction": {
+    "type": "solana.transaction",
+    "rawTransaction": "rawTransaction-value",
+    "transactionHash": "transactionHash-value",
+    "complete": true,
+    "generation": 1,
+    "imposters": [
+      "imposters-value"
+    ]
+  },
+  "PaymentCredential": {
+    "type": "ap2.mandate",
+    "credential": "credential-value",
+    "generation": 1,
+    "imposters": [
+      "imposters-value"
+    ]
+  },
+  "VerifyResult": {
+    "valid": true
+  },
+  "AssetInventoryPage": {
+    "inventory": {
+      "generatedAt": 1729000123456,
+      "peerId": 1,
+      "threshold": 1,
+      "totalPeers": 1,
+      "items": [
+        {
+          "logicalId": "logicalId-value",
+          "status": "ACTIVE",
+          "currentGeneration": 1,
+          "authorities": [
+            {
+              "id": "arbitrary",
+              "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            }
+          ],
+          "algorithm": "ED25519",
+          "createdAt": 1729000123456,
+          "updatedAt": 1729000123456,
+          "policy": {
+            "apply": {
+              "unit": "MILLISECONDS",
+              "notAfter": 1729000123456
+            },
+            "process": {
+              "unit": "MILLISECONDS",
+              "notAfter": 1729000123456
+            },
+            "fourEye": {
+              "mode": "STRICT",
+              "m": 1,
+              "n": 1,
+              "keys": [
+                {
+                  "algorithm": "ED25519",
+                  "publicKey64": "AQ==",
+                  "webAuthn": {
+                    "credentialId": "AQ",
+                    "rpId": "rpId-value",
+                    "origins": [
+                      "https://hub.example"
+                    ],
+                    "userHandle": "AQ",
+                    "backupEligible": false
+                  }
+                }
+              ]
+            },
+            "allowHistoricalProcess": true
+          },
+          "hasActiveKey": true,
+          "lastPendingGeneration": 1,
+          "assetOwner": "assetOwner-value",
+          "tampered": true
+        }
+      ]
+    },
+    "nextCursor": "nextCursor-value",
+    "hasMore": true
+  },
+  "AssetInventory": {
+    "generatedAt": 1729000123456,
+    "peerId": 1,
+    "threshold": 1,
+    "totalPeers": 1,
+    "items": [
+      {
+        "logicalId": "logicalId-value",
+        "status": "ACTIVE",
+        "currentGeneration": 1,
+        "authorities": [
+          {
+            "id": "arbitrary",
+            "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "algorithm": "ED25519",
+        "createdAt": 1729000123456,
+        "updatedAt": 1729000123456,
+        "policy": {
+          "apply": {
+            "unit": "MILLISECONDS",
+            "notAfter": 1729000123456
+          },
+          "process": {
+            "unit": "MILLISECONDS",
+            "notAfter": 1729000123456
+          },
+          "fourEye": {
+            "mode": "STRICT",
+            "m": 1,
+            "n": 1,
+            "keys": [
+              {
+                "algorithm": "ED25519",
+                "publicKey64": "AQ==",
+                "webAuthn": {
+                  "credentialId": "AQ",
+                  "rpId": "rpId-value",
+                  "origins": [
+                    "https://hub.example"
+                  ],
+                  "userHandle": "AQ",
+                  "backupEligible": false
+                }
+              }
+            ]
+          },
+          "allowHistoricalProcess": true
+        },
+        "hasActiveKey": true,
+        "lastPendingGeneration": 1,
+        "assetOwner": "assetOwner-value",
+        "tampered": true
+      }
+    ]
+  },
+  "AssetInventoryItem": {
+    "logicalId": "logicalId-value",
+    "status": "ACTIVE",
+    "currentGeneration": 1,
+    "authorities": [
+      {
+        "id": "arbitrary",
+        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "algorithm": "ED25519",
+    "createdAt": 1729000123456,
+    "updatedAt": 1729000123456,
+    "policy": {
+      "apply": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "process": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "fourEye": {
+        "mode": "STRICT",
+        "m": 1,
+        "n": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ]
+      },
+      "allowHistoricalProcess": true
+    },
+    "hasActiveKey": true,
+    "lastPendingGeneration": 1,
+    "assetOwner": "assetOwner-value",
+    "tampered": true
+  },
+  "KeyStatus": "ACTIVE",
+  "SignedLine": {
+    "event": {
+      "id": "AQ",
+      "peerId": 1,
+      "integrityKeyVersion": 1,
+      "timestamp": 1729000123456,
+      "event": "event-value",
+      "auth": {
+        "subject": "subject-value",
+        "actor": "actor-value"
+      },
+      "context": {
+        "sid": "sid-value",
+        "approverRef": "approverRef-value",
+        "metadataRevision": 1729000123456
+      },
+      "request": {
+        "method": "method-value",
+        "path": "path-value",
+        "remoteAddress": "remoteAddress-value"
+      },
+      "crypto": {
+        "algo": "algo-value",
+        "kid": "kid-value",
+        "generation": 1
+      },
+      "digest": {
+        "purpose": "purpose-value",
+        "hmacKeyVersion": 1,
+        "bodyHash": {
+          "alg": "HMAC_SHA256",
+          "value64": "AQ=="
+        }
+      },
+      "outcome": {
+        "statusCode": 100,
+        "error": "error-value",
+        "details": "details-value",
+        "approvals": [
+          {
+            "policyId": "policyId-value",
+            "source": "id: example",
+            "threshold": 1
+          }
+        ]
+      },
+      "approvers": [
+        "approvers-value"
+      ],
+      "policy": {
+        "decision": "ALLOW",
+        "matches": [
+          {
+            "id": "AQ",
+            "effect": "ALLOW"
+          }
+        ],
+        "approvalRequirements": [
+          {
+            "policyId": "policyId-value",
+            "source": "id: example",
+            "threshold": 1,
+            "approvers": {
+              "sample": {
+                "id": "AQ",
+                "algorithm": "ED25519",
+                "publicKey64": "AQ==",
+                "metadata": {
+                  "sample": "sample-value"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "imposters": [
+        "imposters-value"
+      ],
+      "dead": [
+        "dead-value"
+      ]
+    },
+    "signature": "AQ=="
+  },
+  "Logs": {
+    "logs": [
+      {
+        "event": {
+          "id": "AQ",
+          "peerId": 1,
+          "integrityKeyVersion": 1,
+          "timestamp": 1729000123456,
+          "event": "event-value",
+          "auth": {
+            "subject": "subject-value",
+            "actor": "actor-value"
+          },
+          "context": {
+            "sid": "sid-value",
+            "approverRef": "approverRef-value",
+            "metadataRevision": 1729000123456
+          },
+          "request": {
+            "method": "method-value",
+            "path": "path-value",
+            "remoteAddress": "remoteAddress-value"
+          },
+          "crypto": {
+            "algo": "algo-value",
+            "kid": "kid-value",
+            "generation": 1
+          },
+          "digest": {
+            "purpose": "purpose-value",
+            "hmacKeyVersion": 1,
+            "bodyHash": {
+              "alg": "HMAC_SHA256",
+              "value64": "AQ=="
+            }
+          },
+          "outcome": {
+            "statusCode": 100,
+            "error": "error-value",
+            "details": "details-value",
+            "approvals": [
+              {
+                "policyId": "policyId-value",
+                "source": "id: example",
+                "threshold": 1
+              }
+            ]
+          },
+          "approvers": [
+            "approvers-value"
+          ],
+          "policy": {
+            "decision": "ALLOW",
+            "matches": [
+              {
+                "id": "AQ",
+                "effect": "ALLOW"
+              }
+            ],
+            "approvalRequirements": [
+              {
+                "policyId": "policyId-value",
+                "source": "id: example",
+                "threshold": 1,
+                "approvers": {
+                  "sample": {
+                    "id": "AQ",
+                    "algorithm": "ED25519",
+                    "publicKey64": "AQ==",
+                    "metadata": {
+                      "sample": "sample-value"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "imposters": [
+            "imposters-value"
+          ],
+          "dead": [
+            "dead-value"
+          ]
+        },
+        "signature": "AQ=="
+      }
+    ]
+  },
+  "AuditEvent": {
+    "id": "AQ",
+    "peerId": 1,
+    "integrityKeyVersion": 1,
+    "timestamp": 1729000123456,
+    "event": "event-value",
+    "auth": {
+      "subject": "subject-value",
+      "actor": "actor-value"
+    },
+    "context": {
+      "sid": "sid-value",
+      "approverRef": "approverRef-value",
+      "metadataRevision": 1729000123456
+    },
+    "request": {
+      "method": "method-value",
+      "path": "path-value",
+      "remoteAddress": "remoteAddress-value"
+    },
+    "crypto": {
+      "algo": "algo-value",
+      "kid": "kid-value",
+      "generation": 1
+    },
+    "digest": {
+      "purpose": "purpose-value",
+      "hmacKeyVersion": 1,
+      "bodyHash": {
+        "alg": "HMAC_SHA256",
+        "value64": "AQ=="
+      }
+    },
+    "outcome": {
+      "statusCode": 100,
+      "error": "error-value",
+      "details": "details-value",
+      "approvals": [
+        {
+          "policyId": "policyId-value",
+          "source": "id: example",
+          "threshold": 1
+        }
+      ]
+    },
+    "approvers": [
+      "approvers-value"
+    ],
+    "policy": {
+      "decision": "ALLOW",
+      "matches": [
+        {
+          "id": "AQ",
+          "effect": "ALLOW"
+        }
+      ],
+      "approvalRequirements": [
+        {
+          "policyId": "policyId-value",
+          "source": "id: example",
+          "threshold": 1,
+          "approvers": {
+            "sample": {
+              "id": "AQ",
+              "algorithm": "ED25519",
+              "publicKey64": "AQ==",
+              "metadata": {
+                "sample": "sample-value"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "imposters": [
+      "imposters-value"
+    ],
+    "dead": [
+      "dead-value"
+    ]
+  },
+  "Auth": {
+    "subject": "subject-value",
+    "actor": "actor-value"
+  },
+  "Ctx": {
+    "sid": "sid-value",
+    "approverRef": "approverRef-value",
+    "metadataRevision": 1729000123456
+  },
+  "Http": {
+    "method": "method-value",
+    "path": "path-value",
+    "remoteAddress": "remoteAddress-value"
+  },
+  "Crypto": {
+    "algo": "algo-value",
+    "kid": "kid-value",
+    "generation": 1
+  },
+  "Dig": {
+    "purpose": "purpose-value",
+    "hmacKeyVersion": 1,
+    "bodyHash": {
+      "alg": "HMAC_SHA256",
+      "value64": "AQ=="
+    }
+  },
+  "Digest": {
+    "alg": "HMAC_SHA256",
+    "value64": "AQ=="
+  },
+  "Outcome": {
+    "statusCode": 100,
+    "error": "error-value",
+    "details": "details-value",
+    "approvals": [
+      {
+        "policyId": "policyId-value",
+        "source": "id: example",
+        "threshold": 1
+      }
+    ]
+  },
+  "RequiredApprovalDetails": {
+    "policyId": "policyId-value",
+    "source": "id: example",
+    "threshold": 1
+  },
+  "PolicyEvaluation": {
+    "decision": "ALLOW",
+    "matches": [
+      {
+        "id": "AQ",
+        "effect": "ALLOW"
+      }
+    ],
+    "approvalRequirements": [
+      {
+        "policyId": "policyId-value",
+        "source": "id: example",
+        "threshold": 1,
+        "approvers": {
+          "sample": {
+            "id": "AQ",
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "metadata": {
+              "sample": "sample-value"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "ApprovalRequirement": {
+    "policyId": "policyId-value",
+    "source": "id: example",
+    "threshold": 1,
+    "approvers": {
+      "sample": {
+        "id": "AQ",
+        "algorithm": "ED25519",
+        "publicKey64": "AQ==",
+        "metadata": {
+          "sample": "sample-value"
+        }
+      }
+    }
+  },
+  "PolicyApprover": {
+    "id": "AQ",
+    "algorithm": "ED25519",
+    "publicKey64": "AQ==",
+    "metadata": {
+      "sample": "sample-value"
+    }
+  },
+  "PublicKeyPolicyApprover": {
+    "id": "AQ",
+    "algorithm": "ED25519",
+    "publicKey64": "AQ==",
+    "metadata": {
+      "sample": "sample-value"
+    }
+  },
+  "RegistryPolicyApprover": {
+    "ref": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "metadata": {
+      "sample": "sample-value"
+    }
+  },
+  "RuleMatch": {
+    "id": "AQ",
+    "effect": "ALLOW"
+  },
+  "ConsistencyCheck": {
+    "verdict": "OK",
+    "targetGeneration": 1,
+    "versions": {
+      "sample": {
+        "activeGen": 1,
+        "pendingGen": 1
+      }
+    }
+  },
+  "ConsistencyVerdict": "OK",
+  "RecoverRequest": {
+    "keyId": "key-1",
+    "helperIds": [
+      1
+    ]
+  },
+  "RecoverResult": {
+    "keyId": "key-1",
+    "algorithm": "ED25519",
+    "targetPeerId": 1,
+    "currentGeneration": 1,
+    "recoveredGenerations": [
+      1
+    ],
+    "helpers": [
+      1
+    ]
+  },
+  "KeyVersion": {
+    "activeGen": 1,
+    "pendingGen": 1
+  },
+  "ExpirePage": {
+    "items": [
+      {
+        "type": "APPLY",
+        "logicalId": "logicalId-value",
+        "generation": 1,
+        "expiresAt": 1729000123456
+      }
+    ],
+    "next": "next-value"
+  },
+  "ExpireItem": {
+    "type": "APPLY",
+    "logicalId": "logicalId-value",
+    "generation": 1,
+    "expiresAt": 1729000123456
+  },
+  "ControlPlaneAuthConfig": {
+    "id": "TOKEN",
+    "header": "X-JWT-TOKEN"
+  },
+  "ControlPlaneCapabilities": {
+    "algorithms": [
+      "ED25519"
+    ]
+  },
+  "HeaderTokenAuthConfig": {
+    "id": "TOKEN",
+    "header": "X-JWT-TOKEN"
+  },
+  "OIDCAuthConfig": {
+    "id": "OIDC",
+    "header": "X-JWT-TOKEN",
+    "clientId": "clientId-value",
+    "audience": "audience-value",
+    "discoveryUrl": "discoveryUrl-value",
+    "callbackUrl": "callbackUrl-value"
+  },
+  "SystemInfo": {
+    "id": "AQ",
+    "state": "READY",
+    "threshold": 1,
+    "totalPeers": 1,
+    "peers": {
+      "sample": "READY"
+    }
+  },
+  "PeerState": "READY",
+  "AuditInfo": {
+    "enabled": true,
+    "sinks": [
+      {
+        "id": "AQ",
+        "available": true
+      }
+    ]
+  },
+  "SinkInfo": {
+    "id": "AQ",
+    "available": true
+  },
+  "SimpleAuthData": {
+    "subject": "subject-value",
+    "actor": "actor-value",
+    "permissions": [
+      "permissions-value"
+    ]
+  },
+  "InitialApprovals": {
+    "keeperId": 0,
+    "nonce": "",
+    "timestamp": 1729000123456,
+    "proofs": []
+  },
+  "CreateKeyRequest": {
+    "keyId": "key-1",
+    "algorithm": "ED25519",
+    "authorities": [
+      {
+        "id": "arbitrary",
+        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "mode": "CREATE",
+    "policy": {
+      "apply": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "process": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "fourEye": {
+        "mode": "STRICT",
+        "m": 1,
+        "n": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ]
+      },
+      "allowHistoricalProcess": true
+    },
+    "assetOwner": "treasury",
+    "approvals": {
+      "keeperId": 0,
+      "nonce": "",
+      "timestamp": 1729000123456,
+      "proofs": [
+        {
+          "fingerprint": "AQ==",
+          "signature64": "AQ=="
+        }
+      ]
+    }
+  },
+  "RefreshKeyRequest": {
+    "keyId": "key-1",
+    "algorithm": "ED25519",
+    "authorities": [
+      {
+        "id": "arbitrary",
+        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "mode": "REFRESH",
+    "policy": {
+      "apply": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "process": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "fourEye": {
+        "mode": "STRICT",
+        "m": 1,
+        "n": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ]
+      },
+      "allowHistoricalProcess": true
+    },
+    "assetOwner": "treasury",
+    "approvals": {
+      "keeperId": 0,
+      "nonce": "",
+      "timestamp": 1729000123456,
+      "proofs": []
+    }
+  },
+  "RotateKeyRequest": {
+    "keyId": "key-1",
+    "algorithm": "ED25519",
+    "authorities": [
+      {
+        "id": "arbitrary",
+        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "mode": "ROTATE",
+    "policy": {
+      "apply": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "process": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "fourEye": {
+        "mode": "STRICT",
+        "m": 1,
+        "n": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ]
+      },
+      "allowHistoricalProcess": true
+    },
+    "assetOwner": "treasury",
+    "approvals": {
+      "keeperId": 0,
+      "nonce": "",
+      "timestamp": 1729000123456,
+      "proofs": []
+    }
+  },
+  "SubmitSignatureRequest": {
+    "keyId": "key-1",
+    "command": {
+      "type": "sign",
+      "authorityId": "arbitrary",
+      "artifact": {
+        "scheme": "ED25519",
+        "hash": "NONE",
+        "data64": "AQ=="
+      }
+    },
+    "tweak": "tweak-1",
+    "approvals": {
+      "keeperId": 0,
+      "nonce": "",
+      "timestamp": 1729000123456,
+      "proofs": []
+    }
+  },
+  "DestroyKeyRequest": {
+    "keyId": "key-1",
+    "generation": 1,
+    "approvals": {
+      "keeperId": 0,
+      "nonce": "",
+      "timestamp": 1729000123456,
+      "proofs": []
+    }
+  },
+  "ImportKeyRequest": {
+    "keyId": "key-1",
+    "algorithm": "ED25519",
+    "authorities": [
+      {
+        "id": "arbitrary",
+        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "value64": "AQ==",
+    "policy": {
+      "apply": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "process": {
+        "unit": "MILLISECONDS",
+        "notAfter": 1729000123456
+      },
+      "fourEye": {
+        "mode": "STRICT",
+        "m": 1,
+        "n": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ]
+      },
+      "allowHistoricalProcess": true
+    },
+    "assetOwner": "treasury"
+  },
+  "VerifySignatureRequest": {
+    "keyId": "key-1",
+    "generation": 1,
+    "command": {
+      "type": "sign",
+      "artifact": {
+        "scheme": "ED25519",
+        "hash": "NONE",
+        "data64": "AQ=="
+      }
+    },
+    "signature64": "AQ==",
+    "tweak": "tweak-1"
+  },
+  "EmulatePolicyRequest": {
+    "keyId": "key-1",
+    "command": {
+      "type": "sign",
+      "authorityId": "arbitrary",
+      "artifact": {
+        "scheme": "ED25519",
+        "hash": "NONE",
+        "data64": "AQ=="
+      }
+    }
+  },
+  "HubProblem": {
+    "status": 400,
+    "code": "code-value",
+    "message": "message-value",
+    "outcome": "NOT_SENT"
+  },
+  "ApiError": {
+    "status": 400,
+    "code": "code-value",
+    "message": "message-value",
+    "outcome": "NOT_SENT"
+  },
+  "HubSession": {
+    "issuer": "issuer-value",
+    "subject": "subject-value",
+    "permissions": [
+      "permissions-value"
+    ],
+    "displayName": "displayName-value"
+  },
+  "HubAuthenticationConfig": {
+    "issuer": "issuer-value",
+    "clientId": "clientId-value",
+    "audience": "audience-value",
+    "scopes": [
+      "scopes-value"
+    ],
+    "authorizationEndpoint": "authorizationEndpoint-value",
+    "tokenEndpoint": "tokenEndpoint-value",
+    "jwksUri": "jwksUri-value",
+    "endSessionEndpoint": "endSessionEndpoint-value",
+    "revocationEndpoint": "revocationEndpoint-value"
+  },
+  "OperationOwner": {
+    "issuer": "issuer-value",
+    "subject": "subject-value"
+  },
+  "OperationState": "WAITING_APPROVALS",
+  "OperationEventType": "STATE_CHANGED",
+  "ApprovalRequirementGroup": {
+    "threshold": 1,
+    "keys": [
+      {
+        "algorithm": "ED25519",
+        "publicKey64": "AQ==",
+        "webAuthn": {
+          "credentialId": "AQ",
+          "rpId": "rpId-value",
+          "origins": [
+            "https://hub.example"
+          ],
+          "userHandle": "AQ",
+          "backupEligible": false
+        }
+      }
+    ],
+    "details": {
+      "policyId": "policyId-value",
+      "source": "id: example",
+      "threshold": 1
+    }
+  },
+  "OperationView": {
+    "operationId": "operation-1",
+    "type": "sign",
+    "state": "WAITING_APPROVALS",
+    "version": 1729000123456,
+    "requirements": [
+      {
+        "threshold": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ],
+        "details": {
+          "policyId": "policyId-value",
+          "source": "id: example",
+          "threshold": 1
+        }
+      }
+    ],
+    "request": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    },
+    "expiresAt": "2026-10-18T12:00:00Z",
+    "createdAt": "2026-10-18T12:00:00Z",
+    "updatedAt": "2026-10-18T12:00:00Z",
+    "responseStatus": 1,
+    "response": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    },
+    "errorCode": "errorCode-value",
+    "errorMessage": "errorMessage-value",
+    "responseHeaders": {
+      "sample": [
+        "sample-value"
+      ]
+    },
+    "approvalExpiresAt": "2026-10-18T12:00:00Z",
+    "serverTime": "2026-10-18T12:00:00Z",
+    "owner": {
+      "issuer": "issuer-value",
+      "subject": "subject-value"
+    },
+    "keeperOrigin": "keeperOrigin-value",
+    "approvalWorkflow": true
+  },
+  "OperationSummary": {
+    "operationId": "operation-1",
+    "type": "sign",
+    "state": "WAITING_APPROVALS",
+    "version": 1729000123456,
+    "expiresAt": "2026-10-18T12:00:00Z",
+    "createdAt": "2026-10-18T12:00:00Z",
+    "updatedAt": "2026-10-18T12:00:00Z",
+    "responseStatus": 1,
+    "errorCode": "errorCode-value",
+    "approvalExpiresAt": "2026-10-18T12:00:00Z",
+    "serverTime": "2026-10-18T12:00:00Z",
+    "owner": {
+      "issuer": "issuer-value",
+      "subject": "subject-value"
+    },
+    "keyId": "key-1",
+    "mode": "mode-value",
+    "needsMyApproval": true,
+    "receivedByMe": true
+  },
+  "OperationPage": {
+    "items": [
+      {
+        "operationId": "operation-1",
+        "type": "sign",
+        "state": "WAITING_APPROVALS",
+        "version": 1729000123456,
+        "expiresAt": "2026-10-18T12:00:00Z",
+        "createdAt": "2026-10-18T12:00:00Z",
+        "updatedAt": "2026-10-18T12:00:00Z",
+        "responseStatus": 1,
+        "errorCode": "errorCode-value",
+        "approvalExpiresAt": "2026-10-18T12:00:00Z",
+        "serverTime": "2026-10-18T12:00:00Z",
+        "owner": {
+          "issuer": "issuer-value",
+          "subject": "subject-value"
+        },
+        "keyId": "key-1",
+        "mode": "mode-value",
+        "needsMyApproval": true,
+        "receivedByMe": true
+      }
+    ],
+    "nextCursor": "nextCursor-value",
+    "pendingCount": 1,
+    "approvalParticipant": true,
+    "canReadAll": true
+  },
+  "OperationEvent": {
+    "eventId": "eventId-value",
+    "operationId": "operation-1",
+    "type": "sign",
+    "state": "WAITING_APPROVALS",
+    "version": 1729000123456,
+    "occurredAt": "2026-10-18T12:00:00Z",
+    "eventType": "STATE_CHANGED",
+    "actor": {
+      "issuer": "issuer-value",
+      "subject": "subject-value"
+    }
+  },
+  "OperationExecuteRequest": {
+    "proofs": [
+      {
+        "fingerprint": "AQ==",
+        "signature64": "AQ=="
+      }
+    ]
+  },
+  "ApprovalCredential": {
+    "ref": "ref-value",
+    "fingerprint": "fingerprint-value",
+    "displayName": "displayName-value"
+  },
+  "ApprovalApprover": {
+    "type": "SIGNATURE",
+    "key": {
+      "algorithm": "ED25519",
+      "publicKey64": "AQ==",
+      "webAuthn": {
+        "credentialId": "AQ",
+        "rpId": "rpId-value",
+        "origins": [
+          "https://hub.example"
+        ],
+        "userHandle": "AQ",
+        "backupEligible": false
+      }
+    },
+    "received": true,
+    "ref": "ref-value",
+    "fingerprint": "fingerprint-value",
+    "displayName": "displayName-value"
+  },
+  "ApprovalRequirementStatus": {
+    "threshold": 1,
+    "total": 1,
+    "approvers": [
+      {
+        "type": "SIGNATURE",
+        "key": {
+          "algorithm": "ED25519",
+          "publicKey64": "AQ==",
+          "webAuthn": {
+            "credentialId": "AQ",
+            "rpId": "rpId-value",
+            "origins": [
+              "https://hub.example"
+            ],
+            "userHandle": "AQ",
+            "backupEligible": false
+          }
+        },
+        "received": true,
+        "ref": "ref-value",
+        "fingerprint": "fingerprint-value",
+        "displayName": "displayName-value"
+      }
+    ],
+    "received": 1,
+    "details": {
+      "policyId": "policyId-value",
+      "source": "id: example",
+      "threshold": 1
+    }
+  },
+  "ApprovalReason": "OPERATION_NOT_AVAILABLE",
+  "ApprovalStatus": {
+    "canApprove": true,
+    "reason": "OPERATION_NOT_AVAILABLE",
+    "canExecute": true,
+    "canCancel": true,
+    "expiresAt": "2026-10-18T12:00:00Z",
+    "serverTime": "2026-10-18T12:00:00Z",
+    "credentials": [
+      {
+        "ref": "ref-value",
+        "fingerprint": "fingerprint-value",
+        "displayName": "displayName-value"
+      }
+    ],
+    "requirements": [
+      {
+        "threshold": 1,
+        "total": 1,
+        "approvers": [
+          {
+            "type": "SIGNATURE",
+            "key": {
+              "algorithm": "ED25519",
+              "publicKey64": "AQ==",
+              "webAuthn": {
+                "credentialId": "AQ",
+                "rpId": "rpId-value",
+                "origins": [
+                  "https://hub.example"
+                ],
+                "userHandle": "AQ",
+                "backupEligible": false
+              }
+            },
+            "received": true,
+            "ref": "ref-value",
+            "fingerprint": "fingerprint-value",
+            "displayName": "displayName-value"
+          }
+        ],
+        "received": 1,
+        "details": {
+          "policyId": "policyId-value",
+          "source": "id: example",
+          "threshold": 1
+        }
+      }
+    ],
+    "receivedByMe": true,
+    "approvalExpiresAt": "2026-10-18T12:00:00Z",
+    "canPrepare": true
+  },
+  "WebAuthnDescriptor": {
+    "type": "public-key",
+    "id": "AQ",
+    "transports": [
+      "transports-value"
+    ]
+  },
+  "WebAuthnRp": {
+    "id": "AQ",
+    "name": "name-value"
+  },
+  "WebAuthnUser": {
+    "id": "AQ",
+    "name": "name-value",
+    "displayName": "displayName-value"
+  },
+  "WebAuthnAlgorithm": {
+    "type": "public-key",
+    "alg": 1
+  },
+  "WebAuthnCreationOptions": {
+    "challenge": "AQ",
+    "rp": {
+      "id": "AQ",
+      "name": "name-value"
+    },
+    "user": {
+      "id": "AQ",
+      "name": "name-value",
+      "displayName": "displayName-value"
+    },
+    "pubKeyCredParams": [
+      {
+        "type": "public-key",
+        "alg": 1
+      }
+    ],
+    "timeout": 1729000123456,
+    "excludeCredentials": [
+      {
+        "type": "public-key",
+        "id": "AQ",
+        "transports": [
+          "transports-value"
+        ]
+      }
+    ],
+    "authenticatorSelection": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    },
+    "attestation": "attestation-value",
+    "extensions": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "WebAuthnRequestOptions": {
+    "challenge": "AQ",
+    "timeout": 1729000123456,
+    "rpId": "rpId-value",
+    "allowCredentials": [
+      {
+        "type": "public-key",
+        "id": "AQ",
+        "transports": [
+          "transports-value"
+        ]
+      }
+    ],
+    "userVerification": "required",
+    "extensions": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "WebAuthnAttestationResponse": {
+    "clientDataJSON": "AQ",
+    "attestationObject": "AQ",
+    "transports": [
+      "transports-value"
+    ],
+    "authenticatorData": "AQ",
+    "publicKey": "publicKey-value",
+    "publicKeyAlgorithm": 1
+  },
+  "WebAuthnAssertionResponse": {
+    "clientDataJSON": "AQ",
+    "authenticatorData": "AQ",
+    "signature": "AQ",
+    "userHandle": "AQ"
+  },
+  "WebAuthnRegistrationCredential": {
+    "id": "AQ",
+    "rawId": "AQ",
+    "type": "public-key",
+    "response": {
+      "clientDataJSON": "AQ",
+      "attestationObject": "AQ",
+      "transports": [
+        "transports-value"
+      ],
+      "authenticatorData": "AQ",
+      "publicKey": "publicKey-value",
+      "publicKeyAlgorithm": 1
+    },
+    "authenticatorAttachment": "authenticatorAttachment-value",
+    "clientExtensionResults": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "WebAuthnAssertionCredential": {
+    "id": "AQ",
+    "rawId": "AQ",
+    "type": "public-key",
+    "response": {
+      "clientDataJSON": "AQ",
+      "authenticatorData": "AQ",
+      "signature": "AQ",
+      "userHandle": "AQ"
+    },
+    "authenticatorAttachment": "authenticatorAttachment-value",
+    "clientExtensionResults": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "ApprovalOptionsRequest": {
+    "ref": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "WebAuthnApprovalRequest": {
+    "approvalId": "approvalId-value",
+    "credential": {
+      "id": "AQ",
+      "rawId": "AQ",
+      "type": "public-key",
+      "response": {
+        "clientDataJSON": "AQ",
+        "authenticatorData": "AQ",
+        "signature": "AQ",
+        "userHandle": "AQ"
+      },
+      "authenticatorAttachment": "authenticatorAttachment-value",
+      "clientExtensionResults": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    }
+  },
+  "SignatureApprovalRequest": {
+    "fingerprint": "fingerprint-value",
+    "signature64": "AQ=="
+  },
+  "ApprovalOptions": {
+    "approvalId": "approvalId-value",
+    "fingerprint": "fingerprint-value",
+    "publicKey": {
+      "challenge": "AQ",
+      "timeout": 1729000123456,
+      "rpId": "rpId-value",
+      "allowCredentials": [
+        {
+          "type": "public-key",
+          "id": "AQ",
+          "transports": [
+            "transports-value"
+          ]
+        }
+      ],
+      "userVerification": "required",
+      "extensions": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    },
+    "expiresAt": 1729000123456,
+    "serverTime": "2026-10-18T12:00:00Z"
+  },
+  "SignatureSigningContext": {
+    "operationId": "operation-1",
+    "type": "sign",
+    "operation": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    },
+    "requirements": [
+      {
+        "threshold": 1,
+        "keys": [
+          {
+            "algorithm": "ED25519",
+            "publicKey64": "AQ==",
+            "webAuthn": {
+              "credentialId": "AQ",
+              "rpId": "rpId-value",
+              "origins": [
+                "https://hub.example"
+              ],
+              "userHandle": "AQ",
+              "backupEligible": false
+            }
+          }
+        ],
+        "details": {
+          "policyId": "policyId-value",
+          "source": "id: example",
+          "threshold": 1
+        }
+      }
+    ],
+    "hashForSigning64": "AQ==",
+    "expiresAt": "2026-10-18T12:00:00Z",
+    "approvalExpiresAt": "2026-10-18T12:00:00Z",
+    "serverTime": "2026-10-18T12:00:00Z"
+  },
+  "ApproverCapabilities": {
+    "canRegister": true,
+    "canEditMetadata": true
+  },
+  "CreateApproverInvitationRequest": {
+    "metadata": {
+      "sample": "sample-value"
+    },
+    "subject": "subject-value"
+  },
+  "ApproverInvitationState": "PENDING",
+  "ApproverInvitationView": {
+    "invitationId": "invitationId-value",
+    "expiresAt": "2026-10-18T12:00:00Z",
+    "metadata": {
+      "sample": "sample-value"
+    },
+    "state": "PENDING",
+    "serverTime": "2026-10-18T12:00:00Z",
+    "reason": "reason-value",
+    "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "ApproverInvitationsPage": {
+    "items": [
+      {
+        "invitationId": "invitationId-value",
+        "expiresAt": "2026-10-18T12:00:00Z",
+        "metadata": {
+          "sample": "sample-value"
+        },
+        "state": "PENDING",
+        "serverTime": "2026-10-18T12:00:00Z",
+        "reason": "reason-value",
+        "token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "SelfApproversPage": {
+    "items": [
+      {
+        "id": "alice",
+        "ref": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "credential": {
+          "version": 1,
+          "type": "SIGNATURE",
+          "algorithm": "ED25519",
+          "publicKey64": "AQ=="
+        },
+        "metadata": {
+          "sample": "sample-value"
+        },
+        "createdAt": 1729000123456,
+        "updatedAt": 1729000123456,
+        "metadataRevision": 1729000123456
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "ApproverRegistrationOptions": {
+    "registrationId": "registrationId-value",
+    "expiresAt": 1729000123456,
+    "publicKey": {
+      "challenge": "AQ",
+      "rp": {
+        "id": "AQ",
+        "name": "name-value"
+      },
+      "user": {
+        "id": "AQ",
+        "name": "name-value",
+        "displayName": "displayName-value"
+      },
+      "pubKeyCredParams": [
+        {
+          "type": "public-key",
+          "alg": 1
+        }
+      ],
+      "timeout": 1729000123456,
+      "excludeCredentials": [
+        {
+          "type": "public-key",
+          "id": "AQ",
+          "transports": [
+            "transports-value"
+          ]
+        }
+      ],
+      "authenticatorSelection": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      },
+      "attestation": "attestation-value",
+      "extensions": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    },
+    "serverTime": "2026-10-18T12:00:00Z"
+  },
+  "InvitationOptionsRequest": {
+    "invitationToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "InvitationFinishRequest": {
+    "invitationToken": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "credential": {
+      "id": "AQ",
+      "rawId": "AQ",
+      "type": "public-key",
+      "response": {
+        "clientDataJSON": "AQ",
+        "attestationObject": "AQ",
+        "transports": [
+          "transports-value"
+        ],
+        "authenticatorData": "AQ",
+        "publicKey": "publicKey-value",
+        "publicKeyAlgorithm": 1
+      },
+      "authenticatorAttachment": "authenticatorAttachment-value",
+      "clientExtensionResults": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    }
+  },
+  "IdentityCatalogResultPayload": {
+    "items": [
+      {
+        "keyId": "key-1",
+        "algorithm": "ED25519",
+        "generation": 1,
+        "authorities": [
+          "authorities-value"
+        ]
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "IdentityCatalogResult": {
+    "isError": true,
+    "result": {
+      "items": [
+        {
+          "keyId": "key-1",
+          "algorithm": "ED25519",
+          "generation": 1,
+          "authorities": [
+            "authorities-value"
+          ]
+        }
+      ],
+      "nextCursor": "nextCursor-value"
+    }
+  },
+  "AuthorityDescriptionResultPayload": {
+    "id": "AQ",
+    "type": "sign",
+    "version": "version-value",
+    "description": "description-value",
+    "commandSchema": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "AuthorityDescriptionResult": {
+    "isError": true,
+    "result": {
+      "id": "AQ",
+      "type": "sign",
+      "version": "version-value",
+      "description": "description-value",
+      "commandSchema": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    }
+  },
+  "KeyCapabilities": {
+    "canCreate": true,
+    "canImport": true,
+    "canRefresh": true,
+    "canRotate": true,
+    "canDestroy": true,
+    "canSign": true,
+    "canReadPublic": true,
+    "canVerify": true,
+    "canEncrypt": true,
+    "canDecrypt": true
+  },
+  "ResolvedKeyAuthority": {
+    "id": "AQ",
+    "type": "sign"
+  },
+  "KeeperAuthenticationView": {
+    "id": "AQ",
+    "header": "X-JWT-TOKEN",
+    "clientId": "clientId-value",
+    "audience": "audience-value",
+    "discoveryUrl": "discoveryUrl-value",
+    "callbackUrl": "callbackUrl-value"
+  },
+  "KeeperAuditView": {
+    "state": "state-value",
+    "enabled": true,
+    "availableDestinations": 1,
+    "totalDestinations": 1
+  },
+  "KeeperClusterView": {
+    "threshold": 1,
+    "totalPeers": 1,
+    "readyPeers": 1,
+    "configuredPeers": 1,
+    "status": "status-value",
+    "quorumReady": true,
+    "allPeersReady": true,
+    "requestPeerReady": true,
+    "authentication": {
+      "id": "AQ",
+      "header": "X-JWT-TOKEN",
+      "clientId": "clientId-value",
+      "audience": "audience-value",
+      "discoveryUrl": "discoveryUrl-value",
+      "callbackUrl": "callbackUrl-value"
+    }
+  },
+  "KeeperPeerView": {
+    "id": "AQ",
+    "name": "name-value",
+    "state": "state-value",
+    "managed": true,
+    "keeperId": 1,
+    "threshold": 1,
+    "totalPeers": 1,
+    "sealedBy": "sealedBy-value",
+    "errorCode": "errorCode-value",
+    "features": [
+      "features-value"
+    ],
+    "authorities": [
+      "authorities-value"
+    ],
+    "platforms": [
+      "platforms-value"
+    ],
+    "sealProvider": "sealProvider-value",
+    "configurationState": "configurationState-value",
+    "configurationMismatches": [
+      "configurationMismatches-value"
+    ],
+    "dangerousFeatures": [
+      "dangerousFeatures-value"
+    ],
+    "actions": {
+      "sample": true
+    },
+    "ready": true,
+    "authentication": {
+      "id": "AQ",
+      "header": "X-JWT-TOKEN",
+      "clientId": "clientId-value",
+      "audience": "audience-value",
+      "discoveryUrl": "discoveryUrl-value",
+      "callbackUrl": "callbackUrl-value"
+    },
+    "audit": {
+      "state": "state-value",
+      "enabled": true,
+      "availableDestinations": 1,
+      "totalDestinations": 1
+    }
+  },
+  "KeeperPeerList": {
+    "items": [
+      {
+        "id": "AQ",
+        "name": "name-value",
+        "state": "state-value",
+        "managed": true,
+        "keeperId": 1,
+        "threshold": 1,
+        "totalPeers": 1,
+        "sealedBy": "sealedBy-value",
+        "errorCode": "errorCode-value",
+        "features": [
+          "features-value"
+        ],
+        "authorities": [
+          "authorities-value"
+        ],
+        "platforms": [
+          "platforms-value"
+        ],
+        "sealProvider": "sealProvider-value",
+        "configurationState": "configurationState-value",
+        "configurationMismatches": [
+          "configurationMismatches-value"
+        ],
+        "dangerousFeatures": [
+          "dangerousFeatures-value"
+        ],
+        "actions": {
+          "sample": true
+        },
+        "ready": true,
+        "authentication": {
+          "id": "AQ",
+          "header": "X-JWT-TOKEN",
+          "clientId": "clientId-value",
+          "audience": "audience-value",
+          "discoveryUrl": "discoveryUrl-value",
+          "callbackUrl": "callbackUrl-value"
+        },
+        "audit": {
+          "state": "state-value",
+          "enabled": true,
+          "availableDestinations": 1,
+          "totalDestinations": 1
+        }
+      }
+    ],
+    "serverTime": "2026-10-18T12:00:00Z",
+    "configurationStatus": "configurationStatus-value",
+    "mismatches": [
+      "mismatches-value"
+    ],
+    "dangerousFeatures": [
+      "dangerousFeatures-value"
+    ],
+    "cluster": {
+      "threshold": 1,
+      "totalPeers": 1,
+      "readyPeers": 1,
+      "configuredPeers": 1,
+      "status": "status-value",
+      "quorumReady": true,
+      "allPeersReady": true,
+      "requestPeerReady": true,
+      "authentication": {
+        "id": "AQ",
+        "header": "X-JWT-TOKEN",
+        "clientId": "clientId-value",
+        "audience": "audience-value",
+        "discoveryUrl": "discoveryUrl-value",
+        "callbackUrl": "callbackUrl-value"
+      }
+    }
+  },
+  "HubCapabilities": {
+    "pages": {
+      "sample": true
+    },
+    "actions": {
+      "sample": true
+    },
+    "features": [
+      "features-value"
+    ],
+    "authorityTypes": [
+      "authorityTypes-value"
+    ],
+    "builtinAuthorities": [
+      "builtinAuthorities-value"
+    ],
+    "platforms": [
+      "platforms-value"
+    ],
+    "configurationStatus": "configurationStatus-value",
+    "configurationWarnings": [
+      "configurationWarnings-value"
+    ],
+    "serverTime": "2026-10-18T12:00:00Z",
+    "cluster": {
+      "threshold": 1,
+      "totalPeers": 1,
+      "readyPeers": 1,
+      "configuredPeers": 1,
+      "status": "status-value",
+      "quorumReady": true,
+      "allPeersReady": true,
+      "requestPeerReady": true,
+      "authentication": {
+        "id": "AQ",
+        "header": "X-JWT-TOKEN",
+        "clientId": "clientId-value",
+        "audience": "audience-value",
+        "discoveryUrl": "discoveryUrl-value",
+        "callbackUrl": "callbackUrl-value"
+      }
+    }
+  },
+  "AuthorityFormat": "YAML",
+  "PolicySourceRequest": {
+    "source": "id: example",
+    "format": "YAML"
+  },
+  "PolicyDraftRequest": {
+    "source": "id: example",
+    "format": "YAML",
+    "revision": 0
+  },
+  "PolicyPublishRequest": {
+    "revision": 1729000123456
+  },
+  "PolicyImportRequest": {
+    "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "revision": 0
+  },
+  "PolicySummary": {
+    "id": "AQ",
+    "type": "sign",
+    "version": "version-value",
+    "revision": 1729000123456,
+    "updatedAt": "2026-10-18T12:00:00Z"
+  },
+  "PolicyDraft": {
+    "id": "AQ",
+    "type": "sign",
+    "version": "version-value",
+    "source": "id: example",
+    "format": "YAML",
+    "revision": 1729000123456,
+    "updatedAt": "2026-10-18T12:00:00Z",
+    "updatedByIssuer": "updatedByIssuer-value",
+    "updatedBySubject": "updatedBySubject-value"
+  },
+  "PolicyPublicationState": "PENDING",
+  "PolicyVersion": {
+    "releaseId": "releaseId-value",
+    "id": "AQ",
+    "type": "sign",
+    "version": "version-value",
+    "format": "YAML",
+    "sourceDigest": "sourceDigest-value",
+    "registryUrl": "registryUrl-value",
+    "repository": "repository-value",
+    "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "state": "PENDING",
+    "createdAt": "2026-10-18T12:00:00Z",
+    "publishedAt": "2026-10-18T12:00:00Z",
+    "createdByIssuer": "createdByIssuer-value",
+    "createdBySubject": "createdBySubject-value",
+    "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "PolicyCapabilities": {
+    "verdictVersion": "verdictVersion-value",
+    "read": true,
+    "write": true,
+    "publish": true,
+    "registryConfigured": true,
+    "registryUrl": "registryUrl-value",
+    "repository": "repository-value",
+    "authorityTypes": [
+      "authorityTypes-value"
+    ],
+    "maxSourceBytes": 1
+  },
+  "PolicyIssue": {
+    "stage": "stage-value",
+    "message": "message-value"
+  },
+  "Authority": {
+    "schemaVersion": "verdict.authority/v1",
+    "id": "AQ",
+    "type": "sign",
+    "version": "version-value",
+    "metadata": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    },
+    "config": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    },
+    "policy": {
+      "custom": {
+        "values": [
+          1,
+          null,
+          "arbitrary value"
+        ],
+        "enabled": true
+      }
+    }
+  },
+  "PolicyValidation": {
+    "valid": true,
+    "verdictVersion": "verdictVersion-value",
+    "authority": {
+      "schemaVersion": "verdict.authority/v1",
+      "id": "AQ",
+      "type": "sign",
+      "version": "version-value",
+      "metadata": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      },
+      "config": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      },
+      "policy": {
+        "custom": {
+          "values": [
+            1,
+            null,
+            "arbitrary value"
+          ],
+          "enabled": true
+        }
+      }
+    },
+    "rootVariables": [
+      "rootVariables-value"
+    ],
+    "errors": [
+      {
+        "stage": "stage-value",
+        "message": "message-value"
+      }
+    ],
+    "warnings": [
+      "warnings-value"
+    ]
+  },
+  "PolicyTemplate": {
+    "id": "AQ",
+    "type": "sign",
+    "source": "id: example",
+    "documentation": "documentation-value"
+  },
+  "PolicyHelp": {
+    "verdictVersion": "verdictVersion-value",
+    "documentation": "documentation-value",
+    "rootVariables": {
+      "sample": [
+        "sample-value"
+      ]
+    }
+  },
+  "PolicySource": {
+    "source": "id: example",
+    "format": "YAML"
+  },
+  "RegistryPolicy": {
+    "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "source": {
+      "source": "id: example",
+      "format": "YAML"
+    }
+  },
+  "PolicySummaryPage": {
+    "items": [
+      {
+        "id": "AQ",
+        "type": "sign",
+        "version": "version-value",
+        "revision": 1729000123456,
+        "updatedAt": "2026-10-18T12:00:00Z"
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "PolicyVersionPage": {
+    "items": [
+      {
+        "releaseId": "releaseId-value",
+        "id": "AQ",
+        "type": "sign",
+        "version": "version-value",
+        "format": "YAML",
+        "sourceDigest": "sourceDigest-value",
+        "registryUrl": "registryUrl-value",
+        "repository": "repository-value",
+        "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "state": "PENDING",
+        "createdAt": "2026-10-18T12:00:00Z",
+        "publishedAt": "2026-10-18T12:00:00Z",
+        "createdByIssuer": "createdByIssuer-value",
+        "createdBySubject": "createdBySubject-value",
+        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "nextCursor": "nextCursor-value"
+  },
+  "RegistryTagsPage": {
+    "items": [
+      "items-value"
+    ],
+    "nextCursor": "nextCursor-value"
+  }
+}

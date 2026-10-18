@@ -14,8 +14,19 @@ The recovery plan must account for:
 | TLS and trust material | public/internal API identity and peer connectivity |
 | Audit integrity public keys | verification of retained audit events across integrity-key versions |
 | Authority artifacts | exact digest-pinned policy and intent documents referenced by identities |
+| Approvers registry | immutable credential versions, metadata revisions, and key uniqueness indexes in `cf_approvers` |
 
 Back up each peer independently. Do not collect enough peer databases, unseal shares, or seal credentials into one backup account or location to defeat the threshold and seal boundaries.
+
+Full peer database snapshots include that peer's Approvers replica and its integrity keys,
+WebAuthn registration state, signed preparations, certificates and durable replication outbox.
+Registration and metadata changes require every current member before API success. Surviving
+members can finish delivery of a complete confirmation after writer failure; partially signed
+reservations retain their protective locks after TTL. Check exact refs, metadata revisions,
+runtime observations, sessions and uniqueness conflicts after restoring.
+
+ECC and PQC share recovery also restore the core Approvers registry from agreeing healthy
+helpers. This does not replace backups of peer identity, integrity keys, TLS or seal state.
 
 ## Snapshot rules
 
@@ -70,11 +81,16 @@ artifact and run that artifact on every helper and target only for the repair wi
 - The operator has selected a sorted list of exactly `threshold` healthy helper peer ids.
 - The target peer id is not in the helper list.
 - The helpers agree on the complete key history and have no pending state for the key.
+- The helpers have no uncommitted Approvers preparations and agree on the registry
+  snapshot, including metadata, runtime, registration sessions and certificates at a shared cutoff.
 - Public TLS, internal mTLS with client authentication, outbound client mTLS, and a distinct
   `tls-spki-sha256` pin for every peer are configured.
 - Initialization, database identity, integrity, TLS, and seal state are intact on the target.
 
 Legacy unversioned generation zero is outside the recovery boundary.
+
+Certified Approvers commits remain recoverable with pending delivery queues. These queues are
+local retry state and are not copied to the recovery target.
 
 ### Run recovery
 
@@ -83,7 +99,7 @@ Legacy unversioned generation zero is outside the recovery boundary.
 3. Restart each participant with recovery mode enabled:
 
    ```bash
-   java -Dkeeper.recovery=true -jar build/libs/tkeeper-2.6.0.jar
+   java -Dkeeper.recovery=true -jar build/libs/tkeeper-3.0.0.jar
    ```
 
 4. Unseal the keepers if required and confirm health and status.
@@ -112,7 +128,8 @@ Legacy unversioned generation zero is outside the recovery boundary.
 9. Replace the maintenance artifact on every participant and restart with
    `keeper.recovery=false`. Do not return the recovery-capable artifact to normal service.
 10. Verify historical inventory, current generation, public keys, owner and expiration indexes,
-   destroyed generations, and a normal signing operation.
+   destroyed generations, exact Approver refs/revisions, WebAuthn runtime and uniqueness conflicts,
+   and a normal signing operation.
 
 The endpoint requires the operator-provided helper list. It does not discover or replace helpers.
 If a selected helper is missing or has conflicting key state, the request fails before target writes.
@@ -128,6 +145,14 @@ does it replace all local state for that logical key in one database transaction
 - destroy markers;
 - ECC commitments or ML-DSA public keys and recovery commitments; and
 - derived owner and expiration indexes.
+
+In the same transaction, the target replaces its global Approvers registry using the validated
+helper snapshot: immutable versions, metadata revisions, both uniqueness indexes, WebAuthn
+runtime, completed/active registration sessions and commit certificates. Restored data is signed
+with the target's integrity key. Helpers with unresolved preparations refuse export; certified
+commits remain exportable while their local delivery queues are pending. Those queues stay local;
+disagreement fails recovery before target writes. A failure during key installation rolls back
+the registry replacement too. Per-key cleanup alone does not clear the global registry.
 
 Target-local pending, missing, stale, or conflicting records for the key are discarded. A failure
 inside the replacement transaction rolls back the reset and install together. Prefix-adjacent key

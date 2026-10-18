@@ -1,28 +1,19 @@
 # For AI
 
-TKeeper lets an agent host discover permitted identities and request signatures through MCP. An authority document limits what each identity can sign. The system that performs the action verifies the signature before acting.
+Connect an AI agent to TKeeper through MCP using [TKeeper Hub](https://tkeeper.org/hub).
+Keeper's authority policies govern what each identity may sign. The system that performs
+an action verifies the returned signature before acting.
 
-## MCP
-
-Build the `mcp` feature with the authority modules the agent needs:
+Build the authority modules the workflow needs:
 
 ```sh
-./gradlew shadowJar -Pkeeper.features=mcp,agentic-payments,digital-assets -Pkeeper.platforms=ecc
+./gradlew shadowJar -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
 ```
 
-`POST /mcp` serves [MCP `2026-07-28`](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/basic/transports/streamable-http.mdx) over Streamable HTTP. It uses the public Keeper server's authentication. The agent host supplies its Keeper token; the model does not need the token. The endpoint supports `server/discover`, `tools/list`, and `tools/call`.
+The core identity catalog exposes the caller's permitted signing keys and their command
+schemas. See [MCP through TKeeper Hub](../ai/mcp.md) for the integration boundary and Keeper APIs.
 
-| Tool | Permission | Use |
-| --- | --- | --- |
-| `identity.list`, `identity.describe_authority` | `tkeeper.key.<keyId>.sign` | Find active cryptographic identities and their command schemas |
-| `utility.keeper_status` | `tkeeper.system.status` | Check readiness |
-| `utility.get_public_key` | `tkeeper.key.<keyId>.public` | Read a public key |
-| `utility.verify_signature` | `tkeeper.key.<keyId>.verify` | Verify a command signature |
-| `action.sign`, `action.compose` | `tkeeper.key.<keyId>.sign` | Sign; compose a credential or transaction when supported |
-
-The tool list reflects the token's permissions. Every call checks permission again for its target key. `identity.describe_authority` returns `metadata.description` and a JSON Schema for the command. The schema describes valid input; the authority policy decides whether that input is allowed. See [MCP connection and tools](../ai/mcp.md) for setup and the full tool list.
-
-## Govern an MCP action
+## Govern an action
 
 This authority permits one agent identity to authorize a restart of `billing-api` in production:
 
@@ -57,17 +48,32 @@ policy:
         - "effect.one(effects, 'service.restart')"
 ```
 
-Attach the authority to the signing key through a digest-pinned OCI reference. Give the agent host `tkeeper.key.<keyId>.sign` only for that key. It can call `identity.describe_authority` to inspect the command schema, then submit:
+Attach the authority to the signing key through a digest-pinned OCI reference. Give the agent host `tkeeper.key.<keyId>.sign` only for that key. It can inspect the command schema through the identity catalog, then submit:
 
 ```http
-POST /mcp HTTP/1.1
+POST /v2/keeper/sign HTTP/1.1
 Content-Type: application/json
-MCP-Protocol-Version: 2026-07-28
-Mcp-Method: tools/call
-Mcp-Name: action.sign
 X-JWT-TOKEN: <raw-jwt>
 
-{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"action.sign","arguments":{"keyId":"agent-billing","command":{"type":"custom","authorityId":"billing-api-restart","artifact":{"scheme":"ECDSA","hash":"SHA256","typed":{"operation":"restart","service":"billing-api","environment":"production","changeId":"CHG-42","nonce":"n-123","expiresAt":"2030-01-02T03:04:05Z"}}}},"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}
+{
+  "keyId": "agent-billing",
+  "command": {
+    "type": "custom",
+    "authorityId": "billing-api-restart",
+    "artifact": {
+      "scheme": "ECDSA",
+      "hash": "SHA256",
+      "typed": {
+        "operation": "restart",
+        "service": "billing-api",
+        "environment": "production",
+        "changeId": "CHG-42",
+        "nonce": "n-123",
+        "expiresAt": "2030-01-02T03:04:05Z"
+      }
+    }
+  }
+}
 ```
 
 The restart service verifies the signature against `agent-billing` and the exact typed command, checks `expiresAt` and consumes `nonce` once. The policy limits the service and environment; the backend enforces replay protection. Changes to the fields, effect mapping, or policy require a new authority digest. Add [four-eye approval](../security-model/four-eye-control.md) to the rule when a person must approve the restart. The action must have no path around the verifying service.

@@ -109,7 +109,7 @@ policy:
     allowedEnvironments: [production]
     requiredRoles: [release-manager, production]
     allowedCidrs: ["10.20.0.0/16", "fd00:20::/48"]
-    minimumReleaseVersion: "2.6.0"
+    minimumReleaseVersion: "3.0.0"
     maximumRiskScore: "0.25"
     minimumSequence: "10000000000000000000"
     maximumWindowSeconds: 300
@@ -177,7 +177,7 @@ For a concrete authority, the sign command must reference an authority attached 
         "action": "deploy",
         "service": "billing-api",
         "environment": "production",
-        "releaseVersion": "2.6.0",
+        "releaseVersion": "3.0.0",
         "sequence": 10000000000000000001,
         "riskScore": 0.20,
         "roles": ["release-manager", "production"],
@@ -240,7 +240,7 @@ Example effect:
   "action": "deploy",
   "service": "billing-api",
   "environment": "production",
-  "version": "2.6.0",
+  "version": "3.0.0",
   "sequence": 10000000000000000001
 }
 ```
@@ -313,7 +313,8 @@ Decision order:
 
 ### Policy-driven approval groups
 
-Declare named approver keys once and reference their names from allow rules:
+Declare approvers under local aliases and select those aliases from allow rules. Each entry
+can contain an inline signature key or an exact [registry ref](../api-reference/approvers.md):
 
 ```yaml
 policy:
@@ -344,6 +345,23 @@ policy:
 
 Both groups apply when both rules match. Every group receives the same signed request hash and all proofs travel in one `approvals.proofs` array.
 
+To use a registered credential, replace an inline entry with its complete ref:
+
+```yaml
+approvers:
+  operator-a:
+    ref: "alice@sha256:<digest returned by registration>"
+```
+
+The alias remains `operator-a` in the rule. The ref pins the credential and its SIGNATURE or
+WEBAUTHN method. Metadata filters and bare ids cannot select approvers. Every participant
+resolves all declared refs, including aliases unused by the current rules, before activating
+the generation. Inline entries may include `id`; older artifacts without it use the map alias.
+
+Registering another credential under the same id or editing registry metadata does not change
+this authority. Publish a new OCI artifact and use REFRESH/ROTATE under the current key policy
+to change a pinned ref. Historical generations retain their authorities and refs.
+
 Conditional fallback:
 
 ```yaml
@@ -369,7 +387,8 @@ Approval validation:
 - one group may select at most 256 approvers
 - declared algorithms must exist in the runtime artifact
 - public keys must decode under their declared algorithms
-- public key material must be distinct across named approvers
+- refs must resolve to intact descriptors with the expected digest on every participant
+- public key material must be distinct across aliases, including inline entries and resolved refs
 
 Key-bound and policy-bound groups share the same request format, hash, proof array, timestamp, and nonce. Combined enforcement requires every group from both sources. See [Four Eye Control](../security-model/four-eye-control.md) for the signed request format and replay rules.
 

@@ -52,4 +52,4 @@ Attach the [authority document](../../integration-tests/src/testFixtures/resourc
 }
 ```
 
-Submit it to `POST /v2/keeper/sign` or through `action.sign` on MCP. The executing service verifies the signature against the expected key and exact command, then enforces its own ticket state and replay rules. Add target, environment, expiry, and nonce fields when they affect the action. The backend must not act on undeclared fields. [Typed signing material](../signing-and-authorities/arbitrary-and-typed.md#typed-json-signing-material) defines the byte representation used for verification.
+Submit it to `POST /v2/keeper/sign`. The executing service verifies the signature against the expected key and exact command, then enforces its own ticket state and replay rules. Add target, environment, expiry, and nonce fields when they affect the action. The backend must not act on undeclared fields. [Typed signing material](../signing-and-authorities/arbitrary-and-typed.md#typed-json-signing-material) defines the byte representation used for verification.

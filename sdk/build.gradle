@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = findProperty('releaseVersion') ?: '2.6.0'
+version = findProperty('releaseVersion') ?: '3.0.0'
 
 def projectName = "TKeeper SDK"
 def projectDescription = "API client for TKeeper in Java"
@@ -103,7 +103,7 @@ signing {
         useInMemoryPgpKeys(decodedSigningKey, providers.gradleProperty('signingPassword').orNull)
     }
 
-    required {
+    required = {
         gradle.taskGraph.allTasks.any { task ->
             task.name.toLowerCase(Locale.ROOT).contains('publish') ||
                     task.name.toLowerCase(Locale.ROOT).contains('sign')

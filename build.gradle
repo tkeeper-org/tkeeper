@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'java-test-fixtures'
     id 'org.jetbrains.kotlin.jvm' version '2.4.20'
     id 'com.gradleup.shadow' version '9.4.1'
     id 'com.google.devtools.ksp' version '2.3.10'
@@ -8,7 +9,7 @@ plugins {
 def mainClassName = 'org.exploit.keeper.TKeeperKt'
 
 group = 'org.exploit'
-version = '2.6.0'
+version = '3.0.0'
 
 repositories {
     mavenCentral()
@@ -36,8 +37,13 @@ def alignedRuntimeVersions = [
         'com.google.j2objc:j2objc-annotations'             : '3.1',
         'com.google.protobuf:protobuf-java'               : '4.36.0',
         'com.google.protobuf:protobuf-java-util'          : '4.36.0',
+        'com.upokecenter:cbor'                            : '4.5.6',
         'commons-codec:commons-codec'                     : '1.22.1',
         'org.apache.httpcomponents:httpclient'            : '4.5.14',
+        // Yubico's version ranges otherwise select HttpClient/Core alpha and beta releases.
+        'org.apache.httpcomponents.client5:httpclient5'   : '5.6.4',
+        'org.apache.httpcomponents.core5:httpcore5'       : '5.4.4',
+        'org.apache.httpcomponents.core5:httpcore5-h2'    : '5.4.4',
         // t-mldsa:0.3.1 still uses org.bouncycastle.pqc.crypto.mldsa, removed in 1.86.
         'org.bouncycastle:bcprov-jdk18on'                 : '1.85.2',
         'org.jetbrains.kotlin:kotlin-reflect'             : '2.4.20',
@@ -96,6 +102,13 @@ allprojects {
     }.configureEach {
         resolutionStrategy.eachDependency { details ->
             def requested = details.requested
+
+            // BitcoinJ fixtures request the same provider packages under another artifact id.
+            if (requested.group == 'org.bouncycastle' && requested.name == 'bcprov-jdk15to18') {
+                details.useTarget("org.bouncycastle:bcprov-jdk18on:${alignedRuntimeVersions['org.bouncycastle:bcprov-jdk18on']}")
+                return
+            }
+
             def version = alignedRuntimeVersions["${requested.group}:${requested.name}"]
 
             if (requested.group == 'io.netty' && requested.name.startsWith('netty-')) {
@@ -120,7 +133,6 @@ def featureModules = [
         'features:digital-assets:solana'  : 'keeper.feature.digital-assets.solana',
         'features:authority-x509'         : 'keeper.feature.authority.x509',
         'features:ecies'                  : 'keeper.feature.ecies',
-        'features:ui'                     : 'keeper.feature.ui',
         'features:agentic-payments:ap2'   : 'keeper.feature.agentic-payments.ap2',
         'features:agentic-payments:mc-vi' : 'keeper.feature.agentic-payments.mc-vi'
 ]
@@ -129,7 +141,6 @@ def explicitFeatureModules = [
         'features:auth-dev'          : 'keeper.feature.auth.dev',
         'features:mandate'           : 'keeper.feature.mandate',
         'features:dry-run'           : 'keeper.feature.dry-run',
-        'features:mcp'               : 'keeper.feature.mcp',
         'features:recovery'          : 'keeper.feature.recovery',
 ]
 
@@ -290,6 +301,8 @@ dependencies {
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
+    testImplementation project(':platform-ecc')
+    testFixturesImplementation 'com.upokecenter:cbor'
 
     api 'com.fasterxml.jackson.module:jackson-module-kotlin'
     api 'org.msgpack:jackson-dataformat-msgpack:0.9.12'
@@ -311,21 +324,23 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.2.1'
+    api 'org.exploit.verdict:core:0.3.0-SNAPSHOT'
 
-    api 'org.exploit.verdict:authority:0.2.1'
-    api 'org.exploit.verdict:authority-oci:0.2.1'
+    api 'org.exploit.verdict:authority:0.3.0-SNAPSHOT'
+    api 'org.exploit.verdict:authority-oci:0.3.0-SNAPSHOT'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
     api 'com.nimbusds:nimbus-jose-jwt:10.2'
 
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
+    implementation 'com.yubico:webauthn-server-core:2.10.1'
+    implementation 'com.upokecenter:cbor'
 
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit.verdict:typed:0.2.1'
+    implementation 'org.exploit.verdict:typed:0.3.0-SNAPSHOT'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
@@ -375,6 +390,40 @@ dependencies {
     productionTestRuntime project(path: ':platform-ecc', configuration: 'shadowRuntimeElements')
 }
 
+def canonicalRuntimeClasses = {
+    def groups = ['com.google.guava', 'com.upokecenter', 'com.github.peteroupc', 'com.yubico',
+                  'org.bouncycastle', 'org.slf4j']
+    def dependencies = configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.findAll {
+        def group = it.moduleVersion.id.group
+        group in groups || group.startsWith('com.fasterxml.jackson.') ||
+                group.startsWith('org.apache.httpcomponents')
+    }
+    def classes = [:]
+
+    dependencies.each { artifact ->
+        new java.util.zip.ZipFile(artifact.file).withCloseable { dependency ->
+            dependency.entries().findAll {
+                it.name.endsWith('.class') && !it.name.endsWith('module-info.class')
+            }.each { entry ->
+                classes[entry.name] = [dependency: artifact.moduleVersion.id.toString(),
+                                       bytes: dependency.getInputStream(entry).withCloseable { it.readAllBytes() }]
+            }
+        }
+    }
+
+    classes
+}.memoize()
+
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configureEach {
+    // Embedded Jettyx/Signalix copies must not win over the resolved SLF4J API.
+    filesMatching('org/slf4j/**/*.class') { details ->
+        def expected = canonicalRuntimeClasses()[details.path]
+        if (expected == null || !java.util.Arrays.equals(expected.bytes, details.file.bytes)) {
+            details.exclude()
+        }
+    }
+}
+
 tasks.named('shadowJar') {
     archiveBaseName.set('tkeeper')
     archiveClassifier.set(nativeTarget == 'all' ? '' : nativeTarget)
@@ -384,7 +433,7 @@ tasks.named('shadowJar') {
             project.configurations.productionFeatureRuntime
     ]
 
-    zip64 true
+    zip64 = true
     manifest { attributes 'Main-Class': mainClassName }
 
     mergeServiceFiles()
@@ -499,7 +548,7 @@ tasks.register('shadowJarIntegration', com.github.jengelman.gradle.plugins.shado
             project.configurations.integrationFeatureRuntime
     ]
 
-    zip64 true
+    zip64 = true
     manifest { attributes 'Main-Class': mainClassName }
 
     mergeServiceFiles()
@@ -530,7 +579,7 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
             project.configurations.productionTestRuntime
     ]
 
-    zip64 true
+    zip64 = true
     manifest { attributes 'Main-Class': mainClassName }
 
     mergeServiceFiles()
@@ -559,7 +608,6 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
-                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
@@ -579,9 +627,31 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
     }
 }
 
+def verifyBundledRuntimeDependencies = { java.util.zip.ZipFile archive ->
+    canonicalRuntimeClasses().each { name, expected ->
+        def bundled = archive.getEntry(name)
+        if (bundled == null) {
+            throw new GradleException("${archive.name} is missing ${expected.dependency}: $name")
+        }
+
+        def actual = archive.getInputStream(bundled).withCloseable { it.readAllBytes() }
+        if (!java.util.Arrays.equals(expected.bytes, actual)) {
+            throw new GradleException("${archive.name} contains conflicting ${expected.dependency}: $name")
+        }
+    }
+}
+
+tasks.named('shadowJar') {
+    doLast {
+        new java.util.zip.ZipFile(archiveFile.get().asFile).withCloseable {
+            verifyBundledRuntimeDependencies(it)
+        }
+    }
+}
+
 tasks.register('artifactIsolationTest') {
     group = 'verification'
-    description = 'Verifies module boundaries of the production transport test and integration jars.'
+    description = 'Verifies module boundaries and bundled dependency classes in production test and integration jars.'
 
     dependsOn tasks.named('shadowJarProductionTest'), tasks.named('shadowJarIntegration')
 
@@ -598,7 +668,6 @@ tasks.register('artifactIsolationTest') {
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
-                'mcp'              : 'org/exploit/keeper/mcp/controller/McpController.class',
                 'failure-injection': 'org/exploit/keeper/module/failure/FailureInjectionController.class',
                 'recovery'         : 'org/exploit/keeper/controller/external/RecoveryController.class',
                 'recovery-ecc'     : 'org/exploit/keeper/module/recovery/ecc/service/ECCRecoveryService.class',
@@ -611,6 +680,9 @@ tasks.register('artifactIsolationTest') {
         def integrationZip = new java.util.zip.ZipFile(integrationJar)
 
         try {
+            verifyBundledRuntimeDependencies(productionZip)
+            verifyBundledRuntimeDependencies(integrationZip)
+
             markers.each { name, entry ->
                 if (productionZip.getEntry(entry) != null) {
                     throw new GradleException("Production transport test jar contains $name marker: $entry")

@@ -36,13 +36,27 @@ An allowed request returns:
 }
 ```
 
-When approvals are needed, the verdict is `ALLOW_WITH_REQUIREMENTS`. Each requirement group contains its threshold, approver public keys, and policy details when available. All groups must be satisfied. A denied request returns the existing authorization or policy error and no mandate. Issuance does not consume the operation's approval nonce or execute the operation.
+When approvals are needed, the verdict is `ALLOW_WITH_REQUIREMENTS`. Each requirement group
+contains `threshold`, resolved public `keys` with WebAuthn parameters where applicable, and
+policy `details` when available. Registry refs have already been resolved in this response.
+All groups must be satisfied. A denied request returns the existing authorization or policy
+error and no mandate. Issuance does not consume the operation's approval nonce or execute it.
+
+Successful issuance includes `X-EXPIRES-AT`, the mandate deadline in Unix seconds. The JSON
+`expiresAt` field remains in milliseconds. Retrying execution does not extend either deadline.
+An operation with approvals must also fit its separate approval window.
 
 ## Execute the operation
 
 Submit the normal operation body to its existing endpoint with `X-KEEPER-MANDATE: <opaque token>`. Use only the mandate credential for that request. Add the required approval envelope to the body before execution.
 
 The signed scope includes the operation type, key ID, exact permission, and a hash of all semantic operation fields. The approval envelope is excluded so proofs can be collected after issuance. Current policies and every required approval group are checked again before admission.
+
+For WebAuthn, call `POST /v1/keeper/approvals/prepare` with the primary JWT and the operation's
+permission, then attach the returned binding and browser assertion to the operation. The mandate
+cannot authorize preparation or registry endpoints. Execute the completed operation with the
+mandate credential. Failed approval checks leave it available for a corrected submission; the
+mandate's lifetime and attempt rules still apply. See [WebAuthn approvals](../../docs/security-model/four-eye-control.md#webauthn-approvals).
 
 The mandate also binds its actor, coordinator, execution nonce, lifetime, and attempt budget. DKG mandates bind one target generation. Issuance requires consistent DKG state without a pending generation; execution does not perform implicit consistency repair.
 

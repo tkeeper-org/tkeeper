@@ -10,7 +10,7 @@ Read:
 - [Sealing and Unsealing](sealing-unsealing.md)
 - [Clustering](clustering.md)
 - [Backup and Recovery](backup-and-recovery.md)
-- [Control Plane UI](control-plane-ui.md)
+- [Control-plane clients](control-plane-ui.md)
 - [Production Checklist](production-checklist.md)
 
 ## Deployment shapes

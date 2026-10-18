@@ -11,6 +11,8 @@ TKeeper supports:
 - key lifecycle operations: DKG, import, refresh, rotate, destroy
 - authority-based signing commands
 - four-eye control for supported operations
+- replicated signature and WebAuthn approver registry with immutable policy references
+- core runtime configuration and permitted signing identity catalog
 - signed audit records and audit sink enforcement
 - build-time feature selection
 - build-time cryptographic platform selection
@@ -65,6 +67,18 @@ Policy can be bypassed when:
 Cryptographic validity alone does not establish business validity, freshness, or replay safety. The verifier must accept the expected key, validate the exact governed payload, and enforce any nonce, expiry, environment, or idempotency rules required by the action.
 
 ## Operational limits
+
+Approver registration, WebAuthn enrollment and metadata writes require every current member
+to be ready and persist the result. One unavailable member stops these writes even when enough
+peers remain for signing. A failed write can leave durable preparations or delivery work; expiry
+does not release protective locks on a partially signed proposal. Retry an identical registration
+after recovery and reconcile metadata revisions before replacing them. See
+[registry persistence](../api-reference/approvers.md#persistence).
+
+Existing policies resolve exact refs locally, so signing does not require the registry writer.
+WebAuthn proofs do not establish that different credentials belong to different people, and
+assertion counters are not used for clone detection. Credential assignment and human identity
+checks belong to the registrar.
 
 Threshold cryptography adds distributed-system failure modes:
 

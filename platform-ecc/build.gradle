@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '2.6.0'
+version = '3.0.0'
 
 repositories {
     mavenCentral()
@@ -25,6 +25,7 @@ dependencies {
     testImplementation 'io.kotest:kotest-property:6.1.11'
     testImplementation 'com.code-intelligence:jazzer-junit:0.30.0'
     testImplementation(project(':'))
+    testImplementation(testFixtures(project(':')))
     compileOnly(project(':'))
 
     api 'org.exploit.anvil:ecc-secp256k1:0.3.1'

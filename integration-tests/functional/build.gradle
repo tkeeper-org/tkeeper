@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '2.6.0'
+version = '3.0.0'
 
 repositories {
     mavenCentral()
@@ -20,6 +20,7 @@ repositories {
 dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation testFixtures(project(':integration-tests'))
+    testImplementation testFixtures(project(':'))
 }
 
 kotlin {
