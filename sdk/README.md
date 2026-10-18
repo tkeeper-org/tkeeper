@@ -1,6 +1,7 @@
 # TKeeper Java SDK
 
-The SDK provides a typed client for the TKeeper HTTP API and requires Java 17 or newer.
+Use TKeeper from Java to sign governed commands and manage the keys behind your application's identities.
+The client connects to Keeper nodes or [TKeeper Hub](https://tkeeper.org/hub). Requires Java 17 or newer.
 
 ## Dependency
 
@@ -20,7 +21,7 @@ Gradle:
 implementation 'org.exploit:tkeeper-sdk:2.6.0'
 ```
 
-## Client
+## Connect to Keeper
 
 Use JWT authentication outside local development:
 
@@ -42,6 +43,49 @@ try (var keeper = new TKeeperClient(
 in `features`, sorted supported authority types in `authorities`, and `sealProvider`.
 It requires authentication without an additional permission and
 works on an initialized sealed Keeper.
+
+## TKeeper Hub
+
+Use [TKeeper Hub](https://tkeeper.org/hub) to coordinate approvals between your service and the people
+who review its requests. Your service can submit a signing request, store its operation ID and return
+to it after approvals arrive.
+
+Connect to your Hub deployment's origin with an SSO access JWT. The example below uses an existing key
+and an `AuthorityCommand`, such as the one in [Governed typed signing](#governed-typed-signing).
+
+```java
+import org.exploit.tkeeper.sdk.TKeeperClient;
+import org.exploit.tkeeper.sdk.auth.JwtTokenAuth;
+import org.exploit.tkeeper.sdk.model.hub.signature.SubmitSignatureRequest;
+
+try (var client = new TKeeperClient("https://hub.example", new JwtTokenAuth(accessJwt))) {
+    var hub = client.hub();
+    var submitted = hub.signatures().sign(
+            new SubmitSignatureRequest(keyId, command),
+            idempotencyKey
+    );
+
+    if (submitted.operation() != null) {
+        var operation = submitted.operation();
+        System.out.println(operation.operationId() + ": " + operation.state());
+    } else {
+        System.out.println(submitted.result().signature64());
+    }
+}
+```
+
+A completed signing call returns its signature in `result()`. When approval is required, HTTP 202
+returns a saved operation in `operation()`. Read `hub.approvals().getApprovalStatus(operationId).body()` to
+find which approvals are still needed. Once those requirements are met, the request owner can call
+`hub.operations().executeOperation(operationId)`. Check the returned operation state: an execution
+failure can be reported in an HTTP 200 response.
+
+Choose an idempotency key for each business request and keep it with that request. Reuse it only for
+the same action and payload. Signing, composition, refresh, rotation and destruction require it.
+After an unknown transport outcome, check the operation journal before submitting again.
+
+Use `hub.keys()` to manage keys and `hub.policies()` to work with authority drafts and releases.
+The [Hub API guide](HUB.md) describes the other resources and how to follow operation updates over SSE.
 
 ## Governed typed signing
 
@@ -116,6 +160,7 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `expire()` | expiration indexes |
 | `audit()` and `integrity()` | audit verification and integrity-key rotation |
 | `controlPlane()` | control-plane reads |
+| [`hub()`](HUB.md) | signing and approval workflows through Hub, with a saved operation journal |
 
 Feature-specific calls fail when the server artifact does not include the required feature or cryptographic platform.
 
@@ -166,7 +211,8 @@ Audit `ApprovalRequirement.approvers` values decode as `Approver` or
 When reading `fourEye.keys()` or `ApprovalRequirement.approvers()`, check the entry type
 before accessing inline key fields. Existing inline constructors and policy builders remain available.
 
-For a WebAuthn hub, obtain standard browser creation options and finish with browser credential JSON:
+For a browser application connected directly to Keeper, obtain creation options and finish with
+the browser's credential JSON. Hub invitations use the flow in the [Hub API guide](HUB.md#approvers-and-deadlines).
 
 ```java
 var options = client.approvers().webAuthnRegistrationOptions(
@@ -185,11 +231,12 @@ additional registry permission. The public
 `registrationId()` is only a session identifier. Identical finish retries return the same record;
 another response cannot reuse the invitation. Returned credentials decode as `SignatureCredential`
 or `WebAuthnApproverCredential`.
-Configure `keeper.webauthn` on the cluster for the hub's RP ID and exact frontend origins.
+Configure `keeper.webauthn` on the cluster for the browser application's RP ID and exact frontend origins.
 
 ## Errors
 
-Non-success responses throw `TKeeperException`. Branch on the stable `ErrorType`; use `details` only for diagnostics.
+Direct Keeper calls throw `TKeeperException` for HTTP failures. Branch on the stable `ErrorType`;
+use `details` only for diagnostics.
 
 | Error family | Handling |
 | --- | --- |
@@ -201,6 +248,11 @@ Non-success responses throw `TKeeperException`. Branch on the stable `ErrorType`
 
 Do not blindly retry policy, permission, or validation failures. Preserve `imposters` and `dead` as security and availability diagnostics.
 
+Hub HTTP failures throw `HubException`. Inspect its status and structured error body to decide how to
+handle the failure. `requiresSignIn()` identifies a Hub session that needs authentication; a forwarded
+Keeper 401 alone does not require a new Hub session. See [Hub errors](HUB.md#errors-and-tests).
+
 ## Contract
 
-[OpenAPI](../openapi.yaml) defines the routes and wire models. Report discrepancies between the SDK, server, and specification as API contract bugs.
+The [Keeper OpenAPI](../openapi.yaml) defines the node API's routes and wire models.
+The [Hub API guide](HUB.md) covers Hub responses, approval workflows and operation events.

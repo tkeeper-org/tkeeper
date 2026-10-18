@@ -1,17 +1,17 @@
 # For AI
 
-An agent host can discover permitted identities and request governed signatures through
-Keeper's HTTP API. The host holds the Keeper token. The system that performs an action
-verifies the returned signature before acting.
+Connect an AI agent to TKeeper through MCP using [TKeeper Hub](https://tkeeper.org/hub).
+Keeper's authority policies govern what each identity may sign. The system that performs
+an action verifies the returned signature before acting.
 
-Build the authority modules the host needs:
+Build the authority modules the workflow needs:
 
 ```sh
 ./gradlew shadowJar -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
 ```
 
-Use the core identity catalog to find keys the host may sign with and inspect their
-command schemas. See [Agent integration](../ai/mcp.md) for the endpoints.
+The core identity catalog exposes the caller's permitted signing keys and their command
+schemas. See [MCP through TKeeper Hub](../ai/mcp.md) for the integration boundary and Keeper APIs.
 
 ## Govern an action
 

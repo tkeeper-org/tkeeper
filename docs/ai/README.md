@@ -2,7 +2,7 @@
 
 | Task | Guide |
 | --- | --- |
-| Connect an agent host and discover permitted signing identities | [Agent integration](mcp.md) |
+| Connect an AI agent through MCP with TKeeper Hub | [MCP through TKeeper Hub](mcp.md) |
 | Sign AP2 payment credentials | [AP2 authority](agentic-payments/ap2.md) |
 | Sign MC Intent payment credentials | [MC Intent authority](agentic-payments/mcintent.md) |
 | Apply Keeper to an AI workflow | [For AI](../use-cases/for-ai.md) |

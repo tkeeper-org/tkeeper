@@ -164,9 +164,8 @@ Build the dry-run endpoint explicitly in the same way:
 ./gradlew :build -Pkeeper.features=dry-run -Pkeeper.platforms=ecc
 ```
 
-The bundled UI and MCP endpoint have been removed. The `ui` and `mcp` selectors are
-no longer supported. External clients can use the core [configuration and identity
-catalog APIs](../api-reference/configuration.md).
+Use [TKeeper Hub](https://tkeeper.org/hub) to connect AI agents through MCP. Hub runs
+separately from Keeper and uses its core [configuration and identity catalog APIs](../api-reference/configuration.md).
 
 ## Selection properties
 
