@@ -79,6 +79,30 @@ The scenario starts a production-TLS cluster, creates ECC and ML-DSA histories, 
 different ways, restarts all five keepers in recovery mode, repairs both peers from three explicitly
 selected healthy helpers, restarts in normal mode, and verifies state and signing.
 
+Run the registry, enrollment and reference-policy cases with:
+
+```bash
+./gradlew :integration-tests:functional:test \
+  --tests 'org.exploit.test.functional.ApproversTests' \
+  --tests 'org.exploit.test.functional.WebAuthnApproversTests' \
+  --tests 'org.exploit.test.functional.ApproverReferenceTests' \
+  --tests 'org.exploit.test.functional.ApproverProtocolFailureTests' \
+  --tests 'org.exploit.test.functional.ApproverPromotionTests' \
+  --tests 'org.exploit.test.functional.ApprovalExpirationTests'
+```
+
+These cases cover permission and method substitution, invitation reuse, peer disagreement,
+missing descriptors, actual deadline expiry, competing requests, and durable state after restarts.
+The protocol suite holds follower PREPARE and receipt collection at explicit barriers. It checks
+that signing and reads continue while a registry write waits, and that fully prepared enrollment
+can commit after the writer stops and the challenge and JWT expire. Partial preparations retain
+their protective locks; the test does not treat expiry as permission to commit them.
+
+`FourEyeWebAuthnTests` covers assertion verification and replay across signing, decrypt and
+lifecycle operations. `MandateTests` covers primary-authenticated preparation followed by mandate
+execution. The WebAuthn fixtures simulate authenticators; browser UI and physical authenticator
+behavior need separate checks.
+
 Run the deterministic property and fuzz-seed regressions for security-sensitive
 binary formats with:
 

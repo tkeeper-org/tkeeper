@@ -43,7 +43,7 @@ Example:
 java \
   -Dkeeper.config.location=/etc/tkeeper \
   -Dkeeper.dev.config.location=/etc/tkeeper \
-  -jar build/libs/tkeeper-2.6.0.jar
+  -jar build/libs/tkeeper-3.0.0.jar
 ```
 
 Minimal node config:
@@ -103,6 +103,16 @@ Common fields:
 | `keeper.mandate.max-ttl` | Maximum mandate lifetime; defaults to the smaller of `15m` and nonce retention |
 | `keeper.mandate.max-attempts` | Maximum protocol attempts per mandate; defaults to `12`, range `1` to `1024` |
 | `keeper.session.*` | DKG, FROST, GG20, ML-DSA, ECIES, destroy session limits |
+
+WebAuthn registration requires the ECC platform's P256 provider. Configure the RP ID and exact
+frontend origins consistently on every peer; they describe the approval frontend, not the Keeper
+API hostname. The [registration guide](../api-reference/approvers.md#register-webauthn-from-a-hub)
+contains a complete example.
+
+`keeper.webauthn.enabled` controls registration. Approval assertions use the RP ID, origins and
+credential parameters pinned in the key policy or registry descriptor. Disabling registration or
+changing its origins does not revoke existing approval credentials. Changing a pinned credential
+requires a new descriptor and REFRESH/ROTATE under the current policy.
 
 `keeper.nonce-ttl` must be strictly greater than `keeper.approval.ttl` and the internal
 authentication replay window of 60 seconds (a timestamp can be accepted up to 30 seconds

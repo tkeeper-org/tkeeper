@@ -82,8 +82,7 @@ policy:
 
 If both rules match, both approval groups must be satisfied. Requirements from a key-level `fourEye` policy are cumulative with authority-policy requirements; one approval payload can carry proofs for every group.
 
-With Verdict `0.3.0-SNAPSHOT`, TKeeper registers its registry approver subtype with the authority
-parser. Replace any inline entry above with `ref: "alice@sha256:<digest>"` to pin a registered
+Replace any inline entry above with `ref: "alice@sha256:<digest>"` to pin a registered
 SIGNATURE or WEBAUTHN credential. New inline entries can supply `id`; legacy immutable
 artifacts without it use their map alias. All declared refs, including reserves, must resolve on
 each participant before generation activation. Authority metadata never selects a dynamic group.
@@ -129,7 +128,17 @@ Approval payload:
 }
 ```
 
-At the coordinator boundary, the nonce is one-time and is consumed only after enough signatures verify. Consumed nonces are retained for `keeper.nonce-ttl` (12 hours by default), so a coordinator restart does not reopen the replay window. The approval timestamp must not be in the future and must fit `keeper.approval.ttl`. Nonce retention must be strictly longer than the approval lifetime; physical FIFO cleanup can occur later.
+At the coordinator boundary, the nonce is one-time and is consumed only after every required
+group has enough valid proofs. Consumed nonces are retained for `keeper.nonce-ttl` (12 hours
+by default), so a coordinator restart does not reopen the replay window. The approval timestamp
+must not be in the future and must fit `keeper.approval.ttl`. Nonce retention must be strictly
+longer than the approval lifetime; physical FIFO cleanup can occur later.
+
+Once the operation's approval requirements have been collected, responses include
+`X-EXPIRES-AT` on success and approval failure. It is the original approval deadline in Unix
+seconds: `(approvals.timestamp + keeper.approval.ttl) / 1000`, truncated to whole seconds.
+Repeated preparation or a corrected proof does not renew that window. An expired envelope
+needs a fresh nonce, timestamp and proofs. See [approval deadlines](../api-reference/configuration.md#approval-deadlines).
 
 Threshold protocol retries reuse the same approval. Non-coordinator peers therefore verify its signatures, approved request fields, and TTL without independently consuming the nonce. If the coordinator is compromised, it can replay an approval with those same fields only while it remains fresh; see the threat model.
 

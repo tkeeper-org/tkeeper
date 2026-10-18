@@ -11,14 +11,14 @@ Maven:
 <dependency>
   <groupId>org.exploit</groupId>
   <artifactId>tkeeper-sdk</artifactId>
-  <version>2.6.0</version>
+  <version>3.0.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'org.exploit:tkeeper-sdk:2.6.0'
+implementation 'org.exploit:tkeeper-sdk:3.0.0'
 ```
 
 ## Connect to Keeper
@@ -151,6 +151,7 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `storage()` | trusted-dealer import |
 | `quorum()` | mono-to-threshold promotion |
 | `destroy()` | generation destruction |
+| [`approvals()`](../docs/security-model/four-eye-control.md#webauthn-approvals) | prepare WebAuthn challenges for an exact operation |
 | [`approvers()`](../docs/api-reference/approvers.md) | core credential registry, exact versions, filters, and conditional metadata replacement |
 | [`mandate()`](../features/mandate/README.md) | authorize an operation for later execution |
 | `consistency()` | threshold consistency repair |
@@ -160,14 +161,29 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `expire()` | expiration indexes |
 | `audit()` and `integrity()` | audit verification and integrity-key rotation |
 | `controlPlane()` | control-plane reads |
+| `central()` | peer id, public key, ping and runtime configuration |
 | [`hub()`](HUB.md) | signing and approval workflows through Hub, with a saved operation journal |
 
 Feature-specific calls fail when the server artifact does not include the required feature or cryptographic platform.
+
+## Approvals
+
+`Approvals.proofs()` accepts `SignatureProof` for signature approvals and `WebAuthnProof` for browser
+assertions. Both implement `Proof` in `org.exploit.tkeeper.sdk.model.approval`. When migrating code
+that used `Approvals.Proof`, construct `new SignatureProof(fingerprint, signature64)`. Inspect each
+proof's type before accessing its signature or credential fields.
+
+For WebAuthn, `keeper.approvals().prepare(new PrepareApprovals(type, operationJson))` returns a
+signed binding and browser request options. Attach the browser assertion with
+`new WebAuthnProof(fingerprint, prepared.binding(), assertionJson)`. Preparation uses primary
+authentication and the enclosed operation's permission. Execution can use JWT or a previously
+issued mandate. See the [complete collection flow](../docs/security-model/four-eye-control.md#webauthn-approvals).
 
 ## Approvers
 
 ```java
 import org.exploit.tkeeper.sdk.model.approver.*;
+import java.util.List;
 import java.util.Map;
 
 var registered = keeper.approvers().register(new RegisterApprover(
@@ -206,10 +222,10 @@ FourEye permits `1 <= m <= n <= 256`, including `1 of 1` and `1 of n` with Signa
 An OCI authority's `policy.approvers` values likewise accept `{ref: "id@sha256:<digest>"}`.
 References pin the exact credential and approval method; metadata and new registrations do
 not change existing policies. Key policies can mix `Reference` and legacy `PublicKey` entries.
-Audit `ApprovalRequirement.approvers` values decode as `Approver` or
+`ApprovalRequirement.approvers()` values decode as `Approver` or
 `model.authority.RegistryApprover`; rules still select their manifest aliases.
 When reading `fourEye.keys()` or `ApprovalRequirement.approvers()`, check the entry type
-before accessing inline key fields. Existing inline constructors and policy builders remain available.
+before accessing inline key fields.
 
 For a browser application connected directly to Keeper, obtain creation options and finish with
 the browser's credential JSON. Hub invitations use the flow in the [Hub API guide](HUB.md#approvers-and-deadlines).

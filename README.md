@@ -29,6 +29,11 @@ TKeeper manages cryptographic identities for AI agents, services, and other auto
 
 Raw `arbitrary` signing has no intent policy and is disabled by default.
 
+[Four-eye control](docs/security-model/four-eye-control.md) accepts signature and WebAuthn
+proofs. Register credentials in the [core Approvers registry](docs/api-reference/approvers.md)
+and pin their exact refs in key or authority policies. A new credential version or metadata
+update does not replace an approver in an existing policy.
+
 ## What you can govern
 
 | Work | Guide |

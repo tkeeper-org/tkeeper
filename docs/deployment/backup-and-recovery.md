@@ -99,7 +99,7 @@ local retry state and are not copied to the recovery target.
 3. Restart each participant with recovery mode enabled:
 
    ```bash
-   java -Dkeeper.recovery=true -jar build/libs/tkeeper-2.6.0.jar
+   java -Dkeeper.recovery=true -jar build/libs/tkeeper-3.0.0.jar
    ```
 
 4. Unseal the keepers if required and confirm health and status.

@@ -68,6 +68,18 @@ Cryptographic validity alone does not establish business validity, freshness, or
 
 ## Operational limits
 
+Approver registration, WebAuthn enrollment and metadata writes require every current member
+to be ready and persist the result. One unavailable member stops these writes even when enough
+peers remain for signing. A failed write can leave durable preparations or delivery work; expiry
+does not release protective locks on a partially signed proposal. Retry an identical registration
+after recovery and reconcile metadata revisions before replacing them. See
+[registry persistence](../api-reference/approvers.md#persistence).
+
+Existing policies resolve exact refs locally, so signing does not require the registry writer.
+WebAuthn proofs do not establish that different credentials belong to different people, and
+assertion counters are not used for clone detection. Credential assignment and human identity
+checks belong to the registrar.
+
 Threshold cryptography adds distributed-system failure modes:
 
 - peers can be unavailable

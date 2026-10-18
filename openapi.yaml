@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: TKeeper API
-  version: 2.6.0
+  version: 3.0.0
   description: |
     TKeeper public HTTP API.
     JSON request bodies reject unknown properties and are limited to 10 MiB by the HTTP server.
@@ -23,7 +23,7 @@ tags:
     description: Shared signing and verification for AI, digital assets, PKI, and custom authorities.
   - name: Approvals
   - name: Approvers
-    description: Local versioned credential registry in the TKeeper core.
+    description: Versioned credential registry replicated across all current members in the TKeeper core.
   - name: Composition
     description: Signed digital asset transactions and agentic payment credentials; other types return a raw signature.
   - name: TrustedDealer
@@ -47,7 +47,7 @@ paths:
     get:
       tags: [System]
       operationId: getKeeperConfiguration
-      summary: Get quorum settings, loaded features and seal provider
+      summary: Get quorum settings, loaded features, authority types and seal provider
       description: |
         Requires primary authentication without an additional permission. Available after
         initialization, including while sealed or waiting for a promotion restart. Threshold
@@ -523,9 +523,14 @@ paths:
       responses:
         '204':
           description: Generation destroyed
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
         '299':
           description: Threshold destroy committed by quorum, but not all peers
           headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
             Warning:
               schema:
                 type: string
@@ -738,6 +743,9 @@ paths:
       responses:
         '200':
           description: Plaintext
+          headers:
+            X-EXPIRES-AT:
+              $ref: '#/components/headers/ExpiresAt'
           content:
             application/json:
               schema:
@@ -1094,6 +1102,82 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
+  /v1/keeper/control/identities:
+    get:
+      tags: [ControlPlane]
+      operationId: listIdentities
+      summary: List active identities the caller may sign with
+      description: |
+        Requires primary authentication and an initialized, unsealed Keeper. Includes only
+        active, untampered identities with key material and tkeeper.key.{keyId}.sign permission.
+        No inventory permission is required. The result does not authorize a command; signing
+        still evaluates the current authority, policy and approval requirements.
+      parameters:
+        - name: lastSeen
+          in: query
+          description: Key id returned as nextCursor by the previous page.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        '200':
+          description: Permitted signing identities
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum: [no-store]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityCatalogPage'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v1/keeper/control/identities/authority:
+    get:
+      tags: [ControlPlane]
+      operationId: describeAuthority
+      summary: Describe an authority attached to a permitted identity
+      description: |
+        Requires primary authentication and an initialized, unsealed Keeper. The identity
+        must be active, untampered and have key material. Only an authority attached to its
+        current generation may be described. commandSchema describes the complete command
+        object, including type, authorityId and artifact; it does not evaluate policy.
+      x-permissions:
+        template: tkeeper.key.{keyId}.sign
+      parameters:
+        - name: keyId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: authorityId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Attached authority and command schema
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum: [no-store]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorityCatalogItem'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /v1/keeper/control/me:
     get:
       tags: [ControlPlane]
@@ -1113,7 +1197,8 @@ components:
   headers:
     ExpiresAt:
       description: |
-        Operation approval or enrollment deadline as a Unix timestamp in whole seconds.
+        Approval, enrollment or issued mandate deadline as a Unix timestamp in whole seconds.
+        Present only when the response has a deadline from the corresponding flow.
         Approval windows are anchored to the original envelope timestamp; retries do not
         renew them. JSON expiresAt fields use milliseconds. Credentials and other policies
         can independently reject an operation before this deadline.
@@ -1235,6 +1320,56 @@ components:
           type: string
           description: Id of the configured seal provider.
           example: shamir
+
+    IdentityCatalogPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityCatalogItem'
+        nextCursor:
+          type: string
+          nullable: true
+          description: Last returned key id, or null when there are no further matches.
+
+    IdentityCatalogItem:
+      type: object
+      required: [keyId, algorithm, generation, authorities]
+      properties:
+        keyId:
+          type: string
+        algorithm:
+          $ref: '#/components/schemas/KeyAlgorithm'
+        generation:
+          type: integer
+          minimum: 1
+        authorities:
+          type: array
+          items:
+            type: string
+          description: Authority ids attached to the active generation.
+
+    AuthorityCatalogItem:
+      type: object
+      required: [id, type, version, description, commandSchema]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        version:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+          description: Authority metadata description, when supplied by the artifact.
+        commandSchema:
+          type: object
+          additionalProperties: true
+          description: JSON Schema for the complete command object. Policy evaluation is separate.
 
     ApproverId:
       type: string

@@ -41,9 +41,32 @@ attached authority's id, type, version, description and command JSON Schema. The
 needs `tkeeper.key.<keyId>.sign`. Unknown or unattached authorities are rejected.
 The schema describes command input; the policy still decides whether it may execute.
 
+An identity page has this shape:
+
+```json
+{
+  "items": [{"keyId":"payments-key","algorithm":"P256","generation":2,"authorities":["payments"]}],
+  "nextCursor": "payments-key"
+}
+```
+
+`nextCursor` is null on the last page. Each item names authority ids attached to its active
+generation. Describe one of those ids to obtain `commandSchema`, which covers the complete
+command object: `type`, `authorityId` and `artifact`. Authority `version` and `description`
+can be null, including for the built-in `arbitrary` authority.
+
 Both endpoints are core APIs and send `Cache-Control: no-store`. They do not require
 inventory permissions. The SDK methods are `keeper.controlPlane().listIdentities()`
 and `keeper.controlPlane().describeAuthority(keyId, authorityId)`.
+
+Pass the cursor explicitly when using the SDK:
+
+```java
+var first = keeper.controlPlane().listIdentities(null, 50);
+if (first.nextCursor() != null) {
+    var next = keeper.controlPlane().listIdentities(first.nextCursor(), 50);
+}
+```
 
 ## Approval deadlines
 

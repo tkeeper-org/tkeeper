@@ -89,6 +89,8 @@ The functional suite is split by boundary:
 | `KeyImportTests` | trusted-dealer import |
 | `FourEyeControlTests` | approval binding and replay rejection |
 | `ApproversTests` | core registry over HTTPS/JWT, independent permissions, normalized versions, metadata revisions, races across nodes, filtering, pagination, replication to every peer and restart persistence |
+| `ApproverReferenceTests` | pinned key and authority refs, cumulative groups, method substitution, missing descriptors on a follower, duplicate keys across representations, 1-of-n policies, and lifecycle replacement under old approvals |
+| `IdentityCatalogTests` | signing-permission filtering without inventory access, pagination, attached authority command schemas, invalid query input, authentication, cache headers, and sealed access |
 | `KeeperConfigurationTests` | authenticated configuration without permissions, sealed access, current quorum, authority types and seal provider, core module identity in the production artifact |
 | `ApprovalExpirationTests` | seconds-based deadlines, stable repeated preparation, insufficient and accepted proofs, expired windows without renewal |
 | `WebAuthnApproversTests` | JWT and invitation required on finish, independent registrar and recipient, invitation scope and context substitution, invalid tokens and ceremonies, competing credential races, session quotas, durable consumption after peer/writer restart |

@@ -78,6 +78,12 @@ Some fields depend on the operation. `approvers` appears only for approved opera
 
 The `policy` object contains the evaluation `decision`, matched rules, and any `approvalRequirements`. `ALLOW_WITH_REQUIREMENTS` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
 
+Registry registration and metadata replacement add `context.approverRef` and
+`context.metadataRevision` to successful audit events. These identify the changed credential
+version and metadata revision; they do not record an approval vote. Metadata values are covered
+by the request body digest and are not copied into the context. Authority approval requirements
+can contain either inline keys or pinned refs, so collectors must retain both forms.
+
 ## Integrity boundary
 
 The signature detects modification of an individual encoded event when the verifier has the correct integrity public key. It does not by itself prove that the log is complete, correctly ordered, retained, or delivered to every configured sink.

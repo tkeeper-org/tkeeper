@@ -63,7 +63,7 @@
     }
   ],
   "x-keeper-contract": {
-    "version": "2.6.0",
+    "version": "3.0.0",
     "sha256": "539a9b4be895ca15f62f107732c812736c019e1002a4b798f719dab7dcbb1458",
     "description": "Native schema snapshot reviewed against the local Keeper implementation. Included schemas are self-contained; building Hub does not require a Keeper checkout."
   },
