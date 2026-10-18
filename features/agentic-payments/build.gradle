@@ -11,13 +11,6 @@ version = '3.0.0'
 
 repositories {
     mavenCentral()
-    maven {
-        name = "sonatypeCentralSnapshots"
-        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
 }
 
 def jacksonGroups = [
@@ -48,7 +41,7 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    api 'org.exploit.verdict:payments:0.3.0-SNAPSHOT'
+    api 'org.exploit.verdict:payments:0.3.0'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
 }
 

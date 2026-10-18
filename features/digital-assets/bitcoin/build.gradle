@@ -9,13 +9,6 @@ version = '3.0.0'
 
 repositories {
     mavenCentral()
-    maven {
-        name = "sonatypeCentralSnapshots"
-        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
 }
 
 def jacksonGroups = [
@@ -39,8 +32,8 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit.verdict:bitcoin:0.3.0-SNAPSHOT'
-    implementation 'org.exploit.signet:crypto-util:0.1.0-SNAPSHOT'
+    implementation 'org.exploit.verdict:bitcoin:0.3.0'
+    implementation 'org.exploit.signet:crypto-util:0.1.1'
 }
 
 tasks.named('shadowJar') {
