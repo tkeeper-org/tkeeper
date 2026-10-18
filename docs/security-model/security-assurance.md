@@ -5,7 +5,7 @@ storage, lifecycle operations, and recovery in multi-node TKeeper deployments.
 Adversarial scenarios inject invalid protocol messages, replay requests, corrupt
 stored state, and interrupt operations.
 
-The functional suites contain 450+ test cases, including 100+ adversarial cases covering
+The functional suites contain 500+ test cases, including 100+ adversarial cases covering
 malicious protocol input, authorization bypass attempts, replay, state corruption and failure
 injection.
 
