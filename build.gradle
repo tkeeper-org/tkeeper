@@ -13,13 +13,6 @@ version = '3.0.0'
 
 repositories {
     mavenCentral()
-    maven {
-        name = "sonatypeCentralSnapshots"
-        url = uri("https://central.sonatype.com/repository/maven-snapshots/")
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
 }
 
 allprojects {
@@ -324,10 +317,10 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.3.0-SNAPSHOT'
+    api 'org.exploit.verdict:core:0.3.0'
 
-    api 'org.exploit.verdict:authority:0.3.0-SNAPSHOT'
-    api 'org.exploit.verdict:authority-oci:0.3.0-SNAPSHOT'
+    api 'org.exploit.verdict:authority:0.3.0'
+    api 'org.exploit.verdict:authority-oci:0.3.0'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
@@ -340,7 +333,7 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit.verdict:typed:0.3.0-SNAPSHOT'
+    implementation 'org.exploit.verdict:typed:0.3.0'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
