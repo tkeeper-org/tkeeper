@@ -23,7 +23,7 @@ allprojects {
 }
 
 def alignedRuntimeVersions = [
-        'com.fasterxml.jackson:jackson-bom'                : '2.22.3',
+        'com.fasterxml.jackson:jackson-bom'                : '2.22.4',
         'com.google.auto.value:auto-value-annotations'    : '1.11.1',
         'com.google.errorprone:error_prone_annotations'   : '2.50.0',
         'com.google.guava:guava'                           : '33.7.1-jre',
@@ -300,8 +300,8 @@ dependencies {
     api 'com.fasterxml.jackson.module:jackson-module-kotlin'
     api 'org.msgpack:jackson-dataformat-msgpack:0.9.12'
 
-    api 'org.exploit:jettyx:0.1.7'
-    api 'org.exploit:jettyx-jackson:0.1.7'
+    api 'org.exploit:jettyx:0.2.0'
+    api 'org.exploit:jettyx-jackson:0.2.0'
 
     api "io.micronaut:micronaut-inject:4.10.8"
     api "io.micronaut:micronaut-context:4.10.8"
@@ -317,10 +317,11 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.3.0'
+    api 'org.exploit.verdict:core:0.3.1'
 
-    api 'org.exploit.verdict:authority:0.3.0'
-    api 'org.exploit.verdict:authority-oci:0.3.0'
+    api 'org.exploit.verdict:authority:0.3.1'
+    api 'org.exploit.verdict:authority-oci:0.3.1'
+    api 'org.exploit.verdict:oras:0.3.1'
 
     api 'com.linecorp.armeria:armeria:1.40.0'
     api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
@@ -333,7 +334,7 @@ dependencies {
     implementation 'org.fusesource.jansi:jansi:2.4.2'
     implementation 'ch.qos.logback:logback-classic:1.5.32'
 
-    implementation 'org.exploit.verdict:typed:0.3.0'
+    implementation 'org.exploit.verdict:typed:0.3.1'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
@@ -341,7 +342,6 @@ dependencies {
     implementation("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
     implementation("org.exploit:tss4j-natives:1.0.0:windows-amd64@jar")
 
-    implementation 'org.exploit:jettyx-http2:0.1.7'
     implementation 'io.sentry:sentry:8.35.0'
 
     enabledFeatureModules.keySet().each { moduleName ->
@@ -479,7 +479,7 @@ tasks.named('shadowJar') {
                 def extension = nativeTarget.startsWith('linux-') ? '.so' :
                         nativeTarget.startsWith('macos-') ? '.dylib' : '.dll'
                 required += ['libgmp', 'libsecp256k1', 'libsodium'].collect {
-                    "${selectedNatives.bundled}${it}${extension}"
+                    "${selectedNatives.bundled}${it}${extension}".toString()
                 }
             }
             if (enabledPlatformModules.containsKey('platform-ecc')) {

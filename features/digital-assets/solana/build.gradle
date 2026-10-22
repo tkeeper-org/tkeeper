@@ -33,7 +33,7 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    implementation 'org.exploit.verdict:solana:0.3.0'
+    implementation 'org.exploit.verdict:solana:0.3.1'
 }
 
 tasks.named('shadowJar') {

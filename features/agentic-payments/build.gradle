@@ -41,7 +41,7 @@ dependencies {
     compileOnly(project(':platform-ecc'))
 
     ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    api 'org.exploit.verdict:payments:0.3.0'
+    api 'org.exploit.verdict:payments:0.3.1'
     implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
 }
 

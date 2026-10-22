@@ -193,6 +193,8 @@ The peer client must trust the internal server certificate when internal TLS is 
 ```hocon
 keeper.client {
   tls = true
+  request-timeout = 30s
+  connect-timeout = 500ms
   trust-store-path = "/etc/tkeeper/internal-truststore.p12"
   trust-store-password = "..."
 }
@@ -218,6 +220,10 @@ keeper.client {
   key-store-type = "PKCS12"
 }
 ```
+
+`keeper.client.request-timeout` is the total peer request deadline and must be positive. `connect-timeout` may impose a shorter connection deadline; `0ms` leaves connection setup bounded by the total request deadline. The former client `idle-timeout` setting has been removed.
+
+All configuration timeouts accept HOCON durations, such as `500ms`, `30s`, or `2m`. Values without units remain milliseconds for compatibility (`30000` means `30s`), but that notation is deprecated. Configuration models retain `Duration`; conversion to an API's required units rounds up, checks overflow, and preserves zero only where it explicitly disables a timeout. Jettyx's whole-second transport limit rounds up while TKeeper retains the configured result deadline.
 
 Give every peer a distinct client certificate, then bind its configured peer id to that certificate's SPKI digest:
 
@@ -313,7 +319,7 @@ Minimal file audit:
 ```hocon
 keeper.audit {
   enabled = true
-  timeout = 1000
+  timeout = 1s
 
   file {
     directory = "/var/lib/tkeeper/audit"

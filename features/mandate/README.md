@@ -91,4 +91,4 @@ var issued = primaryClient.mandate().issue(request);
 
 Create a client with `new MandateTokenAuth(issued.mandate())` for execution. Send the same operation through its normal SDK module, including any approvals collected from `issued.requirements()`.
 
-The SDK's default client supports the 288 KiB header budget. If supplying your own `Jettyx` instance, configure its builder with `.customize(client -> client.setMaxRequestHeadersSize(288 * 1024))` before building it.
+The SDK uses the JDK HTTP client, which does not require the former Jetty request-header-size setting. If supplying your own `Jettyx` instance, use the JDK `HttpClient.Builder` API in `.customize(...)`. Any proxy in front of Keeper must accept the 288 KiB header budget.
