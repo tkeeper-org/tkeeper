@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'io.helidon.codegen:helidon-codegen:4.5.6'
+}

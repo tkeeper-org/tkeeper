@@ -13,9 +13,6 @@ class NativeJarSmoke {
         if (Boolean.parseBoolean(args[1])) {
             load("org.exploit.ecc.secp256k1.LibSecp256k1", "load");
         }
-        Class.forName("io.netty.internal.tcnative.SSL", false, NativeJarSmoke.class.getClassLoader())
-                .getMethod("getGroupName", long.class);
-        System.out.println("Verified Netty TLS native ABI");
         System.out.println("Native libraries loaded on " + actual);
     }
 

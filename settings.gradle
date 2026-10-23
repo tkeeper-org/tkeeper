@@ -4,6 +4,8 @@ plugins {
 
 rootProject.name = 'tkeeper'
 
+include 'vendor:helidon-codegen'
+
 include 'integration-tests'
 include 'sdk'
 include 'integration-tests:functional'

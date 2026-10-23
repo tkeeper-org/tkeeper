@@ -3,7 +3,7 @@ plugins {
     id 'java-test-fixtures'
     id 'org.jetbrains.kotlin.jvm' version '2.4.20'
     id 'com.gradleup.shadow' version '9.4.1'
-    id 'com.google.devtools.ksp' version '2.3.10'
+    id 'org.jetbrains.kotlin.kapt' version '2.4.20'
 }
 
 def mainClassName = 'org.exploit.keeper.TKeeperKt'
@@ -16,6 +16,32 @@ repositories {
 }
 
 allprojects {
+    tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar).configureEach {
+        append 'META-INF/helidon/manifest'
+        filesMatching(['META-INF/helidon/manifest', 'META-INF/services/**']) {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach {
+        // Open javac directly so kapt does not use sun.misc.Unsafe on JDK 25.
+        kaptProcessJvmArgs.addAll(['api', 'code', 'comp', 'file', 'jvm', 'main', 'parser', 'processing', 'tree', 'util']
+                .collect { "--add-opens=jdk.compiler/com.sun.tools.javac.$it=ALL-UNNAMED".toString() })
+    }
+
+    afterEvaluate {
+        if (plugins.hasPlugin('org.jetbrains.kotlin.kapt')) {
+            // Helidon meta-annotation discovery recurses through Kotlin's cyclic annotation metadata.
+            dependencies.add('kapt', files(rootProject.file('buildSrc/build/libs/buildSrc.jar')))
+            kapt {
+                arguments {
+                    arg('helidon.registry.moduleName',
+                            rootProject.name + (project.path == ':' ? '' : project.path.replace(':', '.').replace('-', '_')))
+                }
+            }
+        }
+    }
+
     tasks.withType(org.gradle.api.tasks.testing.Test).configureEach {
         jvmArgs '--enable-native-access=ALL-UNNAMED'
         systemProperty 'msgpack.universal-buffer', System.getProperty('msgpack.universal-buffer', 'true')
@@ -51,15 +77,15 @@ def alignedRuntimeVersions = [
 // when a native is not bundled for the selected target.
 def nativeTargets = [
         'linux-amd64'  : [rocksdb: 'librocksdbjni-linux64.so',           bundled: 'natives/linux-amd64/',
-                          jansi: 'Linux/x86_64/', zstd: 'linux/amd64/',  nativeArch: 'x86_64',  nativeExtensions: ['.so']],
+                          jline: 'Linux/x86_64/', zstd: 'linux/amd64/',  nativeArch: 'x86_64',  nativeExtensions: ['.so']],
         'linux-arm64'  : [rocksdb: 'librocksdbjni-linux-aarch64.so',     bundled: null,
-                          jansi: 'Linux/arm64/',  zstd: 'linux/aarch64/', nativeArch: 'aarch_64', nativeExtensions: ['.so']],
+                          jline: 'Linux/arm64/',  zstd: 'linux/aarch64/', nativeArch: 'aarch_64', nativeExtensions: ['.so']],
         'macos-amd64'  : [rocksdb: 'librocksdbjni-osx-x86_64.jnilib',    bundled: null,
-                          jansi: 'Mac/x86_64/',   zstd: 'darwin/x86_64/', nativeArch: 'x86_64',  nativeExtensions: ['.jnilib', '.dylib']],
+                          jline: 'Mac/x86_64/',   zstd: 'darwin/x86_64/', nativeArch: 'x86_64',  nativeExtensions: ['.jnilib', '.dylib']],
         'macos-aarch64': [rocksdb: 'librocksdbjni-osx-arm64.jnilib',     bundled: 'natives/macos-aarch64/',
-                          jansi: 'Mac/arm64/',    zstd: 'darwin/aarch64/', nativeArch: 'aarch_64', nativeExtensions: ['.jnilib', '.dylib']],
+                          jline: 'Mac/arm64/',    zstd: 'darwin/aarch64/', nativeArch: 'aarch_64', nativeExtensions: ['.jnilib', '.dylib']],
         'windows-amd64': [rocksdb: 'librocksdbjni-win64.dll',           bundled: 'natives/windows-amd64/',
-                          jansi: 'Windows/x86_64/', zstd: 'win/amd64/', nativeArch: 'x86_64', nativeExtensions: ['.dll']]
+                          jline: 'Windows/x86_64/', zstd: 'win/amd64/', nativeArch: 'x86_64', nativeExtensions: ['.dll']]
 ]
 def nativeTarget = findProperty('target') == null
         ? 'all'
@@ -75,8 +101,8 @@ def excludesOtherTargetNative = { String path ->
     if (path.startsWith('natives/')) {
         return selectedNatives.bundled == null || !path.startsWith(selectedNatives.bundled)
     }
-    if (path.startsWith('org/fusesource/jansi/internal/native/')) {
-        return !path.startsWith("org/fusesource/jansi/internal/native/${selectedNatives.jansi}")
+    if (path.startsWith('org/jline/nativ/') && !path.endsWith('.class')) {
+        return !path.startsWith("org/jline/nativ/${selectedNatives.jline}")
     }
     if (path ==~ /(?:aix|darwin|freebsd|linux|win)\/[^\/]+\/libzstd-jni-.*\.(?:so|dylib|dll)/) {
         return !path.startsWith(selectedNatives.zstd)
@@ -289,8 +315,8 @@ configurations {
 }
 
 dependencies {
-    ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
-    compileOnly "jakarta.annotation:jakarta.annotation-api:2.1.1"
+    kapt project(':vendor:helidon-codegen')
+    kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
@@ -298,13 +324,16 @@ dependencies {
     testFixturesImplementation 'com.upokecenter:cbor'
 
     api 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     api 'org.msgpack:jackson-dataformat-msgpack:0.9.12'
 
     api 'org.exploit:jettyx:0.2.0'
     api 'org.exploit:jettyx-jackson:0.2.0'
 
-    api "io.micronaut:micronaut-inject:4.10.8"
-    api "io.micronaut:micronaut-context:4.10.8"
+    api platform('io.helidon:helidon-dependencies:4.5.6')
+    api 'io.helidon.service:helidon-service-registry'
+    api 'io.helidon.webserver:helidon-webserver'
+    api 'io.helidon.webserver:helidon-webserver-http2'
 
     api 'org.exploit:signalix:0.1.3'
     api 'com.typesafe:config:1.4.5'
@@ -323,16 +352,14 @@ dependencies {
     api 'org.exploit.verdict:authority-oci:0.3.1'
     api 'org.exploit.verdict:oras:0.3.1'
 
-    api 'com.linecorp.armeria:armeria:1.40.0'
-    api 'com.linecorp.armeria:armeria-kotlin:1.40.0'
     api 'com.nimbusds:nimbus-jose-jwt:10.2'
 
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.0'
     implementation 'com.yubico:webauthn-server-core:2.10.1'
     implementation 'com.upokecenter:cbor'
 
-    implementation 'org.fusesource.jansi:jansi:2.4.2'
-    implementation 'ch.qos.logback:logback-classic:1.5.32'
+    implementation 'org.jline:jansi-core:4.3.1'
+    implementation 'ch.qos.logback:logback-classic:1.6.3'
 
     implementation 'org.exploit.verdict:typed:0.3.1'
 
@@ -620,7 +647,69 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
     }
 }
 
+def verifyNativeServiceMetadata = { java.util.zip.ZipFile archive ->
+    def names = archive.entries().collect { it.name }.toSet()
+    ['ServerConnectionSelectorProvider': ['http1.Http1ConnectionProvider', 'http2.Http2ConnectionProvider'],
+     'ProtocolConfigProvider': ['http1.Http1ProtocolConfigProvider', 'http2.Http2ProtocolConfigProvider']].each { service, providers ->
+        def path = "META-INF/services/io.helidon.webserver.spi.$service"
+        def entry = archive.getEntry(path)
+        def registered = entry == null ? [] : archive.getInputStream(entry).withCloseable { it.readLines('UTF-8') }
+        providers.each { provider ->
+            if (!registered.contains("io.helidon.webserver.$provider".toString())) {
+                throw new GradleException("${archive.name} is missing HTTP provider $provider in $path")
+            }
+        }
+    }
+
+    def forbidden = ['com/linecorp/armeria/', 'io/micronaut/', 'io/netty/',
+                     'io/helidon/microprofile/', 'io/helidon/codegen/',
+                     'io/helidon/service/codegen/', 'org/exploit/keeper/codegen/']
+    def obsolete = names.find { path -> path.endsWith('.class') && forbidden.any { path.startsWith(it) } }
+    if (obsolete != null) {
+        throw new GradleException("${archive.name} contains forbidden runtime class: $obsolete")
+    }
+    if (names.contains('META-INF/services/javax.annotation.processing.Processor')) {
+        throw new GradleException("${archive.name} contains a build-only annotation processor registration")
+    }
+
+    def manifest = archive.getEntry('META-INF/helidon/manifest')
+    if (manifest == null) {
+        throw new GradleException("${archive.name} is missing the Helidon metadata manifest")
+    }
+    def metadata = archive.getInputStream(manifest).withCloseable { it.readLines('UTF-8') }
+            .collect { it.trim() }.findAll { it && !it.startsWith('#') }.toSet()
+    metadata.each { path ->
+        if (!names.contains(path)) {
+            throw new GradleException("${archive.name} manifest references missing metadata: $path")
+        }
+    }
+
+    def registryFiles = metadata.findAll { it.endsWith('/service-registry.json') }
+    if (registryFiles.isEmpty()) {
+        throw new GradleException("${archive.name} does not register any Helidon services")
+    }
+    def descriptors = registryFiles.collectMany { path ->
+        def modules = archive.getInputStream(archive.getEntry(path)).withCloseable {
+            new groovy.json.JsonSlurper().parse(it, 'UTF-8')
+        }
+        modules.collectMany { it.services ?: [] }.collect { it.descriptor.replace('.', '/') + '.class' }
+    }.toSet()
+    descriptors.each { path ->
+        if (!names.contains(path)) {
+            throw new GradleException("${archive.name} registers a missing service descriptor: $path")
+        }
+    }
+    def missing = names.findAll {
+        it.startsWith('org/exploit/keeper/') && it.endsWith('__ServiceDescriptor.class') && !descriptors.contains(it)
+    }
+    if (!missing.isEmpty()) {
+        throw new GradleException("${archive.name} has undiscoverable application services: $missing")
+    }
+}
+
 def verifyBundledRuntimeDependencies = { java.util.zip.ZipFile archive ->
+    verifyNativeServiceMetadata(archive)
+
     canonicalRuntimeClasses().each { name, expected ->
         def bundled = archive.getEntry(name)
         if (bundled == null) {
@@ -768,6 +857,7 @@ tasks.register('buildTestContainers') {
 
 def releaseChecksBeforeContainers = [
         tasks.named('test'),
+        ':vendor:helidon-codegen:test',
         ':sdk:test',
         ':integration-tests:test',
         featureModules.keySet().collect { ":$it:test" },
