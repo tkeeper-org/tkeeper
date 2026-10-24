@@ -7,12 +7,9 @@ class NativeJarSmoke {
             throw new IllegalStateException("Jar target is " + args[0] + ", but this JVM runs on " + actual);
         }
 
-        load("org.rocksdb.RocksDB", "loadLibrary");
-        load("org.exploit.bigint.LibGMP", "load");
-        load("org.exploit.sodium.LibSodium", "load");
-        if (Boolean.parseBoolean(args[1])) {
-            load("org.exploit.ecc.secp256k1.LibSecp256k1", "load");
-        }
+        load("org.exploit.keeper.bootstrap.ApplicationNativeLibraries", "load");
+        Object version = Class.forName("org.rocksdb.RocksDB").getMethod("rocksdbVersion").invoke(null);
+        if (version == null) throw new IllegalStateException("RocksDB was not initialized");
         System.out.println("Native libraries loaded on " + actual);
     }
 
@@ -29,7 +26,7 @@ class NativeJarSmoke {
                 os.contains("mac") ? "macos" :
                 os.contains("win") ? "windows" : os;
         String cpu = arch.equals("x86_64") || arch.equals("amd64") ? "amd64" :
-                arch.equals("aarch64") || arch.equals("arm64") ? "arm64" : arch;
+                arch.equals("aarch64") || arch.equals("arm64") ? (family.equals("macos") ? "aarch64" : "arm64") : arch;
         return family + "-" + cpu;
     }
 }

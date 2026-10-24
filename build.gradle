@@ -1,3 +1,13 @@
+import org.exploit.keeper.build.registry.GenerateApplicationServices
+import org.exploit.keeper.build.registry.RegistryInventory
+import org.exploit.keeper.build.registry.constant.ProfileFiles
+import org.exploit.keeper.build.registry.SecurityComposition
+import org.exploit.keeper.build.registry.constant.RegistryFiles
+import org.exploit.keeper.build.registry.constant.SecurityComponents
+import org.exploit.keeper.build.natives.GenerateNativeLibraries
+import org.exploit.keeper.build.natives.NativeInventory
+import org.exploit.keeper.build.natives.constant.NativeFiles
+
 plugins {
     id 'java-library'
     id 'java-test-fixtures'
@@ -63,7 +73,7 @@ def alignedRuntimeVersions = [
         'org.apache.httpcomponents.client5:httpclient5'   : '5.6.4',
         'org.apache.httpcomponents.core5:httpcore5'       : '5.4.4',
         'org.apache.httpcomponents.core5:httpcore5-h2'    : '5.4.4',
-        // t-mldsa:0.3.1 still uses org.bouncycastle.pqc.crypto.mldsa, removed in 1.86.
+        // t-mldsa:0.3.2 still uses org.bouncycastle.pqc.crypto.mldsa, removed in 1.86.
         'org.bouncycastle:bcprov-jdk18on'                 : '1.85.2',
         'org.jetbrains.kotlin:kotlin-reflect'             : '2.4.20',
         'org.jetbrains.kotlin:kotlin-stdlib'              : '2.4.20',
@@ -73,8 +83,7 @@ def alignedRuntimeVersions = [
 ]
 
 // -Ptarget chooses the OS/CPU binaries in the production fat jar; it does not select crypto modules.
-// Keep "all" as the default. GMP, secp256k1, and libsodium loaders use system libraries
-// when a native is not bundled for the selected target.
+// System fallback requires an explicit runtime opt-in when no native is bundled.
 def nativeTargets = [
         'linux-amd64'  : [rocksdb: 'librocksdbjni-linux64.so',           bundled: 'natives/linux-amd64/',
                           jline: 'Linux/x86_64/', zstd: 'linux/amd64/',  nativeArch: 'x86_64',  nativeExtensions: ['.so']],
@@ -315,7 +324,7 @@ configurations {
 }
 
 dependencies {
-    kapt project(':vendor:helidon-codegen')
+    kapt project(':build-tools:helidon-codegen')
     kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
 
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
@@ -340,17 +349,17 @@ dependencies {
     api 'org.rocksdb:rocksdbjni:10.2.1'
     api 'org.exploit:secure-buffer:0.1.0'
 
-    api enforcedPlatform('org.exploit.anvil:bom:0.3.1')
+    api enforcedPlatform('org.exploit.anvil:bom:0.3.2')
     api 'org.exploit.anvil:bigint'
     api 'org.exploit.anvil:shamir'
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.3.1'
+    api 'org.exploit.verdict:core:0.3.2'
 
-    api 'org.exploit.verdict:authority:0.3.1'
-    api 'org.exploit.verdict:authority-oci:0.3.1'
-    api 'org.exploit.verdict:oras:0.3.1'
+    api 'org.exploit.verdict:authority:0.3.2'
+    api 'org.exploit.verdict:authority-oci:0.3.2'
+    api 'org.exploit.verdict:oras:0.3.2'
 
     api 'com.nimbusds:nimbus-jose-jwt:10.2'
 
@@ -361,7 +370,7 @@ dependencies {
     implementation 'org.jline:jansi-core:4.3.1'
     implementation 'ch.qos.logback:logback-classic:1.6.3'
 
-    implementation 'org.exploit.verdict:typed:0.3.1'
+    implementation 'org.exploit.verdict:typed:0.3.2'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
@@ -535,10 +544,10 @@ tasks.register('smokeTargetJar', Exec) {
     }
     executable = java25.get().executablePath.asFile.absolutePath
     args '--enable-native-access=ALL-UNNAMED',
+            "-Dkeeper.native.allow-system=${providers.gradleProperty('keeper.native.allow-system').orElse('false').get()}",
             '-cp', tasks.named('shadowJar').get().archiveFile.get().asFile.absolutePath,
             'tools/NativeJarSmoke.java',
-            nativeTarget,
-            enabledPlatformModules.containsKey('platform-ecc').toString()
+            nativeTarget
 }
 
 tasks.named('jar') {
@@ -647,6 +656,119 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
     }
 }
 
+def productionModules = enabledFeatureModules.keySet() + enabledExplicitFeatureModules.keySet() +
+        enabledRecoveryPlatformModules + enabledPlatformModules.keySet()
+def integrationModules = featureModules.keySet() + explicitFeatureModules.keySet() +
+        recoveryPlatformModules.values() + testOnlyFeatureModules + platformModules.keySet()
+def requiredRegistryModules = { modules ->
+    def paths = new TreeSet<String>(modules)
+    if (paths.any { it.startsWith('features:agentic-payments:') }) {
+        paths.add('features:agentic-payments')
+    }
+    (['tkeeper'] + paths.collect { 'tkeeper.' + it.replace(':', '.').replace('-', '_') } +
+            SecurityComponents.HELIDON_MODULES).toSet()
+}
+
+def securityVerifierCompiler = tasks.register('compileSecurityVerifier', JavaCompile) {
+    source fileTree('buildSrc/src/jdk25/java') { include '**/*.java' }
+    classpath = files()
+    javaCompiler.set(javaToolchains.compilerFor { languageVersion = JavaLanguageVersion.of(25) })
+    options.release.set(25)
+    destinationDirectory.set(layout.buildDirectory.dir('classes/security-verifier'))
+}
+
+def registerSecurityVerification = { String name, String profile, runtimeFiles, modules ->
+    def providers = SecurityComposition.implementationPolicy(requiredRegistryModules(modules))
+    def forbiddenNamespaces = ProfileFiles.FORBIDDEN_NAMESPACES.getOrDefault(profile, [] as Set)
+    def report = layout.buildDirectory.file("reports/security-composition/${name}.txt")
+    tasks.register(name, JavaExec) {
+        group = 'verification'
+        dependsOn securityVerifierCompiler
+        inputs.files(runtimeFiles).withPropertyName('runtimeBytecode').withNormalizer(ClasspathNormalizer)
+        inputs.property('securityProviders', providers)
+        inputs.property('cleanupDescriptors', SecurityComponents.CLEANUP_DESCRIPTORS)
+        inputs.property('forbiddenNamespaces', forbiddenNamespaces)
+        inputs.property('profile', profile)
+        outputs.file(report)
+        classpath = files(securityVerifierCompiler.flatMap { it.destinationDirectory })
+        javaLauncher.set(javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) })
+        mainClass.set('org.exploit.keeper.build.security.SecurityVerifier')
+        maxHeapSize = '512m'
+
+        doFirst {
+            def policy = providers.sort().collect { contract, implementations ->
+                "--provider=$contract=${implementations.sort().join(',')}".toString()
+            }
+            def cleanup = SecurityComponents.CLEANUP_DESCRIPTORS.sort().collect { "--cleanup=$it".toString() }
+            def forbidden = forbiddenNamespaces.sort().collect { "--forbidden-namespace=$it".toString() }
+            setArgs([profile, report.get().asFile.absolutePath] + policy + cleanup + forbidden + ['--'] +
+                    runtimeFiles.files.collect { it.absolutePath })
+        }
+    }
+}
+
+def applicationProfiles = [
+        production       : [sourceSet: 'application', runtime: configurations.productionFeatureRuntime,
+                             modules: productionModules, jar: 'shadowJar'],
+        'production-test': [sourceSet: 'productionTestApplication', runtime: configurations.productionTestRuntime,
+                             modules: ['platform-ecc'], jar: 'shadowJarProductionTest'],
+        integration      : [sourceSet: 'integrationApplication', runtime: configurations.integrationFeatureRuntime,
+                             modules: integrationModules, jar: 'shadowJarIntegration']
+]
+def packagedSecurityChecks = [:]
+
+applicationProfiles.each { profile, composition ->
+    def runtimeFiles = files(sourceSets.main.output, configurations.runtimeClasspath, composition.runtime)
+    def verification = registerSecurityVerification("verify${composition.sourceSet.capitalize()}Security", profile,
+            runtimeFiles, composition.modules)
+    def application = sourceSets.create(composition.sourceSet) {
+        kotlin.srcDir 'src/application/kotlin'
+        compileClasspath += sourceSets.main.output + configurations.runtimeClasspath + composition.runtime
+        runtimeClasspath += output + compileClasspath
+    }
+    def generation = tasks.register(application.getTaskName('generate', 'services'), GenerateApplicationServices) {
+        dependsOn verification
+        runtimeClasspath.from(runtimeFiles)
+        it.profile.set(profile)
+        requiredModules.set(requiredRegistryModules(composition.modules))
+        outputDirectory.set(layout.buildDirectory.dir("generated/application-services/$profile"))
+    }
+
+    application.java.srcDir(generation.map { it.outputDirectory.dir('java') })
+    application.resources.srcDir(generation.map { it.outputDirectory.dir('resources') })
+
+    def nativeGeneration = tasks.register(application.getTaskName('generate', 'nativeLibraries'), GenerateNativeLibraries) {
+        runtimeClasspath.from(runtimeFiles)
+        includedResources.set(profile == 'production' && selectedNatives != null
+                ? [selectedNatives.rocksdb, selectedNatives.bundled].findAll { it != null } as Set
+                : [''] as Set)
+        ecc.set(composition.modules.contains('platform-ecc'))
+        outputDirectory.set(layout.buildDirectory.dir("generated/native-libraries/$profile"))
+    }
+    application.java.srcDir(nativeGeneration.map { it.outputDirectory.dir('java') })
+    application.resources.srcDir(nativeGeneration.map { it.outputDirectory.dir('resources') })
+
+    tasks.named(composition.jar) {
+        from application.output
+
+        doLast {
+            def evidence = generation.get().outputDirectory.file('resources/' + RegistryFiles.INVENTORY).get().asFile
+            RegistryInventory.verify(archiveFile.get().asFile, evidence, application.output.classesDirs.files, profile)
+            def natives = nativeGeneration.get().outputDirectory.file('resources/' + NativeFiles.INVENTORY).get().asFile
+            NativeInventory.verify(archiveFile.get().asFile, natives)
+        }
+    }
+    def packagedVerification = registerSecurityVerification("verify${composition.sourceSet.capitalize()}JarSecurity", profile,
+            files(tasks.named(composition.jar).flatMap { it.archiveFile }), composition.modules)
+    packagedSecurityChecks[profile] = packagedVerification
+    tasks.named(composition.jar) { finalizedBy packagedVerification }
+}
+
+sourceSets.test.compileClasspath += sourceSets.productionTestApplication.output
+sourceSets.test.runtimeClasspath += sourceSets.productionTestApplication.output
+sourceSets.test.compileClasspath += files(securityVerifierCompiler.flatMap { it.destinationDirectory })
+sourceSets.test.runtimeClasspath += files(securityVerifierCompiler.flatMap { it.destinationDirectory })
+
 def verifyNativeServiceMetadata = { java.util.zip.ZipFile archive ->
     def names = archive.entries().collect { it.name }.toSet()
     ['ServerConnectionSelectorProvider': ['http1.Http1ConnectionProvider', 'http2.Http2ConnectionProvider'],
@@ -663,7 +785,7 @@ def verifyNativeServiceMetadata = { java.util.zip.ZipFile archive ->
 
     def forbidden = ['com/linecorp/armeria/', 'io/micronaut/', 'io/netty/',
                      'io/helidon/microprofile/', 'io/helidon/codegen/',
-                     'io/helidon/service/codegen/', 'org/exploit/keeper/codegen/']
+                     'io/helidon/service/codegen/', 'org/exploit/keeper/codegen/', 'org/exploit/keeper/build/']
     def obsolete = names.find { path -> path.endsWith('.class') && forbidden.any { path.startsWith(it) } }
     if (obsolete != null) {
         throw new GradleException("${archive.name} contains forbidden runtime class: $obsolete")
@@ -672,39 +794,7 @@ def verifyNativeServiceMetadata = { java.util.zip.ZipFile archive ->
         throw new GradleException("${archive.name} contains a build-only annotation processor registration")
     }
 
-    def manifest = archive.getEntry('META-INF/helidon/manifest')
-    if (manifest == null) {
-        throw new GradleException("${archive.name} is missing the Helidon metadata manifest")
-    }
-    def metadata = archive.getInputStream(manifest).withCloseable { it.readLines('UTF-8') }
-            .collect { it.trim() }.findAll { it && !it.startsWith('#') }.toSet()
-    metadata.each { path ->
-        if (!names.contains(path)) {
-            throw new GradleException("${archive.name} manifest references missing metadata: $path")
-        }
-    }
 
-    def registryFiles = metadata.findAll { it.endsWith('/service-registry.json') }
-    if (registryFiles.isEmpty()) {
-        throw new GradleException("${archive.name} does not register any Helidon services")
-    }
-    def descriptors = registryFiles.collectMany { path ->
-        def modules = archive.getInputStream(archive.getEntry(path)).withCloseable {
-            new groovy.json.JsonSlurper().parse(it, 'UTF-8')
-        }
-        modules.collectMany { it.services ?: [] }.collect { it.descriptor.replace('.', '/') + '.class' }
-    }.toSet()
-    descriptors.each { path ->
-        if (!names.contains(path)) {
-            throw new GradleException("${archive.name} registers a missing service descriptor: $path")
-        }
-    }
-    def missing = names.findAll {
-        it.startsWith('org/exploit/keeper/') && it.endsWith('__ServiceDescriptor.class') && !descriptors.contains(it)
-    }
-    if (!missing.isEmpty()) {
-        throw new GradleException("${archive.name} has undiscoverable application services: $missing")
-    }
 }
 
 def verifyBundledRuntimeDependencies = { java.util.zip.ZipFile archive ->
@@ -735,7 +825,7 @@ tasks.register('artifactIsolationTest') {
     group = 'verification'
     description = 'Verifies module boundaries and bundled dependency classes in production test and integration jars.'
 
-    dependsOn tasks.named('shadowJarProductionTest'), tasks.named('shadowJarIntegration')
+    dependsOn packagedSecurityChecks['production-test'], packagedSecurityChecks.integration
 
     doLast {
         def markers = [
@@ -781,6 +871,7 @@ tasks.register('artifactIsolationTest') {
 }
 
 tasks.register('prepareDocker', Copy) {
+    dependsOn packagedSecurityChecks.production
     dependsOn tasks.named('shadowJar')
 
     from(tasks.named('shadowJar').get().archiveFile)
@@ -789,6 +880,7 @@ tasks.register('prepareDocker', Copy) {
 }
 
 tasks.register('prepareDockerIntegration', Copy) {
+    dependsOn packagedSecurityChecks.integration
     dependsOn tasks.named('shadowJarIntegration')
 
     from(tasks.named('shadowJarIntegration').get().archiveFile)
@@ -797,6 +889,7 @@ tasks.register('prepareDockerIntegration', Copy) {
 }
 
 tasks.register('prepareDockerProductionTest', Copy) {
+    dependsOn packagedSecurityChecks['production-test']
     dependsOn tasks.named('shadowJarProductionTest')
 
     from(tasks.named('shadowJarProductionTest').get().archiveFile)
@@ -814,7 +907,7 @@ tasks.register('dockerBuild', Exec) {
     }
     args '-f', 'Dockerfile',
             '--build-arg', "TKEEPER_TARGET=$nativeTarget",
-            '--build-arg', "TKEEPER_ECC=${enabledPlatformModules.containsKey('platform-ecc')}",
+            '--build-arg', "TKEEPER_ALLOW_SYSTEM_LIBRARIES=${providers.gradleProperty('keeper.native.allow-system').orElse('false').get()}",
             '-t', "exploit/tkeeper:${project.version}",
             '-t', 'exploit/tkeeper:latest',
             '.'
@@ -832,6 +925,7 @@ tasks.register('dockerBuildIntegration', Exec) {
     executable = 'docker'
     args 'build',
             '-f', 'integration-tests/docker/Dockerfile',
+            '--build-arg', "TKEEPER_ALLOW_SYSTEM_LIBRARIES=${providers.gradleProperty('keeper.native.allow-system').orElse('auto').get()}",
             '-t', 'exploit/tkeeper:dev',
             '.'
 }
@@ -844,6 +938,7 @@ tasks.register('dockerBuildProductionTest', Exec) {
             '-f', 'Dockerfile',
             '--build-arg', "TKEEPER_VERSION=${project.version}",
             '--build-arg', 'TKEEPER_JAR=build/docker-production-test/tkeeper.jar',
+            '--build-arg', "TKEEPER_ALLOW_SYSTEM_LIBRARIES=${providers.gradleProperty('keeper.native.allow-system').orElse('auto').get()}",
             '-t', 'exploit/tkeeper:production-it',
             '.'
 }
@@ -857,7 +952,7 @@ tasks.register('buildTestContainers') {
 
 def releaseChecksBeforeContainers = [
         tasks.named('test'),
-        ':vendor:helidon-codegen:test',
+        ':build-tools:helidon-codegen:test',
         ':sdk:test',
         ':integration-tests:test',
         featureModules.keySet().collect { ":$it:test" },

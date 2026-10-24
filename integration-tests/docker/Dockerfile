@@ -53,6 +53,9 @@ FROM eclipse-temurin:25-jdk-jammy AS runtime
 
 ARG TKEEPER_VERSION=dev
 ARG TKEEPER_FEATURES=
+ARG TKEEPER_ALLOW_SYSTEM_LIBRARIES=auto
+ARG TARGETOS
+ARG TARGETARCH
 
 LABEL org.opencontainers.image.title="tkeeper" \
       org.opencontainers.image.version="${TKEEPER_VERSION}" \
@@ -78,6 +81,11 @@ RUN ldconfig
 COPY --chown=185:0 build/docker/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
 COPY --chown=185:0 integration-tests/docker/entrypoint.sh /opt/tkeeper/entrypoint.sh
 COPY --chown=185:0 integration-tests/docker/init-hsm.sh /opt/tkeeper/init-hsm.sh
+COPY --chown=185:0 tools/native-library-options.sh /tmp/native-library-options.sh
+
+RUN sh /tmp/native-library-options.sh "${TKEEPER_ALLOW_SYSTEM_LIBRARIES}" "${TARGETOS}/${TARGETARCH}" \
+      > /opt/tkeeper/native-library.options \
+ && rm /tmp/native-library-options.sh
 
 RUN chmod +x /opt/tkeeper/init-hsm.sh
 RUN chmod +x /opt/tkeeper/entrypoint.sh

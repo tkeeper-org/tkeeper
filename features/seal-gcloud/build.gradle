@@ -28,7 +28,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     compileOnly(project(':'))
 
-    kapt project(':vendor:helidon-codegen')
+    kapt project(':build-tools:helidon-codegen')
     kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
     implementation('com.google.cloud:google-cloud-kms:2.88.0')
 }

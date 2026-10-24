@@ -22,6 +22,7 @@ In scope:
 - trusted dealer import
 - audit log integrity and sink enforcement
 - external control-plane client access
+- integrity and source selection of GMP, libsodium, secp256k1, and RocksDB JNI at application startup
 
 Out of scope:
 
@@ -42,6 +43,8 @@ Compromising fewer than `threshold` peers must not give the attacker a usable pr
 All protected operations run only after the keeper is unsealed.
 
 Production artifacts include only explicitly selected platforms and features. The dedicated integration artifact additionally contains failure-injection controls and must not be deployed as a production image.
+
+The build, dependency inputs, generated bootstrap classes, and delivered application artifact are trusted. Embedded native digests detect resource changes relative to that trusted build; they do not authenticate a dependency to its publisher or protect a replacement of both the code and its digests. Operators who enable `-Dkeeper.native.allow-system=true` additionally trust the selected system libraries, their search paths, and their dependencies.
 
 Authorities are part of the signing boundary. A key either uses `arbitrary` for raw signing or uses concrete authority policies. `arbitrary` cannot be mixed with concrete authorities on the same key.
 
@@ -65,6 +68,7 @@ Audit events are signed with the integrity key. When audit is enabled, at least 
 | Four eye approver keys | High | Critical | Medium |
 | Audit records | Low | Critical | High |
 | Session context | Low | Critical | High |
+| Native crypto and RocksDB implementations | Low | Critical | High |
 
 ## Trust boundaries
 
@@ -96,6 +100,14 @@ Browser to control-plane client:
 
 Keeper does not serve a bundled UI. A separately hosted browser client calls the authenticated
 public APIs. Its operator controls browser session handling and content security headers.
+
+Build to native execution:
+
+The build selects native resources for the artifact profile and OS/CPU target, compiles their SHA-256 digests into the bootstrap, and checks the final jar against that inventory. Before creating the service registry, startup extracts the selected resources into fresh temporary directories, hashes the extracted files, and loads those paths. RocksDB uses its explicit-directory API so its normal system-first loader cannot choose another binary on the embedded path.
+
+Production startup disables system fallback by default. Fallback is allowed only when no expected embedded variant exists and no unlisted matching resource is present. A present expected digest makes resource, extraction, verification, and native linking errors fatal.
+
+Test-image builds enable system fallback by default only for `linux/arm64`, which lacks bundled crypto natives. Other platforms keep system fallback disabled unless explicitly overridden. These images must not be deployed in production.
 
 ## Threats
 
@@ -403,7 +415,30 @@ Residual risk:
 
 TKeeper cannot enforce a downstream path that misinterprets or bypasses its proof. Cryptographic validity does not establish business validity, freshness, or correct environment by itself.
 
+### T-18: Native Library Substitution or Silent System Fallback
+
+Attack:
+
+An attacker changes or removes a packaged native resource while leaving the trusted bootstrap intact, or arranges a system library search path so a startup fallback loads a different implementation. A malicious implementation could access key material or alter cryptographic and storage operations in the Keeper process.
+
+Mitigation:
+
+- Keeper loads native libraries before creating services.
+- Build-generated, compiled SHA-256 digests bind the embedded GMP, libsodium, secp256k1, and RocksDB JNI resources to the trusted build. Packaging rejects missing, changed, or additional managed resources relative to that inventory.
+- Startup verifies the extracted file before loading it. Missing, unlisted, modified, unreadable, or unloadable embedded binaries fail startup without system fallback, including when the system flag is enabled.
+- System loading requires `-Dkeeper.native.allow-system=true` and the absence of an expected embedded variant for the current platform. Embedded variants retain priority when the flag is enabled.
+- RocksDB's embedded JNI is loaded from the verified directory before its later idempotent `loadLibrary()` calls. Its normal system-search path is used only for the permitted fallback case.
+
+Residual risk:
+
+System libraries are deliberately not digest-checked when fallback is explicitly enabled. The flag is an operator trust decision, including for images on platforms without bundled crypto natives. This control covers these four application bootstrap libraries; it is not a global restriction on JVM native loading. The JVM, OS loader, transitive native dependencies, other native-using dependencies, build infrastructure, full artifact provenance, and protection of extracted files against a compromised host remain trusted deployment inputs. An attacker who can replace the compiled verifier and expected digests or control the running process is outside this control's boundary.
+
 ## Security properties
+
+The build checks the selected modules, required security components and restrictions
+on access to key storage and protected operations. Production artifacts reject
+failure-injection controls. See [Build-time security](build-time-security.md) for
+artifact selection and deployment checks.
 
 | Property | Mechanism |
 | --- | --- |
@@ -418,6 +453,7 @@ TKeeper cannot enforce a downstream path that misinterprets or bypasses its proo
 | Storage confidentiality | DEK/KEK envelope encryption |
 | Storage integrity | signed key and metadata records |
 | Audit integrity | integrity-key signatures over encoded events |
+| Embedded native integrity and fail-closed selection | compiled SHA-256 inventory, verification before load, explicit system opt-in only for absent variants |
 
 ## Operational checklist
 
@@ -427,6 +463,8 @@ TKeeper cannot enforce a downstream path that misinterprets or bypasses its proo
 - Avoid broad wildcard permissions.
 - Treat `arbitrary` keys as raw signing keys.
 - Use digest-pinned OCI authorities.
+- Keep native system fallback disabled where embedded variants exist; where explicitly enabled, secure the system JNI/crypto libraries and their loader paths.
+- Verify release artifact provenance; embedded digests rely on a trusted build and bootstrap.
 - Review Asset Inventory exports.
 - Distribute Shamir shares across separate operators.
 - Restrict HSM, AWS KMS, and Google Cloud KMS access to TKeeper identities.

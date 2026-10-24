@@ -11,9 +11,14 @@ JNA_LIBRARY_PATH="${JNA_LIBRARY_PATH:-/usr/local/lib}"
 HSM_ENABLED="${HSM_ENABLED:-false}"
 
 set -- java \
+  @/opt/tkeeper/native-library.options \
   "-Dkeeper.config.location=${KEEPER_CONFIG_LOCATION}" \
   "-Djava.library.path=${JAVA_LIBRARY_PATH}" \
   "-Djna.library.path=${JNA_LIBRARY_PATH}"
+
+if [ -n "${TKEEPER_ALLOW_SYSTEM_LIBRARIES:-}" ]; then
+  set -- "$@" "-Dkeeper.native.allow-system=${TKEEPER_ALLOW_SYSTEM_LIBRARIES}"
+fi
 
 if [ "${KEEPER_DEV_ENABLED}" = "true" ]; then
   set -- "$@" \

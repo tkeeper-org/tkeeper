@@ -16,7 +16,7 @@ dependencies {
     compileOnly(project(':'))
     testImplementation(project(':'))
 
-    kapt project(':vendor:helidon-codegen')
+    kapt project(':build-tools:helidon-codegen')
     kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
 }
 

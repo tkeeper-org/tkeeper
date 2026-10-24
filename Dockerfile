@@ -1,4 +1,4 @@
-# Linux aarch64 has no bundled Anvil natives, so production images provide the system fallback.
+# Linux aarch64 needs explicit system-library opt-in; images provide those libraries.
 FROM registry.access.redhat.com/ubi9/ubi:9.7 AS native-build
 
 RUN dnf install -y \
@@ -51,7 +51,9 @@ FROM registry.access.redhat.com/ubi9/openjdk-25:1.24
 ARG TKEEPER_VERSION=dev
 ARG TKEEPER_JAR=build/docker/tkeeper.jar
 ARG TKEEPER_TARGET=all
-ARG TKEEPER_ECC=true
+ARG TKEEPER_ALLOW_SYSTEM_LIBRARIES=false
+ARG TARGETOS
+ARG TARGETARCH
 
 LABEL maintainer="TKeeper Labs" \
       app.name="tkeeper" \
@@ -68,6 +70,7 @@ ENV JAVA_OPTS_APPEND="\
   -Djdk.tls.client.protocols=TLSv1.3,TLSv1.2 \
   -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib \
   -Dmsgpack.universal-buffer=true \
+  @/deployments/native-library.options \
   -XX:+UseCompactObjectHeaders \
   --enable-native-access=ALL-UNNAMED"
 
@@ -76,26 +79,18 @@ COPY --from=native-build /usr/local/lib/libsecp256k1.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsodium.so* /usr/local/lib/
 COPY --chown=185:0 ${TKEEPER_JAR} /deployments/tkeeper.jar
 COPY --chown=185:0 tools/NativeJarSmoke.java /tmp/NativeJarSmoke.java
+COPY --chown=185:0 tools/native-library-options.sh /tmp/native-library-options.sh
 
-RUN printf '%s\n' \
-      'public class NativeSmoke {' \
-      '  public static void main(String[] args) {' \
-      '    System.loadLibrary("gmp");' \
-      '    System.loadLibrary("secp256k1");' \
-      '    System.loadLibrary("sodium");' \
-      '  }' \
-      '}' \
-      > /tmp/NativeSmoke.java \
+RUN sh /tmp/native-library-options.sh "${TKEEPER_ALLOW_SYSTEM_LIBRARIES}" "${TARGETOS}/${TARGETARCH}" \
+      > /deployments/native-library.options \
+ && rm /tmp/native-library-options.sh \
  && java \
       --enable-native-access=ALL-UNNAMED \
-      -Djava.library.path=/usr/local/lib \
-      /tmp/NativeSmoke.java \
- && java \
-      --enable-native-access=ALL-UNNAMED \
+      @/deployments/native-library.options \
       -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib \
       -cp /deployments/tkeeper.jar \
-      /tmp/NativeJarSmoke.java "${TKEEPER_TARGET}" "${TKEEPER_ECC}" \
- && rm /tmp/NativeSmoke.java /tmp/NativeJarSmoke.java
+      /tmp/NativeJarSmoke.java "${TKEEPER_TARGET}" \
+ && rm /tmp/NativeJarSmoke.java
 
 ENV JAVA_APP_JAR="/deployments/tkeeper.jar"
 
