@@ -154,18 +154,34 @@ After repair, replace the maintenance artifact with a production build that does
 
 ## Request bodies
 
-Public and internal servers have separate limits for receiving a complete request body after
-the request headers are parsed:
+Public and internal servers have separate limits for reading request bodies:
 
 ```hocon
 keeper.server.public.request-body-timeout = 10s
+keeper.server.public.request-body-max-timeout = 30s
+keeper.server.public.request-body-min-rate = 1024
+
 keeper.server.internal.request-body-timeout = 10s
+keeper.server.internal.request-body-max-timeout = 30s
+keeper.server.internal.request-body-min-rate = 1024
 ```
 
-Both values must be positive. The environment overrides are `KEEPER_REQUEST_BODY_TIMEOUT`
-and `KEEPER_INTERNAL_REQUEST_BODY_TIMEOUT`. The limit includes bodies left unread after an
-early response. A timeout closes the connection; for HTTP/2 this also ends other streams on
-that connection. Receiving the body completes this deadline; operation timeouts are separate.
+`request-body-timeout` sets the initial read timeout after the headers are parsed.
+`request-body-min-rate` specifies how many bytes must be read to add one second, up to
+`request-body-max-timeout` in total. With the defaults, reading 1 KiB extends the timeout
+by one second, with a maximum of 30 seconds from the start of the request.
+
+All values must be positive. The maximum must be at least the initial timeout.
+Set both timeouts equal to use a fixed deadline.
+
+The public environment overrides are `KEEPER_REQUEST_BODY_TIMEOUT`,
+`KEEPER_REQUEST_BODY_MAX_TIMEOUT`, and `KEEPER_REQUEST_BODY_MIN_RATE`. The internal overrides
+use the `KEEPER_INTERNAL_` prefix instead of `KEEPER_`.
+
+Server-side delays before reading the body count toward the timeout. The limit also covers
+bodies left unread after an early response. Once the body is fully read, the operation can
+continue independently of this deadline. A timeout closes the connection; for HTTP/2 this
+also ends other streams on that connection.
 
 ## Server TLS
 
@@ -238,7 +254,9 @@ keeper.client {
 
 `keeper.client.request-timeout` is the total peer request deadline and must be positive. `connect-timeout` may impose a shorter connection deadline; `0ms` leaves connection setup bounded by the total request deadline.
 
-All configuration timeouts accept HOCON durations, such as `500ms`, `30s`, or `2m`. Values without units remain milliseconds for compatibility (`30000` means `30s`), but that notation is deprecated. Configuration models retain `Duration`; conversion to an API's required units rounds up, checks overflow, and preserves zero only where it explicitly disables a timeout. Jettyx's whole-second transport limit rounds up while TKeeper retains the configured result deadline.
+All configuration timeouts accept HOCON durations, such as `500ms`, `30s`, or `2m`.
+Values without units remain milliseconds for compatibility (`30000` means `30s`), but that
+notation is deprecated. Use `0ms` only for settings that explicitly support disabling the timeout.
 
 Give every peer a distinct client certificate, then bind its configured peer id to that certificate's SPKI digest:
 
