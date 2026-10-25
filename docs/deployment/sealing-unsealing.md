@@ -191,6 +191,54 @@ keeper.providers {
 }
 ```
 
+## Cloud credentials and transport
+
+KMS encrypt and decrypt requests use Jettyx 0.2.0 over HTTPS. The providers retain
+the official AWS and Google authentication libraries for credential discovery,
+request signing, federation, and token refresh. Neither provider bundles Netty
+or a gRPC transport.
+
+AWS uses the [default credentials provider chain](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials-chain.html):
+JVM properties, environment variables, web identity, shared profiles, container
+credentials, and EC2 instance credentials. STS, IAM Identity Center (SSO), and
+SSO OIDC support are included. Obtain an SSO session with the AWS CLI before
+starting TKeeper. Credential-service requests use the SDK's JDK URLConnection
+transport. KMS requests use SigV4 and `SYMMETRIC_DEFAULT`; region endpoints and
+signing regions come from official AWS service metadata.
+
+Google uses [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials):
+`GOOGLE_APPLICATION_CREDENTIALS`, the local ADC file, or the attached service
+account. Supported credential types and their refresh behavior remain those of
+the official authentication library, including service accounts, user credentials,
+workload federation, and impersonation. OAuth uses the `cloud-platform` scope;
+KMS requests include quota-project metadata when credentials provide it.
+
+The existing provider configuration and stored wrapped keys do not need migration.
+The identity needs `kms:Encrypt` and `kms:Decrypt` for AWS, or
+`cloudkms.cryptoKeyVersions.useToEncrypt` and
+`cloudkms.cryptoKeyVersions.useToDecrypt` for Google. Cloud IAM and key policies
+still control access.
+
+The wire contracts follow the official
+[AWS Encrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html),
+[AWS Decrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Decrypt.html),
+[Google Encrypt](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/encrypt),
+and [Google Decrypt](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/decrypt)
+APIs. Google responses must pass CRC32C verification; encryption must confirm the
+request checksum and return a version of the configured key. Both providers
+bound response sizes and retry transient HTTP errors up to three attempts.
+Redirects are rejected.
+
+Run the local protocol and authentication tests with:
+
+```bash
+./gradlew :features:seal-aws:test :features:seal-gcloud:test
+```
+
+These tests use local HTTP endpoints and fake credentials. They verify request
+formats, signing, OAuth exchanges, token refresh, and failure handling. They do
+not verify a deployment's credentials, IAM policies, or access to live cloud keys.
+
 ## Common problems
 
 ### `KEEPER_SEALED`

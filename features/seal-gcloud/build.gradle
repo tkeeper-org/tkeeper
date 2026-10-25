@@ -20,17 +20,19 @@ def jacksonGroups = [
         'com.fasterxml.jackson.jakarta.rs'
 ]
 
-configurations.matching { it.name.toLowerCase(java.util.Locale.ROOT).contains('runtime') }.configureEach {
+configurations.matching { it.name in ['runtimeClasspath', 'runtimeElements'] }.configureEach {
     jacksonGroups.each { groupName -> exclude group: groupName }
 }
 
 dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation(project(':'))
+    testImplementation testFixtures(project(':'))
     compileOnly(project(':'))
 
     kapt project(':build-tools:helidon-codegen')
     kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
-    implementation('com.google.cloud:google-cloud-kms:2.88.0')
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.42.1'
 }
 
 tasks.named('shadowJar') {
@@ -38,7 +40,6 @@ tasks.named('shadowJar') {
     mergeServiceFiles()
     exclude 'com/fasterxml/jackson/**'
     exclude 'META-INF/services/com.fasterxml.jackson.*'
-    exclude 'io/netty/**'
     exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE*'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
