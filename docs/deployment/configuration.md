@@ -43,7 +43,7 @@ Example:
 java \
   -Dkeeper.config.location=/etc/tkeeper \
   -Dkeeper.dev.config.location=/etc/tkeeper \
-  -jar build/libs/tkeeper-3.0.0.jar
+  -jar build/libs/tkeeper-3.1.0.jar
 ```
 
 Minimal node config:
@@ -152,6 +152,21 @@ blocked until the keeper is restarted with recovery disabled. See
 After repair, replace the maintenance artifact with a production build that does not include the
 `recovery` feature. Do not use the runtime flag as the only recovery deactivation step.
 
+## Request bodies
+
+Public and internal servers have separate limits for receiving a complete request body after
+the request headers are parsed:
+
+```hocon
+keeper.server.public.request-body-timeout = 10s
+keeper.server.internal.request-body-timeout = 10s
+```
+
+Both values must be positive. The environment overrides are `KEEPER_REQUEST_BODY_TIMEOUT`
+and `KEEPER_INTERNAL_REQUEST_BODY_TIMEOUT`. The limit includes bodies left unread after an
+early response. A timeout closes the connection; for HTTP/2 this also ends other streams on
+that connection. Receiving the body completes this deadline; operation timeouts are separate.
+
 ## Server TLS
 
 TLS can use a keystore:
@@ -193,6 +208,8 @@ The peer client must trust the internal server certificate when internal TLS is 
 ```hocon
 keeper.client {
   tls = true
+  request-timeout = 30s
+  connect-timeout = 500ms
   trust-store-path = "/etc/tkeeper/internal-truststore.p12"
   trust-store-password = "..."
 }
@@ -218,6 +235,10 @@ keeper.client {
   key-store-type = "PKCS12"
 }
 ```
+
+`keeper.client.request-timeout` is the total peer request deadline and must be positive. `connect-timeout` may impose a shorter connection deadline; `0ms` leaves connection setup bounded by the total request deadline.
+
+All configuration timeouts accept HOCON durations, such as `500ms`, `30s`, or `2m`. Values without units remain milliseconds for compatibility (`30000` means `30s`), but that notation is deprecated. Configuration models retain `Duration`; conversion to an API's required units rounds up, checks overflow, and preserves zero only where it explicitly disables a timeout. Jettyx's whole-second transport limit rounds up while TKeeper retains the configured result deadline.
 
 Give every peer a distinct client certificate, then bind its configured peer id to that certificate's SPKI digest:
 
@@ -313,7 +334,7 @@ Minimal file audit:
 ```hocon
 keeper.audit {
   enabled = true
-  timeout = 1000
+  timeout = 1s
 
   file {
     directory = "/var/lib/tkeeper/audit"

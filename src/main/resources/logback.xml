@@ -1,8 +1,7 @@
 <configuration>
     <conversionRule conversionWord="wex" class="ch.qos.logback.classic.pattern.ExtendedThrowableProxyConverter"/>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <withJansi>true</withJansi>
+    <appender name="STDOUT" class="ch.qos.logback.core.JansiConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%thread] %logger{36} - %msg%n%wex{5}</pattern>
         </encoder>
@@ -11,7 +10,7 @@
     <logger name="io.netty" level="WARN" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="com.linecorp.armeria" level="INFO" additivity="false">
+    <logger name="io.helidon" level="INFO" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 

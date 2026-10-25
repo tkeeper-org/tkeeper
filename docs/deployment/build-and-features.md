@@ -24,10 +24,14 @@ Equivalent:
 The jar lands under:
 
 ```text
-build/libs/tkeeper-3.0.0.jar
+build/libs/tkeeper-3.1.0.jar
 ```
 
 TKeeper requires Java 25.
+
+Packaging checks the selected modules and required security components before the
+Docker image is built. See [Build-time security](../security-model/build-time-security.md)
+for artifact selection and deployment checks.
 
 ## Build a smaller artifact
 
@@ -57,7 +61,7 @@ The earlier `authority-bitcoin` and `authority-evm` selectors remain accepted.
 `keeper.platforms` selects cryptographic modules (`ecc` and `pqc`). The separate `target`
 property selects native libraries packaged into the **production** fat jar. By default,
 `target=all` keeps native binaries for every bundled OS/CPU combination and produces
-`build/libs/tkeeper-3.0.0.jar`.
+`build/libs/tkeeper-3.1.0.jar`.
 
 Build the complete feature set for a Linux amd64 host with a smaller jar:
 
@@ -65,7 +69,7 @@ Build the complete feature set for a Linux amd64 host with a smaller jar:
 ./gradlew shadowJar -Pkeeper.features=all -Pkeeper.platforms=all -Ptarget=linux-amd64
 ```
 
-The output is `build/libs/tkeeper-3.0.0-linux-amd64.jar`. To keep every bundled native variant, use
+The output is `build/libs/tkeeper-3.1.0-linux-amd64.jar`. To keep every bundled native variant, use
 `-Ptarget=all` or omit `target`:
 
 ```bash
@@ -85,12 +89,22 @@ A targeted jar contains native libraries for the selected OS/CPU. Java classes a
 features stay the same. Both test jars retain every bundled native variant regardless
 of `target`.
 
-On Linux arm64 and macOS amd64, GMP and libsodium are loaded from the system;
-secp256k1 is also loaded when `ecc` is selected.
-At startup Keeper tries the bundled libraries first, then calls `System.loadLibrary` for
-any that are absent. Install these shared libraries where the JVM can find them (for
-example via `-Djava.library.path`). The production Dockerfile builds all three for Linux
-and sets the JVM library path; a standalone jar does not install system libraries.
+Before services are created, Keeper loads GMP, libsodium, RocksDB JNI, and secp256k1
+when `ecc` is selected. Packaging records their SHA-256 digests and checks the final
+jar against that inventory. Startup verifies each extracted library before loading it.
+
+System loading is disabled by default. On Linux arm64 and macOS amd64, no crypto
+natives are bundled: install GMP, libsodium, and (for `ecc`) secp256k1, then explicitly
+allow their use with `-Dkeeper.native.allow-system=true`. Set `-Djava.library.path`
+to their directory if needed. RocksDB requires a compatible JNI library
+when its embedded variant is unavailable. System libraries are trusted without digest
+verification. The flag permits fallback only when the compiled inventory has no
+matching embedded variant and no unlisted resource is present. A missing, changed,
+unreadable, or unloadable expected binary aborts startup even with the flag enabled.
+
+The production Dockerfile provides the system crypto libraries and sets the JVM
+library path; a standalone jar does not install them. For the loading smoke task,
+pass `-Pkeeper.native.allow-system=true` to forward the explicit opt-in to its JVM.
 Linux targets use glibc binaries. For musl-based distributions, use `target=all` and
 verify the remaining native dependencies. A targeted jar is specific to its OS/CPU.
 
@@ -200,6 +214,17 @@ Dockerfile produces Linux images.
 finishing. For `linux-arm64` on an amd64 host, Docker must be able to execute arm64
 build steps (for example through an arm64 builder or emulation).
 
+Images default to refusing system fallback too. Linux arm64 images need an explicit
+opt-in for their system crypto libraries:
+
+```bash
+./gradlew dockerBuild -Pkeeper.platforms=ecc -Ptarget=linux-arm64 -Pkeeper.native.allow-system=true
+```
+
+This passes `TKEEPER_ALLOW_SYSTEM_LIBRARIES=true` to the Docker build and records
+`-Dkeeper.native.allow-system=true` in the image's default JVM options. Protect the
+image and its system libraries as trusted deployment inputs.
+
 Build a recovery image with both platform implementations:
 
 ```bash
@@ -211,7 +236,7 @@ Build a recovery image with both platform implementations:
 Production image tags:
 
 ```text
-exploit/tkeeper:3.0.0
+exploit/tkeeper:3.1.0
 exploit/tkeeper:latest
 ```
 
@@ -230,7 +255,7 @@ docker run --rm \
   -v "$PWD/config:/etc/tkeeper:ro" \
   -v "$PWD/data:/var/lib/tkeeper" \
   -e KEEPER_CONFIG_LOCATION=/etc/tkeeper \
-  exploit/tkeeper:3.0.0
+  exploit/tkeeper:3.1.0
 ```
 
 ## Integration image
@@ -250,6 +275,14 @@ Build both images used by functional integration tests with:
 ```
 
 The test task reuses these images. Re-run the build after changing application code, dependencies, or Dockerfiles.
+
+Both test-image builds use Docker's selected platform. They enable
+`keeper.native.allow-system` automatically only for `linux/arm64`, which lacks
+bundled crypto natives and uses the libraries built into the image. Other platforms
+keep system fallback disabled by default. Bundled variants still take priority and
+fail closed on verification or loading errors. Pass
+`-Pkeeper.native.allow-system=true|false` to override the test-image default.
+Production image builds keep system fallback disabled by default on every platform.
 
 Do not pass `keeper.features` or `keeper.platforms` to this task. The development integration image
 uses a dedicated classpath containing every default production feature, the explicit `auth-dev`,

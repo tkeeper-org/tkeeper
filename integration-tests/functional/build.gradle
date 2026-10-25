@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '3.0.0'
+version = '3.1.0'
 
 repositories {
     mavenCentral()
@@ -18,6 +18,25 @@ dependencies {
 
 kotlin {
     jvmToolchain(25)
+}
+
+tasks.withType(Test).configureEach {
+    dependsOn rootProject.tasks.named('shadowJarProductionTest')
+    systemProperty 'it.native.jar', rootProject.tasks.named('shadowJarProductionTest').get().archiveFile.get().asFile.absolutePath
+    systemProperty 'it.native.entrypoint', rootProject.file('integration-tests/docker/entrypoint.sh').absolutePath
+    systemProperty 'it.native.options', rootProject.file('tools/native-library-options.sh').absolutePath
+}
+
+tasks.register('nativeLibraryStartupTest', Test) {
+    description = 'Checks native bootstrap in fresh JVMs without Docker.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform()
+    filter.includeTestsMatching('org.exploit.test.functional.NativeLibraryStartupTests')
+    filter.includeTestsMatching('org.exploit.test.functional.NativeAnvilCompatibilityTests')
+    filter.includeTestsMatching('org.exploit.test.functional.NativeDockerConfigurationTests')
+    testLogging { exceptionFormat = 'full' }
 }
 
 test {

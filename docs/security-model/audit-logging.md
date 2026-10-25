@@ -101,7 +101,7 @@ For compliance or incident evidence:
 ```hocon
 keeper.audit {
   enabled = true
-  timeout = 1000
+  timeout = 1s
 
   file {
     directory = "/var/lib/tkeeper/audit"
@@ -113,6 +113,8 @@ keeper.audit {
     retention-days = 30
     gzip = false
     fsync = false
+    ack-timeout = 500ms
+    shutdown-timeout = 10s
   }
 }
 ```
@@ -126,6 +128,11 @@ keeper.audit {
   socket {
     host = "audit.local"
     port = 443
+    connect-timeout = 2s
+    read-timeout = 2s
+    write-timeout = 2s
+    ack-timeout = 1s
+    shutdown-timeout = 10s
     tls {
       protocols = ["TLSv1.3", "TLSv1.2"]
       verify-hostname = true
@@ -138,6 +145,8 @@ keeper.audit {
 ```
 
 The socket sink marks a line accepted after TKeeper writes and flushes it to the local socket stream. This is not a collector durability acknowledgement. If the local write does not complete before `ack-timeout`, TKeeper treats that sink as failed.
+
+Timeouts accept HOCON durations. Unitless values still mean milliseconds but are deprecated. The socket's former `connect-timeout-millis` and `read-timeout-millis` names are deprecated aliases; `connect-timeout` and `read-timeout` take precedence when both forms are present. `read-timeout = 0ms` disables the socket read timeout. Other socket and file audit timeouts must be positive; socket connect/read limits must fit a 32-bit millisecond value.
 
 ## Verification
 

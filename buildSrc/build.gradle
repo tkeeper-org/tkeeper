@@ -1,0 +1,30 @@
+plugins {
+    id 'java-library'
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.4'
+    compileOnly 'io.helidon.codegen:helidon-codegen:4.5.6'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
+    testImplementation gradleTestKit()
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+    jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
+    systemProperty 'build.fixture.classpath', sourceSets.main.runtimeClasspath.asPath
+    systemProperty 'build.fixture.gradle', gradle.gradleHomeDir.absolutePath
+}
+
+tasks.named('jar') {
+    dependsOn tasks.named('test')
+}

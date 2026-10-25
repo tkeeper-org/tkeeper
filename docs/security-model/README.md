@@ -8,6 +8,7 @@ Read:
 
 - [Threat Model](threat-model.md)
 - [Security Assurance](security-assurance.md)
+- [Build-time security](build-time-security.md)
 - [Quorum Modes](quorum-modes.md)
 - [Authentication and Authorization](authentication-authorization.md)
 - [Audit Logging](audit-logging.md)

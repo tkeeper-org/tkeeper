@@ -1,11 +1,11 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'com.gradleup.shadow' version '9.4.1'
-    id 'com.google.devtools.ksp' version '2.3.10'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 group = 'org.exploit'
-version = '3.0.0'
+version = '3.1.0'
 
 repositories {
     mavenCentral()
@@ -23,7 +23,8 @@ dependencies {
     testImplementation 'io.kotest:kotest-property:6.1.11'
     testImplementation 'com.code-intelligence:jazzer-junit:0.30.0'
 
-    ksp "io.micronaut:micronaut-inject-kotlin:4.10.8"
+    kapt project(':build-tools:helidon-codegen')
+    kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
 }
 
 tasks.named('shadowJar') {

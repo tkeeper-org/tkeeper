@@ -21,6 +21,13 @@ Gradle:
 implementation 'org.exploit:tkeeper-sdk:3.0.0'
 ```
 
+The SDK uses Jettyx 0.2.0 with the JDK HTTP client. Recompile applications that used
+the former Jetty-based SDK: response headers now use `java.net.http.HttpHeaders`
+(`firstValue(name)` / `allValues(name)`), and custom `Authorization` implementations
+must implement `apply(java.net.http.HttpRequest.Builder)`. Pass raw path parameters;
+Jettyx encodes them. `HubUtils.checked(...)` handles HTTP error responses; the former
+Jetty-specific `HubUtils.httpError(Throwable)` helper has been removed.
+
 ## Connect to Keeper
 
 Use JWT authentication outside local development:

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '3.0.0'
+version = '3.1.0'
 
 ext {
     projectName = "Integration Tests"
@@ -29,12 +29,13 @@ dependencies {
     testFixturesApi 'org.testcontainers:testcontainers-bom:1.21.4'
     testFixturesApi 'org.testcontainers:junit-jupiter:1.21.4'
     testFixturesApi(project(":sdk"))
+    testFixturesApi(testFixtures(project(':')))
 
     testFixturesApi('org.bitcoinj:bitcoinj-core:0.17.1') {
         exclude group: 'com.google.protobuf', module: 'protobuf-javalite'
     }
     testFixturesApi('org.web3j:core:4.12.3')
-    testFixturesApi enforcedPlatform('org.exploit.anvil:bom:0.3.1')
+    testFixturesApi enforcedPlatform('org.exploit.anvil:bom:0.3.2')
     testFixturesApi platform('org.exploit.signet:bom:0.1.0')
     testFixturesApi 'org.exploit.signet:tron'
     testFixturesApi 'org.exploit.signet:xrp'
@@ -46,18 +47,17 @@ dependencies {
 
     testFixturesApi 'ch.qos.logback:logback-classic:1.5.20'
 
-    testFixturesApi 'org.exploit:bigint:0.0.12'
-    testFixturesApi 'org.exploit:ed25519:0.0.12'
-    testFixturesApi 'org.exploit:secp256k1:0.0.12'
-    testFixturesApi 'org.exploit:secp256r1:0.0.12'
-    testFixturesApi 'org.exploit:sodium:0.0.12'
-    testFixturesApi 'org.exploit:tss4j:0.0.12'
-    testFixturesApi 'org.exploit:frost:0.0.12'
-    testFixturesApi 'org.exploit:gg20:0.0.12'
-    testFixturesApi 'org.exploit:ecies:0.0.12'
-    testFixturesApi 'org.exploit:frost-ed25519:0.0.12'
-    testFixturesApi 'org.exploit:frost-secp256k1:0.0.12'
-    testFixturesApi 'org.exploit:frost-secp256r1:0.0.12'
+    testFixturesApi 'org.exploit.anvil:bigint'
+    testFixturesApi 'org.exploit.anvil:ecc-ed25519'
+    testFixturesApi 'org.exploit.anvil:ecc-secp256k1'
+    testFixturesApi 'org.exploit.anvil:ecc-p256'
+    testFixturesApi 'org.exploit.anvil:xchacha20-poly1305'
+    testFixturesApi 'org.exploit.anvil:t-schnorr'
+    testFixturesApi 'org.exploit.anvil:t-ecdsa'
+    testFixturesApi 'org.exploit.anvil:t-ecies'
+    testFixturesApi 'org.exploit.anvil:frost-ed25519'
+    testFixturesApi 'org.exploit.anvil:frost-secp256k1'
+    testFixturesApi 'org.exploit.anvil:frost-p256'
 
     testFixturesApi("org.exploit:tss4j-natives:1.0.0:linux-amd64@jar")
     testFixturesApi("org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar")
