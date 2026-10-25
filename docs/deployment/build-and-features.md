@@ -24,7 +24,7 @@ Equivalent:
 The jar lands under:
 
 ```text
-build/libs/tkeeper-3.0.0.jar
+build/libs/tkeeper-3.1.0.jar
 ```
 
 TKeeper requires Java 25.
@@ -61,7 +61,7 @@ The earlier `authority-bitcoin` and `authority-evm` selectors remain accepted.
 `keeper.platforms` selects cryptographic modules (`ecc` and `pqc`). The separate `target`
 property selects native libraries packaged into the **production** fat jar. By default,
 `target=all` keeps native binaries for every bundled OS/CPU combination and produces
-`build/libs/tkeeper-3.0.0.jar`.
+`build/libs/tkeeper-3.1.0.jar`.
 
 Build the complete feature set for a Linux amd64 host with a smaller jar:
 
@@ -69,7 +69,7 @@ Build the complete feature set for a Linux amd64 host with a smaller jar:
 ./gradlew shadowJar -Pkeeper.features=all -Pkeeper.platforms=all -Ptarget=linux-amd64
 ```
 
-The output is `build/libs/tkeeper-3.0.0-linux-amd64.jar`. To keep every bundled native variant, use
+The output is `build/libs/tkeeper-3.1.0-linux-amd64.jar`. To keep every bundled native variant, use
 `-Ptarget=all` or omit `target`:
 
 ```bash
@@ -236,7 +236,7 @@ Build a recovery image with both platform implementations:
 Production image tags:
 
 ```text
-exploit/tkeeper:3.0.0
+exploit/tkeeper:3.1.0
 exploit/tkeeper:latest
 ```
 
@@ -255,7 +255,7 @@ docker run --rm \
   -v "$PWD/config:/etc/tkeeper:ro" \
   -v "$PWD/data:/var/lib/tkeeper" \
   -e KEEPER_CONFIG_LOCATION=/etc/tkeeper \
-  exploit/tkeeper:3.0.0
+  exploit/tkeeper:3.1.0
 ```
 
 ## Integration image

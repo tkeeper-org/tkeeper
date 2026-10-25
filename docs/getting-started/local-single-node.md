@@ -35,7 +35,7 @@ Build the jar with the explicit developer-auth feature:
 The jar is:
 
 ```text
-build/libs/tkeeper-3.0.0.jar
+build/libs/tkeeper-3.1.0.jar
 ```
 
 ## Create local config
@@ -102,7 +102,7 @@ java \
   -Dkeeper.dev.enabled=true \
   -Dkeeper.dev.config.location=/tmp/tkeeper \
   -Dkeeper.coordinator.enabled=true \
-  -jar build/libs/tkeeper-3.0.0.jar
+  -jar build/libs/tkeeper-3.1.0.jar
 ```
 
 ## Initialize the node
