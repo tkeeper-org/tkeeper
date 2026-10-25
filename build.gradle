@@ -355,11 +355,11 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.3.2'
+    api 'org.exploit.verdict:core:0.3.3'
 
-    api 'org.exploit.verdict:authority:0.3.2'
-    api 'org.exploit.verdict:authority-oci:0.3.2'
-    api 'org.exploit.verdict:oras:0.3.2'
+    api 'org.exploit.verdict:authority:0.3.3'
+    api 'org.exploit.verdict:authority-oci:0.3.3'
+    api 'org.exploit.verdict:oras:0.3.3'
 
     api 'com.nimbusds:nimbus-jose-jwt:10.2'
 
@@ -370,7 +370,7 @@ dependencies {
     implementation 'org.jline:jansi-core:4.3.1'
     implementation 'ch.qos.logback:logback-classic:1.6.3'
 
-    implementation 'org.exploit.verdict:typed:0.3.2'
+    implementation 'org.exploit.verdict:typed:0.3.3'
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 

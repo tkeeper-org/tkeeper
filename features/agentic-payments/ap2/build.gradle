@@ -38,7 +38,7 @@ dependencies {
 
     kapt project(':build-tools:helidon-codegen')
     kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
-    implementation 'org.exploit.verdict:ap2:0.3.2'
+    implementation 'org.exploit.verdict:ap2:0.3.3'
 }
 
 tasks.named('shadowJar') {

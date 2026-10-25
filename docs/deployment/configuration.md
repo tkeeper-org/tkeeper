@@ -347,7 +347,7 @@ Socket audit supports TLS, SPKI pins, client certificates, batching, timeouts, a
 
 ## ORAS
 
-ORAS config is used by authority OCI pulls:
+Configure registry access for OCI authorities:
 
 ```hocon
 oras {
@@ -355,10 +355,28 @@ oras {
   allowed-registries = ["registry.example.com"]
   username = "robot"
   password = "secret"
+
+  registries {
+    "registry.example.com" {
+      token-origins = ["https://auth.example.com"]
+      download-origins = ["https://storage.example.com"]
+    }
+  }
 }
 ```
 
 `allowed-registries` is mandatory for OCI authorities and matches the exact registry authority, including the port. An empty list denies all OCI pulls. HTTPS is the default; use `insecure = true` only for an explicitly allowed local plain HTTP registry.
+
+Use `registries` when a registry issues Bearer challenges through a separate token
+service or redirects blob downloads to another origin. Quote each registry key;
+it must match the OCI reference's host and optional port exactly, without a scheme
+or path. These settings do not add the registry to `allowed-registries`.
+
+Origins contain only a scheme, host and optional port. Token origins can receive
+the configured registry credentials. Blob redirects to download origins receive
+no registry credentials. The two lists are independent, apply only to their
+registry, and default to empty. The registry's own origin remains trusted;
+other origins are rejected unless listed. HTTP origins require `insecure = true`.
 
 ## External control-plane clients
 

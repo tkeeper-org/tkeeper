@@ -433,6 +433,10 @@ oras {
 }
 ```
 
+If the registry uses a separate token service or blob storage, configure its
+[token and download origins](../deployment/configuration.md#oras). Token origins
+may receive registry credentials; redirected blob downloads receive none.
+
 For a local HTTP registry, allow that registry and enable insecure ORAS access:
 
 ```hocon
@@ -483,3 +487,9 @@ The Verdict policy evaluated to `DENY`.
 ### OCI pull fails with TLS errors
 
 Check that the exact host and port are present in `oras.allowed-registries`. A local HTTP registry also needs `oras.insecure = true`.
+
+### OCI pull fails after a token challenge or blob redirect
+
+Check the token service against `token-origins` and the blob redirect destination
+against `download-origins` under the registry's [ORAS settings](../deployment/configuration.md#oras).
+Permission for one kind of request does not permit the other.
