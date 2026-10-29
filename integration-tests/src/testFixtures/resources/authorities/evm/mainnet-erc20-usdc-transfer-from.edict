@@ -1,0 +1,26 @@
+authority "test:evm/mainnet-usdc-transfer-from" {
+    intent = "evm.transaction"
+    version = "1.0.0"
+    title = "Mainnet USDC transferFrom limit"
+
+    config {
+        chainId = 1
+    }
+
+    contract token: evm {
+        address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        fn transferFrom(from: address, to: address, amount: uint256)
+    }
+
+    input transfer: token.transferFrom
+
+    policy "test-evm-mainnet-usdc-transfer-from" {
+        allow "allow-usdc-transfer-from" when {
+            transaction.chainId == 1
+            transaction.value == 0
+            transfer.arguments.from == "0x5555555555555555555555555555555555555555"
+            transfer.arguments.to == "0x3333333333333333333333333333333333333333"
+            transfer.arguments.amount <= 321
+        }
+    }
+}

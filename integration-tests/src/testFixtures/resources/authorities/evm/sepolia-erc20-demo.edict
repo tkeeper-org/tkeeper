@@ -1,0 +1,24 @@
+authority "test:evm/sepolia-demo-token" {
+    intent = "evm.transaction"
+    version = "1.0.0"
+    title = "Sepolia demo ERC20 transfer"
+
+    config {
+        chainId = 11155111
+    }
+
+    contract token: evm {
+        address = "0x1111111111111111111111111111111111111111"
+        fn transfer(to: address, amount: uint256)
+    }
+
+    input transfer: token.transfer
+
+    policy "test-evm-sepolia-demo-token" {
+        allow "allow-demo-token-transfer" when {
+            transaction.chainId == 11155111
+            transaction.value == 0
+            transfer.arguments.amount <= 1000000000000000000
+        }
+    }
+}

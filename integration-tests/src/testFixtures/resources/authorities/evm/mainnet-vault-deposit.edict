@@ -1,0 +1,25 @@
+authority "test:evm/mainnet-vault-deposit" {
+    intent = "evm.transaction"
+    version = "1.0.0"
+    title = "Mainnet vault payable deposit"
+
+    config {
+        chainId = 1
+    }
+
+    contract vault: evm {
+        address = "0x6666666666666666666666666666666666666666"
+        fn deposit(amount: uint256)
+    }
+
+    input deposit: vault.deposit
+
+    policy "test-evm-mainnet-vault-deposit" {
+        allow "allow-vault-deposit-with-native-value" when {
+            transaction.chainId == 1
+            deposit.arguments.amount <= 500
+            transaction.value > 0
+            transaction.value <= 100
+        }
+    }
+}

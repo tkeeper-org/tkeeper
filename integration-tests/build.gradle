@@ -41,6 +41,7 @@ dependencies {
     testFixturesApi 'org.exploit.signet:xrp'
     testFixturesApi 'org.exploit.signet:solana'
     testFixturesApi 'org.exploit.signet:evm'
+    testFixturesApi 'org.exploit.signet:xlm'
 
     testFixturesApi('com.fasterxml.jackson.core:jackson-databind:2.22.0')
     testFixturesApi('com.fasterxml.jackson.module:jackson-module-kotlin:2.22.0')

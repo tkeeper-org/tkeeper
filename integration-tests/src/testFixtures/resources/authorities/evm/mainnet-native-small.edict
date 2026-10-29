@@ -1,0 +1,17 @@
+authority "test:evm/mainnet-native-small" {
+    intent = "evm.transaction"
+    version = "1.0.0"
+    title = "Mainnet native ETH transfer limit"
+
+    config {
+        chainId = 1
+    }
+
+    policy "test-evm-mainnet-native-small" {
+        allow "allow-small-native-transfer" when {
+            chainId == 1
+            effects.all(e -> e.type in ["native.transfer"])
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 10000000000000000)
+        }
+    }
+}

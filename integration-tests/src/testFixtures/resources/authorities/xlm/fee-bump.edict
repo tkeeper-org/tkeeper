@@ -1,0 +1,20 @@
+authority "test:xlm/fee-bump" {
+    intent = "xlm.transaction"
+    version = "1.0.0"
+    config { networkPassphrase = "Standalone Network ; February 2017" }
+
+    policy "xlm-fee-bump" {
+        allow when {
+            type == "fee_bump"
+            fee > 0 and fee <= 10000
+            sequence > 0
+            operations.count() == 1
+            effects.count() == 2
+            effects.count(effect -> effect.type == "xlm.fee_bump") == 1
+            effects.count(effect -> effect.type == "native.transfer") == 1
+            effects.filter(effect -> effect.type == "native.transfer").all(effect -> effect.to == "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U")
+            effects.sum(effect -> effect.amount) > 0
+            effects.sum(effect -> effect.amount) <= 20000000
+        }
+    }
+}

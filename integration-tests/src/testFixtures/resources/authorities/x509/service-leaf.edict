@@ -1,0 +1,16 @@
+authority "test:x509/service-leaf" {
+    intent = "x509.tbs-certificate"
+    version = "1.0.0"
+    title = "Service leaf certificate"
+
+    policy "test-x509-service-leaf" {
+        allow "allow-service-leaf" when {
+            version == 3
+            subject.commonName == "api.svc.test"
+            extensions.basicConstraints.present
+            not extensions.basicConstraints.cA
+            extensions.keyUsage.digitalSignature
+            extensions.extKeyUsage.serverAuth
+        }
+    }
+}

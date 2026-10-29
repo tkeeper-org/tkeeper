@@ -1,0 +1,22 @@
+authority "test:custom/payroll-eur" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "EUR payroll batch signing"
+
+    input request {
+        purpose: Text
+        amount: Number
+        employeeCount: Number
+        currency: Text
+    }
+
+    policy "test-custom-payroll-eur" {
+        allow "allow-eur-payroll-batch" when {
+            request.purpose == "payroll"
+            request.currency == "EUR"
+            request.employeeCount >= 1
+            request.employeeCount <= 50
+            request.amount <= 250000
+        }
+    }
+}

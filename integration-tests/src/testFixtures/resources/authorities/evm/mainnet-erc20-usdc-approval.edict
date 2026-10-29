@@ -1,0 +1,25 @@
+authority "test:evm/mainnet-usdc-approval" {
+    intent = "evm.transaction"
+    version = "1.0.0"
+    title = "Mainnet USDC approval limit"
+
+    config {
+        chainId = 1
+    }
+
+    contract token: evm {
+        address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        fn approve(spender: address, amount: uint256)
+    }
+
+    input approval: token.approve
+
+    policy "test-evm-mainnet-usdc-approval" {
+        allow "allow-usdc-approval" when {
+            transaction.chainId == 1
+            transaction.value == 0
+            approval.arguments.spender == "0x4444444444444444444444444444444444444444"
+            approval.arguments.amount <= 1000
+        }
+    }
+}

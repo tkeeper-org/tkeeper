@@ -1,0 +1,20 @@
+authority "test:bitcoin/btc-small-output" {
+    intent = "bitcoin.transaction"
+    version = "1.0.0"
+    title = "BTC small output with safe sighash"
+
+    config {
+        network = "MAINNET"
+    }
+
+    policy "test-bitcoin-btc-small-output" {
+        allow "allow-small-btc-output" when {
+            protocol == "BTC"
+            sighash.all
+            not sighash.anyoneCanPay
+            effects.all(e -> e.type in ["utxo.spend", "utxo.output", "utxo.fee"])
+            (effects.filter(e -> e.type == "utxo.output").map(e -> e.amount).sum() <= 100000)
+            (effects.filter(e -> e.type == "utxo.fee").map(e -> e.amount).sum() <= 10000)
+        }
+    }
+}

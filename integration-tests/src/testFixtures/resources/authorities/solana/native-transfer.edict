@@ -1,0 +1,16 @@
+authority "test:solana/native-transfer" {
+    intent = "solana.transaction"
+    version = "1.0.0"
+
+    policy "solana-native-transfer" {
+        let recipient = "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+        allow "small-transfer" when {
+            requiredSignatures == 1
+            effects.all(e -> e.type in ["native.transfer"])
+            effects.count(e -> e.type == "native.transfer") == 1
+            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "sol" and e.to == recipient)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100)
+        }
+    }
+}

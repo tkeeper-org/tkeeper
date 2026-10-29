@@ -1,0 +1,33 @@
+authority "test:custom/recipients" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "Payments to approved recipient countries"
+
+    struct Address {
+        country: Text
+        note: Text?
+    }
+
+    struct Recipient {
+        address: Address
+        labels: List<Text> = []
+    }
+
+    struct PaymentRequest {
+        amount: Number
+        recipients: List<Recipient>
+        status: Text = "READY"
+    }
+
+    input request: PaymentRequest
+
+    policy "approved-recipients" {
+        allow when {
+            request.amount > 0
+            request.amount <= 100
+            request.status == "READY"
+            request.recipients.count() > 0
+            request.recipients.all(recipient -> recipient.address.country == "AE")
+        }
+    }
+}
