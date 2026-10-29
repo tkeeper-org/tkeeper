@@ -6352,7 +6352,7 @@
             "type": "string",
             "enum": [
               "ALLOW",
-              "ALLOW_WITH_REQUIREMENTS",
+              "REQUIRES_APPROVAL",
               "DENY"
             ]
           },
@@ -6477,7 +6477,7 @@
             "type": "string",
             "enum": [
               "ALLOW",
-              "ALLOW_WITH_REQUIREMENTS",
+              "REQUIRES_APPROVAL",
               "DENY"
             ]
           }

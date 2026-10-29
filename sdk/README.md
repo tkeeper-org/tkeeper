@@ -96,7 +96,7 @@ The [Hub API guide](HUB.md) describes the other resources and how to follow oper
 
 ## Governed typed signing
 
-This example assumes the digest-pinned `payments-small` custom authority already exists in the referenced OCI registry.
+This example uses the [recipient policy](../docs/signing-and-authorities/arbitrary-and-typed.md#typed-json), published to the registry with a reviewed artifact digest.
 
 ```java
 import org.exploit.tkeeper.sdk.TKeeperClient;
@@ -108,10 +108,7 @@ import org.exploit.tkeeper.sdk.model.command.artifact.TypedData;
 import org.exploit.tkeeper.sdk.util.TKeeperJackson;
 
 try (var keeper = new TKeeperClient(baseUrl, new JwtTokenAuth(jwt))) {
-    var authorities = KeySetAuthorities.of(KeySetAuthority.oci(
-            "payments-small",
-            "oci://registry.example/verdict/authorities/payments-small@sha256:..."
-    ));
+    var authorities = KeySetAuthorities.of("oci://registry.example/edict/authorities/recipients@sha256:...");
 
     keeper.dkg().generate(new Generate(
             "payments-key",
@@ -120,12 +117,11 @@ try (var keeper = new TKeeperClient(baseUrl, new JwtTokenAuth(jwt))) {
             KeyGenMode.CREATE
     ));
 
-    var payload = TKeeperJackson.signingNode()
-            .put("amount", 5000)
-            .put("currency", "USD");
+    var payload = TKeeperJackson.signingNode().put("amount", 10);
+    payload.putArray("recipients").addObject().putObject("address").put("country", "AE");
 
     var command = AuthorityCommand.of(
-            "payments-small",
+            "test:custom/recipients",
             new TypedData(SignatureSchemes.ECDSA, HashMethod.SHA256, payload)
     );
 
@@ -226,7 +222,16 @@ var policy = KeySetPolicy.builder().fourEye(fourEye).build();
 
 FourEye permits `1 <= m <= n <= 256`, including `1 of 1` and `1 of n` with Signature or WebAuthn refs.
 
-An OCI authority's `policy.approvers` values likewise accept `{ref: "id@sha256:<digest>"}`.
+An Edict authority declares the same reference in an approver block:
+
+```edict
+approver alice {
+    type = "reference"
+    id = "alice"
+    ref = "id@sha256:<digest>"
+}
+```
+
 References pin the exact credential and approval method; metadata and new registrations do
 not change existing policies. Key policies can mix `Reference` and legacy `PublicKey` entries.
 `ApprovalRequirement.approvers()` values decode as `Approver` or
