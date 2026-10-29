@@ -1,0 +1,5209 @@
+{
+  "sdk": "@stellar/stellar-sdk@17.4.0",
+  "vectors": [
+    {
+      "name": "create-account",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_ACCOUNT",
+              "createaccountop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "startingbalance": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "payment",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "strict-receive",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PATH_PAYMENT_STRICT_RECEIVE",
+              "pathpaymentstrictreceiveop": {
+                "sendasset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "sendmax": 50000000,
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "destasset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "destamount": 10000000,
+                "path": []
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "sell-offer",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "MANAGE_SELL_OFFER",
+              "managesellofferop": {
+                "selling": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "buying": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "amount": 10000000,
+                "price": {
+                  "n": 2,
+                  "d": 1
+                },
+                "offerid": 9223372036854775807
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "passive-offer",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_PASSIVE_SELL_OFFER",
+              "createpassivesellofferop": {
+                "selling": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "buying": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "amount": 10000000,
+                "price": {
+                  "n": 2,
+                  "d": 1
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "set-options",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "SET_OPTIONS",
+              "setoptionsop": {
+                "masterweight": 0,
+                "lowthreshold": 1,
+                "medthreshold": 2,
+                "highthreshold": 3,
+                "homedomain": "example.org",
+                "signer": {
+                  "key": {
+                    "discriminant": "SIGNER_KEY_TYPE_ED25519",
+                    "ed25519": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394"
+                  },
+                  "weight": 2
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "change-trust",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CHANGE_TRUST",
+              "changetrustop": {
+                "line": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "limit": 9223372036854775807
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "allow-trust",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "ALLOW_TRUST",
+              "allowtrustop": {
+                "trustor": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "assetcode4": "55534400"
+                },
+                "authorize": 1
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "account-merge",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "ACCOUNT_MERGE",
+              "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U"
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "inflation",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INFLATION"
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "manage-data",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "MANAGE_DATA",
+              "managedataop": {
+                "dataname": "config.memo_required",
+                "datavalue": "31"
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "bump-sequence",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "BUMP_SEQUENCE",
+              "bumpsequenceop": {
+                "bumpto": 9223372036854775807
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "buy-offer",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "MANAGE_BUY_OFFER",
+              "managebuyofferop": {
+                "selling": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "buying": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "buyamount": 10000000,
+                "price": {
+                  "n": 2,
+                  "d": 1
+                },
+                "offerid": 0
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "strict-send",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PATH_PAYMENT_STRICT_SEND",
+              "pathpaymentstrictsendop": {
+                "sendasset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "sendamount": 50000000,
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "destasset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "destmin": 10000000,
+                "path": []
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "create-claimable",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_CLAIMABLE_BALANCE",
+              "createclaimablebalanceop": {
+                "asset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "amount": 10000000,
+                "claimants": [
+                  {
+                    "discriminant": "CLAIMANT_TYPE_V0",
+                    "v0": {
+                      "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                      "predicate": {
+                        "discriminant": "CLAIM_PREDICATE_UNCONDITIONAL"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "claim-balance",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CLAIM_CLAIMABLE_BALANCE",
+              "claimclaimablebalanceop": {
+                "balanceid": {
+                  "discriminant": "CLAIMABLE_BALANCE_ID_TYPE_V0",
+                  "v0": "0505050505050505050505050505050505050505050505050505050505050505"
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "begin-sponsoring",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "BEGIN_SPONSORING_FUTURE_RESERVES",
+              "beginsponsoringfuturereservesop": {
+                "sponsoredid": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U"
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "end-sponsoring",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "END_SPONSORING_FUTURE_RESERVES"
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "revoke-sponsorship",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "REVOKE_SPONSORSHIP",
+              "revokesponsorshipop": {
+                "discriminant": "REVOKE_SPONSORSHIP_LEDGER_ENTRY",
+                "ledgerkey": {
+                  "discriminant": "ACCOUNT",
+                  "account": {
+                    "accountid": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "clawback",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CLAWBACK",
+              "clawbackop": {
+                "asset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "from": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "amount": 10000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "clawback-claimable",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CLAWBACK_CLAIMABLE_BALANCE",
+              "clawbackclaimablebalanceop": {
+                "balanceid": {
+                  "discriminant": "CLAIMABLE_BALANCE_ID_TYPE_V0",
+                  "v0": "0505050505050505050505050505050505050505050505050505050505050505"
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "trustline-flags",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "SET_TRUST_LINE_FLAGS",
+              "settrustlineflagsop": {
+                "trustor": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                  "alphanum4": {
+                    "assetcode": "55534400",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "clearflags": 4,
+                "setflags": 1
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "pool-deposit",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "LIQUIDITY_POOL_DEPOSIT",
+              "liquiditypooldepositop": {
+                "liquiditypoolid": "0404040404040404040404040404040404040404040404040404040404040404",
+                "maxamounta": 10000000,
+                "maxamountb": 20000000,
+                "minprice": {
+                  "n": 1,
+                  "d": 1
+                },
+                "maxprice": {
+                  "n": 2,
+                  "d": 1
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "pool-withdraw",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "LIQUIDITY_POOL_WITHDRAW",
+              "liquiditypoolwithdrawop": {
+                "liquiditypoolid": "0404040404040404040404040404040404040404040404040404040404040404",
+                "amount": 10000000,
+                "minamounta": 1000000,
+                "minamountb": 2000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "invoke-contract",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_INVOKE_CONTRACT",
+                  "invokecontract": {
+                    "contractaddress": {
+                      "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                      "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                    },
+                    "functionname": "transfer",
+                    "args": [
+                      {
+                        "discriminant": "SCV_I128",
+                        "i128": {
+                          "hi": 0,
+                          "lo": 123
+                        }
+                      }
+                    ]
+                  }
+                },
+                "auth": [
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_SOURCE_ACCOUNT"
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_ADDRESS",
+                      "address": {
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "nonce": 9223372036854775807,
+                        "signatureexpirationledger": 4294967295,
+                        "signature": {
+                          "discriminant": "SCV_VOID"
+                        }
+                      }
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_ADDRESS_V2",
+                      "addressv2": {
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "nonce": 9223372036854775807,
+                        "signatureexpirationledger": 4294967295,
+                        "signature": {
+                          "discriminant": "SCV_VOID"
+                        }
+                      }
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES",
+                      "addresswithdelegates": {
+                        "addresscredentials": {
+                          "address": {
+                            "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                            "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                          },
+                          "nonce": 9223372036854775807,
+                          "signatureexpirationledger": 4294967295,
+                          "signature": {
+                            "discriminant": "SCV_VOID"
+                          }
+                        },
+                        "delegates": [
+                          {
+                            "address": {
+                              "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                              "accountid": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U"
+                            },
+                            "signature": {
+                              "discriminant": "SCV_VOID"
+                            },
+                            "nesteddelegates": []
+                          }
+                        ]
+                      }
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "extend-ttl",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "EXTEND_FOOTPRINT_TTL",
+              "extendfootprintttlop": {
+                "ext": {
+                  "discriminant": 0
+                },
+                "extendto": 100
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "restore-footprint",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "RESTORE_FOOTPRINT",
+              "restorefootprintop": {
+                "ext": {
+                  "discriminant": 0
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "preconditions-v2",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_V2",
+          "v2": {
+            "timebounds": {
+              "mintime": 1700000000,
+              "maxtime": 1900000000
+            },
+            "ledgerbounds": {
+              "minledger": 123,
+              "maxledger": 456
+            },
+            "minseqnum": 42,
+            "minseqage": 18446744073709551615,
+            "minseqledgergap": 5,
+            "extrasigners": [
+              {
+                "discriminant": "SIGNER_KEY_TYPE_ED25519",
+                "ed25519": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394"
+              }
+            ]
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "v0-unsigned",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "memo-none",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_ACCOUNT",
+              "createaccountop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "startingbalance": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "memo-id-max",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_ID",
+          "id": 18446744073709551615
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_ACCOUNT",
+              "createaccountop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "startingbalance": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "memo-hash",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_HASH",
+          "hash": "0707070707070707070707070707070707070707070707070707070707070707"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_ACCOUNT",
+              "createaccountop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "startingbalance": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "memo-return",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_RETURN",
+          "rethash": "0808080808080808080808080808080808080808080808080808080808080808"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_ACCOUNT",
+              "createaccountop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "startingbalance": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "hundred-operations",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 100000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          },
+          {
+            "sourceaccount": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 12345678
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "fee-bump-unsigned-outer",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": {
+        "tx": {
+          "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+          "fee": 1000,
+          "seqnum": 9007199254740994,
+          "cond": {
+            "discriminant": "PRECOND_TIME",
+            "timebounds": {
+              "mintime": 1700000000,
+              "maxtime": 1900000000
+            }
+          },
+          "memo": {
+            "discriminant": "MEMO_TEXT",
+            "text": "invoice-42"
+          },
+          "operations": [
+            {
+              "body": {
+                "discriminant": "PAYMENT",
+                "paymentop": {
+                  "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                  "asset": {
+                    "discriminant": "ASSET_TYPE_NATIVE"
+                  },
+                  "amount": 20000000
+                }
+              }
+            }
+          ],
+          "ext": {
+            "discriminant": 0
+          }
+        },
+        "signatures": [
+          {
+            "hint": "b40f6f5c",
+            "signature": "09871a074d0a208287a77111159259d6626450582990c6ac594dc99824d90a42bf82dd4bb092f2754e4f093d3d662e82be454af3d1f4fbf9633643d490d27804"
+          }
+        ],
+        "hash": "e07a7636f8d1be43fabd05f8d7ef75a8f78946a10023f34e806bb302a297bba2",
+        "fee": 1000,
+        "signaturecount": 1
+      }
+    },
+    {
+      "name": "muxed-sources-and-destination",
+      "body": {
+        "sourceaccount": "MCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVZ7777777777775UBO",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "sourceaccount": "MCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZIAAAAAAAAAAAADJOW",
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "MCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZIAAAAAAAAAAAAHZ7W",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "numeric-boundary-max",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 4294967295,
+        "seqnum": 9223372036854775807,
+        "cond": {
+          "discriminant": "PRECOND_NONE"
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 9223372036854775807
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "fee-bump-muxed-max-fee",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PAYMENT",
+              "paymentop": {
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 20000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": {
+        "tx": {
+          "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+          "fee": 1000,
+          "seqnum": 9007199254740994,
+          "cond": {
+            "discriminant": "PRECOND_TIME",
+            "timebounds": {
+              "mintime": 1700000000,
+              "maxtime": 1900000000
+            }
+          },
+          "memo": {
+            "discriminant": "MEMO_TEXT",
+            "text": "invoice-42"
+          },
+          "operations": [
+            {
+              "body": {
+                "discriminant": "PAYMENT",
+                "paymentop": {
+                  "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                  "asset": {
+                    "discriminant": "ASSET_TYPE_NATIVE"
+                  },
+                  "amount": 20000000
+                }
+              }
+            }
+          ],
+          "ext": {
+            "discriminant": 0
+          }
+        },
+        "signatures": [
+          {
+            "hint": "b40f6f5c",
+            "signature": "09871a074d0a208287a77111159259d6626450582990c6ac594dc99824d90a42bf82dd4bb092f2754e4f093d3d662e82be454af3d1f4fbf9633643d490d27804"
+          }
+        ],
+        "hash": "e07a7636f8d1be43fabd05f8d7ef75a8f78946a10023f34e806bb302a297bba2",
+        "fee": 1000,
+        "signaturecount": 1
+      }
+    },
+    {
+      "name": "all-signer-keys",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "SET_OPTIONS",
+              "setoptionsop": {
+                "masterweight": 0,
+                "lowthreshold": 1,
+                "medthreshold": 2,
+                "highthreshold": 3,
+                "homedomain": "example.org",
+                "signer": {
+                  "key": {
+                    "discriminant": "SIGNER_KEY_TYPE_ED25519",
+                    "ed25519": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394"
+                  },
+                  "weight": 255
+                }
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "SET_OPTIONS",
+              "setoptionsop": {
+                "masterweight": 0,
+                "lowthreshold": 1,
+                "medthreshold": 2,
+                "highthreshold": 3,
+                "homedomain": "example.org",
+                "signer": {
+                  "key": {
+                    "discriminant": "SIGNER_KEY_TYPE_PRE_AUTH_TX",
+                    "preauthtx": "0101010101010101010101010101010101010101010101010101010101010101"
+                  },
+                  "weight": 255
+                }
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "SET_OPTIONS",
+              "setoptionsop": {
+                "masterweight": 0,
+                "lowthreshold": 1,
+                "medthreshold": 2,
+                "highthreshold": 3,
+                "homedomain": "example.org",
+                "signer": {
+                  "key": {
+                    "discriminant": "SIGNER_KEY_TYPE_HASH_X",
+                    "hashx": "0202020202020202020202020202020202020202020202020202020202020202"
+                  },
+                  "weight": 255
+                }
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "SET_OPTIONS",
+              "setoptionsop": {
+                "masterweight": 0,
+                "lowthreshold": 1,
+                "medthreshold": 2,
+                "highthreshold": 3,
+                "homedomain": "example.org",
+                "signer": {
+                  "key": {
+                    "discriminant": "SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD",
+                    "ed25519signedpayload": {
+                      "ed25519": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394",
+                      "payload": "03030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303"
+                    }
+                  },
+                  "weight": 255
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "revoke-signer-sponsorship",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "REVOKE_SPONSORSHIP",
+              "revokesponsorshipop": {
+                "discriminant": "REVOKE_SPONSORSHIP_SIGNER",
+                "signer": {
+                  "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+                  "signerkey": {
+                    "discriminant": "SIGNER_KEY_TYPE_ED25519",
+                    "ed25519": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "REVOKE_SPONSORSHIP",
+              "revokesponsorshipop": {
+                "discriminant": "REVOKE_SPONSORSHIP_SIGNER",
+                "signer": {
+                  "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+                  "signerkey": {
+                    "discriminant": "SIGNER_KEY_TYPE_PRE_AUTH_TX",
+                    "preauthtx": "0101010101010101010101010101010101010101010101010101010101010101"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "REVOKE_SPONSORSHIP",
+              "revokesponsorshipop": {
+                "discriminant": "REVOKE_SPONSORSHIP_SIGNER",
+                "signer": {
+                  "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+                  "signerkey": {
+                    "discriminant": "SIGNER_KEY_TYPE_HASH_X",
+                    "hashx": "0202020202020202020202020202020202020202020202020202020202020202"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "REVOKE_SPONSORSHIP",
+              "revokesponsorshipop": {
+                "discriminant": "REVOKE_SPONSORSHIP_SIGNER",
+                "signer": {
+                  "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+                  "signerkey": {
+                    "discriminant": "SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD",
+                    "ed25519signedpayload": {
+                      "ed25519": "8139770ea87d175f56a35466c34c7ecccb8d8a91b4ee37a25df60f5b8fc9b394",
+                      "payload": "03030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303030303"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "claim-predicates",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CREATE_CLAIMABLE_BALANCE",
+              "createclaimablebalanceop": {
+                "asset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "amount": 10000000,
+                "claimants": [
+                  {
+                    "discriminant": "CLAIMANT_TYPE_V0",
+                    "v0": {
+                      "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                      "predicate": {
+                        "discriminant": "CLAIM_PREDICATE_AND",
+                        "andpredicates": [
+                          {
+                            "discriminant": "CLAIM_PREDICATE_BEFORE_ABSOLUTE_TIME",
+                            "absbefore": 1900000000
+                          },
+                          {
+                            "discriminant": "CLAIM_PREDICATE_OR",
+                            "orpredicates": [
+                              {
+                                "discriminant": "CLAIM_PREDICATE_NOT",
+                                "notpredicate": {
+                                  "discriminant": "CLAIM_PREDICATE_BEFORE_RELATIVE_TIME",
+                                  "relbefore": 100
+                                }
+                              },
+                              {
+                                "discriminant": "CLAIM_PREDICATE_UNCONDITIONAL"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "manage-data-delete",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "MANAGE_DATA",
+              "managedataop": {
+                "dataname": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "manage-data-max",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "MANAGE_DATA",
+              "managedataop": {
+                "dataname": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "datavalue": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "credit12-and-full-path",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "PATH_PAYMENT_STRICT_SEND",
+              "pathpaymentstrictsendop": {
+                "sendasset": {
+                  "discriminant": "ASSET_TYPE_NATIVE"
+                },
+                "sendamount": 10000000,
+                "destination": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U",
+                "destasset": {
+                  "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM12",
+                  "alphanum12": {
+                    "assetcode": "4c4f4e474153534554313233",
+                    "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                  }
+                },
+                "destmin": 1000000,
+                "path": [
+                  {
+                    "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                    "alphanum4": {
+                      "assetcode": "55534400",
+                      "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                    }
+                  },
+                  {
+                    "discriminant": "ASSET_TYPE_NATIVE"
+                  },
+                  {
+                    "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                    "alphanum4": {
+                      "assetcode": "55534400",
+                      "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                    }
+                  },
+                  {
+                    "discriminant": "ASSET_TYPE_NATIVE"
+                  },
+                  {
+                    "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                    "alphanum4": {
+                      "assetcode": "55534400",
+                      "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "trust-pool-share",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_TEXT",
+          "text": "invoice-42"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "CHANGE_TRUST",
+              "changetrustop": {
+                "line": {
+                  "discriminant": "ASSET_TYPE_POOL_SHARE",
+                  "liquiditypool": {
+                    "discriminant": "LIQUIDITY_POOL_CONSTANT_PRODUCT",
+                    "constantproduct": {
+                      "asseta": {
+                        "discriminant": "ASSET_TYPE_NATIVE"
+                      },
+                      "assetb": {
+                        "discriminant": "ASSET_TYPE_CREDIT_ALPHANUM4",
+                        "alphanum4": {
+                          "assetcode": "55534400",
+                          "issuer": "GDWUSKGGFDI4FRXK5EBTRECZSVQSSWJHHJOGH6JWG3AUMFFMQ435DIAG"
+                        }
+                      },
+                      "fee": 30
+                    }
+                  }
+                },
+                "limit": 10000000
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 0
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "all-soroban-values",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_INVOKE_CONTRACT",
+                  "invokecontract": {
+                    "contractaddress": {
+                      "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                      "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                    },
+                    "functionname": "transfer",
+                    "args": [
+                      {
+                        "discriminant": "SCV_BOOL",
+                        "b": true
+                      },
+                      {
+                        "discriminant": "SCV_VOID"
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_CONTRACT",
+                          "contractcode": 4294967295
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_U32",
+                        "u32": 4294967295
+                      },
+                      {
+                        "discriminant": "SCV_I32",
+                        "i32": -2147483648
+                      },
+                      {
+                        "discriminant": "SCV_U64",
+                        "u64": 18446744073709551615
+                      },
+                      {
+                        "discriminant": "SCV_I64",
+                        "i64": -9223372036854775808
+                      },
+                      {
+                        "discriminant": "SCV_TIMEPOINT",
+                        "timepoint": 18446744073709551615
+                      },
+                      {
+                        "discriminant": "SCV_DURATION",
+                        "duration": 18446744073709551615
+                      },
+                      {
+                        "discriminant": "SCV_U128",
+                        "u128": {
+                          "hi": 18446744073709551615,
+                          "lo": 18446744073709551615
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_I128",
+                        "i128": {
+                          "hi": -9223372036854775808,
+                          "lo": 0
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_U256",
+                        "u256": {
+                          "hihi": 18446744073709551615,
+                          "hilo": 18446744073709551615,
+                          "lohi": 18446744073709551615,
+                          "lolo": 18446744073709551615
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_I256",
+                        "i256": {
+                          "hihi": -9223372036854775808,
+                          "hilo": 0,
+                          "lohi": 0,
+                          "lolo": 0
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_BYTES",
+                        "bytes": "00ff01"
+                      },
+                      {
+                        "discriminant": "SCV_STRING",
+                        "str": "\\xd0\\x9f\\xd1\\x80\\xd0\\xb8\\xd0\\xb2\\xd0\\xb5\\xd1\\x82 \\xf0\\x9f\\x8c\\x8d"
+                      },
+                      {
+                        "discriminant": "SCV_SYMBOL",
+                        "sym": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      },
+                      {
+                        "discriminant": "SCV_VEC",
+                        "vec": [
+                          {
+                            "discriminant": "SCV_VOID"
+                          }
+                        ]
+                      },
+                      {
+                        "discriminant": "SCV_MAP",
+                        "map": [
+                          {
+                            "key": {
+                              "discriminant": "SCV_U32",
+                              "u32": 7
+                            },
+                            "val": {
+                              "discriminant": "SCV_BOOL",
+                              "b": false
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_CONTRACT_INSTANCE",
+                        "instance": {
+                          "executable": {
+                            "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                            "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                          },
+                          "storage": []
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_LEDGER_KEY_CONTRACT_INSTANCE"
+                      },
+                      {
+                        "discriminant": "SCV_LEDGER_KEY_NONCE",
+                        "noncekey": {
+                          "nonce": -9223372036854775808
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_EXECUTABLE_TAG",
+                        "executabletag": "v1"
+                      },
+                      {
+                        "discriminant": "SCV_VEC"
+                      },
+                      {
+                        "discriminant": "SCV_MAP"
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                          "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_MUXED_ACCOUNT",
+                          "muxedaccount": {
+                            "id": 18446744073709551615,
+                            "ed25519": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+                          }
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_CLAIMABLE_BALANCE",
+                          "claimablebalanceid": {
+                            "discriminant": "CLAIMABLE_BALANCE_ID_TYPE_V0",
+                            "v0": "0505050505050505050505050505050505050505050505050505050505050505"
+                          }
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_LIQUIDITY_POOL",
+                          "liquiditypoolid": "0404040404040404040404040404040404040404040404040404040404040404"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_WASM_VM",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_CONTEXT",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_STORAGE",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_OBJECT",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_CRYPTO",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_EVENTS",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_BUDGET",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_VALUE",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_AUTH",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "auth": [
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_SOURCE_ACCOUNT"
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_ADDRESS",
+                      "address": {
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "nonce": 9223372036854775807,
+                        "signatureexpirationledger": 4294967295,
+                        "signature": {
+                          "discriminant": "SCV_VOID"
+                        }
+                      }
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_ADDRESS_V2",
+                      "addressv2": {
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "nonce": 9223372036854775807,
+                        "signatureexpirationledger": 4294967295,
+                        "signature": {
+                          "discriminant": "SCV_VOID"
+                        }
+                      }
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_ADDRESS_WITH_DELEGATES",
+                      "addresswithdelegates": {
+                        "addresscredentials": {
+                          "address": {
+                            "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                            "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                          },
+                          "nonce": 9223372036854775807,
+                          "signatureexpirationledger": 4294967295,
+                          "signature": {
+                            "discriminant": "SCV_VOID"
+                          }
+                        },
+                        "delegates": [
+                          {
+                            "address": {
+                              "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                              "accountid": "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U"
+                            },
+                            "signature": {
+                              "discriminant": "SCV_VOID"
+                            },
+                            "nesteddelegates": []
+                          }
+                        ]
+                      }
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                        "contractfn": {
+                          "contractaddress": {
+                            "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                            "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                          },
+                          "functionname": "transfer",
+                          "args": [
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": 0,
+                                "lo": 123
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": [
+                        {
+                          "function": {
+                            "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN",
+                            "contractfn": {
+                              "contractaddress": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              },
+                              "functionname": "transfer",
+                              "args": [
+                                {
+                                  "discriminant": "SCV_I128",
+                                  "i128": {
+                                    "hi": 0,
+                                    "lo": 123
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          "subinvocations": []
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "host-function-1",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_CREATE_CONTRACT",
+                  "createcontract": {
+                    "contractidpreimage": {
+                      "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ADDRESS",
+                      "fromaddress": {
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "salt": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+                      }
+                    },
+                    "executable": {
+                      "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                      "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                },
+                "auth": []
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "host-function-2",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_UPLOAD_CONTRACT_WASM",
+                  "wasm": "0061736d01000000"
+                },
+                "auth": []
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "host-function-3",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_CREATE_CONTRACT_V2",
+                  "createcontractv2": {
+                    "contractidpreimage": {
+                      "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ADDRESS",
+                      "fromaddress": {
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "salt": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+                      }
+                    },
+                    "executable": {
+                      "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                      "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    },
+                    "constructorargs": [
+                      {
+                        "discriminant": "SCV_BOOL",
+                        "b": true
+                      },
+                      {
+                        "discriminant": "SCV_VOID"
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_CONTRACT",
+                          "contractcode": 4294967295
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_U32",
+                        "u32": 4294967295
+                      },
+                      {
+                        "discriminant": "SCV_I32",
+                        "i32": -2147483648
+                      },
+                      {
+                        "discriminant": "SCV_U64",
+                        "u64": 18446744073709551615
+                      },
+                      {
+                        "discriminant": "SCV_I64",
+                        "i64": -9223372036854775808
+                      },
+                      {
+                        "discriminant": "SCV_TIMEPOINT",
+                        "timepoint": 18446744073709551615
+                      },
+                      {
+                        "discriminant": "SCV_DURATION",
+                        "duration": 18446744073709551615
+                      },
+                      {
+                        "discriminant": "SCV_U128",
+                        "u128": {
+                          "hi": 18446744073709551615,
+                          "lo": 18446744073709551615
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_I128",
+                        "i128": {
+                          "hi": -9223372036854775808,
+                          "lo": 0
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_U256",
+                        "u256": {
+                          "hihi": 18446744073709551615,
+                          "hilo": 18446744073709551615,
+                          "lohi": 18446744073709551615,
+                          "lolo": 18446744073709551615
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_I256",
+                        "i256": {
+                          "hihi": -9223372036854775808,
+                          "hilo": 0,
+                          "lohi": 0,
+                          "lolo": 0
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_BYTES",
+                        "bytes": "00ff01"
+                      },
+                      {
+                        "discriminant": "SCV_STRING",
+                        "str": "\\xd0\\x9f\\xd1\\x80\\xd0\\xb8\\xd0\\xb2\\xd0\\xb5\\xd1\\x82 \\xf0\\x9f\\x8c\\x8d"
+                      },
+                      {
+                        "discriminant": "SCV_SYMBOL",
+                        "sym": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      },
+                      {
+                        "discriminant": "SCV_VEC",
+                        "vec": [
+                          {
+                            "discriminant": "SCV_VOID"
+                          }
+                        ]
+                      },
+                      {
+                        "discriminant": "SCV_MAP",
+                        "map": [
+                          {
+                            "key": {
+                              "discriminant": "SCV_U32",
+                              "u32": 7
+                            },
+                            "val": {
+                              "discriminant": "SCV_BOOL",
+                              "b": false
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_CONTRACT_INSTANCE",
+                        "instance": {
+                          "executable": {
+                            "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                            "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                          },
+                          "storage": []
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_LEDGER_KEY_CONTRACT_INSTANCE"
+                      },
+                      {
+                        "discriminant": "SCV_LEDGER_KEY_NONCE",
+                        "noncekey": {
+                          "nonce": -9223372036854775808
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_EXECUTABLE_TAG",
+                        "executabletag": "v1"
+                      },
+                      {
+                        "discriminant": "SCV_VEC"
+                      },
+                      {
+                        "discriminant": "SCV_MAP"
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                          "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_MUXED_ACCOUNT",
+                          "muxedaccount": {
+                            "id": 18446744073709551615,
+                            "ed25519": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+                          }
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_CLAIMABLE_BALANCE",
+                          "claimablebalanceid": {
+                            "discriminant": "CLAIMABLE_BALANCE_ID_TYPE_V0",
+                            "v0": "0505050505050505050505050505050505050505050505050505050505050505"
+                          }
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ADDRESS",
+                        "address": {
+                          "discriminant": "SC_ADDRESS_TYPE_LIQUIDITY_POOL",
+                          "liquiditypoolid": "0404040404040404040404040404040404040404040404040404040404040404"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_WASM_VM",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_CONTEXT",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_STORAGE",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_OBJECT",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_CRYPTO",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_EVENTS",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_BUDGET",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_VALUE",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      },
+                      {
+                        "discriminant": "SCV_ERROR",
+                        "error": {
+                          "discriminant": "SCE_AUTH",
+                          "code": "SCEC_UNEXPECTED_SIZE"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "auth": []
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "contract-preimages-and-executables",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_CREATE_CONTRACT",
+                  "createcontract": {
+                    "contractidpreimage": {
+                      "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ASSET",
+                      "fromasset": {
+                        "discriminant": "ASSET_TYPE_NATIVE"
+                      }
+                    },
+                    "executable": {
+                      "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                      "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                },
+                "auth": []
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_CREATE_CONTRACT",
+                  "createcontract": {
+                    "contractidpreimage": {
+                      "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ASSET",
+                      "fromasset": {
+                        "discriminant": "ASSET_TYPE_NATIVE"
+                      }
+                    },
+                    "executable": {
+                      "discriminant": "CONTRACT_EXECUTABLE_STELLAR_ASSET"
+                    }
+                  }
+                },
+                "auth": []
+              }
+            }
+          },
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_CREATE_CONTRACT",
+                  "createcontract": {
+                    "contractidpreimage": {
+                      "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ASSET",
+                      "fromasset": {
+                        "discriminant": "ASSET_TYPE_NATIVE"
+                      }
+                    },
+                    "executable": {
+                      "discriminant": "CONTRACT_EXECUTABLE_EXTERNAL_REF",
+                      "externalref": {
+                        "executableowner": {
+                          "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                          "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                        },
+                        "tag": "v1"
+                      }
+                    }
+                  }
+                },
+                "auth": []
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    },
+    {
+      "name": "authorization-creation-functions",
+      "body": {
+        "sourceaccount": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR",
+        "fee": 1000,
+        "seqnum": 9007199254740994,
+        "cond": {
+          "discriminant": "PRECOND_TIME",
+          "timebounds": {
+            "mintime": 1700000000,
+            "maxtime": 1900000000
+          }
+        },
+        "memo": {
+          "discriminant": "MEMO_NONE"
+        },
+        "operations": [
+          {
+            "body": {
+              "discriminant": "INVOKE_HOST_FUNCTION",
+              "invokehostfunctionop": {
+                "hostfunction": {
+                  "discriminant": "HOST_FUNCTION_TYPE_INVOKE_CONTRACT",
+                  "invokecontract": {
+                    "contractaddress": {
+                      "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                      "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                    },
+                    "functionname": "transfer",
+                    "args": [
+                      {
+                        "discriminant": "SCV_I128",
+                        "i128": {
+                          "hi": 0,
+                          "lo": 123
+                        }
+                      }
+                    ]
+                  }
+                },
+                "auth": [
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_SOURCE_ACCOUNT"
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN",
+                        "createcontracthostfn": {
+                          "contractidpreimage": {
+                            "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ADDRESS",
+                            "fromaddress": {
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                                "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                              },
+                              "salt": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+                            }
+                          },
+                          "executable": {
+                            "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                            "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                          }
+                        }
+                      },
+                      "subinvocations": []
+                    }
+                  },
+                  {
+                    "credentials": {
+                      "discriminant": "SOROBAN_CREDENTIALS_SOURCE_ACCOUNT"
+                    },
+                    "rootinvocation": {
+                      "function": {
+                        "discriminant": "SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_V2_HOST_FN",
+                        "createcontractv2hostfn": {
+                          "contractidpreimage": {
+                            "discriminant": "CONTRACT_ID_PREIMAGE_FROM_ADDRESS",
+                            "fromaddress": {
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                                "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                              },
+                              "salt": "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a"
+                            }
+                          },
+                          "executable": {
+                            "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                            "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                          },
+                          "constructorargs": [
+                            {
+                              "discriminant": "SCV_BOOL",
+                              "b": true
+                            },
+                            {
+                              "discriminant": "SCV_VOID"
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_CONTRACT",
+                                "contractcode": 4294967295
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_U32",
+                              "u32": 4294967295
+                            },
+                            {
+                              "discriminant": "SCV_I32",
+                              "i32": -2147483648
+                            },
+                            {
+                              "discriminant": "SCV_U64",
+                              "u64": 18446744073709551615
+                            },
+                            {
+                              "discriminant": "SCV_I64",
+                              "i64": -9223372036854775808
+                            },
+                            {
+                              "discriminant": "SCV_TIMEPOINT",
+                              "timepoint": 18446744073709551615
+                            },
+                            {
+                              "discriminant": "SCV_DURATION",
+                              "duration": 18446744073709551615
+                            },
+                            {
+                              "discriminant": "SCV_U128",
+                              "u128": {
+                                "hi": 18446744073709551615,
+                                "lo": 18446744073709551615
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_I128",
+                              "i128": {
+                                "hi": -9223372036854775808,
+                                "lo": 0
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_U256",
+                              "u256": {
+                                "hihi": 18446744073709551615,
+                                "hilo": 18446744073709551615,
+                                "lohi": 18446744073709551615,
+                                "lolo": 18446744073709551615
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_I256",
+                              "i256": {
+                                "hihi": -9223372036854775808,
+                                "hilo": 0,
+                                "lohi": 0,
+                                "lolo": 0
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_BYTES",
+                              "bytes": "00ff01"
+                            },
+                            {
+                              "discriminant": "SCV_STRING",
+                              "str": "\\xd0\\x9f\\xd1\\x80\\xd0\\xb8\\xd0\\xb2\\xd0\\xb5\\xd1\\x82 \\xf0\\x9f\\x8c\\x8d"
+                            },
+                            {
+                              "discriminant": "SCV_SYMBOL",
+                              "sym": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                            },
+                            {
+                              "discriminant": "SCV_VEC",
+                              "vec": [
+                                {
+                                  "discriminant": "SCV_VOID"
+                                }
+                              ]
+                            },
+                            {
+                              "discriminant": "SCV_MAP",
+                              "map": [
+                                {
+                                  "key": {
+                                    "discriminant": "SCV_U32",
+                                    "u32": 7
+                                  },
+                                  "val": {
+                                    "discriminant": "SCV_BOOL",
+                                    "b": false
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "discriminant": "SCV_ADDRESS",
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_ACCOUNT",
+                                "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_CONTRACT_INSTANCE",
+                              "instance": {
+                                "executable": {
+                                  "discriminant": "CONTRACT_EXECUTABLE_WASM",
+                                  "wasmhash": "0909090909090909090909090909090909090909090909090909090909090909"
+                                },
+                                "storage": []
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_LEDGER_KEY_CONTRACT_INSTANCE"
+                            },
+                            {
+                              "discriminant": "SCV_LEDGER_KEY_NONCE",
+                              "noncekey": {
+                                "nonce": -9223372036854775808
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_EXECUTABLE_TAG",
+                              "executabletag": "v1"
+                            },
+                            {
+                              "discriminant": "SCV_VEC"
+                            },
+                            {
+                              "discriminant": "SCV_MAP"
+                            },
+                            {
+                              "discriminant": "SCV_ADDRESS",
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_CONTRACT",
+                                "contractid": "0606060606060606060606060606060606060606060606060606060606060606"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ADDRESS",
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_MUXED_ACCOUNT",
+                                "muxedaccount": {
+                                  "id": 18446744073709551615,
+                                  "ed25519": "8a88e3dd7409f195fd52db2d3cba5d72ca6709bf1d94121bf3748801b40f6f5c"
+                                }
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ADDRESS",
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_CLAIMABLE_BALANCE",
+                                "claimablebalanceid": {
+                                  "discriminant": "CLAIMABLE_BALANCE_ID_TYPE_V0",
+                                  "v0": "0505050505050505050505050505050505050505050505050505050505050505"
+                                }
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ADDRESS",
+                              "address": {
+                                "discriminant": "SC_ADDRESS_TYPE_LIQUIDITY_POOL",
+                                "liquiditypoolid": "0404040404040404040404040404040404040404040404040404040404040404"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_WASM_VM",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_CONTEXT",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_STORAGE",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_OBJECT",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_CRYPTO",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_EVENTS",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_BUDGET",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_VALUE",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            },
+                            {
+                              "discriminant": "SCV_ERROR",
+                              "error": {
+                                "discriminant": "SCE_AUTH",
+                                "code": "SCEC_UNEXPECTED_SIZE"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "subinvocations": []
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "ext": {
+          "discriminant": 1,
+          "sorobandata": {
+            "ext": {
+              "discriminant": 1,
+              "resourceext": {
+                "archivedsorobanentries": [
+                  0
+                ]
+              }
+            },
+            "resources": {
+              "footprint": {
+                "readonly": [
+                  {
+                    "discriminant": "ACCOUNT",
+                    "account": {
+                      "accountid": "GCFIRY65OQE7DFP5KLNS2PF2LVZMUZYJX4OZIEQ36N2IQANUB5XVYOJR"
+                    }
+                  }
+                ],
+                "readwrite": [
+                  {
+                    "discriminant": "CONTRACT_CODE",
+                    "contractcode": {
+                      "hash": "0909090909090909090909090909090909090909090909090909090909090909"
+                    }
+                  }
+                ]
+              },
+              "instructions": 123456,
+              "diskreadbytes": 1024,
+              "writebytes": 2048
+            },
+            "resourcefee": 999
+          }
+        }
+      },
+      "inner": null
+    }
+  ]
+}
