@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':edict:agentic-payments')
+    api project(':edict:json')
+    testImplementation project(':edict:agentic-payments:ap2')
+}
