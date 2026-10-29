@@ -16,16 +16,11 @@ Body:
   "algorithm": "SECP256K1",
   "mode": "CREATE",
   "assetOwner": "customer-42",
-  "authorities": [
-    {
-      "id": "production-deployment",
-      "oci": "oci://registry.example/verdict/authorities/production-deployment@sha256:..."
-    }
-  ]
+  "authorities": ["oci://registry.example/edict/authorities/production-deployment@sha256:..."]
 }
 ```
 
-`authorities` is a JSON array of key authorities. These authorities define what the key identity can authorize.
+`authorities` is a JSON array of digest-pinned OCI references. Keeper reads each authority ID from its document and stores the resolved ID in key metadata. These authorities define what the key identity can authorize.
 
 Modes:
 

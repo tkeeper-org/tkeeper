@@ -31,7 +31,7 @@ command
 
 For `arbitrary`, TKeeper signs bytes after checking the key identity allows `arbitrary`.
 
-For concrete authorities, TKeeper loads the authority document, materializes the command into an intent, extracts effects where supported, and evaluates policy. It signs for `ALLOW`, or after every requirement from `ALLOW_WITH_REQUIREMENTS` is satisfied.
+For concrete authorities, TKeeper loads the authority document, materializes the command into an intent, extracts effects where supported, and evaluates policy. It signs for `ALLOW`, or after every requirement from `REQUIRES_APPROVAL` is satisfied.
 
 ## Quorum modes
 
@@ -99,9 +99,9 @@ Typed command:
 }
 ```
 
-See the [typed authority example](authorities.md#custom-authority-example) for the matching schema, payload, effects, and policy. [Digital assets](../digital-assets/README.md), [agentic payments](../ai/agentic-payments/README.md), and [X.509](../pki/x509.md) have their own authority guides.
+See the [typed authority example](arbitrary-and-typed.md#typed-json) for the matching schema, payload, effects, and policy. [Digital assets](../digital-assets/README.md), [agentic payments](../ai/agentic-payments/README.md), and [X.509](../pki/x509.md) have their own authority guides.
 The exact typed JSON byte encoding and hashing contract is documented in
-[Typed JSON signing material](arbitrary-and-typed.md#typed-json-signing-material).
+[Typed JSON signing material](arbitrary-and-typed.md#signing-bytes).
 
 ## Schemes and algorithms
 

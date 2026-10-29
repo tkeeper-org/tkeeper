@@ -1,23 +1,11 @@
-# Signing and Authorities
+# Signing and authorities
 
-TKeeper signs a command after its authority turns it into an intent and policy allows it.
+Keeper signs a command after the selected authority validates its intent and its Edict policy allows it.
 
-## Sign and compose
-
-- [Signing](signing.md): command requests and verification
-- [Composer](composer.md): protocol results from signed commands
-
-## Define and check policy
-
-- [Authorities](authorities.md): attach and govern an identity's capabilities
-- [Arbitrary and Typed Authorities](arbitrary-and-typed.md): raw and JSON commands
-- [CEL Functions](cel-functions.md): policy expressions
-- [Dry Run Policy Evaluation](dry-run.md): preview a decision
-
-## Protocol guides
-
-- [AI and Agentic Payments](../ai/README.md): agent APIs, AP2, MC Intent
-- [Digital Asset Authorities](../digital-assets/README.md): Bitcoin, EVM, Tron, XRP, Solana
-- [PKI Authorities](../pki/README.md): X.509 certificates
-
-The consumer must trust the expected identity, verify the signed command, and prevent replay where the action requires freshness.
+- [Signing](signing.md): requests and signature verification
+- [Composer](composer.md): signed protocol envelopes and credentials
+- [Authorities](authorities.md): OCI documents, authority ids and enforcement
+- [Edict language guide](../edict/README.md): tutorials and reference for syntax, schemas, functions and approvals
+- [Raw and typed JSON](arbitrary-and-typed.md): custom inputs and signing bytes
+- [Dry run](dry-run.md): preview a policy decision
+- [Digital assets](../digital-assets/README.md), [agentic payments](../ai/agentic-payments/README.md), [X.509](../pki/x509.md): native policy guides

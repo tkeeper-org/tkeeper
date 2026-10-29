@@ -141,9 +141,7 @@ curl -s \
     "keyId": "demo-identity",
     "algorithm": "SECP256K1",
     "mode": "CREATE",
-    "authorities": [
-      { "id": "arbitrary" }
-    ]
+    "authorities": ["arbitrary"]
   }' \
   http://localhost:8080/v2/keeper/dkg
 ```

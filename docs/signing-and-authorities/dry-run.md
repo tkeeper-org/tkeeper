@@ -1,6 +1,6 @@
 # Dry Run Policy Evaluation
 
-Dry run evaluates a command against the key's current authority policy and returns `ALLOW`, `DENY`, or `ALLOW_WITH_REQUIREMENTS`. Use it to inspect a decision before requesting a signature.
+Dry run evaluates a command against the key's current authority policy and returns `ALLOW`, `DENY`, or `REQUIRES_APPROVAL`. Use it to inspect a decision before requesting a signature.
 
 It does not execute the command, verify or consume approvals, or change key state. An allow decision is a preview of authority policy; the later signing request must still pass all signing controls.
 
@@ -75,7 +75,7 @@ Dry run returns HTTP `200` for every completed policy evaluation, including deni
 | `decision` | Meaning |
 | --- | --- |
 | `ALLOW` | The authority policy currently allows the command without policy-driven approvals. |
-| `ALLOW_WITH_REQUIREMENTS` | The authority policy allows the command after every returned approval group is satisfied. |
+| `REQUIRES_APPROVAL` | The authority policy allows the command after every returned approval group is satisfied. |
 | `DENY` | The authority policy rejects the command. A real signing request would fail with `POLICY_VIOLATION`. |
 
 `matches` contains the rules that contributed to the decision. `approvalRequirements` contains every authority-policy approval group required by the decision.
@@ -84,11 +84,11 @@ Example response requiring four-eye approval:
 
 ```json
 {
-  "decision": "ALLOW_WITH_REQUIREMENTS",
+  "decision": "REQUIRES_APPROVAL",
   "matches": [
     {
       "id": "review-large-payment",
-      "effect": "ALLOW_WITH_REQUIREMENTS"
+      "effect": "REQUIRES_APPROVAL"
     }
   ],
   "approvalRequirements": [

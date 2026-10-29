@@ -680,7 +680,7 @@ paths:
       summary: Evaluate an authority command without executing it
       description: |
         Requires the optional `dry-run` feature. Resolves the key authority and evaluates its policy
-        without signing, consuming approvals, or mutating key state. `ALLOW_WITH_REQUIREMENTS`
+        without signing, consuming approvals, or mutating key state. `REQUIRES_APPROVAL`
         includes every four-eye approval requirement needed by the authority policy.
       x-permissions:
         required: [tkeeper.emulate]
@@ -1932,7 +1932,7 @@ components:
           minItems: 1
           maxItems: 255
           items:
-            $ref: '#/components/schemas/KeySetAuthority'
+            $ref: '#/components/schemas/AuthorityReference'
         mode:
           $ref: '#/components/schemas/KeyGenMode'
         policy:
@@ -1963,7 +1963,7 @@ components:
           minItems: 1
           maxItems: 255
           items:
-            $ref: '#/components/schemas/KeySetAuthority'
+            $ref: '#/components/schemas/AuthorityReference'
         value64:
           allOf:
             - $ref: '#/components/schemas/NonEmptyBase64'
@@ -2017,6 +2017,11 @@ components:
         restartRequired:
           type: boolean
           description: True when the promoted keeper must be restarted before normal operations.
+
+    AuthorityReference:
+      type: string
+      minLength: 1
+      description: Digest-pinned OCI authority reference, or arbitrary for explicitly enabled raw signing. The authority ID is read from the document.
 
     KeySetAuthority:
       type: object
@@ -2394,6 +2399,7 @@ components:
         - $ref: '#/components/schemas/TypedArtifact'
         - $ref: '#/components/schemas/EvmTransactionArtifact'
         - $ref: '#/components/schemas/TransactionArtifact'
+        - $ref: '#/components/schemas/XlmTransactionArtifact'
         - $ref: '#/components/schemas/PaymentMandatesArtifact'
         - $ref: '#/components/schemas/BitcoinTransactionArtifact'
         - $ref: '#/components/schemas/X509TbsCertificateArtifact'
@@ -2454,6 +2460,18 @@ components:
         transaction:
           type: string
           minLength: 1
+
+    XlmTransactionArtifact:
+      type: object
+      additionalProperties: false
+      required: [transaction, networkPassphrase]
+      properties:
+        transaction:
+          $ref: '#/components/schemas/NonEmptyBase64'
+        networkPassphrase:
+          type: string
+          minLength: 1
+          description: Must equal the passphrase pinned by the selected authority.
 
     PaymentMandatesArtifact:
       type: object
@@ -2535,15 +2553,15 @@ components:
     SignedTransaction:
       type: object
       additionalProperties: false
-      description: EVM, TRON, or XRP composed transaction.
+      description: EVM, TRON, XRP, or Stellar composed transaction.
       required: [type, rawTransaction, transactionHash, generation, imposters]
       properties:
         type:
           type: string
-          enum: [evm.transaction, tron.transaction, xrp.transaction]
+          enum: [evm.transaction, tron.transaction, xrp.transaction, xlm.transaction]
         rawTransaction:
           type: string
-          description: Signed hex for EVM and XRP; signed JSON for TRON.
+          description: Signed hex for EVM and XRP; signed JSON for TRON; Base64 envelope XDR for Stellar.
         transactionHash:
           type: string
         generation:
@@ -2980,7 +2998,7 @@ components:
       properties:
         decision:
           type: string
-          enum: [ALLOW, ALLOW_WITH_REQUIREMENTS, DENY]
+          enum: [ALLOW, REQUIRES_APPROVAL, DENY]
         matches:
           type: array
           items:
@@ -3056,7 +3074,7 @@ components:
           minLength: 1
         effect:
           type: string
-          enum: [ALLOW, ALLOW_WITH_REQUIREMENTS, DENY]
+          enum: [ALLOW, REQUIRES_APPROVAL, DENY]
 
     ConsistencyCheck:
       type: object

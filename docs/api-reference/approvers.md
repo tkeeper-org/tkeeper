@@ -61,21 +61,17 @@ descriptors are supported. Existing inline FourEye policies keep their current c
 
 ## Pin a registered approver in a policy
 
-Use `{"ref":"alice@sha256:<digest>"}` as an element of `fourEye.keys`, or as a value under
-`policy.approvers` in an authority manifest. Replace the placeholder with the actual ref returned
-by registration. Authority approval rules continue to select local aliases:
+Use `{"ref":"alice@sha256:<digest>"}` as an element of `fourEye.keys`. An Edict authority declares its own approver:
 
-```yaml
-policy:
-  id: payments
-  fallback: ALLOW_WITH_REQUIREMENTS
-  approvers:
-    treasury:
-      ref: "alice@sha256:<digest>"
-  fallbackApprovals:
-    threshold: 1
-    approvers: [treasury]
+```edict
+approver treasury {
+    type = "reference"
+    id = "treasury"
+    ref = "alice@sha256:<digest>"
+}
 ```
+
+Use the complete ref returned by registration. A policy can require `1 of [treasury]` conditionally, or use `default allow require treasury` for a reviewed fallback. See [Edict approvals](../signing-and-authorities/edict.md#decisions-and-approvals).
 
 Every participant resolves all target refs before CREATE/REFRESH/ROTATE, including unused
 authority approvers reserved for later rules. Resolution reads the local replicated registry and

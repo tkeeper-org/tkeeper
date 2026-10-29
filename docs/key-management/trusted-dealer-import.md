@@ -19,16 +19,11 @@ Body:
   "keyId": "imported-secp256k1",
   "algorithm": "SECP256K1",
   "value64": "base64-raw-private-key",
-  "authorities": [
-    {
-      "id": "payments-small",
-      "oci": "oci://registry.example/verdict/authorities/payments-small@sha256:..."
-    }
-  ]
+  "authorities": ["oci://registry.example/edict/authorities/payments-small@sha256:..."]
 }
 ```
 
-`authorities` is a JSON array of key authorities.
+`authorities` is a JSON array of digest-pinned OCI references. Keeper reads each authority ID from its document and stores the resolved ID in key metadata.
 
 `value64` is base64 of the raw private key bytes. For Ed25519, import the standard seed bytes.
 

@@ -49,62 +49,31 @@ selects SIGNATURE or WEBAUTHN, and a WebAuthn ref cannot be approved by a raw si
 
 ## Policy-driven approvals
 
-An authority manifest can require approvals only when a particular allow rule matches. Approvers are declared once under `policy.approvers`; each rule selects a threshold and a set of local aliases:
+Edict declares approvers at authority scope. A conditional `require` adds a group when its condition matches; it does not grant allow. Every selected group and every key-bound four-eye group must be satisfied.
 
-```yaml
-policy:
-  id: payment-policy
-  fallback: DENY
-  approvers:
-    operator-a:
-      algorithm: SECP256K1
-      publicKey64: "..."
-    operator-b:
-      algorithm: P256
-      publicKey64: "..."
-    compliance:
-      algorithm: ED25519
-      publicKey64: "..."
-  allow:
-    - id: approve-payment
-      where:
-        - "purpose == 'payment'"
-      approvals:
-        threshold: 2
-        approvers: [operator-a, operator-b]
-    - id: compliance-review
-      where:
-        - "purpose == 'payment'"
-      approvals:
-        threshold: 1
-        approvers: [compliance]
+```edict
+authority "reviewed-command" {
+    intent = "custom"
+    version = "1"
+    input request { amount: Number }
+    approver treasury {
+        type = "public-key"
+        id = "treasury"
+        algorithm = "ED25519"
+        publicKey64 = "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
+    }
+    policy "payments" {
+        allow if (request.amount > 0 and request.amount <= 1000)
+        require 1 of [treasury] if (request.amount > 100)
+    }
+}
 ```
 
-If both rules match, both approval groups must be satisfied. Requirements from a key-level `fourEye` policy are cumulative with authority-policy requirements; one approval payload can carry proofs for every group.
-
-Replace any inline entry above with `ref: "alice@sha256:<digest>"` to pin a registered
-SIGNATURE or WEBAUTHN credential. New inline entries can supply `id`; legacy immutable
-artifacts without it use their map alias. All declared refs, including reserves, must resolve on
-each participant before generation activation. Authority metadata never selects a dynamic group.
-
-An `ALLOW_WITH_REQUIREMENTS` fallback uses the same model:
-
-```yaml
-policy:
-  id: guarded-fallback
-  fallback: ALLOW_WITH_REQUIREMENTS
-  approvers:
-    operator:
-      algorithm: ED25519
-      publicKey64: "..."
-  fallbackApprovals:
-    threshold: 1
-    approvers: [operator]
-```
+Replace the example key with the intended reviewer's key. To use a registered credential, declare `type = "reference"`, an explicit `id`, and the complete digest-pinned `ref`. All declared refs, including unused approvers, must resolve on every participating keeper before activation. A fallback requiring review is written `default allow require treasury`.
 
 For an authority-policy challenge, TKeeper returns `APPROVAL_REQUIRED` with the `policyId`, rule or fallback `source`, and `threshold` for every required group. Approver descriptors come from inline manifest entries or their pinned registry refs. Collect enough signature or WebAuthn proofs for every group, attach them to the same request, and resubmit it unchanged.
 
-Policy-driven approvals apply to typed signing through the selected authority. Arbitrary signing does not evaluate an authority policy. The audit event retains the `ALLOW_WITH_REQUIREMENTS` decision and its requirements after successful approval.
+Policy-driven approvals apply to typed signing through the selected authority. Arbitrary signing does not evaluate an authority policy. The audit event retains the `REQUIRES_APPROVAL` decision and its requirements after successful approval.
 
 ## Approval model
 
@@ -351,9 +320,7 @@ Example `ROTATE` request:
 {
   "keyId": "lifecycle-key",
   "algorithm": "SECP256K1",
-  "authorities": [
-    {"id": "arbitrary"}
-  ],
+  "authorities": ["arbitrary"],
   "mode": "ROTATE",
   "approvals": {
     "keeperId": 1,
@@ -370,9 +337,7 @@ Hash preimage:
 {
   "keyId": "lifecycle-key",
   "algorithm": "SECP256K1",
-  "authorities": [
-    {"id": "arbitrary"}
-  ],
+  "authorities": ["arbitrary"],
   "mode": "ROTATE",
   "keeperId": 1,
   "nonce": "rotate-unique-nonce",

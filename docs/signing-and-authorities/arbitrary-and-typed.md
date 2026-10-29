@@ -1,189 +1,75 @@
-# Arbitrary and Typed Authorities
+# Raw and typed JSON signing
 
-## `arbitrary`
+## Raw signing
 
-`arbitrary` is raw signing. TKeeper checks that the key identity allows `arbitrary`, then signs the bytes from the command.
-It is disabled by default and requires `keeper.authority.arbitrary.enabled = true` on every keeper
-in the cluster.
+`arbitrary` signs raw bytes after key access checks. Enable it with `keeper.authority.arbitrary.enabled = true` and attach it as the key's only authority. It provides no semantic policy checks on those bytes.
 
-Use it for:
+## Typed JSON
 
-- local demos
-- compatibility with systems that already govern the payload elsewhere
-- narrow raw-signing cases accepted by policy and security review
+Use `custom` for an application command described by JSON. Its Edict document declares exactly one object input, `request`. The object may be a closed record or `Map<Text, T>`. Define reusable shapes with `struct`; declare defaults and optional fields in the document.
 
-TKeeper does not parse these bytes into an action or evaluate intent policy. Use a typed authority when TKeeper must constrain the action being signed.
+```edict
+authority "test:custom/recipients" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "Payments to approved recipient countries"
 
-## `custom`
+    struct Address {
+        country: Text
+        note: Text?
+    }
 
-`custom` is for typed JSON commands. The authority document defines the expected command shape and the effects exposed to policy.
+    struct Recipient {
+        address: Address
+        labels: List<Text> = []
+    }
 
-Start with the [typed authority example and matching command](authorities.md#custom-authority-example). It shows the field shapes and each CEL helper category in context.
+    struct PaymentRequest {
+        amount: Number
+        recipients: List<Recipient>
+        status: Text = "READY"
+    }
 
-Use it for:
+    input request: PaymentRequest
 
-- AI-agent tool or action intents
-- internal service commands
-- business-specific approvals
-- workflows where a backend verifies TKeeper proof before execution
-
-Only declared fields are available to policy. The executing backend must not derive additional effects from undeclared fields in the submitted JSON.
-
-## Typed JSON signing material
-
-For a `custom` command, TKeeper signs the submitted `artifact.typed` JSON object. It does not sign
-the authority document, the materialized CEL intent, or the generated `effects` object.
-
-TKeeper converts `artifact.typed` into signing material as follows:
-
-1. Sort every JSON object's field names lexicographically.
-2. Apply the same rule recursively to nested objects, including objects inside arrays.
-3. Preserve array element order.
-4. Preserve scalar JSON values and types, including strings, booleans, numbers, and explicit
-   `null` values.
-5. Serialize the resulting tree as compact UTF-8 JSON with no insignificant whitespace.
-6. Apply the command artifact's `hash` method to those bytes. `NONE` leaves the bytes unchanged;
-   `SHA256`, `SHA512`, and `KECCAK256` produce the corresponding digest.
-7. Pass that byte sequence to the selected signature scheme.
-
-In compact notation:
-
-```text
-canonical = UTF-8(compact-json(sort-object-fields-recursively(artifact.typed)))
-signingMaterial = hash.process(canonical)
-signature = scheme.sign(signingMaterial)
-```
-
-For example, this submitted object:
-
-```json
-{
-  "sequence": 7,
-  "deployment": {
-    "version": "3.0.0",
-    "environment": "production"
-  },
-  "roles": [
-    { "name": "operator", "priority": 1 },
-    { "priority": 2, "name": "auditor" }
-  ]
+    policy "approved-recipients" {
+        allow when {
+            request.amount > 0
+            request.amount <= 100
+            request.status == "READY"
+            request.recipients.count() > 0
+            request.recipients.all(recipient -> recipient.address.country == "AE")
+        }
+    }
 }
 ```
 
-is serialized for signing as:
+Submit `artifact.typed` without an extra `request` wrapper:
 
-```json
-{"deployment":{"environment":"production","version":"3.0.0"},"roles":[{"name":"operator","priority":1},{"name":"auditor","priority":2}],"sequence":7}
+```java
+var typed = TKeeperJackson.signingNode().put("amount", 10);
+typed.putArray("recipients").addObject().putObject("address").put("country", "AE");
+var artifact = new TypedData(SignatureSchemes.ECDSA, HashMethod.SHA256, typed);
+var command = Command.of("test:custom/recipients", artifact);
+var signature = client.signature().sign(Sign.of(keyId, command));
 ```
 
-With `hash: SHA256`, the expected signing material is:
+A missing `status` uses `READY`. A missing `labels` uses `[]`; a missing `note` becomes `null`. Unknown fields in a record, missing required fields and wrong types fail validation. Maps accept dynamic text keys and validate each value. Numeric strings are not coerced to numbers. Decimal and large integer values retain their exact value through parsing and peer transport. The control-plane command schema is generated from the compiled Edict input.
 
-```text
-a55960ff8a2b7af9338df51db5074e4bf5cd012dafe07cb113bda0d6642c72e1
-```
+## Signing bytes
 
-Object field order and insignificant input whitespace therefore do not change the signing
-material. Array order does. Missing fields remain missing, while an explicitly submitted `null`
-remains present. Authority defaults may affect the materialized policy intent, but they are not
-inserted into the submitted JSON before signing.
+Keeper signs the submitted `artifact.typed` object, without adding schema defaults to it:
 
-### Relationship to RFC 8785/JCS
+1. Sort every object's field names lexicographically, recursively, including objects in arrays.
+2. Preserve array order and scalar JSON types and values, including explicit `null`.
+3. Serialize compact UTF-8 JSON.
+4. Apply the artifact's `hash`: `NONE`, `SHA256`, `SHA512` or `KECCAK256`.
+5. Pass the result to the selected signature scheme.
 
-This encoding is TKeeper-specific and is not
-[RFC 8785 JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785).
+Use `TKeeperJackson.signingBytes` when constructing the same bytes in a Java consumer. This is Keeper's signing format; it is not a claim of conformance to another JSON canonicalization standard.
 
-Both encodings remove insignificant whitespace, recursively sort object names by their UTF-16
-code-unit values, preserve array order, emit UTF-8, and preserve Unicode strings without applying
-Unicode normalization. Their primitive-value contracts differ:
+Decimal scale is preserved: `1.2300` and `1.23` evaluate as equal numbers but produce different signing bytes. Floating-point nodes use their decimal text representation, so the SDK and Keeper serialize scientific notation consistently. Use `BigDecimal` when constructing exact amounts.
 
-- JCS restricts input to I-JSON, represents JSON numbers as IEEE-754 double-precision values, and
-  uses ECMAScript's exact primitive serialization rules.
-- TKeeper canonicalizes a parsed Jackson `JsonNode` tree and uses Jackson's compact serialization.
-  It serializes the numeric node type and value produced by Jackson instead of applying JCS's
-  required ECMAScript number-normalization algorithm. Integral values may use arbitrary-precision
-  nodes; floating-point representation depends on the parsed node type.
-- JCS defines validation requirements for duplicate object names and invalid Unicode. TKeeper's
-  canonicalizer receives an already-parsed object tree, so parsing has already resolved the input
-  token stream before canonicalization.
+The executing service must verify the signature and authority identity, apply the same document revision and defaults, and execute the declared command. A signature over JSON does not establish whether user-supplied assertions are true. Bind external approvals or attestations to this command and check their origin in the application.
 
-A generic JCS implementation is therefore not a compatible replacement for TKeeper's encoder.
-Producers and verifiers should use the SDK command types and must not independently rewrite numeric
-values or representations before verification.
-
-The outer `keyId`, `authorityId`, command `type`, `scheme`, `hash`, generation, policy decision, and
-effects are not concatenated into the JSON message. They select the key, authorization path, and
-cryptographic processing. Verification must use the same typed payload, scheme, hash method, key,
-generation, and tweak context that the integration expects.
-
-## Custom authority config
-
-```yaml
-type: custom
-config:
-  fields:
-    amount:
-      type: bigint
-    currency:
-      type: string
-    customer:
-      type: object
-      fields:
-        id:
-          type: string
-        country:
-          type: string
-          required: false
-          default: UNKNOWN
-  effects:
-    - type: payment.transfer
-      fields:
-        asset: "$currency"
-        amount: "$amount"
-        customerId: "$customer.id"
-```
-
-Field rules:
-
-- JSON root must be an object
-- unknown fields are rejected before policy evaluation
-- `effects` is reserved
-- `required` defaults to `true`
-- `nullable` defaults to `false`
-- optional missing fields without a default become CEL `null`
-- config typos and invalid defaults reject the authority
-
-Supported types:
-
-| Type | CEL/runtime value |
-| --- | --- |
-| `string` | string |
-| `bool` | boolean |
-| `int` | signed 32-bit integer |
-| `bigint` | arbitrary-precision integer |
-| `decimal` | arbitrary-precision decimal |
-| `time` | instant |
-| `bytes` | bytes decoded from Base64 |
-| `object` | nested object with declared `fields` |
-| `list` | list whose element schema is declared in `items` |
-
-`bigint` requires an integral JSON number and `decimal` requires a JSON number. Preserve large values when constructing JSON; do not pass them through an IEEE-754 `double`. `bytes` accepts Base64 strings. `time` accepts ISO-8601 instant strings such as `2030-01-02T03:04:05Z`.
-
-Effect mapping strings beginning with `$` resolve declared field paths. `$$value` produces the literal string `$value`.
-
-The declared fields and `effects` become strict CEL roots. See [Authorities](authorities.md#strict-cel-roots) and [CEL Functions](cel-functions.md).
-
-## Decision rule
-
-| Need | Use |
-| --- | --- |
-| Sign bytes with no semantic policy in TKeeper | `arbitrary` |
-| Govern a typed business action | `custom` |
-| Govern an EVM transaction | `evm.transaction` |
-| Govern a Bitcoin transaction | `bitcoin.transaction` |
-| Govern a Tron, XRP, or Solana transaction | `tron.transaction`, `xrp.transaction`, or `solana.transaction` |
-| Govern an AP2 or MC VI mandate | `ap2.mandate` or `mcintent.mandate` |
-| Govern certificate issuance | `x509.tbs-certificate` |
-
-`arbitrary` cannot be mixed with concrete authorities on the same key identity.
-
-If an integration uses `arbitrary`, its application must validate the meaning of the bytes before requesting a signature.
+See [Edict](edict.md) for language syntax and [Authorities](authorities.md) for OCI publication.

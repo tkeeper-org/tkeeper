@@ -49,7 +49,7 @@ Response shape:
         "authorities": [
           {
             "id": "production-deployment",
-            "oci": "oci://registry.example/verdict/authorities/production-deployment@sha256:..."
+            "oci": "oci://registry.example/edict/authorities/production-deployment@sha256:..."
           }
         ],
         "algorithm": "SECP256K1",
