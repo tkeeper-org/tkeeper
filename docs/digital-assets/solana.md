@@ -1,43 +1,62 @@
-# Solana Authorities
+# Solana policies
 
-`solana.transaction` accepts an unsigned transaction in Base64 and requires an Ed25519 key. TKeeper checks that the signing key is a required signer of the message. Build with `-Pkeeper.features=solana -Pkeeper.platforms=ecc`.
+Build with `-Pkeeper.features=solana -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `solana.transaction`.
 
-## Example: one native transfer
+`artifact.transaction` contains a Base64 encoded unsigned transaction. Native amounts are lamports; 1 SOL is 1,000,000,000 lamports.
 
-This [authority](../../integration-tests/src/testFixtures/resources/authorities/solana/native-transfer.yaml) permits one required signer and a transfer of at most 100 [lamports](https://solana.com/docs/references/terminology) to one recipient:
+```edict
+authority "test:solana/native-transfer" {
+    intent = "solana.transaction"
+    version = "1.0.0"
 
-```yaml
-schemaVersion: verdict.authority/v1
-id: test:solana/native-transfer
-type: solana.transaction
-version: 1.0.0
-config: {}
-policy:
-  id: solana-native-transfer
-  fallback: DENY
-  variables:
-    recipient: "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
-  allow:
-    - id: small-transfer
-      where:
-        - "requiredSignatures == 1"
-        - "effect.onlyTypes(effects, ['native.transfer'])"
-        - "effect.one(effects, 'native.transfer')"
-        - "effect.all(effects, 'native.transfer', {'asset': 'sol', 'to': recipient})"
-        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
-        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100')"
+    policy "solana-native-transfer" {
+        let recipient = "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+        allow "small-transfer" when {
+            requiredSignatures == 1
+            effects.all(e -> e.type in ["native.transfer"])
+            effects.count(e -> e.type == "native.transfer") == 1
+            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "sol" and e.to == recipient)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100)
+        }
+    }
+}
 ```
 
-Build the message with the TKeeper key as a required signer, then compose:
+Roots include `version`, `feePayer`, `recentBlockhash`, `requiredSignatures` and `effects`. The Ed25519 key must be a required signer. The composer attaches that signature and returns the Base64 transaction and `complete`, indicating whether all required signatures are present. Keeper does not resolve address lookup tables or fetch chain state for the request.
 
-```java
-var command = Command.of("test:solana/native-transfer",
-        new UnsignedSolanaTransaction(unsignedSolana64));
-var signed = client.signature().compose(
-        Sign.of(solanaKeyId, command), SignedSolanaTransaction.class);
-if (!signed.complete()) throw new IllegalStateException("Missing signatures");
-String transaction64 = signed.rawTransaction();
-String transactionHash = signed.transactionHash();
+## Program interfaces
+
+Declare a program's instruction layout when its arguments and accounts must be checked directly. This is the System Program transfer layout: a four-byte discriminator followed by a little-endian `u64` lamport amount.
+
+```edict
+authority "solana-system-transfer" {
+    intent = "solana.transaction"
+    version = "1"
+    program system: solana {
+        address = "11111111111111111111111111111111"
+        fn transfer(lamports: u64) {
+            discriminator = "02000000"
+            accounts = [
+                {name = "from", signer = true, writable = true},
+                {name = "to", signer = false, writable = true}
+            ]
+        }
+    }
+    input transfers: List<system.transfer>
+    policy "system-transfer" {
+        allow when {
+            transaction.requiredSignatures == 1
+            transfers.count() > 0
+            transfers.all(call -> call.accounts.from.address == transaction.feePayer)
+            transfers.all(call -> call.accounts.to.address == "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR")
+            transfers.all(call -> call.arguments.lamports > 0)
+            transfers.sum(call -> call.arguments.lamports) <= 100
+        }
+    }
+}
 ```
 
-For policies that allow multiple signers, the composer can return a partial transaction with `complete: false` and no hash. With a `tweak`, build the message using `central().getPublicKey(solanaKeyId, tweak)`. The caller submits the complete transaction. [Composer](../signing-and-authorities/composer.md) describes the common response contract.
+The native binding must consume every instruction. Unknown programs, discriminators, trailing bytes, or incompatible account privileges fail intent validation. Local program structs describe nested wire arguments; use the program's actual Borsh layout and discriminator.
+
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

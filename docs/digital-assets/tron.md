@@ -1,42 +1,29 @@
-# Tron Authorities
+# TRON policies
 
-`tron.transaction` accepts unsigned transaction JSON. It requires a secp256k1 key and checks that the transaction owner matches the signing key. Build with `-Pkeeper.features=tron -Pkeeper.platforms=ecc`.
+Build with `-Pkeeper.features=tron -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `tron.transaction`.
 
-## Example: one recipient, at most 100 TRX
+`artifact.transaction` contains unsigned TRON transaction JSON. Amounts and fees are sun; 1 TRX is 1,000,000 sun.
 
-Tron amounts and `feeLimit` use [sun](https://developers.tron.network/docs/token-standards-trx); 100 TRX is 100,000,000 sun. This [authority](../../integration-tests/src/testFixtures/resources/authorities/tron/native-transfer.yaml) limits the recipient, amount, fee limit, and effect type:
+```edict
+authority "test:tron/native-transfer" {
+    intent = "tron.transaction"
+    version = "1.0.0"
+    description = "Sign a TRON native transfer of up to 100 TRX to the configured recipient."
 
-```yaml
-schemaVersion: verdict.authority/v1
-id: test:tron/native-transfer
-type: tron.transaction
-version: 1.0.0
-config: {}
-policy:
-  id: tron-native-transfer
-  fallback: DENY
-  variables:
-    recipient: "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
-  allow:
-    - id: small-transfer
-      where:
-        - "feeLimit <= 30000000"
-        - "effect.onlyTypes(effects, ['native.transfer'])"
-        - "effect.one(effects, 'native.transfer')"
-        - "effect.all(effects, 'native.transfer', {'asset': 'trx', 'to': recipient})"
-        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
-        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100000000')"
+    policy "tron-native-transfer" {
+        let recipient = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+        allow "small-transfer" when {
+            feeLimit <= 30000000
+            effects.all(e -> e.type in ["native.transfer"])
+            effects.count(e -> e.type == "native.transfer") == 1
+            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "trx" and e.to == recipient)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100000000)
+        }
+    }
+}
 ```
 
-Build the unsigned JSON with the key's owner address, then compose:
+Roots include `hash`, `timestamp`, `expiration`, `feeLimit` and `effects`. The signing key must match the owner of the single owner-authorized contract; nonzero permission ids and additional auths are rejected. The composer returns signed transaction JSON. TRC-20/interface authoring is not exposed by this Keeper profile.
 
-```java
-var command = Command.of("test:tron/native-transfer",
-        new UnsignedTronTransaction(unsignedTronJson));
-var signed = client.signature().compose(
-        Sign.of(tronKeyId, command), SignedTronTransaction.class);
-String transactionJson = signed.rawTransaction();
-String transactionHash = signed.transactionHash();
-```
-
-The composer keeps the approved transaction body and adds the signature. The broadcaster submits `transactionJson`. With a `tweak`, derive the owner address from `central().getPublicKey(tronKeyId, tweak)`. [Composer](../signing-and-authorities/composer.md) describes the common response contract.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

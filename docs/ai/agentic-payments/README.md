@@ -7,7 +7,7 @@ AP2 and Mastercard Verifiable Intent (MC VI) sign ES256 JWS inputs with a P-256 
 | AP2 | `ap2.mandate` | `ap2` | [AP2](ap2.md) |
 | MC VI | `mcintent.mandate` | `mc-vi` | [MC Intent](mcintent.md) |
 
-Build both with `-Pkeeper.features=agentic-payments -Pkeeper.platforms=ecc`, or select one feature from the table. Each guide contains a complete authority YAML and a compose request.
+Build both with `-Pkeeper.features=agentic-payments -Pkeeper.platforms=ecc`, or select one feature from the table. Each guide contains a complete Edict authority and explains its request fields.
 
 `signingInput` is the exact unpadded base64url JWS header and payload joined by `.`. Supply every disclosure referenced by the mandate. Keeper checks their commitments, evaluates every action against the authority policy, and signs the unchanged input. `/v2/keeper/sign` returns the raw signature; [Composer](../../signing-and-authorities/composer.md) returns a serialized `PaymentCredential` layer.
 

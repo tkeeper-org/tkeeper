@@ -1,44 +1,5 @@
-# For PKI
+# Policies for certificate issuance
 
-An X.509 authority governs a CA key's signature over a DER-encoded `TBSCertificate`. The CA service builds the certificate; TKeeper checks its parsed fields and signs only after policy and any required approvals pass.
+Submit the exact DER TBSCertificate that the issuing service will publish. Keep enrollment authorization and proof-of-possession checks in the CA pipeline.
 
-```sh
-./gradlew shadowJar -Pkeeper.features=authority-x509 -Pkeeper.platforms=ecc
-```
-
-## Example: service leaf certificate
-
-This authority accepts a server certificate for `api.svc.test`, with no CA privilege:
-
-```yaml
-schemaVersion: verdict.authority/v1
-id: test:x509/service-leaf
-type: x509.tbs-certificate
-version: 1.0.0
-config: {}
-policy:
-  id: test-x509-service-leaf
-  fallback: DENY
-  allow:
-    - id: allow-service-leaf
-      where:
-        - "version == 3"
-        - "subject.commonName == 'api.svc.test'"
-        - "extensions.basicConstraints.present"
-        - "!extensions.basicConstraints.cA"
-        - "extensions.keyUsage.digitalSignature"
-        - "extensions.extKeyUsage.serverAuth"
-```
-
-This rule checks the common name and leaf-certificate usage. For issuer, DNS SAN, validity, signature algorithm, and operator approval checks, use the stricter profile in the [X.509 authority guide](../pki/x509.md#authority-example-workload-server-certificate).
-
-The CA service submits exactly the TBS bytes it will publish:
-
-```java
-var tbs = new TBSDerEncoded(Base64.getEncoder().encodeToString(tbsDer));
-var command = Command.of("test:x509/service-leaf", tbs);
-var signature = client.signature().sign(Sign.of(issuingKeyId, command));
-byte[] signatureBytes = Base64.getDecoder().decode(signature.signature64());
-```
-
-The CA service assembles the final certificate and checks that its signature algorithm matches the key. Enrollment authorization, proof of possession, serial-number uniqueness, revocation, and publication remain in the PKI. Relying parties validate the finished certificate and chain.
+See the [policy guide](../pki/x509.md) for the complete document and command format. [Edict](../signing-and-authorities/edict.md) describes rules and conditional approval requirements.

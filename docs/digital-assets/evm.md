@@ -1,133 +1,51 @@
-# EVM Authorities
+# EVM policies
 
-The `evm.transaction` authority checks an unsigned transaction and its decoded effects before signing. Build with `evm` and `ecc`:
+Build with `-Pkeeper.features=evm -Pkeeper.platforms=ecc`. Submit the unsigned transaction bytes as Base64 in `artifact.message64`.
 
-```bash
-./gradlew shadowJar -Pkeeper.features=evm -Pkeeper.platforms=ecc
+For native transfers, `config.chainId` pins the network; roots include `chainId`, `to`, `value`, `gasLimit`, `transaction` and `effects`. Values are wei. For contract calls, declare the contract and ABI signatures in the Edict document:
+
+```edict
+authority "test:evm/mainnet-usdc-transfer" {
+    intent = "evm.transaction"
+    version = "1.0.0"
+    title = "Mainnet USDC transfer limit"
+
+    config {
+        chainId = 1
+    }
+
+    contract token: evm {
+        address = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+        fn transfer(to: address, amount: uint256)
+    }
+
+    input transfer: token.transfer
+
+    policy "test-evm-mainnet-usdc-transfer" {
+        allow "allow-small-usdc-transfer" when {
+            transaction.chainId == 1
+            transaction.value == 0
+            transfer.arguments.to == "0x1111111111111111111111111111111111111111"
+            transfer.arguments.amount > 0
+            transfer.arguments.amount <= 100000000
+        }
+    }
+}
 ```
 
-Policy can constrain native transfers, token transfers, spender approvals, and configured contract calls. Signing requires an allow decision and any approvals selected by policy.
+`address` and `uint256` are EVM wire types. The decoder binds the destination, selector and argument layout to this declaration. A call to another contract or method fails intent validation. `transaction.chainId`, `transaction.value` and `transaction.gasLimit` come from the native transaction. Native contract binding requires a chain id committed by the transaction; use a chain-bound typed transaction such as EIP-1559.
 
-## Enforcement boundary
+The sample uses test addresses. Replace the contract and recipient with the intended deployed addresses. Token amounts are raw integers: for a six-decimal token, `100000000` means 100 tokens. `transaction.value` is the native value sent with the call, independently of the token amount.
 
-The authority should pin the intended chain and describe every contract call the policy is allowed to approve. Native intent handling fails closed when TKeeper cannot map a call to a known effect.
+For an allowance, declare `fn approve(spender: address, amount: uint256)` and constrain both fields. For a vault or tuple argument, declare its actual signature and local structs; do not describe effects through a JSON contract catalog.
 
-TKeeper signs the approved transaction. The surrounding wallet or custody service remains responsible for transaction construction, nonce and gas strategy, broadcast, replacement, receipt tracking, and settlement state. It must broadcast exactly the transaction that policy approved.
-
-External risk verdicts must be bound to the same transaction intent; a verdict for an address or amount outside the signed transaction is only advisory metadata.
-
-## Compose a signed transaction
-
-Pass the serialized unsigned transaction bytes as Base64 in `UnsignedEvmTransaction.message64` to `/v2/keeper/compose`. The EVM composer applies the Keeper signature to that transaction and returns `SignedEvmTransaction` with `rawTransaction` (hex for `eth_sendRawTransaction`), `transactionHash`, `generation`, and `imposters`. The regular sign endpoint still returns the signature alone.
+## Compose
 
 ```java
-var command = Command.of(authorityId, new UnsignedEvmTransaction(message64));
-var signed = client.signature().compose(Sign.of(keyId, command), SignedEvmTransaction.class);
-var rawTransaction = signed.rawTransaction();
+var command = Command.of("test:evm/mainnet-usdc-transfer", new UnsignedEvmTransaction(message64));
+var result = client.signature().compose(Sign.of(keyId, command), SignedEvmTransaction.class);
 ```
 
-The result covers legacy and typed transactions 1–4. For type 3 blob transactions, `rawTransaction` contains the signed transaction envelope; broadcasting also requires the blob sidecar.
+The composer returns signed transaction hex and its hash. It supports legacy and typed envelopes supported by Signet; blob broadcasting still needs its sidecar. The wallet constructs nonces and fees, broadcasts the approved bytes and tracks settlement.
 
-## Authority config
-
-```yaml
-type: evm.transaction
-config:
-  chainId: 1
-  contracts:
-    - standard: erc20
-      address: "0x1111111111111111111111111111111111111111"
-```
-
-Custom contract calls declare their ABI signature, argument names, and effects:
-
-```yaml
-config:
-  chainId: 1
-  contracts:
-    - name: vault
-      address: "0x4444444444444444444444444444444444444444"
-      functions:
-        - signature: "withdraw(address,uint256)"
-          arguments: [to, amount]
-          effects:
-            - type: vault.withdraw
-              fields:
-                vault: "$transaction.to"
-                to: "$to"
-                amount: "$amount"
-```
-
-`chainId` comes from trusted config. Typed transactions must match it; legacy unsigned transactions carry no chain id.
-
-Built-in effects:
-
-- `native.transfer`
-- `erc20.transfer`
-- `erc20.approval`
-- `erc20.transferFrom`
-
-Strict CEL roots:
-
-- `type`, `chainId`, `nonce`
-- `gasPrice`, `gasLimit`, `maxPriorityFeePerGas`, `maxFeePerGas`
-- `to`, `value`, `data`, `selector`
-- `transaction`, `call`, `effects`
-
-Intent validation rejects unsigned-data violations, chain mismatch, unlisted contracts or functions, calldata decoding failures, and effects that the trusted config cannot describe.
-
-## Authority example: treasury USDC transfer
-
-This authority allows mainnet USDC transfers to one operating wallet: up to 100 USDC without approval, or above 100 and up to 1,000 USDC with one treasury approval. Other recipients, effects, contracts, chains, and larger amounts are denied.
-
-```yaml
-schemaVersion: verdict.authority/v1
-id: evm-usdc-operating-transfer
-type: evm.transaction
-version: 1.0.0
-
-metadata:
-  title: Treasury USDC transfer to operating wallet
-
-config:
-  chainId: 1
-  contracts:
-    - standard: erc20
-      address: "0x1111111111111111111111111111111111111111"
-
-policy:
-  id: evm-usdc-operating-transfer
-  fallback: DENY
-  approvers:
-    treasury-reviewer:
-      algorithm: ED25519
-      publicKey64: "BASE64_ENCODED_ED25519_PUBLIC_KEY"
-  variables:
-    recipientAddress: "0x2222222222222222222222222222222222222222"
-    automaticLimit: "100000000"
-    reviewedLimit: "1000000000"
-  allow:
-    - id: automatic-transfer
-      where:
-        - "chainId == 1"
-        - "effect.onlyTypes(effects, ['erc20.transfer'])"
-        - "effect.one(effects, 'erc20.transfer')"
-        - "effect.any(effects, 'erc20.transfer', {'to': recipientAddress})"
-        - "bigint.lte(effect.amount(effects, 'erc20.transfer'), automaticLimit)"
-    - id: reviewed-transfer
-      where:
-        - "chainId == 1"
-        - "effect.onlyTypes(effects, ['erc20.transfer'])"
-        - "effect.one(effects, 'erc20.transfer')"
-        - "effect.any(effects, 'erc20.transfer', {'to': recipientAddress})"
-        - "bigint.gt(effect.amount(effects, 'erc20.transfer'), automaticLimit)"
-        - "bigint.lte(effect.amount(effects, 'erc20.transfer'), reviewedLimit)"
-      approvals:
-        threshold: 1
-        approvers: [treasury-reviewer]
-  deny: []
-```
-
-Replace the token contract, recipient, limits, and `publicKey64` with trusted production values. A transfer to another wallet should use another authority id and document.
-
-See [Authorities](../signing-and-authorities/authorities.md) for the document and policy schema, [CEL Functions](../signing-and-authorities/cel-functions.md) for policy helpers, and [Composer](../signing-and-authorities/composer.md) for response behavior.
+See [Edict](../signing-and-authorities/edict.md) for rules and [Authorities](../signing-and-authorities/authorities.md) for OCI publication.

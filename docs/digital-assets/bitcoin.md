@@ -1,110 +1,32 @@
-# Bitcoin Authorities
+# Bitcoin policies
 
-The `bitcoin.transaction` authority checks transaction inputs, outputs, and fees before signing a selected input. Build with `bitcoin` and `ecc`:
+Build with `-Pkeeper.features=bitcoin -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `bitcoin.transaction`.
 
-```bash
-./gradlew shadowJar -Pkeeper.features=bitcoin -Pkeeper.platforms=ecc
+`artifact` contains `unsignedTransaction64`, `previousTransactions64` and `signInputIndex`. The transaction and previous transactions are Base64 encoded. Amounts and fees are satoshis.
+
+```edict
+authority "test:bitcoin/btc-small-output" {
+    intent = "bitcoin.transaction"
+    version = "1.0.0"
+    title = "BTC small output with safe sighash"
+
+    config {
+        network = "MAINNET"
+    }
+
+    policy "test-bitcoin-btc-small-output" {
+        allow "allow-small-btc-output" when {
+            protocol == "BTC"
+            sighash.all
+            not sighash.anyoneCanPay
+            effects.all(e -> e.type in ["utxo.spend", "utxo.output", "utxo.fee"])
+            (effects.filter(e -> e.type == "utxo.output").map(e -> e.amount).sum() <= 100000)
+            (effects.filter(e -> e.type == "utxo.fee").map(e -> e.amount).sum() <= 10000)
+        }
+    }
+}
 ```
 
-Supply the unsigned transaction, previous transactions, and input to sign:
+Use `outputs`, `inputs`, `fee`, `sighash`, `signing` and `effects` to constrain the whole transaction. The example limits total output and fee; add an explicit destination check for your wallet. Keeper signs the selected input with `SIGHASH_ALL`. It returns a signature; there is no Bitcoin transaction composer. The wallet constructs and broadcasts the final transaction.
 
-```java
-var input = new UtxoInput(unsignedTransaction64, previousTransactions64, inputIndex);
-var command = Command.of("btc-cold-storage-sweep", input);
-var signature = client.signature().sign(Sign.of(bitcoinKeyId, command));
-```
-
-`unsignedTransaction64` and each previous transaction are Base64-encoded transaction bytes. The wallet attaches the returned signature to the selected input. Bitcoin has no registered composer; `/v2/keeper/compose` returns the raw `ThresholdSignature`.
-
-## Enforcement boundary
-
-Policy evaluation depends on the unsigned transaction, the selected input and sighash mode, and the previous transactions needed to understand input values. Missing or unclassifiable data must not be treated as a harmless unknown effect.
-
-TKeeper does not select coins, construct change, choose fees, broadcast transactions, or track confirmations. The wallet or custody service must broadcast the exact approved transaction and ensure that its sighash choice covers the fields the policy assumes are fixed.
-
-## Authority config
-
-```yaml
-type: bitcoin.transaction
-config:
-  network: MAINNET
-```
-
-Supported networks are `MAINNET`, `TESTNET`, `REGTEST`, and `SIGNET`. TKeeper signs the selected artifact input with `SIGHASH_ALL`.
-
-Effects:
-
-- `utxo.spend`
-- `utxo.output`
-- `utxo.data`
-- `utxo.fee`
-
-Strict CEL roots:
-
-- `protocol`, `network`, `asset`, `assetDecimals`
-- `txId`, `wtxId`, `version`, `lockTime`
-- `sighash`, `signing`
-- `inputs`, `outputs`, `previousTransactions`
-- `totalInput`, `totalOutput`, `fee`, `effects`
-
-Intent validation rejects malformed or signed transactions, missing or duplicate previous transactions, missing outputs, coinbase inputs, unknown scripts, negative fees, invalid signing inputs, and unsafe or unknown sighash modes.
-
-## Authority example: cold-storage sweep
-
-This authority allows a sweep to one cold-storage address: up to 0.25 BTC without approval, or above 0.25 and up to 1 BTC with one treasury approval. The fee cap is 100,000 satoshis. Change, additional outputs, another destination, and other sighash modes are denied.
-
-```yaml
-schemaVersion: verdict.authority/v1
-id: btc-cold-storage-sweep
-type: bitcoin.transaction
-version: 1.0.0
-
-metadata:
-  title: BTC sweep to cold storage
-
-config:
-  network: MAINNET
-
-policy:
-  id: btc-cold-storage-sweep
-  fallback: DENY
-  approvers:
-    treasury-reviewer:
-      algorithm: ED25519
-      publicKey64: "BASE64_ENCODED_ED25519_PUBLIC_KEY"
-  variables:
-    coldStorageAddress: "bc1qreplacewiththeapprovedaddress"
-    automaticLimit: "25000000"
-    reviewedLimit: "100000000"
-    maximumFee: "100000"
-  allow:
-    - id: automatic-sweep
-      where:
-        - "protocol == 'BTC'"
-        - "sighash.all && !sighash.anyoneCanPay"
-        - "effect.onlyTypes(effects, ['utxo.spend', 'utxo.output', 'utxo.fee'])"
-        - "effect.one(effects, 'utxo.output')"
-        - "effect.one(effects, 'utxo.fee')"
-        - "effect.any(effects, 'utxo.output', {'address': coldStorageAddress})"
-        - "bigint.lte(effect.amount(effects, 'utxo.output'), automaticLimit)"
-        - "bigint.lte(effect.amount(effects, 'utxo.fee'), maximumFee)"
-    - id: reviewed-sweep
-      where:
-        - "protocol == 'BTC'"
-        - "sighash.all && !sighash.anyoneCanPay"
-        - "effect.onlyTypes(effects, ['utxo.spend', 'utxo.output', 'utxo.fee'])"
-        - "effect.one(effects, 'utxo.output')"
-        - "effect.one(effects, 'utxo.fee')"
-        - "effect.any(effects, 'utxo.output', {'address': coldStorageAddress})"
-        - "bigint.gt(effect.amount(effects, 'utxo.output'), automaticLimit)"
-        - "bigint.lte(effect.amount(effects, 'utxo.output'), reviewedLimit)"
-        - "bigint.lte(effect.amount(effects, 'utxo.fee'), maximumFee)"
-      approvals:
-        threshold: 1
-        approvers: [treasury-reviewer]
-  deny: []
-```
-
-Replace the address, limits, and `publicKey64` with trusted production values. A payout, consolidation with change, or sweep to another vault should use another authority id and document.
-
-See [Authorities](../signing-and-authorities/authorities.md) for the document and policy schema, [CEL Functions](../signing-and-authorities/cel-functions.md) for policy helpers, and [Composer](../signing-and-authorities/composer.md) for response behavior.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

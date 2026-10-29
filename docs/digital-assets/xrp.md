@@ -1,44 +1,30 @@
-# XRP Authorities
+# XRP policies
 
-`xrp.transaction` accepts an unsigned transaction in hex. It supports secp256k1 and Ed25519 keys. TKeeper checks both `Account` and `SigningPubKey` against the signing key. Build with `-Pkeeper.features=xrp -Pkeeper.platforms=ecc`.
+Build with `-Pkeeper.features=xrp -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `xrp.transaction`.
 
-## Example: bounded native payment
+`artifact.transaction` contains unsigned transaction hex. XRP amounts and fees are drops; 1 XRP is 1,000,000 drops.
 
-This [authority](../../integration-tests/src/testFixtures/resources/authorities/xrp/native-payment.yaml) permits one recipient, at most 100 [drops](https://xrpl.org/docs/introduction/transactions-and-requests), a fee of at most 12 drops, and a ledger expiry:
+```edict
+authority "test:xrp/native-payment" {
+    intent = "xrp.transaction"
+    version = "1.0.0"
 
-```yaml
-schemaVersion: verdict.authority/v1
-id: test:xrp/native-payment
-type: xrp.transaction
-version: 1.0.0
-config: {}
-policy:
-  id: xrp-native-payment
-  fallback: DENY
-  variables:
-    recipient: "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-  allow:
-    - id: small-payment
-      where:
-        - "type == 'payment'"
-        - "lastLedgerSequence != null"
-        - "bigint.lte(fee, '12')"
-        - "effect.onlyTypes(effects, ['native.transfer'])"
-        - "effect.one(effects, 'native.transfer')"
-        - "effect.all(effects, 'native.transfer', {'asset': 'xrp', 'to': recipient, 'destinationTag': 0})"
-        - "bigint.gt(effect.amount(effects, 'native.transfer'), '0')"
-        - "bigint.lte(effect.amount(effects, 'native.transfer'), '100')"
+    policy "xrp-native-payment" {
+        let recipient = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        allow "small-payment" when {
+            type == "payment"
+            lastLedgerSequence != null
+            (fee <= 12)
+            effects.all(e -> e.type in ["native.transfer"])
+            effects.count(e -> e.type == "native.transfer") == 1
+            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "xrp" and e.to == recipient and e.destinationTag == 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100)
+        }
+    }
+}
 ```
 
-Set `Account` and `SigningPubKey` from the TKeeper public key before serializing the unsigned transaction:
+Roots include `type`, `account`, `fee`, `sequence`, `lastLedgerSequence` and `effects`. A missing destination tag is `null`, distinct from tag zero. Check every effect; an extra batch payment must not bypass recipient or total checks. Keeper checks the native signing account and supports secp256k1 and Ed25519. The composer returns signed transaction hex.
 
-```java
-var command = Command.of("test:xrp/native-payment",
-        new UnsignedXrpTransaction(unsignedXrpHex));
-var signed = client.signature().compose(
-        Sign.of(xrpKeyId, command), SignedXrpTransaction.class);
-String transactionHex = signed.rawTransaction();
-String transactionHash = signed.transactionHash();
-```
-
-With a `tweak`, derive those fields from `central().getPublicKey(xrpKeyId, tweak)`. The caller submits the signed hex and tracks its ledger result. [Composer](../signing-and-authorities/composer.md) describes the common response contract.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

@@ -1,52 +1,47 @@
-# AP2 Authority
+# AP2 policies
 
-Use `type: ap2.mandate` for an AP2 payment mandate. This authority permits the configured shop and card, at most USD 100 per purchase and USD 150 across the request:
+The document pins merchant and payment-method catalogs and checks each purchase. Amounts below are integer minor units: `10000` is USD 100 and `15000` is USD 150.
 
-```yaml
-schemaVersion: verdict.authority/v1
-id: test:ap2/purchases
-type: ap2.mandate
-version: 2.0.0
+```edict
+authority "test:ap2/purchases" {
+    intent = "ap2.mandate"
+    version = "2.0.0"
 
-config:
-  merchants:
-    officeShop:
-      website: https://office.example
-  methods:
-    companyCard:
-      id: card-1
-      type: card
+    config {
+        merchants = {
+            officeShop = {
+                website = "https://office.example"
+            }
+        }
+        methods = {
+            companyCard = {
+                id = "card-1"
+                type = "card"
+            }
+        }
+    }
 
-policy:
-  id: office-purchases
-  fallback: DENY
-  variables:
-    maxPerPurchase: "100.00"
-    maxPerRequest: "150.00"
-
-  allow:
-    - id: office-purchase
-      where:
-        - "action.kind == 'purchase'"
-        - "checkout.merchantIs(merchants.officeShop)"
-        - "payment.payeeIs(merchants.officeShop)"
-        - "payment.methodIs(methods.companyCard)"
-        - "payment.amountAtMost(maxPerPurchase, 'USD')"
-
-  deny:
-    - id: request-total
-      where:
-        - "!request.totalAtMost(maxPerRequest, 'USD')"
+    policy "office-purchases" {
+        let maxPerPurchase = 10000
+        let maxPerRequest = 15000
+        deny "request-total" when {
+            not request.allAmountsKnown or purchases.map(p -> p.payment.payment_amount.amount).sum() > maxPerRequest
+        }
+        allow "office-purchase" when {
+            action.kind == "purchase"
+            checkout.content.merchant.website == merchants.officeShop.website
+            payment.payee.website == merchants.officeShop.website
+            payment.payment_instrument.id == methods.companyCard.id
+            payment.payment_instrument.type == methods.companyCard.type
+            payment.payment_amount.currency == "USD"
+            payment.payment_amount.amount <= maxPerPurchase
+        }
+    }
+}
 ```
 
-`config.mode` defaults to `PAIRED`. For a standalone stage, set it to `PAYMENTS` or `CHECKOUTS`, write the policy for that stage, and use the same mode in the artifact. This example uses `PAIRED`.
+The artifact supplies `mode`, unsigned JWS `signingInput` and the referenced SD-JWT `disclosures`. Use the mode selected by the authority config; the default is `PAIRED`. `PAYMENTS` and `CHECKOUTS` expose the corresponding standalone actions, so write rules for their action kind and available data.
 
-```java
-var artifact = new Ap2Mandates(PaymentRequestMode.PAIRED, signingInput, disclosures);
-var command = Command.of("test:ap2/purchases", artifact);
-var result = client.signature().compose(
-        Sign.of(p256KeyId, command), PaymentCredential.class);
-String credential = result.credential();
-```
+In paired mode, `payment`, `checkout` and `action` describe the current purchase. `purchases` contains the whole request; `request.allAmountsKnown` lets the policy reject an uncomputable total. Every action must pass, and any deny wins. Check both per-purchase and aggregate limits to prevent splitting an over-limit request.
 
-`signingInput` contains the AP2 protected header and payload encoded as an unsigned JWS; `disclosures` contains every referenced SD-JWT disclosure. The result is the signed credential layer. AP2 supports trusted-provider SD-JWT and delegated KB-SD-JWT; for a delegated credential, present the parent credential bound by `sd_hash`. See the [shared signing contract](README.md) and [module contract](../../../features/agentic-payments/README.md).
+Keeper verifies the configured checkout signatures and credential bindings. The composer returns a signed credential layer; it does not execute, capture or settle a payment. For signing inputs, disclosure rules and delegated credentials, see the [payment signing contract](README.md) and [module reference](../../../features/agentic-payments/README.md). See [Edict](../../signing-and-authorities/edict.md) for language syntax.

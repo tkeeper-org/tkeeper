@@ -1,13 +1,12 @@
-# Digital Asset Authorities
+# Digital asset authorities
 
-Build all chains with `-Pkeeper.features=digital-assets -Pkeeper.platforms=ecc`, or select one chain by name. Each authority parses an unsigned transaction, evaluates its effects, and signs only after policy and approval checks pass.
+Choose a guide for the native transaction you submit:
 
-| Chain | Authority | Key | Result from `/compose` | Guide |
-| --- | --- | --- | --- | --- |
-| Bitcoin | `bitcoin.transaction` | secp256k1 | Raw signature | [Bitcoin](bitcoin.md) |
-| EVM | `evm.transaction` | secp256k1 | Signed hex and hash | [EVM](evm.md) |
-| Tron | `tron.transaction` | secp256k1 | Signed JSON and hash | [Tron](tron.md) |
-| XRP | `xrp.transaction` | secp256k1 or Ed25519 | Signed hex and hash | [XRP](xrp.md) |
-| Solana | `solana.transaction` | Ed25519 | Signed Base64, completeness, and optional hash | [Solana](solana.md) |
+- [Bitcoin](bitcoin.md): inputs, outputs, previous transactions and selected-input signing
+- [EVM](evm.md): native transfers and contract interfaces
+- [TRON](tron.md): owner-authorized transactions
+- [XRP](xrp.md): accounts, payments, tags and batches
+- [Solana](solana.md): native transfers and program instructions
+- [XLM and Soroban](xlm.md): network-bound Stellar envelopes and contract calls
 
-The caller constructs the unsigned transaction and handles fees, submission, and confirmation. For Bitcoin, Tron, XRP, or Solana signing with a `tweak`, construct the transaction from `central().getPublicKey(keyId, tweak)`; TKeeper checks that derived key against the transaction's owner or required signer. See [Composer](../signing-and-authorities/composer.md) for result behavior.
+Policies use [Edict](../signing-and-authorities/edict.md). The modules decode native bytes and supply the policy inputs. The client constructs and broadcasts the approved transaction and tracks settlement.
