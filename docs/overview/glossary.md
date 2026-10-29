@@ -30,7 +30,7 @@ A normalized consequence derived from an intent and exposed to policy, such as a
 
 A build option that adds endpoints, authority types, the UI, or seal providers.
 
-Examples: `digital-assets`, `agentic-payments`, `authority-x509`, `ecies`, `ui`, `seal-aws`, `seal-gcloud`.
+Examples: `digital-assets`, `agentic-payments`, `x509`, `ecies`, `ui`, `seal-aws`, `seal-gcloud`.
 
 ## Four-eye control
 

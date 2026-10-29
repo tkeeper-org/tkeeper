@@ -48,13 +48,11 @@ Example: ML-DSA only:
 ```
 
 Use `evm` to include EVM transactions.
-Use `digital-assets` for Bitcoin, EVM, Tron, XRP, and Solana, and `agentic-payments` for both AP2 and MC VI:
+Use `digital-assets` for Bitcoin, EVM, Tron, XRP, Solana, and XLM, and `agentic-payments` for both AP2 and MC VI:
 
 ```bash
 ./gradlew :build -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
 ```
-
-The earlier `authority-bitcoin` and `authority-evm` selectors remain accepted.
 
 ## Select a native OS/CPU target
 
@@ -134,9 +132,10 @@ native loading on the build host.
 | Tron transaction authority | `tron` or `digital-assets` | `ecc` |
 | XRP transaction authority | `xrp` or `digital-assets` | `ecc` |
 | Solana transaction authority | `solana` or `digital-assets` | `ecc` |
+| XLM and Soroban authority | `xlm` or `digital-assets` | `ecc` |
 | AP2 payment authority | `ap2` or `agentic-payments` | `ecc` |
 | MC VI payment authority | `mc-vi` or `agentic-payments` | `ecc` |
-| X.509 certificate authority | `authority-x509` | `ecc` |
+| X.509 certificate authority | `x509` | `ecc` |
 | ECIES | `ecies` | `ecc` |
 | Deferred operations authorized by a mandate | `mandate` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Peer share recovery | `recovery` (explicit opt-in) | `ecc`, `pqc`, or both |

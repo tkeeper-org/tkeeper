@@ -82,7 +82,7 @@ Protected internal routes require TLS outside dev mode. Requests and authenticat
 
 Keeper to OCI registry:
 
-Authorities are loaded only from explicitly allowed OCI registries. Digest-pinned references protect against tag drift. The authority id inside the artifact must match the id configured on the key.
+Authorities are loaded only from explicitly allowed OCI registries. Digest-pinned references protect against tag drift. Keeper validates each document's authority id and stores it with the reference in key metadata. Documents with duplicate ids cannot be attached to one key.
 
 Keeper to seal provider:
 

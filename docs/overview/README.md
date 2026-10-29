@@ -29,7 +29,7 @@ Raw `arbitrary` signing skips intent policy and is disabled by default.
 | Area | What TKeeper controls |
 | --- | --- |
 | AI agents | Typed tool/action intents, spending, production actions, signed decisions |
-| Crypto assets | Bitcoin, EVM, Tron, XRP, and Solana transaction signing |
+| Crypto assets | Bitcoin, EVM, Tron, XRP, Solana, and XLM transaction signing |
 | Certificates | X.509 issuance and workload identity operations |
 | Internal systems | Typed commands, sensitive automation, privileged operations |
 | Key lifecycle | DKG, import, refresh, rotate, destroy |

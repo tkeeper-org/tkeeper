@@ -72,11 +72,11 @@ Example line, formatted for readability:
 }
 ```
 
-Some fields depend on the operation. `approvers` appears only for approved operations. `policy` appears when a Verdict authority was evaluated. `imposters` and `dead` appear when a threshold protocol reports bad or unavailable peers.
+Some fields depend on the operation. `approvers` appears only for approved operations. `policy` appears when an Edict authority was evaluated. `imposters` and `dead` appear when a threshold protocol reports bad or unavailable peers.
 
 `auth.subject` is the identity authenticated on the current HTTP hop. For a direct public request it is the external principal. For a protected peer request it is the keeper peer that signed the internal request, while optional `auth.actor` preserves the original external principal. Peer-only protocol rounds omit `actor`.
 
-The `policy` object contains the evaluation `decision`, matched rules, and any `approvalRequirements`. `ALLOW_WITH_REQUIREMENTS` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
+The `policy` object contains the evaluation `decision`, matched rules, and any `approvalRequirements`. `REQUIRES_APPROVAL` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
 
 Registry registration and metadata replacement add `context.approverRef` and
 `context.metadataRevision` to successful audit events. These identify the changed credential

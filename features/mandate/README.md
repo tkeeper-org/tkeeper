@@ -36,7 +36,7 @@ An allowed request returns:
 }
 ```
 
-When approvals are needed, the verdict is `ALLOW_WITH_REQUIREMENTS`. Each requirement group
+When approvals are needed, the verdict is `REQUIRES_APPROVAL`. Each requirement group
 contains `threshold`, resolved public `keys` with WebAuthn parameters where applicable, and
 policy `details` when available. Registry refs have already been resolved in this response.
 All groups must be satisfied. A denied request returns the existing authorization or policy

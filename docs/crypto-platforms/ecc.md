@@ -13,9 +13,9 @@ The `ecc` platform provides:
 
 Features that require `ecc`:
 
-- Bitcoin, EVM, Tron, XRP, and Solana (`digital-assets`)
+- Bitcoin, EVM, Tron, XRP, Solana, and XLM (`digital-assets`)
 - AP2 and MC VI (`agentic-payments`)
-- `authority-x509`
+- `x509`
 - `ecies`
 
 Build example:

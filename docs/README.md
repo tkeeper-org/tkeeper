@@ -7,9 +7,13 @@ TKeeper checks permissions and policy before signing an action with a key. Start
 | Area | Workflow | Authority guides |
 | --- | --- | --- |
 | AI and agentic payments | [For AI](use-cases/for-ai.md) | [Agent APIs, AP2, MC Intent](ai/README.md) |
-| Digital assets | [For Digital Assets](use-cases/for-digital-assets.md) | [Bitcoin, EVM, Tron, XRP, Solana](digital-assets/README.md) |
+| Digital assets | [For Digital Assets](use-cases/for-digital-assets.md) | [Bitcoin, EVM, Tron, XRP, Solana, XLM](digital-assets/README.md) |
 | PKI | [For PKI](use-cases/for-pki.md) | [X.509](pki/README.md) |
 | Other activities | [For Other Activities](use-cases/for-other-activities.md) | [Typed authorities](signing-and-authorities/arbitrary-and-typed.md) |
+
+## Write a policy
+
+The [Edict language guide](edict/README.md) covers syntax, input schemas, exact numbers, collections, functions and approval rules. Start with [Your first policy](edict/getting-started.md), then use the native intent guide for the transaction or credential you sign.
 
 ## Build an integration
 

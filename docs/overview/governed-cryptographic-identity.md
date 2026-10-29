@@ -4,7 +4,7 @@ A governed cryptographic identity is a key with rules for its use. An authority 
 
 For example, a treasury key can allow USDC transfers only to one operating wallet. A CA key can allow certificates only for a specified DNS name and validity period. An agent key can allow a typed restart command only for one service and environment.
 
-TKeeper parses each command into an intent for policy evaluation and signs the command's defined signing material after the checks pass. The receiving system verifies that material against the expected key. See [Typed JSON signing material](../signing-and-authorities/arbitrary-and-typed.md#typed-json-signing-material) for the `custom` encoding.
+TKeeper parses each command into an intent for policy evaluation and signs the command's defined signing material after the checks pass. The receiving system verifies that material against the expected key. See [Typed JSON signing material](../signing-and-authorities/arbitrary-and-typed.md#signing-bytes) for the `custom` encoding.
 
 ## Why this matters
 

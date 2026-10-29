@@ -63,7 +63,7 @@ See [Authorities](../signing-and-authorities/authorities.md).
 
 ## `INVALID_AUTHORITY`
 
-The key's authority configuration is invalid. Check for an empty list, duplicate ids, mixing `arbitrary` with concrete authorities, missing or mutable OCI references, a loaded document id mismatch, or invalid policy syntax.
+The key's authority configuration is invalid. Check for an empty list, duplicate ids, mixing `arbitrary` with concrete authorities, missing or mutable OCI references, invalid ids in loaded documents, or invalid policy syntax.
 
 ## `POLICY_VIOLATION`
 

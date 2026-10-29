@@ -6,7 +6,7 @@ Run the complete release verification with:
 ./gradlew releaseGate
 ```
 
-This runs all root and module unit tests, verifies production/test artifact isolation, builds both test images, and executes the functional integration suite. Performance benchmarks remain separate.
+This runs all root and module unit tests, compiles complete Edict documentation examples, verifies production/test artifact isolation, builds both test images, and executes the functional integration suite. Performance benchmarks remain separate.
 
 Build both test images from the repository root:
 
@@ -172,3 +172,9 @@ exclude failure injection; dry run and recovery are included only when selected.
 See [`../../integration-tests/README.md`](../../integration-tests/README.md) for local requirements and Testcontainers setup.
 
 See [Security Assurance](../security-model/security-assurance.md) for the security vectors exercised by the functional suite and the limits of that evidence.
+
+## Edict and XLM
+
+`./gradlew :edict:check` checks the language and native decoder modules. `./gradlew verifyEdictDocumentation` compiles the complete policy examples with Keeper's host contracts.
+
+`XlmAuthorityTests` exercises OCI publication, native XLM and Soroban policy checks, signing-account and network binding, independent signature verification, composition and the control-plane schema. Fee-bump scenarios check plain and muxed outer fee sources, the outer signing hash, preservation of inner signatures, and rejection of an inner source key, excessive fees and extra operations. `AuthorityPolicyTests.typedMapPreservesDecimalPrecisionAcrossEveryPeer` checks exact decimal JSON through a distributed signature and rejects an amount just above its limit.

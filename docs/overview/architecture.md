@@ -48,7 +48,7 @@ Features add command types, endpoints, or seal providers:
 | `digital-assets:xrp` | XRP transaction intent and composition |
 | `digital-assets:solana` | Solana transaction intent and composition |
 | `agentic-payments` | AP2 and MC VI mandate signing and composition |
-| `authority-x509` | Certificate issuance intent support |
+| `x509` | Certificate issuance intent support |
 | `ecies` | ECIES encryption and threshold decryption |
 | `seal-aws` | AWS KMS seal provider |
 | `seal-gcloud` | Google Cloud KMS seal provider |

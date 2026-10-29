@@ -72,7 +72,7 @@ Use [Troubleshooting](../operations/troubleshooting.md) for operator symptoms.
 
 ## Upgrade discipline
 
-Run the same release artifact, feature set, and platform set on every peer. Do not assume mixed-version protocol compatibility unless that exact upgrade path has been tested.
+Run the same release artifact, feature set, and platform set on every peer. Do not assume mixed-version protocol compatibility unless that exact upgrade path has been tested. Typed JSON commands in this release use an exact-number peer encoding; upgrade all peers and the SDK together.
 
 During a rollout:
 

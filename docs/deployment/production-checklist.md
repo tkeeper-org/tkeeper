@@ -42,7 +42,7 @@
 
 ## Authorities
 
-- [ ] Use structured authorities for governed identities.
+- [ ] Use digest-pinned OCI authority references for governed identities.
 - [ ] Leave `keeper.authority.arbitrary.enabled` disabled unless raw signing is explicitly required.
 - [ ] Treat `arbitrary` identities as raw-signing identities.
 - [ ] Pin authority OCI references by digest.
