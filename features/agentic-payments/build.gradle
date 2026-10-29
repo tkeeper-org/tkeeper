@@ -42,7 +42,7 @@ dependencies {
 
     kapt project(':build-tools:helidon-codegen')
     kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
-    api 'org.exploit.verdict:payments:0.3.3'
+    api project(':edict:agentic-payments')
     implementation 'com.nimbusds:nimbus-jose-jwt:10.2'
 }
 

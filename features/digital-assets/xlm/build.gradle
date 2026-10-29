@@ -1,0 +1,60 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.gradleup.shadow' version '9.4.1'
+    id 'org.jetbrains.kotlin.kapt'
+}
+
+group = 'org.exploit'
+version = '3.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+def jacksonGroups = [
+        'com.fasterxml.jackson.core',
+        'com.fasterxml.jackson.module',
+        'com.fasterxml.jackson.datatype',
+        'com.fasterxml.jackson.dataformat',
+        'com.fasterxml.jackson.jaxrs',
+        'com.fasterxml.jackson.jakarta.rs'
+]
+
+configurations.matching { it.name == 'runtimeClasspath' }.configureEach {
+    jacksonGroups.each { groupName -> exclude group: groupName }
+}
+
+dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation testFixtures(project(':integration-tests'))
+    testImplementation(project(':'))
+    testImplementation(project(':platform-ecc'))
+    compileOnly(project(':'))
+    compileOnly(project(':platform-ecc'))
+
+    kapt project(':build-tools:helidon-codegen')
+    kapt 'io.helidon.codegen:helidon-codegen-apt:4.5.6'
+    implementation project(':edict:digital-assets:xlm')
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    exclude 'com/fasterxml/jackson/**'
+    exclude 'META-INF/services/com.fasterxml.jackson.*'
+    exclude 'io/netty/**'
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/INDEX.LIST', 'META-INF/DEPENDENCIES', 'META-INF/NOTICE', 'META-INF/LICENSE*'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('assemble') {
+    dependsOn tasks.named('shadowJar')
+}
+
+kotlin {
+    jvmToolchain(25)
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -159,6 +159,7 @@ def featureModules = [
         'features:digital-assets:tron'    : 'keeper.feature.digital-assets.tron',
         'features:digital-assets:xrp'     : 'keeper.feature.digital-assets.xrp',
         'features:digital-assets:solana'  : 'keeper.feature.digital-assets.solana',
+        'features:digital-assets:xlm'     : 'keeper.feature.digital-assets.xlm',
         'features:authority-x509'         : 'keeper.feature.authority.x509',
         'features:ecies'                  : 'keeper.feature.ecies',
         'features:agentic-payments:ap2'   : 'keeper.feature.agentic-payments.ap2',
@@ -211,6 +212,7 @@ def featurePlatformRequirements = [
         'features:digital-assets:tron'      : ['platform-ecc'],
         'features:digital-assets:xrp'       : ['platform-ecc'],
         'features:digital-assets:solana'    : ['platform-ecc'],
+        'features:digital-assets:xlm'       : ['platform-ecc'],
         'features:authority-x509'           : ['platform-ecc'],
         'features:ecies'                    : ['platform-ecc'],
         'features:agentic-payments:ap2'      : ['platform-ecc'],
@@ -238,12 +240,15 @@ def selectedProductionFeatures = [selectedRuntimeFeatures, selectedDockerFeature
 
 def legacyDigitalAssetSelectors = [
         'features:digital-assets:bitcoin': ['authority-bitcoin', 'keeper.feature.authority.bitcoin'],
-        'features:digital-assets:evm'    : ['authority-evm', 'keeper.feature.authority.evm']
+        'features:digital-assets:evm'    : ['authority-evm', 'keeper.feature.authority.evm'],
+        'features:digital-assets:xlm'    : ['authority-xlm', 'keeper.feature.authority.xlm']
 ]
 
 def explicitlySelectedFeature = { Set<String> features, String moduleName ->
-    def shortName = moduleName.tokenize(':').last()
-    features.contains(moduleName) || features.contains(shortName) || features.contains("feature-$shortName")
+    def moduleFeatureName = moduleName.tokenize(':').last()
+    def shortName = moduleFeatureName.startsWith('authority-') ? moduleFeatureName.substring('authority-'.length()) : moduleFeatureName
+    features.contains(moduleName) || features.contains(moduleFeatureName) ||
+            features.contains(shortName) || features.contains("feature-$shortName")
 }
 
 def allProductionFeaturesSelected =
@@ -330,6 +335,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.3'
     testImplementation project(':platform-ecc')
+    testImplementation project(':sdk')
     testFixturesImplementation 'com.upokecenter:cbor'
 
     api 'com.fasterxml.jackson.module:jackson-module-kotlin'
@@ -355,11 +361,11 @@ dependencies {
     api 'org.exploit.anvil:xchacha20-poly1305'
     api 'org.exploit.anvil:util'
     api 'org.exploit.anvil:crypto-spi'
-    api 'org.exploit.verdict:core:0.3.3'
+    api project(':edict:core')
 
-    api 'org.exploit.verdict:authority:0.3.3'
-    api 'org.exploit.verdict:authority-oci:0.3.3'
-    api 'org.exploit.verdict:oras:0.3.3'
+    api project(':edict:authority')
+    api project(':edict:authority-oci')
+    api project(':edict:oras')
 
     api 'com.nimbusds:nimbus-jose-jwt:10.2'
 
@@ -370,7 +376,7 @@ dependencies {
     implementation 'org.jline:jansi-core:4.3.1'
     implementation 'ch.qos.logback:logback-classic:1.6.3'
 
-    implementation 'org.exploit.verdict:typed:0.3.3'
+    implementation project(':edict:json')
 
     implementation 'org.bouncycastle:bcprov-jdk18on:1.85.2'
 
@@ -631,9 +637,10 @@ tasks.register('shadowJarProductionTest', com.github.jengelman.gradle.plugins.sh
                 'tron'            : 'org/exploit/keeper/authority/tron/TronCommandMaterializer.class',
                 'xrp'             : 'org/exploit/keeper/authority/xrp/XrpCommandMaterializer.class',
                 'solana'          : 'org/exploit/keeper/authority/solana/SolanaCommandMaterializer.class',
+                'xlm'             : 'org/exploit/keeper/authority/xlm/XlmCommandMaterializer.class',
                 'ap2'             : 'org/exploit/keeper/payment/ap2/Ap2CommandMaterializer.class',
                 'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
-                'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
+                'agentic-payments' : 'org/exploit/keeper/payment/PaymentCommandMaterializer.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
@@ -834,9 +841,10 @@ tasks.register('artifactIsolationTest') {
                 'tron'            : 'org/exploit/keeper/authority/tron/TronCommandMaterializer.class',
                 'xrp'             : 'org/exploit/keeper/authority/xrp/XrpCommandMaterializer.class',
                 'solana'          : 'org/exploit/keeper/authority/solana/SolanaCommandMaterializer.class',
+                'xlm'             : 'org/exploit/keeper/authority/xlm/XlmCommandMaterializer.class',
                 'ap2'             : 'org/exploit/keeper/payment/ap2/Ap2CommandMaterializer.class',
                 'mc-vi'           : 'org/exploit/keeper/payment/mcvi/McCommandMaterializer.class',
-                'agentic-payments' : 'org/exploit/keeper/payment/customizer/RegisterPaymentsLibrary.class',
+                'agentic-payments' : 'org/exploit/keeper/payment/PaymentCommandMaterializer.class',
                 'auth-dev'         : 'org/exploit/keeper/auth/dev/provider/DevAuthProvider.class',
                 'mandate'          : 'org/exploit/keeper/mandate/auth/MandateAuthenticator.class',
                 'dry-run'          : 'org/exploit/keeper/emulator/controller/DryRunController.class',
@@ -950,8 +958,22 @@ tasks.register('buildTestContainers') {
     dependsOn tasks.named('dockerBuildIntegration'), tasks.named('dockerBuildProductionTest')
 }
 
+tasks.register('verifyEdictDocumentation', JavaExec) {
+    group = 'verification'
+    description = 'Compiles complete Edict policy examples from the documentation with the integration runtime.'
+    dependsOn tasks.named('shadowJarIntegration')
+    classpath = files(tasks.named('shadowJarIntegration').flatMap { it.archiveFile })
+    mainClass = file('tools/VerifyEdictDocs.java').absolutePath
+    args rootDir.absolutePath
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(25) }
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    inputs.files(fileTree('docs') { include '**/*.md' }, file('tools/VerifyEdictDocs.java'))
+}
+
 def releaseChecksBeforeContainers = [
         tasks.named('test'),
+        ':edict:check',
+        tasks.named('verifyEdictDocumentation'),
         ':build-tools:helidon-codegen:test',
         ':sdk:test',
         ':integration-tests:test',
