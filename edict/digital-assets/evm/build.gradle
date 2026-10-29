@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':edict:digital-assets:contracts')
+    api project(':edict:digital-assets')
+    api 'org.exploit.signet:evm'
+    implementation 'org.exploit.signet:crypto-util'
+}
