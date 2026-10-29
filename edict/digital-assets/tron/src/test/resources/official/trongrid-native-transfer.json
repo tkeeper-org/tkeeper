@@ -1,0 +1,33 @@
+{
+  "source": "https://api.trongrid.io/wallet/gettransactionbyid",
+  "retrievedAt": "2026-09-05",
+  "requestTxid": "31743abbba46f4c458112ea4aa50dad42bba6cec0d73599cc22ad65aec8dc3aa",
+  "transaction": {
+    "raw_data": {
+      "ref_block_bytes": "3ed9",
+      "ref_block_hash": "7e6bf293e63e4dd1",
+      "expiration": 1561507505743,
+      "data": "2053656e742066726f6d2054726f6e57616c6c6574",
+      "contract": [
+        {
+          "parameter": {
+            "value": {
+              "owner_address": "41cc0af1db2de5687613e1086a1ab92eca29abba86",
+              "to_address": "41f5cc3be990c3686c9a183766f78a1892a8650197",
+              "amount": 21750000
+            },
+            "type_url": "type.googleapis.com/protocol.TransferContract"
+          },
+          "type": "TransferContract"
+        }
+      ],
+      "timestamp": 1561507206118
+    },
+    "signature": [
+      "957c31368ceb44e274d4a563006bf34e7d121fb72f20c2bdb7648934177d5c9b5e247e0a9acaae64858fc3d6419354c5cc03c174a3e5a610b3f88f488b8eefc601"
+    ],
+    "ret": [{}],
+    "raw_data_hex": "0a023ed922087e6bf293e63e4dd140cfcce688b92d52152053656e742066726f6d2054726f6e57616c6c65745a68080112640a2d747970652e676f6f676c65617069732e636f6d2f70726f746f636f6c2e5472616e73666572436f6e747261637412330a1541cc0af1db2de5687613e1086a1ab92eca29abba86121541f5cc3be990c3686c9a183766f78a1892a865019718f0c1af0a70e6a7d488b92d",
+    "txID": "31743abbba46f4c458112ea4aa50dad42bba6cec0d73599cc22ad65aec8dc3aa"
+  }
+}
