@@ -1,0 +1,62 @@
+authority "com.acme.bitcoin.transfer" {
+    version = "1.0.0"
+    intent = "bitcoin.transaction"
+
+    config {
+        network = "MAINNET"
+    }
+
+    let recipientAddress = "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+    let changeAddress = "1KFHE7w8BhaENAswwryaoccDb6qcT6DbYY"
+    let recipientSatoshis = 100000
+    let maxFeeSatoshis = 1000
+
+    fn onlyAllowedEffects(items, allowedTypes) {
+        for (item in items) {
+            if (item.type not in allowedTypes) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    fn expectedOutputs(items, recipient, change, expectedAmount) {
+        if (items.count() < 1 or items.count() > 2) {
+            return false
+        }
+
+        var recipientCount = 0
+
+        for (output in items) {
+            let isPayment = (output.address == recipient
+                and output.amount == expectedAmount
+            )
+            let isChange = output.address == change
+
+            if (not isPayment and not isChange) {
+                return false
+            }
+
+            if (output.address == recipient) {
+                recipientCount += 1
+            }
+        }
+
+        return recipientCount == 1
+    }
+
+    policy "bitcoin-payment-with-change" {
+        default deny
+
+        allow "approved-payment" if (
+            network == "MAINNET"
+                and signing.single
+                and sighash.all
+                and not sighash.anyoneCanPay
+                and onlyAllowedEffects(effects, ["utxo.spend", "utxo.output", "utxo.fee"])
+                and expectedOutputs(outputs, recipientAddress, changeAddress, recipientSatoshis)
+                and fee <= maxFeeSatoshis
+        )
+    }
+}

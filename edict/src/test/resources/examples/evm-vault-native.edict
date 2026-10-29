@@ -1,0 +1,35 @@
+language "edict-v1"
+
+authority "vault-withdrawal" {
+    version = "1"
+    intent = "evm.transaction"
+
+    contract vault: evm {
+        address = "0x4444444444444444444444444444444444444444"
+
+        struct Withdrawal {
+            recipient: address
+            amount: uint256
+        }
+
+        fn withdraw(requests: Withdrawal[])
+    }
+
+    input withdrawal: vault.withdraw
+    input transaction {
+        chainId: Number
+        value: Number
+        gasLimit: Number
+    }
+
+    policy "treasury" {
+        allow when {
+            transaction.chainId == 1
+            transaction.value == 0
+            transaction.gasLimit <= 200000
+            withdrawal.arguments.requests.count() > 0
+            withdrawal.arguments.requests.all(r -> r.recipient == "0x2222222222222222222222222222222222222222")
+            withdrawal.arguments.requests.sum(r -> r.amount) <= 1000000000000000000
+        }
+    }
+}

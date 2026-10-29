@@ -1,0 +1,188 @@
+plugins {
+    id 'java-library'
+    id 'jacoco'
+}
+
+allprojects {
+    group = 'org.exploit.edict'
+    version = '1.0-SNAPSHOT'
+    repositories { mavenCentral() }
+}
+
+ext.antlrVersion = '4.13.2'
+
+subprojects {
+    plugins.withId('java-library') {
+        apply plugin: 'jacoco'
+
+        dependencies {
+            api platform('com.fasterxml.jackson:jackson-bom:2.22.4')
+            api platform('org.exploit.signet:bom:0.1.4')
+            testImplementation platform('org.junit:junit-bom:6.0.0')
+            testImplementation 'org.junit.jupiter:junit-jupiter'
+            testImplementation project(':edict:core')
+            testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        }
+
+        jacoco { toolVersion = '0.8.14' }
+        tasks.withType(Test).configureEach {
+            useJUnitPlatform()
+            jvmArgs '--enable-native-access=ALL-UNNAMED'
+        }
+
+        java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
+    }
+}
+
+subprojects.each { evaluationDependsOn(it.path) }
+
+sourceSets {
+    benchmark {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        resources.srcDir 'src/test/resources/examples'
+    }
+    fuzz {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    benchmarkImplementation.extendsFrom implementation
+    benchmarkRuntimeOnly.extendsFrom runtimeOnly
+    fuzzImplementation.extendsFrom implementation, testImplementation
+    fuzzRuntimeOnly.extendsFrom runtimeOnly, testRuntimeOnly
+}
+
+def jmhVersion = '1.37'
+
+dependencies {
+    api project(':edict:core')
+    testImplementation project(':edict:digital-assets:evm')
+    testImplementation project(':edict:digital-assets:xlm:soroban')
+    testImplementation project(':edict:digital-assets:solana')
+    testImplementation project(':edict:authority')
+    testImplementation "org.antlr:antlr4-runtime:$antlrVersion"
+
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    benchmarkImplementation "org.openjdk.jmh:jmh-core:$jmhVersion"
+    benchmarkAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:$jmhVersion"
+    fuzzImplementation 'com.code-intelligence:jazzer-junit:0.30.0'
+    fuzzImplementation project(':edict:digital-assets:bitcoin')
+    fuzzImplementation project(':edict:digital-assets:evm')
+    fuzzImplementation project(':edict:digital-assets:tron')
+    fuzzImplementation project(':edict:digital-assets:solana')
+    fuzzImplementation project(':edict:digital-assets:xrp')
+    fuzzImplementation project(':edict:digital-assets:xlm')
+    fuzzImplementation project(':edict:agentic-payments:ap2')
+    fuzzImplementation project(':edict:agentic-payments:mc-vi')
+    fuzzImplementation project(':edict:x509')
+    fuzzImplementation project(':edict:typed')
+    ['macos-aarch64', 'linux-amd64', 'windows-amd64'].each { platform ->
+        fuzzRuntimeOnly "org.exploit:tss4j-natives:1.0.0:$platform@jar"
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = '0.8.14'
+}
+
+jacocoTestReport {
+    dependsOn subprojects.collect { it.tasks.named('test') }
+    executionData.setFrom(files(file('build/jacoco/test.exec'), subprojects.collect { it.file('build/jacoco/test.exec') }))
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    classDirectories.setFrom(files(subprojects.collect { project ->
+        project.sourceSets.main.output.classesDirs
+    }).asFileTree.matching { exclude 'org/exploit/edict/parser/generated/**' })
+    sourceDirectories.setFrom(files(subprojects.collect { project -> project.sourceSets.main.java.srcDirs }))
+}
+
+jacocoTestCoverageVerification {
+    dependsOn test, subprojects.collect { it.tasks.named('test') }
+    classDirectories.setFrom(jacocoTestReport.classDirectories)
+    executionData.setFrom(jacocoTestReport.executionData)
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                minimum = 0.95
+            }
+            limit {
+                counter = 'BRANCH'
+                minimum = 0.90
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+tasks.named('assemble') {
+    dependsOn subprojects.collect { it.tasks.named('assemble') }
+}
+
+tasks.register('benchmark', JavaExec) {
+    group = 'verification'
+    description = 'Runs JMH compilation and evaluation benchmarks with input validation enabled.'
+    dependsOn subprojects.collect { it.tasks.named('classes') }
+    classpath = sourceSets.benchmark.runtimeClasspath
+    mainClass = 'org.openjdk.jmh.Main'
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+    args providers.gradleProperty('benchmarkArgs').orElse('BitcoinBenchmark').get().split(' ')
+}
+
+def fuzzTasks = [fuzzRegression: null, fuzzSource: 'SourceFuzzTest',
+                 fuzzInput: 'StructuredInputFuzzTest', fuzzSemantics: 'SemanticFuzzTest',
+                 fuzzExtensions: 'ExtensionFuzzTest', fuzzNative: 'NativeDecodeFuzzTest', fuzzBindings: 'NativeBindingFuzzTest']
+def fuzzMethods = [SourceFuzzTest: 'compileAndEvaluate', StructuredInputFuzzTest: 'prepareAndEvaluate',
+                   SemanticFuzzTest: 'preserveSemantics', ExtensionFuzzTest: 'bindExternalSchemas', NativeDecodeFuzzTest: 'decodeNativeData', NativeBindingFuzzTest: 'decodeBindings']
+fuzzTasks.each { taskName, target ->
+    tasks.register(taskName, Test) {
+        group = 'verification'
+        description = target == null ? 'Replays saved fuzz seeds without mutation.' : "Runs coverage-guided fuzzing of $target."
+        testClassesDirs = sourceSets.fuzz.output.classesDirs
+        classpath = sourceSets.fuzz.runtimeClasspath
+        useJUnitPlatform()
+        javaLauncher = javaToolchains.launcherFor(java.toolchain)
+        maxParallelForks = 1
+        maxHeapSize = '512m'
+        jacoco.enabled = false
+        jvmArgs '-XX:+EnableDynamicAgentLoading', '--enable-native-access=ALL-UNNAMED',
+                '-XX:-OmitStackTraceInFastThrow', '-XX:+UseParallelGC'
+        systemProperty 'jazzer.instrument', 'org.exploit.edict.**'
+        if (target != null) {
+            filter { includeTestsMatching "org.exploit.edict.fuzz.$target" }
+            environment 'JAZZER_FUZZ', '1'
+            systemProperty 'jazzer.max_duration', providers.gradleProperty('fuzzDuration').orElse('60s').get()
+            systemProperty 'jazzer.max_executions', providers.gradleProperty('fuzzExecutions').orElse('100000').get()
+            systemProperty 'jazzer.internal.arg.0', taskName
+            systemProperty 'jazzer.internal.arg.1', '-timeout=5'
+            systemProperty 'jazzer.internal.arg.2', '-max_len=16384'
+            systemProperty 'jazzer.internal.arg.3', '-seed=' + providers.gradleProperty('fuzzSeed').orElse('241').get()
+            systemProperty 'jazzer.internal.arg.4', '-artifact_prefix=' +
+                    file("src/fuzz/resources/org/exploit/edict/fuzz/${target}Inputs/${fuzzMethods[target]}").absolutePath + '/'
+            outputs.upToDateWhen { false }
+            testLogging.showStandardStreams = true
+        }
+    }
+}
+
+check.dependsOn fuzzRegression, subprojects.collect { it.tasks.named('check') }
