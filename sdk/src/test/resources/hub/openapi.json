@@ -4301,6 +4301,14 @@
       "ApproverMetadata": {
         "type": "object",
         "maxProperties": 32,
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[A-Za-z][A-Za-z0-9]*(?:[ -][A-Za-z0-9]+)*$"
+          }
+        },
         "additionalProperties": {
           "type": "string"
         },

@@ -50,7 +50,8 @@
   "ApproverId": "alice",
   "ApproverRef": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "ApproverMetadata": {
-    "sample": "sample-value"
+    "sample": "sample-value",
+    "displayName": "Alice Smith"
   },
   "SignatureCredentialRegistration": {
     "type": "SIGNATURE",
@@ -71,7 +72,8 @@
       "publicKey64": "AQ=="
     },
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     }
   },
   "WebAuthnApproverCredential": {
@@ -95,7 +97,8 @@
   },
   "UpdateApproverMetadata": {
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     }
   },
   "ApproverRecord": {
@@ -108,7 +111,8 @@
       "publicKey64": "AQ=="
     },
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     },
     "createdAt": 1729000123456,
     "updatedAt": 1729000123456,
@@ -126,7 +130,8 @@
           "publicKey64": "AQ=="
         },
         "metadata": {
-          "sample": "sample-value"
+          "sample": "sample-value",
+          "displayName": "Alice Smith"
         },
         "createdAt": 1729000123456,
         "updatedAt": 1729000123456,
@@ -2014,7 +2019,8 @@
   },
   "CreateApproverInvitationRequest": {
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     },
     "subject": "subject-value"
   },
@@ -2023,7 +2029,8 @@
     "invitationId": "invitationId-value",
     "expiresAt": "2026-10-18T12:00:00Z",
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     },
     "state": "PENDING",
     "serverTime": "2026-10-18T12:00:00Z",
@@ -2036,7 +2043,8 @@
         "invitationId": "invitationId-value",
         "expiresAt": "2026-10-18T12:00:00Z",
         "metadata": {
-          "sample": "sample-value"
+          "sample": "sample-value",
+          "displayName": "Alice Smith"
         },
         "state": "PENDING",
         "serverTime": "2026-10-18T12:00:00Z",
@@ -2058,7 +2066,8 @@
           "publicKey64": "AQ=="
         },
         "metadata": {
-          "sample": "sample-value"
+          "sample": "sample-value",
+          "displayName": "Alice Smith"
         },
         "createdAt": 1729000123456,
         "updatedAt": 1729000123456,

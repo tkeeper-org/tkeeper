@@ -68,6 +68,8 @@ Native catalog responses preserve `isError` and the complete `result` payload. C
 
 Registration and metadata responses retain `ETag`. Pass it unchanged to `replaceApproverMetadata(ref, request, etag)`; the SDK sends the quoted value as `If-Match`.
 
+Approver metadata uses `Map<String, String>`, including the optional `displayName` field. Display names follow the length and format constraints in the Hub contract.
+
 Hub invitation requests use `invitationToken`. Native Keeper registration's separate invitation format is not substituted. WebAuthn creation/assertion JSON has typed models under `model.hub.webauthn`; binary browser fields remain base64url strings.
 
 Hub dates remain RFC 3339 strings. WebAuthn JSON `expiresAt` values remain Unix milliseconds, while native `X-EXPIRES-AT` headers remain Unix seconds. Reads and explicit retries do not renew deadlines.
@@ -91,4 +93,4 @@ Events are delivered as they arrive. EOF ends one connection; explicitly reconne
 
 HTTP failures throw `HubException`, preserving status, headers, raw body and parsed JSON when available. `getProblem()`, `getKeeperError()` and `getValidation()` expose the contract's structured error variants. Empty and non-JSON gateway errors still retain their HTTP diagnostics. `requiresSignIn()` checks `X-Hub-Session: required`; a forwarded native 401 alone does not request a new Hub session. `HubProblem.outcome()` preserves `NOT_SENT`, `UNKNOWN` or null.
 
-Run the SDK unit suite with `./gradlew :sdk:test`. Its standalone [contract snapshot](src/test/resources/hub/openapi.json) covers all 83 operations, every documented success status, models, required nulls, request encoding, headers, error envelopes, mutation retry behavior and streaming/resume behavior. Tests use local HTTP stubs. They also check the original OpenAPI SHA-256 when the sibling `tkeeper-hub` checkout is available.
+Run the SDK unit suite with `./gradlew :sdk:test`. Its bundled [contract snapshot](src/test/resources/hub/openapi.json) covers all 83 operations, every documented success status, models, required nulls, request encoding, headers, error envelopes, mutation retry behavior and streaming/resume behavior. Tests use local HTTP stubs.
