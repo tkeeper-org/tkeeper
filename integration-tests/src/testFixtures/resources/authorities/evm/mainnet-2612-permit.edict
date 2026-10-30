@@ -1,0 +1,19 @@
+authority "test:evm/mainnet-2612-permit" {
+    intent = "evm.2612"
+    version = "1.0.0"
+
+    config {
+        chainId = 1
+    }
+
+    policy "permit" {
+        allow when {
+            domain.name == "Ether Mail"
+            domain.version == "1"
+            domain.verifyingContract == "0xcccccccccccccccccccccccccccccccccccccccc"
+            spender == "0xabbacadaba000000000000000000000000000000"
+            value <= 123
+            deadline <= 9999999999
+        }
+    }
+}

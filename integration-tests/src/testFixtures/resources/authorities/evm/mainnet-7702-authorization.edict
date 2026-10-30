@@ -1,0 +1,15 @@
+authority "test:evm/mainnet-7702-authorization" {
+    intent = "evm.7702"
+    version = "1.0.0"
+
+    config {
+        chainId = 1
+    }
+
+    policy "delegate" {
+        allow when {
+            address == "0xcccccccccccccccccccccccccccccccccccccccc"
+            nonce <= 7
+        }
+    }
+}
