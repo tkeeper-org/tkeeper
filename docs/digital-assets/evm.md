@@ -19,15 +19,13 @@ authority "test:evm/mainnet-usdc-transfer" {
         fn transfer(to: address, amount: uint256)
     }
 
-    input transfer: token.transfer
-
     policy "test-evm-mainnet-usdc-transfer" {
         allow "allow-small-usdc-transfer" when {
             transaction.chainId == 1
             transaction.value == 0
-            transfer.arguments.to == "0x1111111111111111111111111111111111111111"
-            transfer.arguments.amount > 0
-            transfer.arguments.amount <= 100000000
+            token.transfer.to == "0x1111111111111111111111111111111111111111"
+            token.transfer.amount > 0
+            token.transfer.amount <= 100000000
         }
     }
 }

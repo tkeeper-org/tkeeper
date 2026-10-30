@@ -43,15 +43,14 @@ authority "solana-system-transfer" {
             ]
         }
     }
-    input transfers: List<system.transfer>
     policy "system-transfer" {
         allow when {
             transaction.requiredSignatures == 1
-            transfers.count() > 0
-            transfers.all(call -> call.accounts.from.address == transaction.feePayer)
-            transfers.all(call -> call.accounts.to.address == "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR")
-            transfers.all(call -> call.arguments.lamports > 0)
-            transfers.sum(call -> call.arguments.lamports) <= 100
+            system.transfer.count() > 0
+            system.transfer.all(call -> call.accounts.from.address == transaction.feePayer)
+            system.transfer.all(call -> call.accounts.to.address == "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR")
+            system.transfer.all(call -> call.lamports > 0)
+            system.transfer.sum(call -> call.lamports) <= 100
         }
     }
 }

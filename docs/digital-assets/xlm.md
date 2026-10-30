@@ -52,21 +52,19 @@ authority "test:xlm/soroban-limit" {
         fn set_limit(period: symbol, amount: u32)
     }
 
-    input calls: List<limits.set_limit>
-
     policy "soroban-limit" {
         allow when {
             transaction.fee > 0 and transaction.fee <= 1000000
             transaction.sequence > 0
-            calls.count() == 1
-            calls.all(call -> call.arguments.period == "daily")
-            calls.sum(call -> call.arguments.amount) <= 100
+            limits.set_limit.count() == 1
+            limits.set_limit.all(call -> call.period == "daily")
+            limits.set_limit.sum(call -> call.amount) <= 100
         }
     }
 }
 ```
 
-`symbol` and `u32` are Soroban wire types. The decoder checks the declared contract, method and argument layouts, including bounds. `calls` contains the decoded invocations; transaction facts come from the native envelope.
+`symbol` and `u32` are Soroban wire types. The decoder checks the declared contract, method and argument layouts, including bounds. `limits.set_limit` contains the decoded invocations with direct `period` and `amount` fields; transaction facts come from the native envelope.
 
 This profile accepts v1 invocation envelopes with source-account authorization for the exact call. Different operation sources, address credentials, nested authorization grants, undeclared methods and additional non-invocation operations are rejected. It does not simulate a contract, fetch its state or authorize arbitrary grants on behalf of another account.
 

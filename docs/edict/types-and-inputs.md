@@ -101,9 +101,30 @@ request.note == null
 request.note == "priority"
 ```
 
-An optional type stays optional after a null check. Edict does not narrow `Number?` to `Number` in `amount != null and amount > 0`; this expression is a type error. A field used in arithmetic should be required or have a nonoptional default, such as `amount: Number = 0`, when that default is appropriate to the command.
+A null guard narrows an immutable value for the expressions that follow it on the same execution path:
 
-Optional records cannot be accessed as though they were required records. Prefer a required record with optional leaf fields when rules need to inspect its fields.
+```edict
+allow when {
+    request.amount != null
+    request.amount > 0
+}
+```
+
+The same applies to `request.amount != null and request.amount > 0`, the right side of `request.amount == null or request.amount > 0`, and guarded branches inside functions. A guard in one rule does not narrow another rule. Mutable variables and repeated map or list lookups are not narrowed; bind a lookup to an immutable `let` before checking it.
+
+Optional records follow the same rule: check the record against `null` before accessing its fields.
+
+## Types provided by native intents
+
+Native intents register simple type names for their input objects. Use `Transaction` for the current transaction, `Certificate` for X.509, or `Request`, `Payment`, `Checkout` and `Context` for payment inputs. The selected intent determines the fields; an EVM `Transaction` has a different schema from a Solana `Transaction`.
+
+```edict
+fn acceptableGas(tx: Transaction): Boolean {
+    return tx.gasLimit <= 150000
+}
+```
+
+This example requires an EVM intent. Call it inside the policy with `acceptableGas(transaction)`. Omitting the parameter annotation still allows the compiler to infer the type. User-defined structs cannot shadow a type provided by the intent.
 
 ## Lists and maps
 
@@ -131,4 +152,4 @@ Read [Functions and collections](functions-and-collections.md#sorted-maps) for o
 
 ## Native input schemas
 
-A native intent has inputs supplied by its decoder. Declaring a custom `request` does not replace the EVM transaction, Bitcoin outputs or X.509 certificate fields. Native policies may bind inputs to declared contract or program calls, using the module's wire types. See [Native transaction policies](native-policies.md).
+A native intent has inputs supplied by its decoder. Declaring a custom `request` does not replace the EVM transaction, Bitcoin outputs or X.509 certificate fields. Contract and program declarations expose their decoded methods automatically, using the module's wire types. See [Native transaction policies](native-policies.md).

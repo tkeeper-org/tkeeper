@@ -39,21 +39,19 @@ authority "token-transfer" {
         fn transfer(to: address, amount: uint256)
     }
 
-    input transfer: token.transfer
-
     policy "token-transfer" {
         allow when {
             transaction.chainId == 1
             transaction.value == 0
-            transfer.arguments.to == "0x2222222222222222222222222222222222222222"
-            transfer.arguments.amount > 0
-            transfer.arguments.amount <= 100000000
+            token.transfer.to == "0x2222222222222222222222222222222222222222"
+            token.transfer.amount > 0
+            token.transfer.amount <= 100000000
         }
     }
 }
 ```
 
-These are placeholder addresses. Replace them with the intended deployed contract and recipient. The method signature describes the ABI bytes to decode. `input transfer: token.transfer` binds the decoded call to a root, exposing arguments under `transfer.arguments`. `transaction` exposes native transaction facts.
+These are placeholder addresses. Replace them with the intended deployed contract and recipient. The contract declaration provides the policy namespace automatically: `token.transfer.to` and `token.transfer.amount` are decoded parameters. No additional `input` declaration is needed. `transaction` exposes native transaction facts and has the intent's `Transaction` type.
 
 The decoder checks the declared destination, selector and argument layout before the rules run. Native integer arguments and integral transaction facts have Edict type `Integer`; amounts remain in raw token units. An EVM `uint256` also defines native encoding and range checks that an ordinary JSON `Integer` declaration does not provide.
 
@@ -65,7 +63,23 @@ For EVM, use the actual ABI signature and tuple layouts. For Soroban, declare it
 
 A declaration only works when Keeper has installed the corresponding module. It cannot load an extension from a file or URL. An unknown module or incompatible layout is rejected.
 
-Several contract or program declarations may share an address. Their methods are combined; the aliases keep their own names for input declarations. For example, one EVM block may describe `transfer` and another `approve` at the same token address. Conflicting descriptions of one selector or method, and overlapping Solana instruction discriminators, are rejected when Keeper loads the authority. Each native call must still match exactly one declared input root.
+Several contracts or programs may be declared in one authority. Several declarations may also share an address; each keeps its own namespace. Conflicting descriptions of one selector or method, and overlapping Solana instruction discriminators, are rejected when Keeper loads the authority. Every submitted native call must match a declared method.
+
+For EVM, a sole declared method is required. When the authority declares several methods, each matching member holds the decoded parameters and methods that do not match the call are `null`. Guard an optional method before reading its parameters:
+
+```edict
+allow "transfer" when {
+    usdc.transfer != null
+    usdc.transfer.to == treasury
+    usdc.transfer.amount > 0
+    usdc.transfer.amount <= 1000
+    transaction.value == 0
+}
+```
+
+Here `usdc` is a declared contract and `treasury` is an authority constant. Adding another method makes previously required method inputs optional, so unguarded access fails compilation. Declaring a method permits decoding it; an allow rule must still authorize it.
+
+Solana and Soroban may contain several instructions or operations. Their method members are lists of decoded calls, including an empty list when that method is absent. For example, `system.transfer.all(transfer -> transfer.lamports <= 1000)` checks each matching instruction. Parameters are direct fields on each element. Counts and sums remain available for whole-transaction constraints.
 
 ## Cover the whole action
 
