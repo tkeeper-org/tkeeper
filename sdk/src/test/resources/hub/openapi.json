@@ -47,7 +47,7 @@
     },
     {
       "name": "Policies",
-      "description": "Verdict authority sources, drafts and OCI releases"
+      "description": "Edict authority sources, drafts and OCI releases"
     },
     {
       "name": "Compliance",
@@ -63,7 +63,7 @@
     }
   ],
   "x-keeper-contract": {
-    "version": "3.1.0",
+    "version": "2.6.0",
     "sha256": "539a9b4be895ca15f62f107732c812736c019e1002a4b798f719dab7dcbb1458",
     "description": "Native schema snapshot reviewed against the local Keeper implementation. Included schemas are self-contained; building Hub does not require a Keeper checkout."
   },
@@ -3644,7 +3644,7 @@
         "tags": [
           "Policies"
         ],
-        "summary": "Validate a Verdict authority source",
+        "summary": "Validate an Edict authority source",
         "requestBody": {
           "required": true,
           "content": {
@@ -4117,7 +4117,7 @@
         "tags": [
           "Policies"
         ],
-        "summary": "Read Verdict authoring guidance",
+        "summary": "Read Edict authoring guidance",
         "responses": {
           "200": {
             "description": "Successful response",
@@ -6445,7 +6445,7 @@
         "required": [
           "ref"
         ],
-        "description": "A Verdict authority alias pins this exact registry version, including its approval method.",
+        "description": "An Edict authority alias pins this exact registry version, including its approval method.",
         "properties": {
           "ref": {
             "$ref": "#/components/schemas/ApproverRef"
@@ -6864,6 +6864,12 @@
         ],
         "description": "Optional caller-supplied approval context. proofs must be an empty array. Omit this object to let Hub assign keeperId, nonce and timestamp. Existing proofs cannot be supplied with a new command."
       },
+      "KeyAuthorityInput": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2048,
+        "description": "Builtin authority ID, such as arbitrary, or a digest-pinned OCI reference. Keeper reads the authority ID from the artifact."
+      },
       "CreateKeyRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -6885,7 +6891,7 @@
             "minItems": 1,
             "maxItems": 255,
             "items": {
-              "$ref": "#/components/schemas/KeySetAuthority"
+              "$ref": "#/components/schemas/KeyAuthorityInput"
             }
           },
           "mode": {
@@ -6950,7 +6956,7 @@
             "minItems": 1,
             "maxItems": 255,
             "items": {
-              "$ref": "#/components/schemas/KeySetAuthority"
+              "$ref": "#/components/schemas/KeyAuthorityInput"
             }
           },
           "mode": {
@@ -7015,7 +7021,7 @@
             "minItems": 1,
             "maxItems": 255,
             "items": {
-              "$ref": "#/components/schemas/KeySetAuthority"
+              "$ref": "#/components/schemas/KeyAuthorityInput"
             }
           },
           "mode": {
@@ -7140,7 +7146,7 @@
             "minItems": 1,
             "maxItems": 255,
             "items": {
-              "$ref": "#/components/schemas/KeySetAuthority"
+              "$ref": "#/components/schemas/KeyAuthorityInput"
             }
           },
           "value64": {
@@ -9060,10 +9066,11 @@
       "AuthorityFormat": {
         "type": "string",
         "enum": [
+          "EDICT",
           "YAML",
           "JSON"
         ],
-        "default": "YAML"
+        "default": "EDICT"
       },
       "PolicySourceRequest": {
         "type": "object",
@@ -9074,7 +9081,7 @@
         "properties": {
           "source": {
             "type": "string",
-            "description": "Verdict authority document. UTF-8 encoding must be at most 1048576 bytes."
+            "description": "Edict authority source. The engine accepts at most 65536 characters."
           },
           "format": {
             "$ref": "#/components/schemas/AuthorityFormat"
@@ -9090,7 +9097,7 @@
         "properties": {
           "source": {
             "type": "string",
-            "description": "Verdict authority document. UTF-8 encoding must be at most 1048576 bytes."
+            "description": "Edict authority source. The engine accepts at most 65536 characters."
           },
           "format": {
             "$ref": "#/components/schemas/AuthorityFormat"
@@ -9290,7 +9297,7 @@
       "PolicyCapabilities": {
         "type": "object",
         "required": [
-          "verdictVersion",
+          "engineVersion",
           "read",
           "write",
           "publish",
@@ -9301,7 +9308,7 @@
           "maxSourceBytes"
         ],
         "properties": {
-          "verdictVersion": {
+          "engineVersion": {
             "type": "string"
           },
           "read": {
@@ -9341,7 +9348,11 @@
         "type": "object",
         "required": [
           "stage",
-          "message"
+          "message",
+          "severity",
+          "code",
+          "line",
+          "column"
         ],
         "properties": {
           "stage": {
@@ -9349,27 +9360,44 @@
           },
           "message": {
             "type": "string"
+          },
+          "code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "column": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning"
+            ]
           }
         }
       },
       "Authority": {
         "type": "object",
         "required": [
-          "schemaVersion",
           "id",
           "type",
-          "version",
-          "metadata",
-          "config",
-          "policy"
+          "version"
         ],
         "properties": {
-          "schemaVersion": {
-            "type": "string",
-            "enum": [
-              "verdict.authority/v1"
-            ]
-          },
           "id": {
             "type": "string"
           },
@@ -9378,19 +9406,6 @@
           },
           "version": {
             "type": "string"
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "config": {
-            "type": "object",
-            "additionalProperties": true
-          },
-          "policy": {
-            "type": "object",
-            "additionalProperties": true,
-            "description": "Verdict policy document. Its rules and effects depend on the authority type. Author and validate it through the source document APIs."
           }
         }
       },
@@ -9398,8 +9413,9 @@
         "type": "object",
         "required": [
           "valid",
-          "verdictVersion",
+          "engineVersion",
           "authority",
+          "inputTypes",
           "rootVariables",
           "errors",
           "warnings"
@@ -9408,7 +9424,7 @@
           "valid": {
             "type": "boolean"
           },
-          "verdictVersion": {
+          "engineVersion": {
             "type": "string"
           },
           "authority": {
@@ -9424,6 +9440,12 @@
                 "type": "null"
               }
             ]
+          },
+          "inputTypes": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PolicyType"
+            }
           },
           "rootVariables": {
             "type": "array",
@@ -9471,16 +9493,26 @@
       "PolicyHelp": {
         "type": "object",
         "required": [
-          "verdictVersion",
+          "engineVersion",
           "documentation",
+          "inputTypes",
           "rootVariables"
         ],
         "properties": {
-          "verdictVersion": {
+          "engineVersion": {
             "type": "string"
           },
           "documentation": {
             "type": "string"
+          },
+          "inputTypes": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/components/schemas/PolicyType"
+              }
+            }
           },
           "rootVariables": {
             "type": "object",
@@ -9490,6 +9522,39 @@
                 "type": "string"
               }
             }
+          }
+        }
+      },
+      "PolicyType": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PolicyType"
+            }
+          },
+          "element": {
+            "$ref": "#/components/schemas/PolicyType"
+          },
+          "defaultSource": {
+            "type": "string",
+            "description": "Exact Edict literal for a default value."
+          },
+          "minimum": {
+            "type": "string"
+          },
+          "maximum": {
+            "type": "string"
+          },
+          "literal": {
+            "type": "string"
           }
         }
       },

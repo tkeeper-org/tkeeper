@@ -56,6 +56,10 @@ if (submitted.status() == 202) {
 
 Hub-specific requests live under `model.hub`. Lifecycle requests fix their respective mode. Refresh, rotate, destroy and signing accept `InitialApprovals` with empty proofs; omit it to let Hub assign the approval context. Omitted refresh/rotate policy stays omitted: Hub does not inherit the previous policy. Hub execution mandates are managed by the server.
 
+Lifecycle authorities use `KeySetAuthorities`, containing builtin IDs or digest-pinned OCI references. For example, `KeySetAuthorities.arbitrary()` selects the builtin authority.
+
+Policy source and draft requests default to `AuthorityFormat.EDICT`. Policy responses expose `engineVersion`, typed `inputTypes` and diagnostics with severity, code and source position. `PolicyType` preserves nested types, exact default literals and integer bounds as strings.
+
 `executeOperation(operationId)` executes the collected receipts. Its overload accepts `OperationExecuteRequest` for the contract's legacy owner-supplied proofs. Inspect the returned operation state: an HTTP 200 execution response can contain `FAILED` or `OUTCOME_UNKNOWN`.
 
 Native catalog responses preserve `isError` and the complete `result` payload. Check `isError` even when HTTP succeeds; `catalog()` and `authority()` expose the existing typed native models, and `error()` exposes native error details. Authority configuration, command schemas and operation request/result objects retain their open JSON structure.

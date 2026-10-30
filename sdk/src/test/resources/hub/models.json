@@ -78,5 +78,6 @@
   "WebAuthnAssertionCredential": "org.exploit.tkeeper.sdk.model.hub.webauthn.WebAuthnAssertionCredential",
   "HubProblem": "org.exploit.tkeeper.sdk.model.hub.error.HubProblem",
   "ShortStatus": "org.exploit.tkeeper.sdk.model.hub.system.KeeperShortStatus",
-  "ErrorMessage": "org.exploit.tkeeper.sdk.model.hub.error.KeeperError"
+  "ErrorMessage": "org.exploit.tkeeper.sdk.model.hub.error.KeeperError",
+  "PolicyType": "org.exploit.tkeeper.sdk.model.hub.policy.PolicyType"
 }
