@@ -15,7 +15,6 @@ authority "vault-withdrawal" {
         fn withdraw(requests: Withdrawal[])
     }
 
-    input withdrawal: vault.withdraw
     input transaction {
         chainId: Number
         value: Number
@@ -27,9 +26,9 @@ authority "vault-withdrawal" {
             transaction.chainId == 1
             transaction.value == 0
             transaction.gasLimit <= 200000
-            withdrawal.arguments.requests.count() > 0
-            withdrawal.arguments.requests.all(r -> r.recipient == "0x2222222222222222222222222222222222222222")
-            withdrawal.arguments.requests.sum(r -> r.amount) <= 1000000000000000000
+            vault.withdraw.requests.count() > 0
+            vault.withdraw.requests.all(r -> r.recipient == "0x2222222222222222222222222222222222222222")
+            vault.withdraw.requests.sum(r -> r.amount) <= 1000000000000000000
         }
     }
 }

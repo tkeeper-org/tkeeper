@@ -12,13 +12,12 @@ authority "test:evm/sepolia-demo-token" {
         fn transfer(to: address, amount: uint256)
     }
 
-    input transfer: token.transfer
 
     policy "test-evm-sepolia-demo-token" {
         allow "allow-demo-token-transfer" when {
             transaction.chainId == 11155111
             transaction.value == 0
-            transfer.arguments.amount <= 1000000000000000000
+            token.transfer.amount <= 1000000000000000000
         }
     }
 }

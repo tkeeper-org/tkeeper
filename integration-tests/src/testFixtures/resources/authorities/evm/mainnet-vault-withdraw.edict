@@ -12,14 +12,13 @@ authority "test:evm/mainnet-vault-withdraw" {
         fn withdraw(to: address, amount: uint256)
     }
 
-    input withdrawal: vault.withdraw
 
     policy "test-evm-mainnet-vault-withdraw" {
         allow "allow-vault-withdraw" when {
             transaction.chainId == 1
             transaction.value == 0
-            withdrawal.arguments.to == "0x7777777777777777777777777777777777777777"
-            withdrawal.arguments.amount <= 55
+            vault.withdraw.to == "0x7777777777777777777777777777777777777777"
+            vault.withdraw.amount <= 55
         }
     }
 }

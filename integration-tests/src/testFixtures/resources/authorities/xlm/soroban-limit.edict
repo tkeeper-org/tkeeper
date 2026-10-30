@@ -8,15 +8,14 @@ authority "test:xlm/soroban-limit" {
         fn set_limit(period: symbol, amount: u32)
     }
 
-    input calls: List<limits.set_limit>
 
     policy "soroban-limit" {
         allow when {
             transaction.fee > 0 and transaction.fee <= 1000000
             transaction.sequence > 0
-            calls.count() == 1
-            calls.all(call -> call.arguments.period == "daily")
-            calls.sum(call -> call.arguments.amount) <= 100
+            limits.set_limit.count() == 1
+            limits.set_limit.all(call -> call.period == "daily")
+            limits.set_limit.sum(call -> call.amount) <= 100
         }
     }
 }

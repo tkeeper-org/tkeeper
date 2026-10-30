@@ -12,15 +12,14 @@ authority "test:evm/mainnet-usdc-transfer-from" {
         fn transferFrom(from: address, to: address, amount: uint256)
     }
 
-    input transfer: token.transferFrom
 
     policy "test-evm-mainnet-usdc-transfer-from" {
         allow "allow-usdc-transfer-from" when {
             transaction.chainId == 1
             transaction.value == 0
-            transfer.arguments.from == "0x5555555555555555555555555555555555555555"
-            transfer.arguments.to == "0x3333333333333333333333333333333333333333"
-            transfer.arguments.amount <= 321
+            token.transferFrom.from == "0x5555555555555555555555555555555555555555"
+            token.transferFrom.to == "0x3333333333333333333333333333333333333333"
+            token.transferFrom.amount <= 321
         }
     }
 }

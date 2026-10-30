@@ -12,12 +12,11 @@ authority "test:evm/mainnet-vault-deposit" {
         fn deposit(amount: uint256)
     }
 
-    input deposit: vault.deposit
 
     policy "test-evm-mainnet-vault-deposit" {
         allow "allow-vault-deposit-with-native-value" when {
             transaction.chainId == 1
-            deposit.arguments.amount <= 500
+            vault.deposit.amount <= 500
             transaction.value > 0
             transaction.value <= 100
         }

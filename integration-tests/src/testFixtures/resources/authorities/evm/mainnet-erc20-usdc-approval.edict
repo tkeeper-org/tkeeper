@@ -12,14 +12,13 @@ authority "test:evm/mainnet-usdc-approval" {
         fn approve(spender: address, amount: uint256)
     }
 
-    input approval: token.approve
 
     policy "test-evm-mainnet-usdc-approval" {
         allow "allow-usdc-approval" when {
             transaction.chainId == 1
             transaction.value == 0
-            approval.arguments.spender == "0x4444444444444444444444444444444444444444"
-            approval.arguments.amount <= 1000
+            token.approve.spender == "0x4444444444444444444444444444444444444444"
+            token.approve.amount <= 1000
         }
     }
 }
