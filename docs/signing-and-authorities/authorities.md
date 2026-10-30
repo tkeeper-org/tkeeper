@@ -25,6 +25,9 @@ Use [Writing Edict policies](edict.md) for types, `struct`, `input`, maps, funct
 | `custom` | Core | [Typed JSON](arbitrary-and-typed.md) |
 | `bitcoin.transaction` | `bitcoin` | [Bitcoin](../digital-assets/bitcoin.md) |
 | `evm.transaction` | `evm` | [EVM](../digital-assets/evm.md) |
+| `evm.7702` | `evm` | [EVM](../digital-assets/evm.md) |
+| `evm.2612` | `evm` | [EVM](../digital-assets/evm.md) |
+| `evm.3009` | `evm` | [EVM](../digital-assets/evm.md) |
 | `tron.transaction` | `tron` | [TRON](../digital-assets/tron.md) |
 | `xrp.transaction` | `xrp` | [XRP](../digital-assets/xrp.md) |
 | `solana.transaction` | `solana` | [Solana](../digital-assets/solana.md) |

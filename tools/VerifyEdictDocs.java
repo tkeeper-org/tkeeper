@@ -18,6 +18,9 @@ public class VerifyEdictDocs {
     private static final List<String> BUILDERS = List.of(
             "org.exploit.keeper.authority.bitcoin.intent.BitcoinTransactionIntentBuilder",
             "org.exploit.keeper.authority.evm.intent.EvmIntentBuilder",
+            "org.exploit.keeper.authority.evm.intent.Evm7702IntentBuilder",
+            "org.exploit.keeper.authority.evm.intent.Evm2612IntentBuilder",
+            "org.exploit.keeper.authority.evm.intent.Evm3009IntentBuilder",
             "org.exploit.keeper.authority.tron.intent.TronIntentBuilder",
             "org.exploit.keeper.authority.xrp.intent.XrpIntentBuilder",
             "org.exploit.keeper.authority.solana.intent.SolanaIntentBuilder",

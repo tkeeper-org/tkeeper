@@ -37,6 +37,92 @@ The sample uses test addresses. Replace the contract and recipient with the inte
 
 For an allowance, declare `fn approve(spender: address, amount: uint256)` and constrain both fields. For a vault or tuple argument, declare its actual signature and local structs; do not describe effects through a JSON contract catalog.
 
+## Authorizations and permits
+
+The EVM feature also registers these signing intents:
+
+| Intent | Artifact field | Policy roots |
+| --- | --- | --- |
+| `evm.7702` | `authorization` | `chainId`, `address`, `nonce` |
+| `evm.2612` | `permit` | `domain`, `owner`, `spender`, `value`, `nonce`, `deadline` |
+| `evm.3009` | `authorization` | `domain`, `operation`, `authorizer`, `nonce`, `transfer` |
+
+`evm.7702` signs the [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization digest `keccak256(0x05 || rlp([chainId, address, nonce]))`. Supply those three fields in `artifact.authorization`. `address` identifies the delegate contract; the zero address revokes delegation. The nonce must be between `0` and `2^64 - 2`. A zero chain ID authorizes use across chains; an authority with `config.chainId = 1` rejects it. Omit the chain pin or set it to zero only when the policy deliberately permits that scope.
+
+```edict
+authority "test:evm/delegate" {
+    intent = "evm.7702"
+    version = "1.0.0"
+
+    config {
+        chainId = 1
+    }
+
+    policy "delegate" {
+        allow when {
+            address == "0x1111111111111111111111111111111111111111"
+            nonce == 7
+        }
+    }
+}
+```
+
+For [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612), supply `domain`, `owner`, `spender`, `value`, `nonce` and `deadline` in `artifact.permit`. The domain contains exactly `name`, `version`, `chainId` and `verifyingContract`; signing uses that EIP-712 domain layout. Other domain layouts and DAI-style permits are rejected. Integer fields accept exact JSON integers or decimal strings.
+
+```edict
+authority "test:evm/permit" {
+    intent = "evm.2612"
+    version = "1.0.0"
+
+    config {
+        chainId = 1
+    }
+
+    policy "permit" {
+        allow when {
+            domain.name == "USD Coin"
+            domain.version == "2"
+            domain.verifyingContract == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            spender == "0x1111111111111111111111111111111111111111"
+            value <= 100000000
+            deadline <= 1800000000
+        }
+    }
+}
+```
+
+[ERC-3009](https://eips.ethereum.org/EIPS/eip-3009) uses the same domain layout. Set `operation` to `transferWithAuthorization`, `receiveWithAuthorization` or `cancelAuthorization` inside `artifact.authorization`. Transfer and receive require `from`, `to`, `value`, `validAfter`, `validBefore` and a 32-byte hexadecimal `nonce`. Cancellation requires `authorizer` and `nonce`. Each operation uses its own EIP-712 type hash.
+
+In policy facts, `authorizer` is the signed `from` or `authorizer` address. `transfer` contains `from`, `to`, `value`, `validAfter` and `validBefore` for transfer and receive; it is null for cancellation. Guard access with `transfer != null` and constrain `operation` explicitly. Policy addresses and hexadecimal nonces use lowercase.
+
+```edict
+authority "test:evm/receive" {
+    intent = "evm.3009"
+    version = "1.0.0"
+
+    config {
+        chainId = 1
+    }
+
+    policy "receive" {
+        allow when {
+            operation == "receiveWithAuthorization"
+            domain.name == "USD Coin"
+            domain.version == "2"
+            domain.verifyingContract == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+            transfer != null
+            transfer.to == "0x1111111111111111111111111111111111111111"
+            transfer.value <= 100000000
+            transfer.validBefore <= 1800000000
+        }
+    }
+}
+```
+
+The materializers require secp256k1 and verify that `owner`, `from` or `authorizer` matches the requested signing key, including its tweak. `config.chainId`, when present, must match the signed chain ID exactly. Policies must constrain the token domain, delegate or recipient, amount and validity bounds appropriate to the operation. Chain state determines whether a nonce remains usable and whether a deadline has expired.
+
+Use `signature().sign(...)` with the SDK artifacts `Evm7702Authorization`, `Evm2612Permit` or `Evm3009Authorization`. The returned recoverable ECDSA signature signs the protocol digest directly. Submit it through the corresponding authorization tuple or contract method; these intents do not compose an outer transaction.
+
 ## Compose
 
 ```java

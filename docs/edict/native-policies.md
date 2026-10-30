@@ -16,6 +16,9 @@ Use the configuration and units from the relevant guide:
 | --- | --- | --- |
 | `bitcoin.transaction` | [Bitcoin](../digital-assets/bitcoin.md) | Outputs, fee, selected input and sighash |
 | `evm.transaction` | [EVM](../digital-assets/evm.md) | Chain, native value, fees and declared contract calls |
+| `evm.7702` | [EVM](../digital-assets/evm.md) | Delegation chain, contract address and account nonce |
+| `evm.2612` | [EVM](../digital-assets/evm.md) | Permit domain, owner, spender, amount, nonce and deadline |
+| `evm.3009` | [EVM](../digital-assets/evm.md) | Transfer, receive and cancellation authorizations |
 | `tron.transaction` | [TRON](../digital-assets/tron.md) | Native transfer effects and transaction fields |
 | `xrp.transaction` | [XRP](../digital-assets/xrp.md) | Payment type, destination, amount and flags |
 | `solana.transaction` | [Solana](../digital-assets/solana.md) | Program, instructions, account roles and transfer amounts |
