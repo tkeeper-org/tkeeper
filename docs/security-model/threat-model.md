@@ -1,4 +1,4 @@
-# Threat Model
+# Threat model
 
 This page lists threats to TKeeper, the controls that address them, and the risks that remain.
 
@@ -22,7 +22,7 @@ In scope:
 - trusted dealer import
 - audit log integrity and sink enforcement
 - external control-plane client access
-- integrity and source selection of GMP, libsodium, secp256k1, and RocksDB JNI at application startup
+- integrity and source selection of GMP, libsodium, secp256k1, and RocksDB JNI at app startup
 
 Out of scope:
 
@@ -36,15 +36,15 @@ Out of scope:
 
 ## Assumptions
 
-In threshold mode, each peer holds a local key share and an operation requires a quorum. In mono mode, one host holds the full private key; compromising that host compromises the key.
+In threshold mode, each peer stores a local key share and an operation requires a quorum. In mono mode, one host stores the full private key. Compromising that host compromises the key.
 
 Compromising fewer than `threshold` peers must not give the attacker a usable private key. Compromising at least `threshold` peers breaks the threshold model.
 
-All protected operations run only after the keeper is unsealed.
+The keeper must be unsealed before it can run a protected operation.
 
-Production artifacts include only explicitly selected platforms and features. The dedicated integration artifact additionally contains failure-injection controls and must not be deployed as a production image.
+Production artifacts include only explicitly selected platforms and features. The dedicated integration artifact contains failure-injection controls and must not be deployed as a production image.
 
-The build, dependency inputs, generated bootstrap classes, and delivered application artifact are trusted. Embedded native digests detect resource changes relative to that trusted build; they do not authenticate a dependency to its publisher or protect a replacement of both the code and its digests. Operators who enable `-Dkeeper.native.allow-system=true` additionally trust the selected system libraries, their search paths, and their dependencies.
+The build, dependency inputs, generated bootstrap classes, and delivered app artifact are trusted. Embedded native digests detect resource changes relative to that trusted build. They do not authenticate a dependency to its publisher or protect a replacement of both the code and its digests. Operators who enable `-Dkeeper.native.allow-system=true` must also trust the selected system libraries and their dependencies, including the search paths used to load them.
 
 Authorities are part of the signing boundary. A key either uses `arbitrary` for raw signing or uses concrete authority policies. `arbitrary` cannot be mixed with concrete authorities on the same key.
 
@@ -65,7 +65,7 @@ Audit events are signed with the integrity key. When audit is enabled, at least 
 | Key metadata and authorities | Low | Critical | High |
 | Public keys and commitments | Public | Critical | High |
 | Authority OCI artifacts | Low | Critical | High |
-| Four eye approver keys | High | Critical | Medium |
+| Keys for four-eye approvals | High | Critical | Medium |
 | Audit records | Low | Critical | High |
 | Session context | Low | Critical | High |
 | Native crypto and RocksDB implementations | Low | Critical | High |
@@ -78,7 +78,7 @@ Requests are untrusted until authenticated and authorized. JWT mode validates to
 
 Keeper to Keeper:
 
-Protected internal routes require TLS outside dev mode. Requests and authenticated responses are signed and bound to the claimed peer id, request nonce, request hash, status, and body. Configure mTLS with a distinct SPKI pin per peer to bind that claimed id to the transport certificate; without it, first enrollment still trusts the shared bootstrap token and network path. Actor credentials are forwarded only to internal operation entrypoints that enforce their permissions. Peers still verify protocol data. Bad FROST, GG20, ML-DSA, or ECIES contributions are rejected. Protocols report an imposter only where the sender can be identified; a normal ML-DSA rejection-sampling abort is not Byzantine evidence.
+Protected internal routes require TLS outside dev mode. Requests and authenticated responses are signed and bound to the claimed peer id, request nonce, request hash, status, and body. Configure mTLS with a distinct SPKI pin per peer to bind that claimed id to the transport certificate. Without it, first enrollment depends on the shared bootstrap token and network path. Actor credentials are forwarded only to internal operation entrypoints that enforce their permissions. Peers still verify protocol data. Bad FROST, GG20, ML-DSA, or ECIES contributions are rejected. Protocols report an imposter only for failures attributable to a sender. Normal ML-DSA rejection sampling can fail without such attribution.
 
 Keeper to OCI registry:
 
@@ -90,11 +90,11 @@ Seal providers protect the DEK. Built-in providers are Shamir and HSM. External 
 
 Keeper storage:
 
-Stored key material is AEAD-encrypted. Integrity-sensitive records use one of two location-bound formats: signed records bind the column family, record id, and payload, while integrity private keys and audit-HMAC keys use encrypted envelopes bound to their exact record ids. This prevents a valid record or ciphertext from being moved into another storage slot.
+Stored key material is AEAD-encrypted. Integrity-sensitive records use one of two location-bound formats: signed records bind their payload to a column family and record id. Integrity private keys and audit-HMAC keys use encrypted envelopes bound to their exact record ids. This prevents a valid record or ciphertext from being moved into another storage slot.
 
-On a legacy V1 upgrade, rebinding internal secrets, signing the initialization envelope, relocating legacy key generations, deleting their source records, and advancing the marker are one cross-column-family transaction. Any validation failure rolls the whole V1 transaction back. The keeper reports not-ready throughout migration and stays sealed on failure, including auto-unseal failure. Relocation is allowed only when the isolated key-version store is empty; pending or mixed state is rejected; generation pointers must be canonical and match signed head/version metadata. Orphan records are not migration roots. Relocated key material remains explicitly legacy and unsigned; only a later refresh or rotate creates a signed, location-bound generation.
+A legacy V1 upgrade uses one cross-column-family transaction to rebind internal secrets and sign the initialization envelope. Relocation of legacy key generations and removal of their source records occur in that transaction before the marker advances. Any validation failure rolls the whole V1 transaction back. The keeper reports not-ready throughout migration and stays sealed on failure, including auto-unseal failure. Relocation is allowed only when the isolated key-version store is empty. Pending or mixed state is rejected. Generation pointers must be canonical and match signed head/version metadata. Orphan records are not migration roots. Relocated key material remains explicitly legacy and unsigned. Only a later refresh or rotate creates a signed, location-bound generation.
 
-The signed initialization envelope binds the peer id and quorum tuple after unseal. Integrity and HMAC version pointers are checked against the latest stored version; integrity-key rotation retains historical public keys but removes historical private keys.
+The signed initialization envelope binds the peer id and quorum tuple after unseal. Integrity and HMAC version pointers are checked against the latest stored version. Integrity-key rotation retains historical public keys but removes historical private keys.
 
 Browser to control-plane client:
 
@@ -103,15 +103,15 @@ public APIs. Its operator controls browser session handling and content security
 
 Build to native execution:
 
-The build selects native resources for the artifact profile and OS/CPU target, compiles their SHA-256 digests into the bootstrap, and checks the final jar against that inventory. Before creating the service registry, startup extracts the selected resources into fresh temporary directories, hashes the extracted files, and loads those paths. RocksDB uses its explicit-directory API so its normal system-first loader cannot choose another binary on the embedded path.
+The build selects native resources for the artifact profile and OS/CPU target. Their SHA-256 digests are compiled into the bootstrap and checked against the final JAR. Startup extracts those resources into fresh temporary directories, then verifies their hashes before loading them. This happens before the service registry is created. RocksDB uses its explicit-directory API so its normal system-first loader cannot choose another binary on the embedded path.
 
-Production startup disables system fallback by default. Fallback is allowed only when no expected embedded variant exists and no unlisted matching resource is present. A present expected digest makes resource, extraction, verification, and native linking errors fatal.
+System fallback is off by default in production. Fallback is allowed only when no expected embedded variant exists and no unlisted matching resource is present. A present expected digest makes resource, extraction, verification, and native linking errors fatal.
 
-Test-image builds enable system fallback by default only for `linux/arm64`, which lacks bundled crypto natives. Other platforms keep system fallback disabled unless explicitly overridden. These images must not be deployed in production.
+Test-image builds enable system fallback by default only for `linux/arm64`, which lacks bundled crypto natives. Other platforms keep system fallback turned off unless explicitly overridden. These images must not be deployed in production.
 
 ## Threats
 
-### T-1: Client Impersonation
+### T-1: client impersonation
 
 Attack:
 
@@ -128,7 +128,7 @@ Residual risk:
 
 A compromised IdP or long-lived token gives the attacker the permissions inside that token until it expires or is revoked.
 
-### T-2: Permission Misconfiguration
+### T-2: permission misconfiguration
 
 Attack:
 
@@ -145,7 +145,7 @@ Residual risk:
 
 An operator can still grant broad access. Review wildcard grants before production use.
 
-### T-3: Authority Downgrade
+### T-3: authority downgrade
 
 Attack:
 
@@ -163,7 +163,7 @@ Residual risk:
 
 An authorized operator can create a raw-signing key on purpose. Treat `arbitrary` keys as high risk.
 
-### T-4: Authority Artifact Tampering
+### T-4: authority artifact tampering
 
 Attack:
 
@@ -179,9 +179,9 @@ Mitigation:
 
 Residual risk:
 
-If a bad policy is approved and pushed under its digest, TKeeper will enforce that bad policy. Review authority artifacts before attaching them to keys.
+If a bad policy is approved and pushed under its digest, TKeeper enforces that bad policy. Review authority artifacts before attaching them to keys.
 
-### T-5: Policy or Intent Modeling Gap
+### T-5: policy or intent modeling gap
 
 Attack:
 
@@ -197,7 +197,7 @@ Residual risk:
 
 Policy can only enforce the effects it can model. Raw bytes give policy almost no semantic context. Custom authorities reject undeclared JSON fields. A backend can still bypass policy if it executes fields added after signing or taken from a separate request.
 
-### T-6: Four Eye Replay or Bypass
+### T-6: four eye replay or bypass
 
 Attack:
 
@@ -209,13 +209,13 @@ Mitigation:
 - The hash includes nonce and timestamp.
 - Duplicate approver keys are rejected.
 - A coordinator consumes the nonce only after enough signatures have verified and persists it across restarts for the configured approval TTL.
-- `m` must be at least `1`, and `m` cannot exceed `n`; a threshold of `1` authorizes any one configured approver.
+- `m` must be at least `1`, and `m` cannot exceed `n`. A threshold of `1` authorizes any configured approver.
 
 Residual risk:
 
-Compromised approver keys can approve malicious requests. Store approver keys separately from TKeeper peers. Protocol retries reuse the same approval, so non-coordinator peers verify its signatures, request-field binding, and TTL but do not independently consume its nonce. A compromised coordinator that bypasses its own nonce check can therefore replay a still-fresh approval with the same approved request fields. Current lifecycle and session checks still apply, but independent peer-side replay prevention is not provided.
+Compromised approver keys can approve malicious requests. Store approver keys separately from TKeeper peers. Protocol retries reuse the same approval, so non-coordinator peers verify its signatures, request-field binding, and TTL but do not independently consume its nonce. A compromised coordinator that bypasses its own nonce check can replay a still-fresh approval with the same approved request fields. Current lifecycle and session checks still apply, but independent peer-side replay prevention is not provided.
 
-### T-7: Byzantine Peer During Signing
+### T-7: Byzantine peer during signing
 
 Attack:
 
@@ -225,18 +225,18 @@ Mitigation:
 
 - FROST verifies peer proof material and signing contributions.
 - FROST signing nonces are atomically consumed and cannot produce a second partial signature.
-- GG20 verifies the ZK proof flow used by the protocol; MtA responses expose only the ciphertext and proof, never the respondent mask or encryption randomness.
+- GG20 verifies the ZK proof flow used by the protocol. MtA responses contain only the ciphertext and proof. The respondent mask and encryption randomness remain private.
 - GG20 signing state emits at most one partial signature.
-- FROST and GG20 session clients are destroyed on success, abort, expiry, and shutdown.
+- FROST and GG20 session clients are destroyed on success, failure, expiry, and shutdown.
 - Threshold ML-DSA binds commitments, reveals, participants, message context, and partial responses, then verifies the combined standard ML-DSA signature.
 - Identified bad peers are returned as `imposters`.
 - Signing restarts with fresh session state where the protocol reports an imposter.
 
 Residual risk:
 
-Byzantine peers can cause availability loss by aborting sessions. Threshold ML-DSA does not provide identifiable abort for every failure. A defect that exposes an MtA mask or permits reuse of FROST/GG20 signing state can invalidate the threshold confidentiality assumption; affected key generations require rotation, not refresh.
+Byzantine peers can interrupt sessions and make signing unavailable. Threshold ML-DSA cannot identify the responsible peer for every failure. A defect that exposes an MtA mask or permits reuse of FROST/GG20 signing state can invalidate the threshold confidentiality assumption. Affected key generations require rotation, not refresh.
 
-### T-8: Byzantine Peer During ECIES Decrypt
+### T-8: Byzantine peer during ECIES decrypt
 
 Attack:
 
@@ -244,7 +244,7 @@ A peer returns a forged partial decrypt.
 
 Mitigation:
 
-- Each partial decrypt carries a DLEQ proof.
+- Each partial decrypt includes a DLEQ proof.
 - The coordinator verifies the proof against the ciphertext point, derived peer public share, and partial decrypt.
 - Bad partial decrypts are skipped and reported as imposters.
 - Decrypt succeeds only if enough honest partial decrypts remain.
@@ -253,7 +253,7 @@ Residual risk:
 
 Too many unavailable or dishonest peers can stop decryption.
 
-### T-9: Local Storage Read or Tamper
+### T-9: local storage read or tamper
 
 Attack:
 
@@ -270,13 +270,13 @@ Residual risk:
 
 Memory forensics against an unsealed keeper can expose runtime secrets. Signatures detect altered or relocated records, but they cannot by themselves detect a coherent same-location replay of an older record set. This includes replaying a key head with its matching key and metadata records, or rolling back the complete database.
 
-During the first upgrade from legacy V1 storage, TKeeper can authenticate the legacy ciphertext with the DEK and verify its signed metadata, but it cannot prove that an unbound ciphertext was not substituted before that migration. Relocation does not add a signature to that key material; it remains legacy until refresh or rotate.
+During the first upgrade from legacy V1 storage, TKeeper can authenticate the legacy ciphertext with the DEK and verify its signed metadata, but it cannot prove that an unbound ciphertext was not substituted before that migration. Relocation does not add a signature to that key material. It remains legacy until refresh or rotate.
 
-Pre-2.2 platform side-state and sessionless destroy-marker formats that do not embed their identity remain read-compatible until the corresponding key lifecycle rewrite; relocating one fails later consistency checks or can force a fail-closed denial of service.
+Pre-2.2 platform side-state and sessionless destroy-marker formats that do not embed their identity remain read-compatible until the corresponding key lifecycle rewrite. Relocating one fails later consistency checks or can force a fail-closed denial of service.
 
 Verify and protect the existing database and backups before the first 2.2 unseal. Use host storage controls, encrypted swap, durable external audit export, an independently protected monotonic checkpoint where rollback detection is required, and protected backups.
 
-### T-10: Unseal Material Compromise
+### T-10: unseal material compromise
 
 Attack:
 
@@ -287,13 +287,13 @@ Mitigation:
 - Shamir uses configurable `threshold` and `total`.
 - HSM keeps wrapping keys outside TKeeper storage.
 - AWS and Google Cloud providers rely on provider IAM and KMS audit logs.
-- Auto-unseal can be disabled.
+- Auto-unseal can be turned off.
 
 Residual risk:
 
 Seal providers move trust into operators, HSM policy, or cloud IAM. Treat that material like root recovery access.
 
-### T-11: Audit Tampering or Sink Failure
+### T-11: audit tampering or sink failure
 
 Attack:
 
@@ -301,7 +301,7 @@ An attacker edits audit logs or makes sinks unavailable.
 
 Mitigation:
 
-- Audit events are signed with the integrity key: Ed25519 when `ecc` is included, or ML-DSA-44 in a PQC-only build.
+- Audit events are signed with the integrity key, using Ed25519 when `ecc` is included, or ML-DSA-44 in a PQC-only build.
 - Verification uses the integrity public key version recorded in the event.
 - If audit is enabled, protected operations require at least one available sink.
 - If all configured sinks fail or time out while writing, the operation fails.
@@ -310,7 +310,7 @@ Residual risk:
 
 Deployments without audit enabled lose this control.
 
-### T-12: Trusted Dealer Abuse
+### T-12: trusted dealer abuse
 
 Attack:
 
@@ -324,9 +324,9 @@ Mitigation:
 
 Residual risk:
 
-Trusted dealer mode trusts the importer to bring valid key material. Use it only for migration or recovery flows that need it.
+Trusted dealer mode requires the importer to supply valid key material. Use it only for migration or recovery flows that need it.
 
-### T-13: Key Lifecycle Abuse
+### T-13: key lifecycle abuse
 
 Attack:
 
@@ -338,16 +338,16 @@ Mitigation:
 - Destructive operations are audit-logged.
 - Key metadata and active generations are integrity-protected.
 - Refresh and rotate write a new signed generation and never overwrite a legacy generation in place.
-- Threshold destroy commit and abort messages are accepted only from the peer that prepared the signed destroy session.
+- Threshold destroy commit and cancellation messages are accepted only from the peer that prepared the signed destroy session.
 - ECC refresh reshapes the existing secret shares without changing the public key. Rotate creates new key material.
-- ML-DSA refresh carries each peer's existing share and public key into the new generation unchanged; it does not replace shares or refresh cryptographic material. ML-DSA rotate runs a new DKG and creates a new key.
+- ML-DSA refresh copies each peer's existing share and public key into the new generation unchanged. It does not replace shares or refresh cryptographic material. ML-DSA rotate runs a new DKG and creates a new key.
 - Consistency repair is an explicit API, not part of normal signing flow.
 
 Residual risk:
 
-Authorized lifecycle operators can still break availability. A compromised ML-DSA share remains compromised after refresh; use rotate when new cryptographic material is required. Keep lifecycle permissions narrower than signing permissions.
+Authorized lifecycle operators can still break availability. A compromised ML-DSA share remains compromised after refresh. Use rotate when new cryptographic material is required. Keep lifecycle permissions narrower than signing permissions.
 
-### T-14: Browser client exposure
+### T-14: browser client exposure
 
 Attack:
 
@@ -355,7 +355,7 @@ An attacker uses the UI to trigger privileged operations from a browser session.
 
 Mitigation:
 
-- Every API call requires the configured authentication.
+- API callers must use the configured authentication.
 - Browser-originated operations require the same permissions and approvals as other clients.
 - The external frontend operator controls CSP and browser credential storage.
 
@@ -364,24 +364,24 @@ Residual risk:
 A compromised frontend or stolen browser token can act with the operator's permissions.
 Restrict frontend access and avoid persistent browser storage of privileged tokens.
 
-### T-15: Probabilistic ML-DSA Signing Exhaustion
+### T-15: probabilistic ML-DSA signing exhaustion
 
 Attack or failure:
 
-A healthy threshold ML-DSA signing operation repeatedly aborts during rejection sampling, or an attacker amplifies the cost by submitting many authorized signing requests.
+Threshold ML-DSA attempts may repeatedly fail rejection sampling even when peers follow the protocol. An attacker can amplify the cost by submitting many authorized signing requests.
 
 Mitigation:
 
 - Each retry creates fresh session state and fresh signing randomness.
-- `keeper.session.mldsa.max-rounds` bounds complete signing attempts; it defaults to `12`.
+- `keeper.session.mldsa.max-rounds` bounds complete signing attempts. It defaults to `12`.
 - Session expiry and caller-side deadlines bound retained state and end-to-end latency.
-- Exhaustion fails closed with `SESSION_MAX_ROUNDS_EXCEEDED`; no signature is returned.
+- Exhaustion fails closed with `SESSION_MAX_ROUNDS_EXCEEDED`. No signature is returned.
 
 Residual risk:
 
-Threshold ML-DSA is probabilistic and does not provide a hard success-latency guarantee. Exhaustion with empty `dead` and `imposters` sets is not proof of corruption. Monitor retry counts and latency; increasing the attempt cap trades availability for resource use and worst-case response time.
+Threshold ML-DSA is probabilistic and does not provide a hard success-latency guarantee. Exhaustion with empty `dead` and `imposters` sets is not proof of corruption. Monitor retry counts and latency. Increasing the maximum number of attempts may improve the chance of success, but uses more resources and increases worst-case response time.
 
-### T-16: Integration Artifact in Production
+### T-16: integration artifact in production
 
 Attack:
 
@@ -397,11 +397,11 @@ Residual risk:
 
 Build separation cannot prevent an operator from deploying the wrong artifact. Production admission and release policy must reject the integration jar and `exploit/tkeeper:dev` image.
 
-### T-17: Downstream Proof Misuse
+### T-17: downstream proof misuse
 
 Attack:
 
-A downstream service accepts a valid signature for the wrong identity, executes a payload that differs from the governed intent, relies on unsigned fields, or replays a previously valid proof.
+A downstream service accepts a signature for the wrong identity or executes a payload that differs from the approved intent. Unsigned fields and replayed proofs can also cause unauthorized execution.
 
 Mitigation:
 
@@ -415,11 +415,11 @@ Residual risk:
 
 TKeeper cannot enforce a downstream path that misinterprets or bypasses its proof. Cryptographic validity does not establish business validity, freshness, or correct environment by itself.
 
-### T-18: Native Library Substitution or Silent System Fallback
+### T-18: native library substitution or silent system fallback
 
 Attack:
 
-An attacker changes or removes a packaged native resource while leaving the trusted bootstrap intact, or arranges a system library search path so a startup fallback loads a different implementation. A malicious implementation could access key material or alter cryptographic and storage operations in the Keeper process.
+An attacker changes or removes a packaged native resource while leaving the trusted bootstrap intact. They can also arrange system library search paths so startup fallback loads a substituted library. That library could access key material or alter cryptographic and storage operations in the Keeper process.
 
 Mitigation:
 
@@ -431,11 +431,11 @@ Mitigation:
 
 Residual risk:
 
-System libraries are deliberately not digest-checked when fallback is explicitly enabled. The flag is an operator trust decision, including for images on platforms without bundled crypto natives. This control covers these four application bootstrap libraries; it is not a global restriction on JVM native loading. The JVM, OS loader, transitive native dependencies, other native-using dependencies, build infrastructure, full artifact provenance, and protection of extracted files against a compromised host remain trusted deployment inputs. An attacker who can replace the compiled verifier and expected digests or control the running process is outside this control's boundary.
+System libraries are deliberately not digest-checked when fallback is explicitly enabled. The flag is an operator trust decision, including for images on platforms without bundled crypto natives. This control covers these four app bootstrap libraries. It is not a global restriction on JVM native loading. The JVM, OS loader, transitive native dependencies, other native-using dependencies, build infrastructure, full artifact provenance, and protection of extracted files against a compromised host remain trusted deployment inputs. An attacker who can replace the compiled verifier and expected digests or control the running process is outside this control's boundary.
 
 ## Security properties
 
-The build checks the selected modules, required security components and restrictions
+The build checks the selected modules, required security components, and restrictions
 on access to key storage and protected operations. Production artifacts reject
 failure-injection controls. See [Build-time security](build-time-security.md) for
 artifact selection and deployment checks.
@@ -447,7 +447,7 @@ artifact selection and deployment checks.
 | Raw signing isolated | `arbitrary` cannot be mixed with concrete authorities |
 | Typed signing policy | authorities materialize commands before signing |
 | Authority immutability | digest-pinned OCI references |
-| Four eye binding | approver signatures over operation hash |
+| Binding for four-eye approvals | approver signatures over operation hash |
 | Byzantine detection | protocol proofs, DLEQ checks, imposter reporting |
 | Sealed state | protected operations refused until unseal |
 | Storage confidentiality | DEK/KEK envelope encryption |
@@ -463,8 +463,8 @@ artifact selection and deployment checks.
 - Avoid broad wildcard permissions.
 - Treat `arbitrary` keys as raw signing keys.
 - Use digest-pinned OCI authorities.
-- Keep native system fallback disabled where embedded variants exist; where explicitly enabled, secure the system JNI/crypto libraries and their loader paths.
-- Verify release artifact provenance; embedded digests rely on a trusted build and bootstrap.
+- Keep native system fallback turned off where embedded variants exist. Where explicitly enabled, secure the system JNI/crypto libraries and their loader paths.
+- Verify release artifact provenance. Embedded digests rely on a trusted build and bootstrap.
 - Review Asset Inventory exports.
 - Distribute Shamir shares across separate operators.
 - Restrict HSM, AWS KMS, and Google Cloud KMS access to TKeeper identities.

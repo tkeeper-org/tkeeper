@@ -3,7 +3,7 @@
 Permissions are explicit strings. Most key permissions are scoped by key id.
 
 `GET /v2/keeper/config` requires primary authentication without any additional
-permission. It returns the current quorum, loaded module ids, supported authority types and seal provider id.
+permission. It returns the current quorum, loaded module ids, supported authority types, and seal provider id.
 
 ## Key permissions
 
@@ -49,24 +49,24 @@ tkeeper.key.*.sign
 | `tkeeper.recover` | run share-recovery protocols |
 | `tkeeper.expired.view` | read key-expiration indexes |
 | `tkeeper.compliance.inventory` | read asset inventory |
-| `tkeeper.integrity.rotate` | rotate audit integrity key |
+| `tkeeper.integrity.rotate` | rotate the key used to sign audit events |
 | `tkeeper.audit.log.verify` | verify signed audit log lines |
 | `tkeeper.emulate` | evaluate an authority policy without executing its command |
 | `tkeeper.control.system` | read control-plane system state |
-| `tkeeper.control.sinks` | read control-plane audit sink state |
+| `tkeeper.control.sinks` | read the state of audit sinks through the control plane |
 
 ## Assignment guidance
 
 - Give signing services only the key identities they need.
 - Keep lifecycle permissions out of normal signing clients.
 - Keep import permissions highly restricted.
-- Assign approver read, registration, and metadata permissions independently; none implies another.
+- Assign approver read, registration, and metadata permissions independently. None implies another.
 - WebAuthn finish requires a valid primary token and the issued invitation in its body, with no additional permission.
-- Promoting a nonempty Approvers registry also requires registration and metadata permissions;
-  each target checks these independently. Share recovery uses the separate `tkeeper.recover` permission.
+- Promoting a nonempty Approvers registry also requires registration and metadata permissions.
+  Each target checks these independently. Share recovery uses the separate `tkeeper.recover` permission.
 - Restrict consistency repair, share recovery, and quorum promotion to recovery operators.
 - Treat control-plane read permissions as sensitive operational metadata.
-- Treat dry-run access as sensitive policy metadata; `tkeeper.emulate` is not scoped to a key id.
+- Treat dry-run access as sensitive policy metadata. `tkeeper.emulate` is not scoped to a key id.
 - Keep destroy permissions separate from rotate and refresh.
 - Use negative permissions to carve high-risk identities out of broad grants.
 - Review wildcard grants before production.

@@ -16,7 +16,7 @@ External config can be:
 
 Multiple external locations are comma-separated. Earlier locations win because they are loaded first.
 
-Configuration can contain bootstrap tokens, HSM PINs, registry credentials, and trust-store passwords. Keep configuration files out of source control, restrict filesystem access, and inject secrets through the deployment's protected configuration mechanism. Do not expose resolved configuration in logs or support bundles.
+Configuration may contain bootstrap tokens or HSM PINs as well as registry credentials and trust-store passwords. Restrict access to these files and keep them out of source control. Inject secrets through the deployment's protected configuration mechanism. Do not expose resolved configuration in logs or support bundles.
 
 Profile config uses bundled files named `application-{profile}.conf`, `application-{profile}.json`, or `application-{profile}.properties`.
 
@@ -33,9 +33,9 @@ Enable it at runtime with:
 -Dkeeper.dev.config.location=/etc/tkeeper
 ```
 
-`auth-dev` is not included by `keeper.features=all`; it must be selected explicitly.
+`auth-dev` is not included by `keeper.features=all`. It must be selected explicitly.
 
-When the dev location is a directory, TKeeper looks for `dev.conf`, `dev.json`, or `dev.properties`. A direct file path also works.
+When the dev location is a directory, TKeeper looks for `dev.conf`, `dev.json`, or `dev.properties`. A direct path also works.
 
 Example:
 
@@ -90,22 +90,22 @@ Common fields:
 | `keeper.database.path` | RocksDB path |
 | `keeper.server.public` | API users call this |
 | `keeper.server.internal` | Peers call this |
-| `keeper.peers` | Other peers in the cluster; self is omitted |
+| `keeper.peers` | Other peers in the cluster. Self is omitted |
 | `keeper.providers.selected` | Seal provider id |
 | `keeper.client.tls` | TLS for peer clients |
-| `keeper.recovery` | Recovery-only runtime mode; defaults to `false` |
-| `keeper.authority.arbitrary.enabled` | Enables raw `arbitrary` signing; defaults to `false` |
+| `keeper.recovery` | Recovery-only runtime mode. Defaults to `false` |
+| `keeper.authority.arbitrary.enabled` | Enables raw `arbitrary` signing. Defaults to `false` |
 | `keeper.approval.ttl` | Four-eye approval lifetime |
-| `keeper.webauthn.enabled` | Enables approver registration; defaults to `false` |
+| `keeper.webauthn.enabled` | Enables approver registration. Defaults to `false` |
 | `keeper.webauthn.rp-id`, `rp-name`, `origins` | Registration RP and exact browser origins |
-| `keeper.webauthn.registration-ttl` | Registration session lifetime; defaults to `5m`, positive and at most `10m` |
-| `keeper.nonce-ttl` | Persistent nonce replay retention and FIFO file TTL; defaults to `12h` (`KEEPER_NONCE_TTL`) |
-| `keeper.mandate.max-ttl` | Maximum mandate lifetime; defaults to the smaller of `15m` and nonce retention |
-| `keeper.mandate.max-attempts` | Maximum protocol attempts per mandate; defaults to `12`, range `1` to `1024` |
+| `keeper.webauthn.registration-ttl` | Registration session lifetime. Defaults to `5m`, positive and at most `10m` |
+| `keeper.nonce-ttl` | Persistent nonce replay retention and FIFO file TTL. Defaults to `12h` (`KEEPER_NONCE_TTL`) |
+| `keeper.mandate.max-ttl` | Maximum mandate lifetime. Defaults to the smaller of `15m` and nonce retention |
+| `keeper.mandate.max-attempts` | Maximum protocol attempts per mandate. Defaults to `12`, range `1` to `1024` |
 | `keeper.session.*` | DKG, FROST, GG20, ML-DSA, ECIES, destroy session limits |
 
 WebAuthn registration requires the ECC platform's P256 provider. Configure the RP ID and exact
-frontend origins consistently on every peer; they describe the approval frontend, not the Keeper
+frontend origins consistently on every peer. They describe the approval frontend, not the Keeper
 API hostname. The [registration guide](../api-reference/approvers.md#register-webauthn-from-a-hub)
 contains a complete example.
 
@@ -126,9 +126,9 @@ keeper.authority.arbitrary.enabled = true
 ```
 
 The equivalent environment variable is `KEEPER_AUTHORITY_ARBITRARY_ENABLED`. Leave the setting
-disabled when every key uses a concrete OCI authority.
+turned off when every key uses a concrete OCI authority.
 
-Coordinator-only endpoints can be disabled on a node:
+Coordinator-only endpoints can be turned off on a node:
 
 ```bash
 -Dkeeper.coordinator.enabled=false
@@ -146,7 +146,7 @@ Use that for peers that only participate in threshold protocols.
 `-Pkeeper.features=recovery` and the required platform selectors. The mode requires the recovery
 feature in the artifact, public TLS, internal mTLS with client authentication, outbound client mTLS,
 and a distinct `tls-spki-sha256` binding for every peer. Normal key operations and readiness are
-blocked until the keeper is restarted with recovery disabled. See
+blocked until the keeper is restarted with recovery turned off. See
 [Backup and Recovery](backup-and-recovery.md).
 
 After repair, replace the maintenance artifact with a production build that does not include the
@@ -180,7 +180,7 @@ use the `KEEPER_INTERNAL_` prefix instead of `KEEPER_`.
 
 Server-side delays before reading the body count toward the timeout. The limit also covers
 bodies left unread after an early response. Once the body is fully read, the operation can
-continue independently of this deadline. A timeout closes the connection; for HTTP/2 this
+continue independently of this deadline. A timeout closes the connection. For HTTP/2 this
 also ends other streams on that connection.
 
 ## Server TLS
@@ -217,7 +217,7 @@ keeper.server.public.tls { enabled = true }
 keeper.server.internal.tls { enabled = true }
 ```
 
-JWT authentication requires public-server TLS and fails startup when it is disabled.
+JWT authentication requires public-server TLS and fails startup when it is turned off.
 
 The peer client must trust the internal server certificate when internal TLS is enabled:
 
@@ -252,7 +252,7 @@ keeper.client {
 }
 ```
 
-`keeper.client.request-timeout` is the total peer request deadline and must be positive. `connect-timeout` may impose a shorter connection deadline; `0ms` leaves connection setup bounded by the total request deadline.
+`keeper.client.request-timeout` is the total peer request deadline and must be positive. `connect-timeout` may impose a shorter connection deadline. `0ms` leaves connection setup bounded by the total request deadline.
 
 All configuration timeouts accept HOCON durations, such as `500ms`, `30s`, or `2m`.
 Values without units remain milliseconds for compatibility (`30000` means `30s`), but that
@@ -281,7 +281,7 @@ openssl x509 -in peer-2-client.crt -pubkey -noout \
 
 If one peer entry has `tls-spki-sha256`, every peer entry must have a valid, distinct pin. TKeeper also requires internal TLS client authentication and an outbound client key store in that configuration.
 
-mTLS limits internal API access, protects forwarded actor credentials from network interception, and—when SPKI pins are configured—binds the claimed peer id to its certificate. TKeeper still verifies application-level peer signatures because TLS does not bind protocol messages to TKeeper sessions.
+mTLS restricts internal API access and protects forwarded actor credentials from network interception. With SPKI pins configured, it also binds the claimed peer id to its certificate. TKeeper still verifies signatures over peer requests because TLS does not bind protocol messages to TKeeper sessions.
 
 Outside dev mode, protected peer protocol routes reject plaintext even if request signatures are otherwise valid. Health and integrity-public-key discovery remain available for deployment health checks and enrollment.
 
@@ -305,11 +305,11 @@ auth {
 
 When `issuer` is configured, it must match the token `iss` claim. Configure it in production to bind tokens to the expected identity provider.
 
-`audience` must be present in the token `aud` claim. Tokens must contain `exp`; `nbf` is honored when present.
+`audience` must be present in the token `aud` claim. Tokens must contain `exp`. `nbf` is honored when present.
 
 `clock-skew` defaults to `15s` and must not be negative.
 
-Remote `jwks-location` and OIDC discovery URLs must use HTTPS. A local JWKS file path or
+Remote `jwks-location` and OIDC discovery URLs must use HTTPS. A local JWKS path or
 `file:` URI is also supported. OIDC callbacks must use HTTPS, except for loopback callbacks
 used during local development.
 
@@ -343,7 +343,7 @@ keeper.session {
 }
 ```
 
-For ML-DSA, `max-rounds` is the maximum number of complete signing attempts, not the number of protocol messages and not the internal parallel-instance count `K`. Each attempt has three signing rounds and may abort by design during rejection sampling. The default of `12` bounds latency; exhausting it returns `SESSION_MAX_ROUNDS_EXCEEDED` and does not identify a dead or malicious peer. Increase it only together with an end-to-end request deadline and latency monitoring.
+For ML-DSA, `max-rounds` is the maximum number of complete signing attempts, not the number of protocol messages and not the internal parallel-instance count `K`. Each attempt has three signing rounds and may stop during rejection sampling. The default of `12` bounds latency. Exhausting it returns `SESSION_MAX_ROUNDS_EXCEEDED` and does not identify a dead or malicious peer. Increase it only together with an end-to-end request deadline and latency monitoring.
 
 ## Audit
 
@@ -383,18 +383,16 @@ oras {
 }
 ```
 
-`allowed-registries` is mandatory for OCI authorities and matches the exact registry authority, including the port. An empty list denies all OCI pulls. HTTPS is the default; use `insecure = true` only for an explicitly allowed local plain HTTP registry.
+`allowed-registries` is mandatory for OCI authorities and matches the exact registry authority, including the port. An empty list denies all OCI pulls. HTTPS is the default. Use `insecure = true` only for an explicitly allowed local plain HTTP registry.
 
 Use `registries` when a registry issues Bearer challenges through a separate token
-service or redirects blob downloads to another origin. Quote each registry key;
-it must match the OCI reference's host and optional port exactly, without a scheme
-or path. These settings do not add the registry to `allowed-registries`.
+service or redirects blob downloads to another origin. Quote each registry key and use the exact host and optional port from the OCI reference.
+Omit the scheme and path, and add the registry separately to `allowed-registries`.
 
-Origins contain only a scheme, host and optional port. Token origins can receive
-the configured registry credentials. Blob redirects to download origins receive
-no registry credentials. The two lists are independent, apply only to their
-registry, and default to empty. The registry's own origin remains trusted;
-other origins are rejected unless listed. HTTP origins require `insecure = true`.
+Origins contain only a scheme, host, and optional port. Token origins may receive configured registry credentials, while download origins receive
+blob redirects without those credentials. The lists are independent and apply only to their
+registry, and default to empty. The registry's own origin remains trusted.
+Other origins are rejected unless listed. HTTP origins require `insecure = true`.
 
 ## External control-plane clients
 

@@ -1,16 +1,16 @@
-# Production Checklist
+# Production checklist
 
 ## Artifact
 
 - [ ] Build only required production features.
 - [ ] Include required platforms explicitly.
 - [ ] Do not deploy `exploit/tkeeper:dev`.
-- [ ] Include `auth-dev` only when explicitly required; otherwise confirm it is absent.
+- [ ] Include `auth-dev` only when explicitly required. Otherwise confirm it is absent.
 - [ ] Do not include failure-injection outside integration tests.
 - [ ] Pin the release artifact used by every peer.
 - [ ] Verify artifact provenance and integrity before rollout.
 - [ ] Confirm every peer runs the same feature and platform set.
-- [ ] Validate protocol compatibility before a rolling upgrade; changes to Fiat-Shamir domains or GG20 MtA wire formats require a coordinated upgrade.
+- [ ] Validate protocol compatibility before a rolling upgrade. Changes to Fiat-Shamir domains or GG20 MtA wire formats require a coordinated upgrade.
 
 ## Authentication and permissions
 
@@ -23,9 +23,9 @@
 ## Network
 
 - [ ] Public API is reachable only where intended.
-- [ ] Public API TLS is enabled; JWT mode fails startup when the public server is plaintext.
+- [ ] Public API TLS is enabled. JWT mode fails startup when the public server is plaintext.
 - [ ] Internal API is reachable only by TKeeper peers.
-- [ ] Protected internal routes use TLS; configure mTLS with a distinct `tls-spki-sha256` binding for every peer.
+- [ ] Protected internal routes use TLS. Configure mTLS with a distinct `tls-spki-sha256` binding for every peer.
 - [ ] Peer URLs use the expected internal addresses.
 - [ ] Public API rate limits and request-size limits are enforced at the edge.
 - [ ] Hosts have synchronized clocks for JWT, approval, expiry, and audit checks.
@@ -43,7 +43,7 @@
 ## Authorities
 
 - [ ] Use digest-pinned OCI authority references for governed identities.
-- [ ] Leave `keeper.authority.arbitrary.enabled` disabled unless raw signing is explicitly required.
+- [ ] Leave `keeper.authority.arbitrary.enabled` turned off unless raw signing is explicitly required.
 - [ ] Treat `arbitrary` identities as raw-signing identities.
 - [ ] Pin authority OCI references by digest.
 - [ ] Do not mix `arbitrary` with concrete authorities on the same identity.
@@ -62,7 +62,7 @@
 ## Audit
 
 - [ ] Configure at least one audit sink.
-- [ ] Decide whether audit sink failure blocks operations.
+- [ ] Decide whether operations must stop when an audit sink fails.
 - [ ] Test audit verification.
 - [ ] Alert on audit sink outage.
 - [ ] Restart all peers after an integrity-key rotation so process-local peer pins are re-enrolled.
@@ -80,5 +80,5 @@
 - [ ] Test recovery from one sealed or unavailable peer.
 - [ ] Test denied policy and denied permission paths.
 - [ ] Keep a runbook for `SESSION_MAX_ROUNDS_EXCEEDED`, quorum failure, and audit outage.
-- [ ] Define the response to suspected mono-key exposure before quorum promotion; promotion alone does not remove prior copies.
-- [ ] Rotate any GG20 generation exposed to a protocol version that transmitted MtA masks or permitted reusable signing state; refresh does not remove that exposure.
+- [ ] Before quorum promotion, define how to respond to suspected mono-key exposure, including copies that may remain outside the cluster.
+- [ ] Rotate any GG20 generation exposed to a protocol version that transmitted MtA masks or permitted reusable signing state. Refresh does not remove that exposure.

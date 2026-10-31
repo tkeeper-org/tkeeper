@@ -27,6 +27,6 @@ authority "test:bitcoin/btc-small-output" {
 }
 ```
 
-Use `outputs`, `inputs`, `fee`, `sighash`, `signing` and `effects` to constrain the whole transaction. The example limits total output and fee; add an explicit destination check for your wallet. Keeper signs the selected input with `SIGHASH_ALL`. It returns a signature; there is no Bitcoin transaction composer. The wallet constructs and broadcasts the final transaction.
+Use `outputs`, `inputs`, `fee`, `sighash`, `signing` and `effects` to constrain the whole transaction. The example limits total output and fee. Add an explicit destination check for your wallet. Keeper signs the selected input with `SIGHASH_ALL`. It returns a signature. There is no Bitcoin transaction composer. The wallet constructs and broadcasts the final transaction.
 
-Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction. The wallet remains responsible for construction, freshness, fees, and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

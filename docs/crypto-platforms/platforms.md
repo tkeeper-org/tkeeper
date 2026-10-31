@@ -41,7 +41,7 @@ Some features require a platform:
 | `x509` | `ecc` |
 | `ecies` | `ecc` |
 
-Include the required platform with each feature. See the [full feature matrix](../deployment/build-and-features.md#feature-and-platform-matrix), including agentic payments and recovery.
+Include the required platform with each feature. The [full feature matrix](../deployment/build-and-features.md#feature-and-platform-matrix) also lists agentic payments and recovery.
 
 ## Operational note
 

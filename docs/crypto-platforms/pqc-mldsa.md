@@ -25,19 +25,19 @@ Use `MLDSA` as the signature scheme. Attach authorities and submit commands as d
 
 Threshold signing follows the three-round construction in
 [Efficient Threshold ML-DSA](https://inria.hal.science/hal-05442192v1/document):
-parties commit to their sampled value, reveal it after all commitments are
-fixed, and produce per-party rejection-sampled responses for a challenge bound
-to the aggregate commitment and message. The combiner applies the ML-DSA norm
+parties first commit to their sampled values. After the commitments are fixed,
+they reveal those values. The challenge binds the aggregate commitment and message,
+and each party produces its rejection-sampled response. The combiner applies the ML-DSA norm
 and hint bounds and verifies the final standard ML-DSA signature before release.
 
-TKeeper additionally binds each attempt to an exact configured signer set, the
+TKeeper binds each attempt to an exact configured signer set, the
 stored aggregate public key, materialized message, and one-shot session state.
 The adversarial regressions and their limits are listed in
 [Security Assurance](../security-model/security-assurance.md).
 
 ## Signing availability
 
-Threshold ML-DSA signing can abort during rejection sampling even when peers are healthy. TKeeper retries with fresh session state up to:
+Rejection sampling can stop a threshold ML-DSA signing attempt even when peers follow the protocol. TKeeper retries with fresh session state up to:
 
 ```text
 keeper.session.mldsa.max-rounds
@@ -72,4 +72,4 @@ Use rotate or a new DKG when new ML-DSA material is required.
 
 ## Import and promotion
 
-Use [Trusted Dealer Import](../key-management/trusted-dealer-import.md) to bring in an existing key, or [Quorum Promotion](../key-management/quorum-promotion.md) to move a mono deployment to threshold custody. Both preserve the public key. Copies of the original full key remain usable; rotate when prior exposure is unacceptable.
+Use [Trusted Dealer Import](../key-management/trusted-dealer-import.md) to bring in an existing key, or [Quorum Promotion](../key-management/quorum-promotion.md) to move a mono deployment to threshold custody. Both preserve the public key. Copies of the original full key remain usable. Rotate when prior exposure is unacceptable.

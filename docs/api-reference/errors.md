@@ -24,9 +24,9 @@ Fields:
 | `details` | optional diagnostic detail |
 | `imposters` | peers identified as bad where the protocol can identify them |
 | `dead` | peers that were unavailable or failed to respond where tracked |
-| `approvals` | approval groups required to resubmit an operation; omitted for ordinary errors |
+| `approvals` | approval groups required to resubmit an operation. Omitted for ordinary errors |
 
-`imposters` is not guaranteed for every failure. Threshold ML-DSA can abort normally during rejection sampling without identifying an imposter.
+`imposters` is not guaranteed for every failure. Threshold ML-DSA can stop during normal rejection sampling without identifying an imposter.
 
 ## Common outcomes
 
@@ -39,8 +39,8 @@ Fields:
 | `APPROVER_ALREADY_REGISTERED` | normalized key belongs to another id | existing registrar assignment |
 | `WEBAUTHN_REGISTRATION_INVALID` | invalid/expired invitation or invalid/conflicting ceremony (400) | invitation token, session, browser response and RP/origin |
 | `WEBAUTHN_REGISTRATION_LIMIT` | active registration capacity exhausted (429) | per-actor and cluster session limits |
-| `WEBAUTHN_NOT_AVAILABLE` | WebAuthn registration is disabled or lacks its platform (503) | `keeper.webauthn` and P256 availability |
-| `APPROVER_REPLICATION_UNAVAILABLE` | a member is unavailable or registry preparation/delivery is unresolved (503) | all current members and durable pending work; TTL does not unlock signed reservations |
+| `WEBAUTHN_NOT_AVAILABLE` | WebAuthn registration is turned off or lacks its platform (503) | `keeper.webauthn` and P256 availability |
+| `APPROVER_REPLICATION_UNAVAILABLE` | a member is unavailable or registry preparation/delivery is unresolved (503) | all current members and durable pending work. TTL does not unlock signed reservations |
 | `APPROVER_METADATA_REVISION_REQUIRED` | missing `If-Match` header (428) | current record's ETag |
 | `APPROVER_METADATA_REVISION_MISMATCH` | stale or invalid `If-Match` (412) | read current metadata and reconcile before replacing |
 | `APPROVAL_REQUIRED` | an authority decision requires external proofs | required `approvals` groups, then [construct a fresh approval envelope and hash](../security-model/four-eye-control.md#building-hashforsigning) |
@@ -61,5 +61,5 @@ For the complete enum, see [`../../openapi.yaml`](../../openapi.yaml).
 - Do not retry permission or policy denials blindly.
 - Retry availability errors only with deadlines.
 - Treat `imposters` as security telemetry.
-- Treat empty `imposters` as inconclusive, not proof that no peer misbehaved.
+- An empty `imposters` list is inconclusive. It does not establish that peers followed the protocol.
 - Log `details`, but do not build business logic on unstable detail text.

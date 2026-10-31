@@ -2,7 +2,7 @@
 
 Build with `-Pkeeper.features=xrp -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `xrp.transaction`.
 
-`artifact.transaction` contains unsigned transaction hex. XRP amounts and fees are drops; 1 XRP is 1,000,000 drops.
+`artifact.transaction` contains unsigned transaction hex. XRP amounts and fees are drops. 1 XRP is 1,000,000 drops.
 
 ```edict
 authority "test:xrp/native-payment" {
@@ -25,6 +25,6 @@ authority "test:xrp/native-payment" {
 }
 ```
 
-Roots include `type`, `account`, `fee`, `sequence`, `lastLedgerSequence` and `effects`. A missing destination tag is `null`, distinct from tag zero. Check every effect; an extra batch payment must not bypass recipient or total checks. Keeper checks the native signing account and supports secp256k1 and Ed25519. The composer returns signed transaction hex.
+Roots include `type`, `account`, `fee`, `sequence`, `lastLedgerSequence` and `effects`. A missing destination tag is `null`, distinct from tag zero. Check every effect. An extra batch payment must not bypass recipient or total checks. Keeper checks the native signing account and supports secp256k1 and Ed25519. The composer returns signed transaction hex.
 
-Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction. The wallet remains responsible for construction, freshness, fees, and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

@@ -20,7 +20,7 @@ Read:
 | Quorum promotion | moving a mono identity into threshold custody | same identity |
 | Destroy | removing an old generation | active generation stays |
 
-Refresh behavior is algorithm-specific. Threshold ECC replaces the peer shares while preserving the same aggregate key. ML-DSA advances the generation while carrying each peer's existing share and public key forward unchanged; it performs no cryptographic refresh.
+Refresh behavior is algorithm-specific. Threshold ECC replaces the peer shares while preserving the same aggregate key. ML-DSA advances the generation while carrying each peer's existing share and public key forward unchanged. It does not refresh the cryptographic material.
 
 ## Security notes
 

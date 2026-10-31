@@ -1,6 +1,6 @@
 # Architecture
 
-The public API accepts client requests; the internal API carries threshold protocol messages between peers. Each node has its own database and seal provider. Features and cryptographic platforms are selected when building the artifact.
+The public API accepts client requests. The internal API exchanges threshold protocol messages between peers. Each node has its own database and seal provider. Features and cryptographic platforms are selected when building the artifact.
 
 ## Main path
 
@@ -31,8 +31,8 @@ For threshold operations, the coordinator starts the session, but peers validate
 | Audit layer | Records security-relevant decisions and can block operations if required sinks fail |
 | Storage | Local key share state, metadata, authorities, audit state, and side data |
 
-Approvers, WebAuthn enrollment, configuration discovery and the permitted identity
-catalog are core APIs. Registry writes require every current member; ordinary threshold
+Approvers, WebAuthn enrollment, configuration discovery, and the permitted identity
+catalog are core APIs. Registry writes require every current member. Ordinary threshold
 signing still requires only its configured quorum. Registered references resolve from
 each peer's local copy of the registry.
 

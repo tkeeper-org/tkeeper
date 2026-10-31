@@ -1,4 +1,4 @@
-# Error Tracking (Sentry)
+# Error tracking (Sentry)
 
 Sentry is initialized at startup if it is enabled.
 
@@ -22,10 +22,10 @@ SENTRY_APPLICATION_RELEASE
 
 ## Common problems
 
-### Sentry stays disabled
+### Sentry stays turned off
 
 Check that `sentry.enabled` is `true` and that the DSN is valid.
 
 ### Bad DSN
 
-The DSN must be `http` or `https`, include user info, include a host, and end with a numeric project id.
+Use an `http` or `https` DSN with user info and a host. Its path must end with a numeric project id.

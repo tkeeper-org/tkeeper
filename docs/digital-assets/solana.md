@@ -2,7 +2,7 @@
 
 Build with `-Pkeeper.features=solana -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `solana.transaction`.
 
-`artifact.transaction` contains a Base64 encoded unsigned transaction. Native amounts are lamports; 1 SOL is 1,000,000,000 lamports.
+`artifact.transaction` contains a Base64 encoded unsigned transaction. Native amounts are lamports. 1 SOL is 1,000,000,000 lamports.
 
 ```edict
 authority "test:solana/native-transfer" {
@@ -27,7 +27,7 @@ Roots include `version`, `feePayer`, `recentBlockhash`, `requiredSignatures` and
 
 ## Program interfaces
 
-Declare a program's instruction layout when its arguments and accounts must be checked directly. This is the System Program transfer layout: a four-byte discriminator followed by a little-endian `u64` lamport amount.
+Declare a program's instruction layout when its arguments and accounts must be checked directly. The System Program transfer encodes a four-byte discriminator followed by a little-endian `u64` lamport amount.
 
 ```edict
 authority "solana-system-transfer" {
@@ -56,6 +56,6 @@ authority "solana-system-transfer" {
 }
 ```
 
-The native binding must consume every instruction. Unknown programs, discriminators, trailing bytes, or incompatible account privileges fail intent validation. Local program structs describe nested wire arguments; use the program's actual Borsh layout and discriminator.
+The native binding must consume every instruction. Unknown programs, discriminators, trailing bytes, or incompatible account privileges fail intent validation. Local program structs describe nested wire arguments. Use the program's actual Borsh layout and discriminator.
 
-Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction. The wallet remains responsible for construction, freshness, fees, and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

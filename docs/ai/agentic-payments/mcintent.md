@@ -40,8 +40,8 @@ authority "test:mcintent/purchases" {
 }
 ```
 
-The artifact supplies `mode`, unsigned JWS `signingInput` and the referenced SD-JWT `disclosures`. Use the mode selected by the authority config; the default is `PAIRED`. `PAYMENTS` and `CHECKOUTS` expose the corresponding standalone actions, so write rules for their action kind and available data.
+The artifact supplies `mode`, unsigned JWS `signingInput` and the referenced SD-JWT `disclosures`. Use the mode selected by the authority config. The default is `PAIRED`. `PAYMENTS` and `CHECKOUTS` expose the corresponding standalone actions, so write rules for their action kind and available data.
 
-In paired mode, `payment`, `checkout` and `action` describe the current purchase. `purchases` contains the whole request; `request.allAmountsKnown` lets the policy reject an uncomputable total. Every action must pass, and any deny wins. Check both per-purchase and aggregate limits to prevent splitting an over-limit request.
+In paired mode, `payment`, `checkout` and `action` describe the current purchase. `purchases` contains the whole request. `request.allAmountsKnown` lets the policy reject an uncomputable total. Signing requires every action to pass. A deny result rejects the request. Check both per-purchase and aggregate limits to prevent splitting an over-limit request.
 
-Keeper verifies the configured checkout signatures and credential bindings. The composer returns a signed credential layer; it does not execute, capture or settle a payment. For signing inputs, disclosure rules and delegated credentials, see the [payment signing contract](README.md) and [module reference](../../../features/agentic-payments/README.md). See [Edict](../../signing-and-authorities/edict.md) for language syntax.
+Keeper verifies the configured checkout signatures and credential bindings. The composer returns a signed credential layer. It does not execute, capture, or settle a payment. For signing inputs, disclosure rules and delegated credentials, see the [payment signing contract](README.md) and [module reference](../../../features/agentic-payments/README.md). See [Edict](../../signing-and-authorities/edict.md) for language syntax.

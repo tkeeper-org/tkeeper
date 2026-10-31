@@ -2,7 +2,7 @@
 
 Build with `-Pkeeper.features=tron -Pkeeper.platforms=ecc`. Select an OCI authority whose Edict `intent` is `tron.transaction`.
 
-`artifact.transaction` contains unsigned TRON transaction JSON. Amounts and fees are sun; 1 TRX is 1,000,000 sun.
+`artifact.transaction` contains unsigned TRON transaction JSON. Amounts and fees are sun. 1 TRX is 1,000,000 sun.
 
 ```edict
 authority "test:tron/native-transfer" {
@@ -24,6 +24,6 @@ authority "test:tron/native-transfer" {
 }
 ```
 
-Roots include `hash`, `timestamp`, `expiration`, `feeLimit` and `effects`. The signing key must match the owner of the single owner-authorized contract; nonzero permission ids and additional auths are rejected. The composer returns signed transaction JSON. TRC-20/interface authoring is not exposed by this Keeper profile.
+Roots include `hash`, `timestamp`, `expiration`, `feeLimit` and `effects`. The signing key must match the owner of the transaction's only owner-authorized contract. Nonzero permission ids and additional auths are rejected. The composer returns signed transaction JSON. TRC-20/interface authoring is not exposed by this Keeper profile.
 
-Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction; the wallet remains responsible for construction, freshness, fees and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.
+Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction. The wallet remains responsible for construction, freshness, fees, and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

@@ -1,4 +1,4 @@
-# Agentic Payment Authorities
+# Agentic payment authorities
 
 AP2 and Mastercard Verifiable Intent (MC VI) sign ES256 JWS inputs with a P-256 key. Both use Keeper's authority, approval, and signing pipeline.
 
@@ -9,6 +9,6 @@ AP2 and Mastercard Verifiable Intent (MC VI) sign ES256 JWS inputs with a P-256 
 
 Build both with `-Pkeeper.features=agentic-payments -Pkeeper.platforms=ecc`, or select one feature from the table. Each guide contains a complete Edict authority and explains its request fields.
 
-`signingInput` is the exact unpadded base64url JWS header and payload joined by `.`. Supply every disclosure referenced by the mandate. Keeper checks their commitments, evaluates every action against the authority policy, and signs the unchanged input. `/v2/keeper/sign` returns the raw signature; [Composer](../../signing-and-authorities/composer.md) returns a serialized `PaymentCredential` layer.
+`signingInput` is the exact unpadded base64url JWS header and payload joined by `.`. Supply every disclosure referenced by the mandate. Keeper checks the disclosure commitments before evaluating the actions against authority policy. Signing preserves the supplied input. `/v2/keeper/sign` returns the raw signature. [Composer](../../signing-and-authorities/composer.md) returns a serialized `PaymentCredential` layer.
 
-The caller supplies issuer, audience, nonce, time, and parent-binding claims. The recipient verifies the credential chain, merchant identity, audience, expiry, and replay rules. Keeper checks the outgoing layer's content commitments; parent credentials and merchant signatures need verification by the recipient. See the [module contract](../../../features/agentic-payments/README.md) for supported profiles and disclosure rules.
+The caller supplies issuer, audience, nonce, time, and parent-binding claims. The recipient verifies the credential chain, merchant identity, audience, expiry, and replay rules. Keeper checks the outgoing layer's content commitments. Parent credentials and merchant signatures need verification by the recipient. See the [module contract](../../../features/agentic-payments/README.md) for supported profiles and disclosure rules.

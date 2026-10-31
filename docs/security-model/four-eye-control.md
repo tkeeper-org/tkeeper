@@ -1,6 +1,6 @@
-# Four Eye Control
+# Four-eye control
 
-Four-eye control can be unconditional at the key level or selected by an authority policy for a particular typed signing intent. TKeeper requires the configured number of distinct approver proofs before continuing. Both support ordinary signatures and WebAuthn assertions through pinned [Approvers registry refs](../api-reference/approvers.md#pin-a-registered-approver-in-a-policy).
+Four-eye control can be unconditional at the key level or selected by an authority policy for a typed signing intent. TKeeper requires the configured number of distinct approver proofs before continuing. Both support ordinary signatures and WebAuthn assertions through pinned [Approvers registry refs](../api-reference/approvers.md#pin-a-registered-approver-in-a-policy).
 
 ## Key policy shape
 
@@ -30,26 +30,26 @@ Four-eye control can be unconditional at the key level or selected by an authori
 
 Rules:
 
-- `mode` is `STRICT` or `LENIENT`; omitted values default to `STRICT`
-- `m` must be at least `1`; `1 of 1` and `1 of n` require one valid proof from a configured approver
+- `mode` is `STRICT` or `LENIENT`. Omitted values default to `STRICT`
+- `m` must be at least `1`. `1 of 1` and `1 of n` require one valid proof from a configured approver
 - `m` cannot be greater than `n`
 - `keys.size` must equal `n`
 - duplicate approver keys are rejected
 - approver public keys must decode under the declared algorithm
-- approver algorithms must be present in the runtime artifact; ECC provides `SECP256K1`, `P256`, and `ED25519`, while the optional PQC platform adds `MLDSA44`, `MLDSA65`, and `MLDSA87`
+- approver algorithms must be present in the runtime artifact. ECC provides `SECP256K1`, `P256`, and `ED25519`, while the optional PQC platform adds `MLDSA44`, `MLDSA65`, and `MLDSA87`
 
 An entry may instead be `{"ref":"alice@sha256:<digest>"}`. Use the complete ref returned by
-registration. References and inline entries can coexist in a group; mixed `ref` and inline fields
+registration. References and inline entries can coexist in a group. Mixed `ref` and inline fields
 in one entry are rejected. Duplicate-key checks run after resolution. The immutable descriptor
 selects SIGNATURE or WEBAUTHN, and a WebAuthn ref cannot be approved by a raw signature.
 
 `STRICT` preserves the original behavior: approvals are required for every operation protected by the key policy, including signing, decrypting, rotating, refreshing, and destroying a generation.
 
-`LENIENT` protects key lifecycle changes: `ROTATE`, `REFRESH`, and generation destruction. Signing and decryption proceed without key-bound approvals. Initial `CREATE` has no stored key policy to enforce; a `fourEye` policy supplied during creation protects later operations. Authentication, permissions, authority policies, and audit checks still apply.
+`LENIENT` protects key lifecycle changes: `ROTATE`, `REFRESH`, and generation destruction. Signing and decryption proceed without key-bound approvals. Initial `CREATE` has no stored key policy to enforce. A `fourEye` policy supplied during creation protects later operations. Authentication, permissions, authority policies, and audit checks still apply.
 
 ## Policy-driven approvals
 
-Edict declares approvers at authority scope. A conditional `require` adds a group when its condition matches; it does not grant allow. Every selected group and every key-bound four-eye group must be satisfied.
+Edict declares approvers at authority scope. A conditional `require` adds a group when its condition matches. It does not grant allow. Every selected group and every key-bound four-eye group must be satisfied.
 
 ```edict
 authority "reviewed-command" {
@@ -101,15 +101,15 @@ At the coordinator boundary, the nonce is one-time and is consumed only after ev
 group has enough valid proofs. Consumed nonces are retained for `keeper.nonce-ttl` (12 hours
 by default), so a coordinator restart does not reopen the replay window. The approval timestamp
 must not be in the future and must fit `keeper.approval.ttl`. Nonce retention must be strictly
-longer than the approval lifetime; physical FIFO cleanup can occur later.
+longer than the approval lifetime. Physical FIFO cleanup can occur later.
 
 Once the operation's approval requirements have been collected, responses include
 `X-EXPIRES-AT` on success and approval failure. It is the original approval deadline in Unix
 seconds: `(approvals.timestamp + keeper.approval.ttl) / 1000`, truncated to whole seconds.
 Repeated preparation or a corrected proof does not renew that window. An expired envelope
-needs a fresh nonce, timestamp and proofs. See [approval deadlines](../api-reference/configuration.md#approval-deadlines).
+needs a fresh nonce, timestamp, and proofs. See [approval deadlines](../api-reference/configuration.md#approval-deadlines).
 
-Threshold protocol retries reuse the same approval. Non-coordinator peers therefore verify its signatures, approved request fields, and TTL without independently consuming the nonce. If the coordinator is compromised, it can replay an approval with those same fields only while it remains fresh; see the threat model.
+Threshold protocol retries reuse the same approval. Non-coordinator peers verify its signatures, approved request fields, and TTL without independently consuming the nonce. If the coordinator is compromised, it can replay an approval with those same fields only while it remains fresh. See the threat model.
 
 The coordinator peer id in `approvals.keeperId` must match the peer coordinating the operation.
 
@@ -131,16 +131,16 @@ A key-policy entry with `webAuthn` accepts WebAuthn assertions only. An entry wi
 }
 ```
 
-Use the complete ref returned by the [Approvers registration API](../api-reference/approvers.md#register-webauthn-from-a-hub) in a key or authority policy. Existing inline WebAuthn key policies remain supported; import their public key, credential id, user handle, and backup eligibility from a trusted registration flow. Changing pinned parameters on an existing key requires REFRESH/ROTATE approved under its current policy. Duplicate public keys are rejected across both methods and both representations; duplicate `(rpId, credentialId)` pairs are also rejected.
+Use the complete ref returned by the [Approvers registration API](../api-reference/approvers.md#register-webauthn-from-a-hub) in a key or authority policy. Existing inline WebAuthn key policies remain supported. Import their public key, credential id, user handle, and backup eligibility from a trusted registration flow. Changing pinned parameters on an existing key requires REFRESH/ROTATE approved under its current policy. Duplicate public keys are rejected across both methods and both representations. Duplicate `(rpId, credentialId)` pairs are also rejected.
 
-The initial WebAuthn algorithm is ES256/P-256. User presence and user verification are mandatory. Origins match exactly, including port, and must use HTTPS; explicitly configured HTTP localhost origins are allowed for development. Subdomain matching, iframe/cross-origin ceremonies, and AppID compatibility are disabled. [Yubico server verification](https://developers.yubico.com/java-webauthn-server/) implements the WebAuthn assertion checks.
+The initial WebAuthn algorithm is ES256/P-256. User presence and user verification are mandatory. Origins match exactly, including port, and must use HTTPS. Explicitly configured HTTP localhost origins are allowed for development. Subdomain matching, iframe/cross-origin ceremonies, and AppID compatibility are turned off. [Yubico server verification](https://developers.yubico.com/java-webauthn-server/) verifies WebAuthn assertions.
 
-`clientDataJSON` must contain UTF-8 JSON; a leading UTF-8 BOM is accepted. Duplicate object fields, trailing JSON values, invalid encodings, and oversized assertion fields are rejected before assertion signature verification. Both JSON and internal MessagePack reject null entries in proof lists.
+`clientDataJSON` must contain UTF-8 JSON. A leading UTF-8 BOM is accepted. Duplicate object fields, trailing JSON values, invalid encodings, and oversized assertion fields are rejected before assertion signature verification. Both JSON and internal MessagePack reject null entries in proof lists.
 
 To collect approvals:
 
 1. Construct the operation with `approvals.keeperId`, a fresh nonce, timestamp, and an empty proofs list.
-2. Send `{ "type": "sign", "operation": <request> }` to `POST /v1/keeper/approvals/prepare`. Core types are `sign`, `dkg`, and `destroy`; ECIES adds `decrypt`. The caller needs primary authentication and permission for the enclosed operation. Preparation evaluates current policies without admitting the operation or consuming its nonce.
+2. Send `{ "type": "sign", "operation": <request> }` to `POST /v1/keeper/approvals/prepare`. Core types are `sign`, `dkg`, and `destroy`. ECIES adds `decrypt`. The caller needs primary authentication and permission for the enclosed operation. Preparation evaluates current policies without admitting the operation or consuming its nonce.
 3. Use the returned `webAuthn[].publicKey` options with `navigator.credentials.get`. Decode the base64url challenge and credential ids into byte arrays, or use `PublicKeyCredential.parseRequestOptionsFromJSON` where supported. `userVerification` is `required`.
 4. Attach the browser's standard assertion JSON with its matching credential id and the unchanged signed `binding`:
 
@@ -152,17 +152,17 @@ const proof = {
 };
 ```
 
-5. Add any ordinary signature proofs and submit the original operation. Adding proofs does not change `hashForSigning`. Both methods share the same approval envelope and cumulative group enforcement. A key counts once within a group, regardless of repeated proofs. Each entry requires the method selected by its descriptor; an authority group can contain both signature and WebAuthn registry refs.
+5. Attach any ordinary signature proofs to the original operation and submit it with the same `hashForSigning`. Both methods share the same approval envelope and cumulative group enforcement. A key counts once within a group, regardless of repeated proofs. Each entry requires the method selected by its descriptor. An authority group can contain both signature and WebAuthn registry refs.
 
-Preparation requires primary authentication (for example JWT) and the enclosed operation's permission. A one-time mandate cannot authorize the preparation wrapper. Preparation consumes neither an approval nonce nor a mandate. After collecting proofs, execute the operation with either JWT or an already issued mandate. Failed approval checks leave the mandate available for a corrected submission; successful admission consumes it through the existing mandate flow.
+Preparation requires primary authentication (such as JWT) and the enclosed operation's permission. A one-time mandate cannot authorize the preparation wrapper. Preparation consumes neither an approval nonce nor a mandate. After collecting proofs, execute the operation with either JWT or an already issued mandate. Failed approval checks leave the mandate available for a corrected submission. Successful admission consumes it through the existing mandate flow.
 
-WebAuthn uses the approval operation providers to resolve the operation type, permission, and external/internal representations. It does not require `HasGrantBinding` or registration as a mandate operation. JWT and mandate authentication retain their existing authorization checks; FourEye verifies approvals independently in both cases.
+WebAuthn uses the approval operation providers to resolve the operation type, permission, and external/internal representations. It does not require `HasGrantBinding` or registration as a mandate operation. JWT and mandate authentication retain their existing authorization checks. FourEye verifies approvals independently in both cases.
 
-The server creates a random 32-byte challenge and signs a binding containing the operation hash/type, coordinator, selected source generation, current approval requirements, and validity window. Its signature covers the canonical JSON with domain `TKEEPER_WEBAUTHN_CHALLENGE_V1`, payload, and signature metadata with an empty `signature64`. Peers verify the receipt against the authenticated coordinator's pinned integrity key and independently verify the assertion. Its expiry cannot exceed `approvals.timestamp + keeper.approval.ttl`; changed operations, generations, policies, or receipt fields fail verification.
+The server creates a random 32-byte challenge and signs a binding containing the operation hash/type, coordinator, selected source generation, current approval requirements, and validity window. Its signature covers the canonical JSON with domain `TKEEPER_WEBAUTHN_CHALLENGE_V1`, payload, and signature metadata with an empty `signature64`. Peers verify the receipt against the authenticated coordinator's pinned integrity key and independently verify the assertion. Its expiry cannot exceed `approvals.timestamp + keeper.approval.ttl`. Changed operations, generations, policies, or receipt fields fail verification.
 
-Verification has no mutable credential state. Zero counters and repeated internal checks are supported; signature counters are not used for clone detection. The existing durable, atomic approval nonce admission prevents external replay, including concurrent submissions and coordinator restarts. An incomplete quorum does not consume the nonce. Internal protocol retries retain the existing approval replay window described above. Integrity-key changes require fresh preparation when peers no longer pin the receipt's signing key. Roll out this format to all participating peers before enabling a WebAuthn policy.
+Verification has no mutable credential state. Zero counters and repeated internal checks are supported. Signature counters are not used for clone detection. After a complete quorum passes verification, atomic nonce admission prevents external replay across concurrent submissions and coordinator restarts. An incomplete quorum leaves the nonce available. Internal protocol retries retain the previously described approval replay window. Integrity-key changes require fresh preparation when peers no longer pin the receipt's signing key. Roll out this format to all participating peers before enabling a WebAuthn policy.
 
-Java SDK: `client.approvals().prepare(new PrepareApprovals(type, operationJson))` returns the browser options and binding. Both `SignatureProof(fingerprint, signature64)` and `WebAuthnProof(fingerprint, binding, assertionJson)` implement `Proof`. Use `new WebAuthnProof(fingerprint, prepared.binding(), assertionJson)` to attach an assertion. SDK callers constructing the former `Approvals.Proof` record must switch to `new SignatureProof(fingerprint, signature64)`; the signature JSON format is unchanged.
+Java SDK: `client.approvals().prepare(new PrepareApprovals(type, operationJson))` returns the browser options and binding. `Proof` is the common interface for `SignatureProof(fingerprint, signature64)` and `WebAuthnProof(fingerprint, binding, assertionJson)`. Use `new WebAuthnProof(fingerprint, prepared.binding(), assertionJson)` to attach an assertion. SDK callers constructing the former `Approvals.Proof` record must switch to `new SignatureProof(fingerprint, signature64)`. The signature JSON format is unchanged.
 
 ## Signature algorithms
 
@@ -187,7 +187,7 @@ base64(sha256(encoded-public-key))
 
 Key-bound approval keys come from the selected generation's policy. Authority-policy groups come from matching allow rules or the fallback. TKeeper requires every applicable group before proceeding.
 
-All approvers sign one `hashForSigning`. All proofs travel in one `approvals.proofs` array with one `keeperId`, nonce, and timestamp. Combined enforcement requires every key-bound and policy-bound group; it creates no second request or hash.
+All approvers sign one `hashForSigning`. Submit the proofs in one `approvals.proofs` array with one `keeperId`, nonce, and timestamp. Combined enforcement requires every key-bound and policy-bound group. It does not create another request or hash.
 
 Policy-bound groups apply to typed `Sign` requests. Key-bound groups apply according to their mode:
 
@@ -196,7 +196,7 @@ Policy-bound groups apply to typed `Sign` requests. Key-bound groups apply accor
 | `STRICT` | `Sign`, `ROTATE`, `REFRESH`, ECIES `Decrypt`, and `Destroy` |
 | `LENIENT` | `ROTATE`, `REFRESH`, and `Destroy` |
 
-Initial `CREATE` has no stored key policy. A `fourEye` policy carried by `CREATE` starts protecting the key after generation 1 becomes active.
+Initial `CREATE` has no stored key policy. A `fourEye` policy included in `CREATE` starts protecting the key after generation 1 becomes active.
 
 A policy-only request with an empty proof list returns `APPROVAL_REQUIRED` and the required `policyId`, rule or fallback `source`, and `threshold`. The caller supplies the approval envelope and calculates the hash.
 
@@ -233,7 +233,7 @@ signature64 = base64(signature-bytes)
 
 ECDSA signatures use compact `r || s` bytes with an optional recovery-id byte. Ed25519 uses its 64-byte detached signature. ML-DSA uses the encoded detached signature for the declared parameter set.
 
-The Java SDK models `Sign`, `Generate`, `Decrypt`, and `KeyDestroyReference` implement `Approvable`:
+Use the `Approvable` interface with the Java SDK models `Sign`, `Generate`, `Decrypt`, and `KeyDestroyReference`:
 
 ```java
 var approvals = Approvals.template(
@@ -255,7 +255,7 @@ request.addProof(new SignatureProof(
 client.signature().sign(request);
 ```
 
-`approvalSigner` denotes the application's HSM, wallet, or external approval service.
+`approvalSigner` denotes the app's HSM, wallet, or external approval service.
 
 ### Sign
 
@@ -312,7 +312,7 @@ Copy a non-null request `tweak` into the preimage root.
 
 ### DKG: `CREATE`, `ROTATE`, and `REFRESH`
 
-`Generate.hashForSigning()` covers all three modes. The `mode` string belongs to the signed data, so a proof for one mode fails for the other two.
+`Generate.hashForSigning()` supports `CREATE`, `ROTATE`, and `REFRESH`. The `mode` string belongs to the signed data, so a proof for one mode fails for the other two.
 
 Example `ROTATE` request:
 
@@ -357,7 +357,7 @@ For Java SDK requests, pass `KeyGenMode.CREATE`, `KeyGenMode.ROTATE`, or `KeyGen
 
 ### ECIES decrypt
 
-ECIES encryption uses public key material and carries no approvals. Decrypt uses the key-bound policy stored with the requested generation. An omitted `generation` selects the active generation and leaves `generation` out of the preimage.
+ECIES encryption uses public key material and does not require approvals. Decrypt uses the key-bound policy stored with the requested generation. An omitted `generation` selects the active generation and leaves `generation` out of the preimage.
 
 Request:
 
@@ -445,7 +445,7 @@ Canonicalization rules:
 hashForSigning = SHA-256(UTF-8(canonical-json))
 ```
 
-Feed those 32 bytes directly to the approver algorithm. Hexadecimal and Base64 encodings serve display and transport. ECDSA consumes the supplied digest; Ed25519 and ML-DSA consume the 32 bytes as their message.
+Feed those 32 bytes directly to the approver algorithm. Hexadecimal and Base64 encodings serve display and transport. ECDSA consumes the supplied digest. Ed25519 and ML-DSA consume the 32 bytes as their message.
 
 Canonical Sign vector:
 
@@ -462,7 +462,7 @@ Expected SHA-256: `ad0a5caa1cf84dcfb4b0012ac5af306ebb8938b1cafe4f0ab0d4e6232b135
 - Any change to the approved request body requires new approvals.
 - Approval signatures are only as trustworthy as approver key custody.
 - Approval tooling should render the canonical operation from the signed fields. A trusted human summary that is not bound to the approval hash can mislead the approver.
-- Nonce uniqueness prevents approval reuse inside TKeeper; downstream replay rules are still required for the resulting cryptographic proof.
+- Nonce uniqueness prevents approval reuse inside TKeeper. Downstream replay rules are still required for the resulting cryptographic proof.
 
 ## Common failures
 

@@ -19,14 +19,14 @@ The recovery plan must account for:
 Back up each peer independently. Do not collect enough peer databases, unseal shares, or seal credentials into one backup account or location to defeat the threshold and seal boundaries.
 
 Full peer database snapshots include that peer's Approvers replica and its integrity keys,
-WebAuthn registration state, signed preparations, certificates and durable replication outbox.
+WebAuthn registration state, signed preparations, certificates, and durable replication outbox.
 Registration and metadata changes require every current member before API success. Surviving
-members can finish delivery of a complete confirmation after writer failure; partially signed
+members can finish delivery of a complete confirmation after writer failure. Partially signed
 reservations retain their protective locks after TTL. Check exact refs, metadata revisions,
-runtime observations, sessions and uniqueness conflicts after restoring.
+runtime observations, sessions, and uniqueness conflicts after restoring.
 
 ECC and PQC share recovery also restore the core Approvers registry from agreeing healthy
-helpers. This does not replace backups of peer identity, integrity keys, TLS or seal state.
+helpers. This does not replace backups of peer identity, integrity keys, TLS, or seal state.
 
 ## Snapshot rules
 
@@ -34,7 +34,7 @@ helpers. This does not replace backups of peer identity, integrity keys, TLS or 
 - Encrypt backups and restrict restore access as tightly as live key-share storage.
 - Record the TKeeper version, artifact digest, features, platforms, peer id, and snapshot time with each backup.
 - Protect backups from silent rollback or replacement and retain the audit trail for backup and restore operations.
-- Test access to external HSM or KMS keys; a database backup without its seal dependency may be intentionally unrecoverable.
+- Test access to external HSM or KMS keys. A database backup without its seal dependency may be intentionally unrecoverable.
 
 ## Restore validation
 
@@ -47,7 +47,7 @@ Restore a peer in an isolated environment before reconnecting it to the cluster.
 5. Compare the restored generation state with healthy peers and the audit history.
 6. Rejoin only after the state difference is understood.
 
-An older backup may represent a generation that the cluster has already rotated, refreshed, destroyed, or repaired. Do not run consistency fix as an automatic restore step; use it only when the operator can establish which quorum state is safe.
+An older backup may represent a generation that the cluster has already rotated, refreshed, destroyed, or repaired. Do not run consistency fix as an automatic restore step. Use it only when the operator can establish which quorum state is safe.
 
 ## Share recovery mode
 
@@ -82,7 +82,7 @@ artifact and run that artifact on every helper and target only for the repair wi
 - The target peer id is not in the helper list.
 - The helpers agree on the complete key history and have no pending state for the key.
 - The helpers have no uncommitted Approvers preparations and agree on the registry
-  snapshot, including metadata, runtime, registration sessions and certificates at a shared cutoff.
+  snapshot, including metadata, runtime, registration sessions, and certificates at a shared cutoff.
 - Public TLS, internal mTLS with client authentication, outbound client mTLS, and a distinct
   `tls-spki-sha256` pin for every peer are configured.
 - Initialization, database identity, integrity, TLS, and seal state are intact on the target.
@@ -119,7 +119,7 @@ local retry state and are not copied to the recovery target.
    the expected state. Read every generation's public key while recovery mode is still enabled.
 7. Repeat for each damaged logical key.
 8. Rebuild the normal production artifact with the deployment's regular feature and platform
-   selectors, without `recovery`. For example, the default production features and both platforms:
+   selectors, without `recovery`. To use the default production features with both platforms:
 
    ```bash
    ./gradlew :build -Pkeeper.features=all -Pkeeper.platforms=all
@@ -139,19 +139,20 @@ If a selected helper is missing or has conflicting key state, the request fails 
 The target first obtains an identical manifest from every selected helper. Only after validation
 does it replace all local state for that logical key in one database transaction. The rebuild covers:
 
-- active key material for every non-destroyed generation;
-- signed versioned metadata, policies, authorities, owner, and expiration data;
-- the current-generation pointer and historical inventory;
-- destroy markers;
-- ECC commitments or ML-DSA public keys and recovery commitments; and
+- active key material for every non-destroyed generation.
+- Signed versioned metadata, policies, authorities, owner, and expiration data.
+- The current-generation pointer and historical inventory.
+- Destroy markers.
+- ECC commitments or ML-DSA public keys and recovery commitments. And
 - derived owner and expiration indexes.
 
 In the same transaction, the target replaces its global Approvers registry using the validated
-helper snapshot: immutable versions, metadata revisions, both uniqueness indexes, WebAuthn
-runtime, completed/active registration sessions and commit certificates. Restored data is signed
-with the target's integrity key. Helpers with unresolved preparations refuse export; certified
-commits remain exportable while their local delivery queues are pending. Those queues stay local;
-disagreement fails recovery before target writes. A failure during key installation rolls back
+helper snapshot. The snapshot includes immutable versions with their metadata revisions and
+both uniqueness indexes. It also includes WebAuthn runtime, completed/active registration
+sessions, and commit certificates. Restored data is signed
+with the target's integrity key. Helpers with unresolved preparations refuse export. Certified
+commits remain exportable while their local delivery queues are pending. Recovery does not copy those queues to the target.
+Disagreement fails recovery before target writes. A failure during key installation rolls back
 the registry replacement too. Per-key cleanup alone does not clear the global registry.
 
 Target-local pending, missing, stale, or conflicting records for the key are discarded. A failure
@@ -166,7 +167,7 @@ key, provided the target database identity and other node-scoped state still exi
 
 ECC recovery uses exactly `threshold` remote helpers. Helpers exchange fresh pairwise masks and
 return masked Lagrange contributions. The target validates each reconstructed share against the
-generation's polynomial commitments. It works for any configured quorum with `1 < threshold < total`;
+generation's polynomial commitments. It works for any configured quorum with `1 < threshold < total`.
 `threshold = total` cannot recover a missing share because only `total - 1` shares survive.
 
 ML-DSA helpers return only replicated RSS components that belong to the target. The target validates
@@ -185,7 +186,7 @@ and the selected platform's recovery routes. Helpers reject recovery calls while
 mode. Startup fails if the artifact lacks the recovery feature or the required TLS and peer-pin
 configuration.
 
-Recovery repairs keeper state. It does not determine whether the lost or modified share was exposed.
+Recovery restores the keeper's stored state. It does not determine whether the lost or modified share was exposed.
 Rotate or reshare after recovery when required by the incident response decision.
 
 After repair, use a normal artifact built without `recovery`, as described in the
@@ -194,16 +195,16 @@ After repair, use a normal artifact built without `recovery`, as described in th
 ### ECC mask boundary
 
 The mask construction hides an honest helper contribution from the target colluding with up to
-`t - 2` helpers. A malicious helper can cause the final commitment check to fail; this version does
+`t - 2` helpers. A malicious helper can cause the final commitment check to fail. This version does
 not include a zero-knowledge proof that attributes that denial of service. Secret scalar arithmetic
 uses random quotient blinding, pair masks, and one secure modular reduction, but the bigint backend
-is not a formally verified fixed-width constant-time field implementation. Co-resident timing and
+is not a formally verified fixed-width constant-time field arithmetic. Co-resident timing and
 microarchitectural attackers remain outside the protocol's threat model.
 
 Within one recovery session each helper caches its contribution, so retries return the same value
 and do not create a second equation. Every new session uses independent CSPRNG pair masks. Reusing a
-pair mask in a session with a different helper set (and therefore a different Lagrange coefficient)
-would reveal that helper's share; the signed transcript binds the session id, target, canonical
+pair mask in a session with a different helper set (and a different Lagrange coefficient)
+would reveal that helper's share. The signed transcript binds the session id, target, canonical
 helper set, algorithm, generation, commitments, metadata, and expiry, and rejects such reuse.
 
 Mask exchange needs `t(t - 1) / 2` deliveries and allows at most 64 concurrent

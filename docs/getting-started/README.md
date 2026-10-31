@@ -1,4 +1,4 @@
-# Getting Started
+# Getting started
 
 Follow [Local Single Node](local-single-node.md) to initialize TKeeper, create a key, sign a message, and verify the signature. The example uses developer authentication and `mono` mode. Its `arbitrary` authority signs raw bytes without intent policy.
 

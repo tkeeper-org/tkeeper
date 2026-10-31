@@ -2,7 +2,7 @@
 
 Use TKeeper when the executing system can require a signature from a specific key before acting.
 
-| Scenario | Command | Verifier | Application responsibilities |
+| Scenario | Command | Verifier | App responsibilities |
 | --- | --- | --- | --- |
 | AI | Governed command, AP2 or MC VI payment, production action | tool backend or credential verifier | model security, sandboxing, and risk detection |
 | Digital assets | Bitcoin, EVM, Tron, XRP, or Solana transaction | chain client, broadcaster, or custody backend | transaction construction, broadcast, and settlement monitoring |

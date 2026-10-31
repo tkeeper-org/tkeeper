@@ -1,4 +1,4 @@
-# Authentication and Authorization
+# Authentication and authorization
 
 Protected public API requests require authentication and an operation-specific permission. Key permissions can be scoped to a key id.
 
@@ -71,7 +71,7 @@ Tokens must contain:
 
 If `auth.jwt.issuer` is configured, `iss` must match it. Configure issuer in production.
 
-`aud` may be a single value or an array. TKeeper checks that it contains `auth.jwt.audience`.
+`aud` may be a value or an array. TKeeper checks that it contains `auth.jwt.audience`.
 
 `nbf` is optional. When present, TKeeper rejects the token before that time.
 
@@ -80,7 +80,7 @@ If `auth.jwt.issuer` is configured, `iss` must match it. Configure issuer in pro
 The optional [mandate module](../../features/mandate/README.md) authorizes a specific
 operation for later execution. Issue it with a primary credential, then submit the
 operation with `X-KEEPER-MANDATE` and any required approvals. The mandate replaces
-the primary credential for that request; current policies are checked again.
+the primary credential for that request. Current policies are checked again.
 
 Permissions are explicit strings:
 
@@ -128,12 +128,12 @@ This grants signing on all one-segment key ids except `hot-wallet`.
 | `tkeeper.storage.write` | trusted-dealer import |
 | `tkeeper.consistency.fix` | run consistency fix |
 | `tkeeper.expired.view` | read key-expiration indexes |
-| `tkeeper.integrity.rotate` | rotate audit integrity key |
+| `tkeeper.integrity.rotate` | rotate the key used to sign audit events |
 | `tkeeper.audit.log.verify` | verify signed audit log lines |
 | `tkeeper.compliance.inventory` | read asset inventory |
 | `tkeeper.quorum.promote` | promote mono to threshold |
 | `tkeeper.control.system` | read control-plane system state |
-| `tkeeper.control.sinks` | read control-plane audit sink state |
+| `tkeeper.control.sinks` | read the state of audit sinks through the control plane |
 
 Keep destructive and lifecycle permissions narrower than signing permissions.
 
@@ -141,7 +141,7 @@ Keep destructive and lifecycle permissions narrower than signing permissions.
 
 Peer-to-peer calls use TKeeper's internal request signing. This is separate from public API authentication.
 
-Each internal request carries:
+Internal requests include:
 
 ```text
 X-INSTANCE-ID
@@ -154,23 +154,23 @@ X-BOOT-PROOF
 X-SIGNATURE
 ```
 
-The request signature binds the HTTP method, path, canonical query, body hash, intended peer, timestamp, nonce, boot proof, and any forwarded actor token. The nonce must be unique and the timestamp must be fresh. Accepted nonces share the persistent RocksDB replay store with four-eye approvals and are retained for `keeper.nonce-ttl` (12 hours by default). The configured retention must exceed the full 60-second internal request acceptance window; physical FIFO cleanup can occur later.
+The request signature binds the HTTP method, path, canonical query, body hash, intended peer, timestamp, nonce, boot proof, and any forwarded actor token. The nonce must be unique and the timestamp must be fresh. Accepted nonces share the persistent RocksDB replay store with four-eye approvals and are retained for `keeper.nonce-ttl` (12 hours by default). The configured retention must exceed the full 60-second internal request acceptance window. Physical FIFO cleanup can occur later.
 
 The external JWT or dev token is forwarded on protected internal entrypoints. Signing,
-DKG initialization, trusted-dealer import, destroy prepare and consistency mutations
+DKG initialization, trusted-dealer import, destroy prepare, and consistency mutations
 independently enforce actor permissions. Registry management entrypoints also check
-their respective Approvers permissions. WebAuthn registration finish requires a valid
-primary token and invitation, with no additional permission; the writer validates
+their Approvers permissions. WebAuthn registration finish requires a valid
+primary token and invitation, with no additional permission. The writer validates
 the forwarded token independently. Protocol rounds, certified registry delivery and
-marker-bound commit or abort calls use peer authentication and stored state.
+marker-bound commit or cancellation calls use peer authentication and stored state.
 
-On first contact, a peer proves its integrity key with the shared bootstrap token. After that, the integrity key is pinned for the lifetime of the process. If `keeper.peers[].tls-spki-sha256` is configured, TKeeper first verifies that the mTLS client certificate matches the claimed peer id; this removes network-first bootstrap enrollment from the trust decision.
+On first contact, a peer proves its integrity key with the shared bootstrap token. After that, the integrity key is pinned for the lifetime of the process. If `keeper.peers[].tls-spki-sha256` is configured, TKeeper first verifies that the mTLS client certificate matches the claimed peer id. This removes network-first bootstrap enrollment from the trust decision.
 
-Authenticated internal responses carry the peer identity, request hash and nonce, response timestamp, body hash, boot proof, and `X-RESPONSE-SIGNATURE`. The caller verifies the status, content type, and body before accepting the response. Unsigned, replayed, cross-peer, or request-substituted responses are rejected.
+Authenticated internal responses include the peer identity, request hash and nonce, response timestamp, body hash, boot proof, and `X-RESPONSE-SIGNATURE`. The caller verifies the status, media type, and body before accepting the response. Unsigned, replayed, cross-peer, or request-substituted responses are rejected.
 
-Protected internal routes require TLS outside dev mode. Mutual TLS with per-peer SPKI binding authenticates the transport peer; signed requests and responses separately bind protocol content and session intent.
+Protected internal routes require TLS outside dev mode. Mutual TLS with per-peer SPKI binding authenticates the transport peer. Signed requests and responses separately bind protocol content and session intent.
 
-Protect the bootstrap token as cluster enrollment authority. Without mTLS SPKI binding, an attacker that can reach an unenrolled peer and knows the token may be able to pin an attacker-controlled peer identity before the legitimate peer connects.
+Protect the bootstrap token as cluster enrollment authority. Without mTLS SPKI binding, an attacker with network access to an unenrolled peer and knowledge of the token may be able to pin an attacker-controlled peer identity before the legitimate peer connects.
 
 Forwarded bearer credentials remain visible to a malicious recipient peer. Use short-lived tokens, restrict protected internal paths, and enable internal mTLS. Sender-constrained external credentials require deployment-specific mTLS, DPoP, or request-signing support and are not inferred from an ordinary bearer token.
 
@@ -182,4 +182,4 @@ The token is missing, invalid, expired, has the wrong issuer or audience, or is 
 
 ### `ACCESS_DENIED`
 
-The token is valid, but the `permissions` claim does not allow the operation. Check negative permissions too; a matching negative permission wins over a broad grant.
+The token is valid, but the `permissions` claim does not allow the operation. Check negative permissions too. A matching negative permission rejects the request even when a broad grant matches.

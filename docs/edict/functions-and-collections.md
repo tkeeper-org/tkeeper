@@ -1,10 +1,10 @@
 # Functions and collections
 
-Use functions to name a check or calculation that the policy repeats. Use collection operations to apply that check to every item, count matches or calculate a total.
+Use functions to name a check or calculation that the policy repeats. Collection operations apply a check to each item. They can also count matches or calculate a total.
 
 ## Immutable bindings
 
-`let` names a value and cannot be reassigned. An authority-level binding holds a constant. A policy-level binding may read the request:
+`let` names a value and cannot be reassigned. An authority-level binding defines a constant. A policy-level binding may read the request:
 
 ```edict
 let maximum = 1000
@@ -27,9 +27,9 @@ fn permittedCountry(country: Text): Boolean {
 
 Call it with `permittedCountry(request.recipient.country)`. Arguments and return values are checked at compilation. Parameter and result annotations can be omitted when usage provides enough information. An unused function needs parameter annotations so the compiler can check its body.
 
-Native modules provide simple object type names, such as `Transaction` and `Certificate`. A declared contract method also provides its parameter type, such as `usdc.transfer`. Pass a present method value directly to a helper; its parameters have no `arguments` wrapper.
+Native modules provide simple object type names, such as `Transaction` and `Certificate`. A declared contract method also provides its parameter type, such as `usdc.transfer`. Pass a present method value directly to a helper. Its parameters have no `arguments` wrapper.
 
-Functions use explicit `return`. Every possible path must return a compatible value. Functions cannot recurse or call arbitrary Java methods. Pass request data as parameters; functions do not obtain it through an implicit request context.
+Functions use explicit `return`. Every possible path must return a compatible value. Functions cannot recurse or call arbitrary Java methods. Pass request data as parameters. Functions do not obtain it through an implicit request context.
 
 ## Lists and lambdas
 
@@ -66,11 +66,11 @@ Declare a map as `Map<Text, T>`. Keys are always text, including numeric-looking
 let limits: Map<Text, Number> = {USD = 1000, EUR = 500}
 ```
 
-Maps are immutable and sort their keys in case-sensitive UTF-16 order. Ordering is independent of insertion order and locale: uppercase `A` comes before lowercase `a`. Text is not normalized; different Unicode spellings remain different keys.
+Maps are immutable and sort their keys in case-sensitive UTF-16 order. Ordering is independent of insertion order and locale: uppercase `A` comes before lowercase `a`. Text is not normalized. Different Unicode spellings remain different keys.
 
 | Expression | Result |
 | --- | --- |
-| `limits["USD"]` | Value for `USD`; fails when absent |
+| `limits["USD"]` | Value for `USD`. Fails when absent |
 | `"USD" in limits` | Whether the key exists |
 | `"USD" not in limits` | Whether the key is absent |
 | `limits.count()` | `Integer` count of entries |
@@ -78,14 +78,14 @@ Maps are immutable and sort their keys in case-sensitive UTF-16 order. Ordering 
 | `limits.values()` | Values in that same key order |
 | `limits.entries()` | Records with `key` and `value`, in key order |
 
-An existing key with a null value is still present. `Map<Text, Number?>` permits such values; `Map<Text, Number>` does not. Map operations take no arguments. Use `values()` or `entries()` to obtain a list before applying a lambda.
+An existing key with a null value is still present. `Map<Text, Number?>` permits such values. `Map<Text, Number>` does not. Map operations take no arguments. Use `values()` or `entries()` to obtain a list before applying a lambda.
 
 ```edict
 request.payments.entries().all(entry -> entry.value.amount > 0)
 request.payments.values().sum(payment -> payment.amount)
 ```
 
-Use bracket lookup for dynamic keys. `limits.USD` is record-field access and is not supported on a map. Keys may be empty strings; constrain the allowed keys in your policy when the application needs a narrower naming rule.
+Use bracket lookup when a key is supplied at runtime. `limits.USD` is record-field access and is not supported on a map. Keys may be empty strings. Constrain the allowed keys in your policy when the app needs a narrower naming rule.
 
 ## Local variables and loops
 
@@ -101,9 +101,9 @@ fn total(payments: Map<Text, Number>): Number {
 }
 ```
 
-`var` may be reassigned with `=`, `+=` or `-=` inside a function. Assignment must preserve its type. It does not make a list, map or input mutable. A `for` loop iterates a finite list; use `map.entries()` to visit map entries. There is no `while` loop.
+`var` may be reassigned with `=`, `+=` or `-=` inside a function. Assignment must preserve its type. It does not make a list, map, or input mutable. A `for` loop iterates a finite list. Use `map.entries()` to visit map entries. There is no `while` loop.
 
-`var result = 0` infers `Integer`. Use `var result: Number = 0` for an accumulator that receives decimal values; an inferred integer variable cannot be widened by a later assignment.
+`var result = 0` infers `Integer`. Use `var result: Number = 0` for an accumulator that receives decimal values. An inferred integer variable cannot be widened by a later assignment.
 
 Use `if (...) { ... } else { ... }` for conditional steps. A return exits the function. Loops, lambdas and function calls share the request's execution budget.
 
@@ -134,4 +134,4 @@ authority "invoice-limits" {
 
 The matching `artifact.typed` can be `{"invoice-42":250,"invoice-43":100}`. Reordering those fields changes neither the total nor the decision. Adding an amount as a string fails input validation.
 
-Next: [Decisions and approvals](decisions-and-approvals.md).
+Continue with [Decisions and approvals](decisions-and-approvals.md).

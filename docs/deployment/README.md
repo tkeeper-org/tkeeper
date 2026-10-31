@@ -21,7 +21,7 @@ Read:
 | Production mono | Lower-impact workflows that accept single-node compromise | One node holds full key authority |
 | Threshold cluster | High-risk workflows | Quorum of peers must authorize and participate |
 
-Both modes use the same public API. Mono stores a full key on one host; threshold splits it across peers.
+Both modes use the same public API. Mono stores a full key on one host. Threshold splits it across peers.
 
 ## Production defaults
 
@@ -32,7 +32,7 @@ For production:
 - include every required platform explicitly
 - use a production authenticator
 - keep the internal API private to the cluster
-- terminate public API access behind explicit network policy and rate limits
+- restrict public API access through network policy and rate limits
 - configure audit sinks before relying on compliance evidence
 - keep lifecycle/import/destroy permissions separate from signing
 - use threshold mode for identities with real financial, security, or compliance consequences

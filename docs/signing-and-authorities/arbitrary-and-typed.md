@@ -2,11 +2,11 @@
 
 ## Raw signing
 
-`arbitrary` signs raw bytes after key access checks. Enable it with `keeper.authority.arbitrary.enabled = true` and attach it as the key's only authority. It provides no semantic policy checks on those bytes.
+`arbitrary` signs raw bytes after key access checks. Enable it with `keeper.authority.arbitrary.enabled = true` and attach it as the key's only authority. It does not check semantic policy for those bytes.
 
 ## Typed JSON
 
-Use `custom` for an application command described by JSON. Its Edict document declares exactly one object input, `request`. The object may be a closed record or `Map<Text, T>`. Define reusable shapes with `struct`; declare defaults and optional fields in the document.
+Use `custom` for an app command described by JSON. Its Edict document declares exactly one object input, `request`. The object may be a closed record or `Map<Text, T>`. Define reusable shapes with `struct`. Declare defaults and optional fields in the document.
 
 ```edict
 authority "test:custom/recipients" {
@@ -54,7 +54,7 @@ var command = Command.of("test:custom/recipients", artifact);
 var signature = client.signature().sign(Sign.of(keyId, command));
 ```
 
-A missing `status` uses `READY`. A missing `labels` uses `[]`; a missing `note` becomes `null`. Unknown fields in a record, missing required fields and wrong types fail validation. Maps accept dynamic text keys and validate each value. Numeric strings are not coerced to numbers. Decimal and large integer values retain their exact value through parsing and peer transport. The control-plane command schema is generated from the compiled Edict input.
+A missing `status` uses `READY`. A missing `labels` uses `[]`. A missing `note` becomes `null`. Unknown fields in a record, missing required fields, and wrong types fail validation. Maps accept text keys supplied at runtime and validate each value. Numeric strings are not coerced to numbers. Decimal and large integer values retain their exact value through parsing and peer transport. The control-plane command schema is generated from the compiled Edict input.
 
 ## Signing bytes
 
@@ -66,10 +66,10 @@ Keeper signs the submitted `artifact.typed` object, without adding schema defaul
 4. Apply the artifact's `hash`: `NONE`, `SHA256`, `SHA512` or `KECCAK256`.
 5. Pass the result to the selected signature scheme.
 
-Use `TKeeperJackson.signingBytes` when constructing the same bytes in a Java consumer. This is Keeper's signing format; it is not a claim of conformance to another JSON canonicalization standard.
+Use `TKeeperJackson.signingBytes` when constructing the same bytes in a Java consumer. This is Keeper's signing format. It is not a claim of conformance to another JSON canonicalization standard.
 
 Decimal scale is preserved: `1.2300` and `1.23` evaluate as equal numbers but produce different signing bytes. Floating-point nodes use their decimal text representation, so the SDK and Keeper serialize scientific notation consistently. Use `BigDecimal` when constructing exact amounts.
 
-The executing service must verify the signature and authority identity, apply the same document revision and defaults, and execute the declared command. A signature over JSON does not establish whether user-supplied assertions are true. Bind external approvals or attestations to this command and check their origin in the application.
+The executing service must verify the signature and authority identity. It must execute the declared command using the same document revision and defaults. A signature over JSON does not establish whether user-supplied assertions are true. Bind external approvals or attestations to this command and check their origin in the app.
 
 See [Edict](edict.md) for language syntax and [Authorities](authorities.md) for OCI publication.

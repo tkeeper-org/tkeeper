@@ -43,3 +43,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Local Vale configuration ###
+/.vale.ini
+/styles/

@@ -1,4 +1,4 @@
-# Create, Rotate, and Refresh
+# Create, rotate, and refresh
 
 The key id is the logical identity. A generation is the version of cryptographic material or share state used by that identity.
 
@@ -27,8 +27,8 @@ Modes:
 | Mode | Meaning |
 | --- | --- |
 | `CREATE` | new cryptographic identity |
-| `ROTATE` | new generation under the same logical id; the public key changes |
-| `REFRESH` | new generation with the same public key; material behavior is algorithm-specific |
+| `ROTATE` | new generation under the same logical id. The public key changes |
+| `REFRESH` | new generation with the same public key. Material behavior is algorithm-specific |
 
 Required permission is selected from `mode`:
 
@@ -47,8 +47,8 @@ generation when a refresh or rotation promotes a new one. New requests use the a
 generation and its controls. If generation or metadata changes between policy checks
 and admission, the request fails with `INCONSISTENT_KEEPER`.
 
-Each DKG attempt owns the key's session and pending state on its participating peers.
-Another attempt cannot run phases or abort that session. Consistency repair, import,
+The key's session and pending state on participating peers are bound to one DKG attempt.
+Another attempt cannot run phases or stop that session. Consistency repair, import,
 and quorum promotion reject changes to pending state while its DKG owner is active.
 After an interrupted attempt ends or expires, consistency repair can handle the
 remaining pending generation.
@@ -68,9 +68,9 @@ In `threshold` mode, TKeeper coordinates lifecycle changes across peers:
 - `CREATE` creates the first shared key generation
 - `ROTATE` creates a new shared key generation and changes the public key
 - ECC `REFRESH` creates new shares for the same public key
-- ML-DSA `REFRESH` carries each peer's existing share and public key into the new generation unchanged; it does not replace shares or refresh cryptographic material
+- ML-DSA `REFRESH` copies each peer's existing share and public key into the new generation unchanged. It does not replace shares or refresh cryptographic material
 
-Each peer stores its share, metadata, and public verification data for every generation. Back up the full peer database; key-share bytes alone are insufficient for restore.
+Each peer stores its share, metadata, and public verification data for every generation. Back up the full peer database. Key-share bytes alone are insufficient for restore.
 
 A legacy storage upgrade moves existing generations without changing their key material. Run `REFRESH` to create a signed generation with the same public key, or `ROTATE` to create one with a new key. After conversion, the legacy generation remains available for consistency rollback and inventory but cannot be used for historical processing. Reading storage does not trigger conversion.
 
@@ -120,7 +120,7 @@ Fields:
 | --- | --- |
 | `apply` | deadline for operations that create a new effect |
 | `process` | deadline for operations that process existing material |
-| `fourEye` | m-of-n approval policy; `STRICT` protects every supported operation, `LENIENT` protects `ROTATE`, `REFRESH`, and generation destruction |
+| `fourEye` | m-of-n approval policy. `STRICT` protects every supported operation, `LENIENT` protects `ROTATE`, `REFRESH`, and generation destruction |
 | `allowHistoricalProcess` | allow process operations against historical generations |
 
 `unit` can be `SECONDS` or `MILLISECONDS`.
@@ -158,7 +158,7 @@ Destroy works on a specific generation. `generation` must be greater than zero. 
 
 In mono mode, destroy is local-only. Any non-current generation can be destroyed. The current generation cannot be destroyed.
 
-In threshold mode, destroy is coordinated across peers. Commit and abort are bound to the peer that prepared the signed destroy session. The current generation cannot be destroyed, and a generation must be at least two generations behind the active one. This keeps the cluster away from deleting material that may still be needed while a lifecycle operation is settling.
+In threshold mode, destroy is coordinated across peers. Commit and cancellation are bound to the peer that prepared the signed destroy session. The current generation cannot be destroyed, and a generation must be at least two generations behind the active one. This protects material that an unsettled lifecycle operation may still need.
 
 ## Consistency fix
 
@@ -174,7 +174,7 @@ tkeeper.consistency.fix
 
 Use consistency fix when peers disagree about active key state and the system can safely repair from quorum data.
 
-It is meant for interrupted `CREATE`, `ROTATE`, or `REFRESH` flows. It can sync a pending generation, clean stale pending state, or roll back to a majority-active generation when that is the only safe result. If no safe active generation has quorum support, TKeeper fails closed and does not start another DKG automatically; repair the inconsistency before rotating.
+It is meant for interrupted `CREATE`, `ROTATE`, or `REFRESH` flows. It can sync a pending generation or clean stale pending state. When required for consistency, it rolls back to a majority-active generation. If no safe active generation has quorum support, TKeeper fails closed and does not start another DKG automatically. Repair the inconsistency before rotating.
 
 Consistency fix is for threshold mode. Mono lifecycle operations are local, so there is no peer state to reconcile.
 
@@ -224,7 +224,7 @@ The key time policy expired. Check `policy.apply`, `policy.process`, and the ope
 
 ### `NOT_COORDINATOR`
 
-You called a coordinator-only endpoint on a node with coordinator disabled. Call a coordinator peer.
+You called a coordinator-only endpoint on a node with coordinator turned off. Call a coordinator peer.
 
 ### `DESTROY_FORBIDDEN`
 

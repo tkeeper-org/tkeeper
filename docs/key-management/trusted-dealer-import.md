@@ -1,4 +1,4 @@
-# Trusted Dealer Import
+# Trusted dealer import
 
 Trusted dealer imports an existing private key into the current quorum mode.
 

@@ -44,9 +44,9 @@ Keep the internal API private to the cluster. Do not expose it as a public servi
 
 ## Coordinator
 
-Coordinator-enabled nodes accept operations that start sessions, such as signing and DKG. Non-coordinator peers can still participate in threshold protocols.
+Coordinator-enabled nodes accept signing and DKG requests that start sessions. Non-coordinator peers can still participate in threshold protocols.
 
-Disable coordinator endpoints on a peer:
+Turn off coordinator endpoints on a peer:
 
 ```text
 KEEPER_COORDINATOR_ENABLED=false
@@ -72,7 +72,7 @@ Use [Troubleshooting](../operations/troubleshooting.md) for operator symptoms.
 
 ## Upgrade discipline
 
-Run the same release artifact, feature set, and platform set on every peer. Do not assume mixed-version protocol compatibility unless that exact upgrade path has been tested. Typed JSON commands in this release use an exact-number peer encoding; upgrade all peers and the SDK together.
+Run the same release artifact, feature set, and platform set on every peer. Do not assume mixed-version protocol compatibility unless that exact upgrade path has been tested. Typed JSON commands in this release use an exact-number peer encoding. Upgrade all peers and the SDK together.
 
 During a rollout:
 
@@ -85,6 +85,6 @@ During a rollout:
 
 - one compromised peer should not be enough to authorize as the identity
 - policy integrity becomes quorum-bound only if enough peers enforce the same policy state
-- restrict lifecycle permissions separately; they can replace or destroy key state
+- restrict lifecycle permissions separately. They can replace or destroy key state
 - trusted-dealer import depends on trusting the dealer path
 - threshold mode does not replace host, network, seal, or audit hardening

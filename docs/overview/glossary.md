@@ -4,7 +4,7 @@
 
 Rules attached to a key that define an accepted command type and its policy. Raw `arbitrary` authority accepts bytes without intent policy.
 
-Examples: arbitrary bytes signing, typed commands, EVM transactions, Bitcoin transactions, X.509 certificate issuance.
+Examples include signing arbitrary bytes or typed commands. Authorities also cover native formats such as EVM transactions, Bitcoin transactions, and X.509 certificate requests.
 
 ## Authority path
 
@@ -76,7 +76,7 @@ The quorum mode where key material is split across peers and an operation needs 
 
 ## Trusted dealer
 
-A source that holds an existing private key and imports it into TKeeper. Threshold import splits that key into peer shares; copies retained by the dealer remain usable.
+A source that has an existing private key and imports it into TKeeper. Threshold import splits that key into peer shares. Copies retained by the dealer remain usable.
 
 ## Verifier
 

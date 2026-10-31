@@ -10,14 +10,14 @@ The core control plane provides:
 | --- | --- |
 | `GET /v1/keeper/control/auth/config` | Public authentication and OIDC configuration |
 | `GET /v1/keeper/control/capabilities` | Installed cryptographic algorithms and supported operations |
-| `GET /v2/keeper/config` | Current quorum, loaded modules, authority types and seal provider |
+| `GET /v2/keeper/config` | Current quorum, loaded modules, authority types, and seal provider |
 | `GET /v1/keeper/control/identities` | Active identities the caller may sign with |
 | `GET /v1/keeper/control/identities/authority` | An attached authority's description and command schema |
 | `GET /v1/keeper/control/me` | Current authenticated subject and permissions |
 
 Except for public authentication configuration, these endpoints require the configured
 primary authentication. Production clients send a JWT in `X-JWT-TOKEN` over HTTPS.
-System and audit sink endpoints require their respective control-plane permissions.
+System and audit sink endpoints require their control-plane permissions.
 Catalog access depends on signing permission for each key.
 
 [Approvers](../api-reference/approvers.md) provides credential registration and metadata

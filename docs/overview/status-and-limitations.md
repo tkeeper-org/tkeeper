@@ -1,14 +1,14 @@
-# Status and Limitations
+# Status and limitations
 
 These limits affect signing availability, key custody, and the checks required in an integration.
 
-## Current shape
+## Supported operations
 
 TKeeper supports:
 
 - mono and threshold key modes
 - governed signing
-- key lifecycle operations: DKG, import, refresh, rotate, destroy
+- key lifecycle operations through DKG, import, refresh, rotation, and destruction
 - authority-based signing commands
 - four-eye control for supported operations
 - replicated signature and WebAuthn approver registry with immutable policy references
@@ -28,7 +28,7 @@ Missing features make their endpoints or command types unavailable. Include the 
 
 ## ML-DSA limits
 
-Threshold ML-DSA signing is probabilistic. A healthy operation can abort during rejection sampling and retry with fresh session state.
+Threshold ML-DSA signing is probabilistic. Rejection sampling can stop an attempt even when peers follow the protocol. TKeeper retries with fresh session state.
 
 The retry cap is controlled by:
 
@@ -46,7 +46,7 @@ ML-DSA refresh advances the generation while carrying each peer's existing share
 
 Failure injection is only for integration tests.
 
-The development integration image includes controls that can corrupt or delete key state. Do not deploy it in production. Regular production builds exclude failure injection. Recovery requires explicit selection and a temporary maintenance deployment; see [Backup and Recovery](../deployment/backup-and-recovery.md).
+The development integration image includes controls that can corrupt or delete key state. Do not deploy it in production. Regular production builds exclude failure injection. Recovery requires explicit selection and a temporary maintenance deployment. See [Backup and Recovery](../deployment/backup-and-recovery.md).
 
 ## Trusted dealer import
 
@@ -64,13 +64,13 @@ Policy can be bypassed when:
 - broad permissions allow unintended operations
 - operators enable dev authentication without protecting its token and permissions as production credentials
 
-Cryptographic validity alone does not establish business validity, freshness, or replay safety. The verifier must accept the expected key, validate the exact governed payload, and enforce any nonce, expiry, environment, or idempotency rules required by the action.
+Cryptographic validity alone does not establish business validity, freshness, or replay safety. The verifier must check the expected key and the exact governed payload. It must also enforce the action's requirements for nonces, expiry, environment, and idempotency.
 
 ## Operational limits
 
 Approver registration, WebAuthn enrollment and metadata writes require every current member
 to be ready and persist the result. One unavailable member stops these writes even when enough
-peers remain for signing. A failed write can leave durable preparations or delivery work; expiry
+peers remain for signing. A failed write can leave durable preparations or delivery work. Expiry
 does not release protective locks on a partially signed proposal. Retry an identical registration
 after recovery and reconcile metadata revisions before replacing them. See
 [registry persistence](../api-reference/approvers.md#persistence).
@@ -90,10 +90,10 @@ Threshold cryptography adds distributed-system failure modes:
 
 These costs must be included in availability targets and incident runbooks.
 
-Quorum is not backup. Each peer has local state and independent seal dependencies; recovery must preserve enough shares without collapsing them into one administrative failure domain.
+Quorum is not backup. Each peer has local state and independent seal dependencies. Recovery must preserve enough shares without collapsing them into one administrative failure domain.
 
 Do not assume mixed-version peer compatibility. Validate the exact upgrade path and keep the cluster on a consistent artifact, feature set, and platform set.
 
 ## Security review boundary
 
-The [Threat Model](../security-model/threat-model.md) lists trust assumptions and residual risks. [Security Assurance](../security-model/security-assurance.md) maps tested behavior to executable evidence; passing those tests does not prove security outside their coverage.
+The [Threat Model](../security-model/threat-model.md) lists trust assumptions and residual risks. [Security Assurance](../security-model/security-assurance.md) maps tested behavior to executable evidence within the coverage stated for each test.

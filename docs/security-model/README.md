@@ -1,4 +1,4 @@
-# Security Model
+# Security model
 
 For concrete authorities, TKeeper checks caller permissions, authority policy, required approvals, key state, and configured audit before signing. In threshold mode, enough peers must accept the operation and contribute.
 
@@ -12,7 +12,7 @@ Read:
 - [Quorum Modes](quorum-modes.md)
 - [Authentication and Authorization](authentication-authorization.md)
 - [Audit Logging](audit-logging.md)
-- [Four Eye Control](four-eye-control.md)
+- [Four-eye control](four-eye-control.md)
 
 ## Security goals
 
@@ -37,7 +37,7 @@ TKeeper does not:
 - replace host, network, container, or HSM hardening
 - act as a standalone AI firewall, AML system, or fraud engine
 - make `arbitrary` raw signing semantically governed
-- guarantee availability when fewer than the required peers are healthy
+- guarantee availability when fewer than the required peers are available
 - prevent replay when the signed intent and verifier do not enforce freshness
 
 ## Security review checklist
@@ -51,7 +51,7 @@ Ask these questions during review:
 - Are lifecycle/import/destroy permissions separated from signing?
 - Are authority artifacts digest-pinned?
 - Are `arbitrary` identities intentionally accepted as raw-signing identities?
-- Is developer authentication disabled, or explicitly accepted and protected as a production credential?
+- Is developer authentication turned off, or explicitly accepted and protected as a production credential?
 - Is the internal peer API private?
 - Are audit sinks configured and tested?
 - Is the integration image blocked from production deployment?

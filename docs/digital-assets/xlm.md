@@ -35,9 +35,9 @@ authority "test:xlm/native-payment" {
 }
 ```
 
-Amounts and fees are stroops; 1 XLM is 10,000,000 stroops. The example permits one native payment and rejects extra operations, issued-asset payments and fee-bump envelopes. Change the recipient, network and limits for the deployed authority.
+Amounts and fees are stroops. 1 XLM is 10,000,000 stroops. The example permits one native payment and rejects extra operations, issued-asset payments and fee-bump envelopes. Change the recipient, network, and limits for the deployed authority.
 
-The native profile exposes `type`, `hash`, `networkId`, `source`, `sourceAccount`, `feeSource`, `feeSourceAccount`, `fee`, `sequence`, `envelopeXdr`, `operations`, `effects` and optional `inner` fee-bump metadata. Each operation remains visible. Native payment effects include destination account and muxed-id fields. Other operations have distinct `xlm.*` effect types; explicitly allow the types you intend to sign.
+The native profile exposes `type`, `hash`, `networkId`, `source`, `sourceAccount`, `feeSource`, `feeSourceAccount`, `fee`, `sequence`, `envelopeXdr`, `operations`, `effects` and optional `inner` fee-bump metadata. Each operation remains visible. Native payment effects include destination account and muxed-id fields. Other operations have distinct `xlm.*` effect types. Explicitly allow the types you intend to sign.
 
 ## Soroban call
 
@@ -64,7 +64,7 @@ authority "test:xlm/soroban-limit" {
 }
 ```
 
-`symbol` and `u32` are Soroban wire types. The decoder checks the declared contract, method and argument layouts, including bounds. `limits.set_limit` contains the decoded invocations with direct `period` and `amount` fields; transaction facts come from the native envelope.
+`symbol` and `u32` are Soroban wire types. The decoder checks the declared contract, method and argument layouts, including bounds. `limits.set_limit` contains the decoded invocations with direct `period` and `amount` fields. Transaction facts come from the native envelope.
 
 This profile accepts v1 invocation envelopes with source-account authorization for the exact call. Different operation sources, address credentials, nested authorization grants, undeclared methods and additional non-invocation operations are rejected. It does not simulate a contract, fetch its state or authorize arbitrary grants on behalf of another account.
 
@@ -76,8 +76,8 @@ var command = Command.of("test:xlm/native-payment", artifact);
 var signed = client.signature().compose(Sign.of(keyId, command), SignedXlmTransaction.class);
 ```
 
-The composer verifies the Ed25519 signature and returns the signed envelope as Base64 in `rawTransaction`, plus `transactionHash`. A fee-bump signature covers the outer envelope and preserves the inner transaction and its signatures. The client broadcasts the returned envelope and checks network state, sequence, validity bounds and settlement.
+The composer verifies the Ed25519 signature and returns the signed envelope as Base64 in `rawTransaction`, plus `transactionHash`. A fee-bump signature covers the outer envelope and preserves the inner transaction and its signatures. The client broadcasts the returned envelope and checks network state, sequence, validity bounds, and settlement.
 
-To sponsor a fee, attach an authority that explicitly permits `type == "fee_bump"` to the outer fee source's key. The native-payment example above permits only v1 envelopes. A fee-bump policy should constrain the outer `fee`, every inner operation and its effects, including the additional `xlm.fee_bump` effect. The inner transaction's source key cannot sign in place of a different outer fee source.
+To sponsor a fee, attach an authority that explicitly permits `type == "fee_bump"` to the outer fee source's key. The preceding native-payment example permits only v1 envelopes. A fee-bump policy should constrain the outer `fee` and the additional `xlm.fee_bump` effect. The policy must also check each inner operation and its effects. A fee bump requires authorization from the outer fee source, even if another source signed the inner transaction.
 
 See [Edict](../signing-and-authorities/edict.md) for syntax and [Authorities](../signing-and-authorities/authorities.md) for OCI publication.

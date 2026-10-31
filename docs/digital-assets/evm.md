@@ -2,7 +2,7 @@
 
 Build with `-Pkeeper.features=evm -Pkeeper.platforms=ecc`. Submit the unsigned transaction bytes as Base64 in `artifact.message64`.
 
-For native transfers, `config.chainId` pins the network; roots include `chainId`, `to`, `value`, `gasLimit`, `transaction` and `effects`. Values are wei. For contract calls, declare the contract and ABI signatures in the Edict document:
+For native transfers, `config.chainId` pins the network. Roots include `chainId`, `to`, `value`, `gasLimit`, `transaction` and `effects`. Values are wei. For contract calls, declare the contract and ABI signatures in the Edict document:
 
 ```edict
 authority "test:evm/mainnet-usdc-transfer" {
@@ -31,11 +31,11 @@ authority "test:evm/mainnet-usdc-transfer" {
 }
 ```
 
-`address` and `uint256` are EVM wire types. The decoder binds the destination, selector and argument layout to this declaration. A call to another contract or method fails intent validation. `transaction.chainId`, `transaction.value` and `transaction.gasLimit` come from the native transaction. Native contract binding requires a chain id committed by the transaction; use a chain-bound typed transaction such as EIP-1559.
+`address` and `uint256` are EVM wire types. The decoder binds the destination, selector, and argument layout to this declaration. A call to another contract or method fails intent validation. `transaction.chainId`, `transaction.value` and `transaction.gasLimit` come from the native transaction. Native contract binding requires a chain id committed by the transaction. Use a chain-bound typed transaction such as EIP-1559.
 
 The sample uses test addresses. Replace the contract and recipient with the intended deployed addresses. Token amounts are raw integers: for a six-decimal token, `100000000` means 100 tokens. `transaction.value` is the native value sent with the call, independently of the token amount.
 
-For an allowance, declare `fn approve(spender: address, amount: uint256)` and constrain both fields. For a vault or tuple argument, declare its actual signature and local structs; do not describe effects through a JSON contract catalog.
+For an allowance, declare `fn approve(spender: address, amount: uint256)` and constrain both fields. Declare the signature and local structs required for a vault call or tuple argument. Do not describe effects through a JSON contract catalog.
 
 ## Authorizations and permits
 
@@ -47,7 +47,7 @@ The EVM feature also registers these signing intents:
 | `evm.2612` | `permit` | `domain`, `owner`, `spender`, `value`, `nonce`, `deadline` |
 | `evm.3009` | `authorization` | `domain`, `operation`, `authorizer`, `nonce`, `transfer` |
 
-`evm.7702` signs the [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization digest `keccak256(0x05 || rlp([chainId, address, nonce]))`. Supply those three fields in `artifact.authorization`. `address` identifies the delegate contract; the zero address revokes delegation. The nonce must be between `0` and `2^64 - 2`. A zero chain ID authorizes use across chains; an authority with `config.chainId = 1` rejects it. Omit the chain pin or set it to zero only when the policy deliberately permits that scope.
+`evm.7702` signs the [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization digest `keccak256(0x05 || rlp([chainId, address, nonce]))`. Supply those three fields in `artifact.authorization`. `address` identifies the delegate contract. Setting `address` to zero revokes the delegation. The nonce must be between `0` and `2^64 - 2`. A zero chain ID authorizes use across chains. An authority with `config.chainId = 1` rejects it. Omit the chain pin or set it to zero only when the policy deliberately permits that scope.
 
 ```edict
 authority "test:evm/delegate" {
@@ -67,7 +67,7 @@ authority "test:evm/delegate" {
 }
 ```
 
-For [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612), supply `domain`, `owner`, `spender`, `value`, `nonce` and `deadline` in `artifact.permit`. The domain contains exactly `name`, `version`, `chainId` and `verifyingContract`; signing uses that EIP-712 domain layout. Other domain layouts and DAI-style permits are rejected. Integer fields accept exact JSON integers or decimal strings.
+For [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612), supply `domain`, `owner`, `spender`, `value`, `nonce` and `deadline` in `artifact.permit`. The domain contains exactly `name`, `version`, `chainId` and `verifyingContract`. Signing uses that EIP-712 domain layout. Other domain layouts and DAI-style permits are rejected. Integer fields accept exact JSON integers or decimal strings.
 
 ```edict
 authority "test:evm/permit" {
@@ -93,7 +93,7 @@ authority "test:evm/permit" {
 
 [ERC-3009](https://eips.ethereum.org/EIPS/eip-3009) uses the same domain layout. Set `operation` to `transferWithAuthorization`, `receiveWithAuthorization` or `cancelAuthorization` inside `artifact.authorization`. Transfer and receive require `from`, `to`, `value`, `validAfter`, `validBefore` and a 32-byte hexadecimal `nonce`. Cancellation requires `authorizer` and `nonce`. Each operation uses its own EIP-712 type hash.
 
-In policy facts, `authorizer` is the signed `from` or `authorizer` address. `transfer` contains `from`, `to`, `value`, `validAfter` and `validBefore` for transfer and receive; it is null for cancellation. Guard access with `transfer != null` and constrain `operation` explicitly. Policy addresses and hexadecimal nonces use lowercase.
+In policy facts, `authorizer` is the signed `from` or `authorizer` address. `transfer` contains `from`, `to`, `value`, `validAfter` and `validBefore` for transfer and receive. It is null for cancellation. Guard access with `transfer != null` and constrain `operation` explicitly. Policy addresses and hexadecimal nonces use lowercase.
 
 ```edict
 authority "test:evm/receive" {
@@ -119,9 +119,9 @@ authority "test:evm/receive" {
 }
 ```
 
-The materializers require secp256k1 and verify that `owner`, `from` or `authorizer` matches the requested signing key, including its tweak. `config.chainId`, when present, must match the signed chain ID exactly. Policies must constrain the token domain, delegate or recipient, amount and validity bounds appropriate to the operation. Chain state determines whether a nonce remains usable and whether a deadline has expired.
+The materializers require secp256k1 and verify that `owner`, `from` or `authorizer` matches the requested signing key, including its tweak. `config.chainId`, when present, must match the signed chain ID exactly. Policies must pin the token domain and the delegate or recipient. Add amount and validity bounds appropriate to the operation. Chain state determines whether a nonce remains usable and whether a deadline has expired.
 
-Use `signature().sign(...)` with the SDK artifacts `Evm7702Authorization`, `Evm2612Permit` or `Evm3009Authorization`. The returned recoverable ECDSA signature signs the protocol digest directly. Submit it through the corresponding authorization tuple or contract method; these intents do not compose an outer transaction.
+Use `signature().sign(...)` with the SDK artifacts `Evm7702Authorization`, `Evm2612Permit` or `Evm3009Authorization`. The returned recoverable ECDSA signature signs the protocol digest directly. Submit the signature through the corresponding authorization tuple or contract method. Composing an outer transaction requires a separate transaction intent.
 
 ## Compose
 
@@ -130,6 +130,6 @@ var command = Command.of("test:evm/mainnet-usdc-transfer", new UnsignedEvmTransa
 var result = client.signature().compose(Sign.of(keyId, command), SignedEvmTransaction.class);
 ```
 
-The composer returns signed transaction hex and its hash. It supports legacy and typed envelopes supported by Signet; blob broadcasting still needs its sidecar. The wallet constructs nonces and fees, broadcasts the approved bytes and tracks settlement.
+The composer returns signed transaction hex and its hash. It supports legacy and typed envelopes supported by Signet. Blob broadcasting still needs its sidecar. The wallet supplies nonces and fees. After approval, it broadcasts the bytes and tracks settlement.
 
 See [Edict](../signing-and-authorities/edict.md) for rules and [Authorities](../signing-and-authorities/authorities.md) for OCI publication.

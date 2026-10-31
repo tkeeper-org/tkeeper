@@ -1,4 +1,4 @@
-# Local Single Node
+# Local single node
 
 Run a local node, create a key, sign `hello`, and verify the signature. The setup uses:
 
@@ -211,7 +211,7 @@ Expected response:
 { "valid": true }
 ```
 
-`valid: true` confirms that the signature matches the message and key. Verification does not evaluate authority policy. An executing application must also check the expected key, action, expiry, and replay rules.
+`valid: true` confirms that the signature matches the message and key. Verification does not evaluate authority policy. An executing app must also check the expected key, action, expiry, and replay rules.
 
 ## Turn the smoke test into a governed integration
 

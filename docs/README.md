@@ -1,6 +1,6 @@
-# TKeeper Docs
+# TKeeper docs
 
-TKeeper checks permissions and policy before signing an action with a key. Start with the [overview](overview/README.md) to understand the model, a [use case](use-cases/README.md) to build an integration, or the [local setup](getting-started/local-single-node.md) to try signing.
+TKeeper checks permissions and policy before signing an action with a key. The [overview](overview/README.md) explains the model. To build an integration, choose a [use case](use-cases/README.md). The [local setup](getting-started/local-single-node.md) walks through a signing request.
 
 ## Use cases
 
@@ -13,14 +13,14 @@ TKeeper checks permissions and policy before signing an action with a key. Start
 
 ## Write a policy
 
-The [Edict language guide](edict/README.md) covers syntax, input schemas, exact numbers, collections, functions and approval rules. Start with [Your first policy](edict/getting-started.md), then use the native intent guide for the transaction or credential you sign.
+The [Edict language guide](edict/README.md) covers syntax, input schemas, exact numbers, collections, functions, and approval rules. Start with [Your first policy](edict/getting-started.md), then use the native intent guide for the transaction or credential you sign.
 
 ## Build an integration
 
 - [Signing and Authorities](signing-and-authorities/README.md): commands, policies, approvals, composition
 - [Cryptographic Identities](key-management/README.md): create, import, rotate, refresh
 - [Crypto Platforms](crypto-platforms/README.md): supported algorithms and platforms
-- [API Reference](api-reference/README.md): HTTP API, SDK, permissions, errors
+- [API Reference](api-reference/README.md) covers the HTTP API, SDK, permissions, and errors
 
 ## Run Keeper
 

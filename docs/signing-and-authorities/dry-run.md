@@ -1,8 +1,8 @@
-# Dry Run Policy Evaluation
+# Dry run policy evaluation
 
 Dry run evaluates a command against the key's current authority policy and returns `ALLOW`, `DENY`, or `REQUIRES_APPROVAL`. Use it to inspect a decision before requesting a signature.
 
-It does not execute the command, verify or consume approvals, or change key state. An allow decision is a preview of authority policy; the later signing request must still pass all signing controls.
+It does not execute the command, verify or consume approvals, or change key state. An allow decision is a preview of authority policy. The later signing request must still pass all signing controls.
 
 ## Enable the module
 
@@ -32,7 +32,7 @@ The endpoint requires an authenticated caller with:
 tkeeper.emulate
 ```
 
-This permission is not scoped to a key id. A successful response can expose policy matches, approver public keys, and approver metadata for any requested key known to the caller. Grant it only to services that are allowed to inspect authority-policy decisions.
+This permission is not scoped to a key id. For any requested key known to the caller, a successful response can expose policy matches. Approver public keys and metadata may also be included. Grant it only to services that are allowed to inspect authority-policy decisions.
 
 ## Java SDK
 

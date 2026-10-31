@@ -14,7 +14,7 @@ Query params:
 | --- | --- |
 | `logicalId` | filter by key id |
 | `assetOwner` | filter by owner |
-| `historical` | include old generations; requires `logicalId` |
+| `historical` | include old generations. Requires `logicalId` |
 | `lastSeen` | cursor |
 | `limit` | max 200 |
 

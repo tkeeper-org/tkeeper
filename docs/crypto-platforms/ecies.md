@@ -2,7 +2,7 @@
 
 ECIES encrypts data for a TKeeper key and decrypts it under the key's access controls. It combines an ElGamal-style key encapsulation mechanism with an authenticated payload cipher.
 
-Encryption uses only the public key and needs no peer participation. In `mono`, decryption uses the local private key. In `threshold`, a quorum supplies partial decrypts; the coordinator checks each DLEQ proof before combining the result. Threshold decryption does not reconstruct the private key.
+Encryption uses only the public key and does not require peer participation. In `mono`, decryption uses the local private key. In `threshold`, a quorum supplies partial decrypts. The coordinator checks each DLEQ proof before combining the partial decrypts without reconstructing the private key.
 
 Build with it:
 
@@ -92,7 +92,7 @@ P256
 
 Decrypt requests can require four-eye approvals under key policy. The approval hash binds the decrypt request fields, including key id, algorithm, ciphertext, generation, tweak, nonce, and timestamp.
 
-`imposters` contains peers that returned invalid partial decrypt proofs. It is only meaningful in threshold mode. Mono decrypt returns an empty list.
+`imposters` contains peers that returned invalid partial decrypt proofs. It identifies peers only in threshold mode. Mono decrypt returns an empty list.
 
 Decryption can succeed after rejecting invalid contributions if enough valid partial decrypts remain.
 

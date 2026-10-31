@@ -11,37 +11,36 @@ authorize it.
 
 `threshold` and `total` describe the current stored quorum, including changes made by
 promotion. `sealProvider` is the configured provider id, such as `shamir`, `hsm`, `aws`
-or `google`; provider secrets and connection settings are not returned.
+or `google`. Provider secrets and connection settings are not returned.
 
 `features` contains sorted, unique ids of loaded modules, including `core`. Each runtime feature
-provides a singleton implementation of the core `KeeperModule` interface with one
-method, `id(): String`. No central feature catalog or config flag determines this list.
-Nested module ids retain their path, for example `digital-assets:evm`, `recovery:ecc`
+registers a `KeeperModule` singleton. Its `id(): String` method supplies the module id. No central feature catalog or config flag determines this list.
+Nested module ids retain their path, such as `digital-assets:evm`, `recovery:ecc`
 and `agentic-payments:ap2`. Shared runtime dependencies such as `agentic-payments` are
 included when loaded. The `digital-assets` Gradle aggregation project has no runtime
-artifact; only its selected chain modules appear. Cryptographic platforms are separate.
+artifact. Only its selected chain modules appear. Cryptographic platforms are separate.
 
 The Java SDK exposes this response as `keeper.central().getConfig()`.
 
 `authorities` contains sorted, unique authority types supported by the loaded modules.
-Core supplies `custom` and, when enabled, `arbitrary`. For example, the EVM module adds
-`evm.transaction`. This is a runtime capability list; it does not describe authorities attached to
+Core supplies `custom` and, when enabled, `arbitrary`. The EVM module adds
+`evm.transaction`. This is a runtime capability list. It does not describe authorities attached to
 a key or grant access to one.
 
 ## Identity catalog
 
 `GET /v1/keeper/control/identities?lastSeen=<keyId>&limit=50` lists active identities
 the caller may sign with. The default page size is 50 and the maximum is 100.
-The response contains `items` and `nextCursor`; pass a non-null cursor as the next
+The response contains `items` and `nextCursor`. Pass a non-null cursor as the next
 request's `lastSeen`. Sealed Keepers reject catalog requests. Tampered identities and
 identities without active key material are excluded.
 
 `GET /v1/keeper/control/identities/authority?keyId=<keyId>&authorityId=<authorityId>` returns the
-attached authority's id, type, version, description and command JSON Schema. The caller
+attached authority's id, type, version, description, and command JSON Schema. The caller
 needs `tkeeper.key.<keyId>.sign`. Unknown or unattached authorities are rejected.
-The schema describes command input; the policy still decides whether it may execute.
+The schema describes command input. Keeper evaluates the policy to determine whether the command may execute.
 
-An identity page has this shape:
+An identity page contains:
 
 ```json
 {

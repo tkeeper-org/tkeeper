@@ -31,14 +31,14 @@ command
 
 For `arbitrary`, TKeeper signs bytes after checking the key identity allows `arbitrary`.
 
-For concrete authorities, TKeeper loads the authority document, materializes the command into an intent, extracts effects where supported, and evaluates policy. It signs for `ALLOW`, or after every requirement from `REQUIRES_APPROVAL` is satisfied.
+For concrete authorities, TKeeper loads the authority document before materializing the command into an intent. It extracts effects where supported, then evaluates policy. It signs for `ALLOW`, or after every requirement from `REQUIRES_APPROVAL` is satisfied.
 
 ## Quorum modes
 
 | Mode | Behavior |
 | --- | --- |
 | `mono` | signs locally with full key material after controls pass |
-| `threshold` | coordinator starts a threshold protocol; private key is not reconstructed |
+| `threshold` | coordinator starts a threshold protocol. Private key is not reconstructed |
 
 Threshold signing protocols:
 
@@ -123,7 +123,7 @@ Hash methods:
 | `SHA512` | hash before signing |
 | `KECCAK256` | hash before signing |
 
-The command artifact decides the scheme and hash. The top-level sign request does not carry `hash` or `algorithm`.
+The scheme and hash belong in the command artifact. The top-level sign request has no `hash` or `algorithm` field.
 
 ## Response
 
@@ -136,7 +136,7 @@ The command artifact decides the scheme and hash. The top-level sign request doe
 }
 ```
 
-`imposters` is meaningful for threshold protocols. Mono signatures return an empty list.
+`imposters` identifies peers only for threshold protocols. Mono signatures return an empty list.
 
 Use [Composer](composer.md) to turn supported signatures into signed transactions or payment credentials. Other command types return the raw signature result.
 
@@ -148,7 +148,7 @@ Verify response:
 
 `generation` is optional on verify. If omitted, TKeeper uses the active generation.
 
-Verify checks the signature against the supplied `type` and `artifact`. It validates the material format and uses the type's signing encoding, but does not take `authorityId`, load an authority, or evaluate policy. Supported material can be verified even if the key's current policy would reject it for signing. `valid: true` confirms the signature and material match; it does not establish current authorization.
+Verify checks the signature against the supplied `type` and `artifact`. It validates the material format and uses the type's signing encoding, but does not take `authorityId`, load an authority, or evaluate policy. Supported material can be verified even if the key's current policy would reject it for signing. `valid: true` confirms the signature and material match. It does not establish current authorization.
 
 ```json
 {
@@ -171,13 +171,13 @@ Verify checks the signature against the supplied `type` and `artifact`. It valid
 
 ## ML-DSA availability
 
-Threshold ML-DSA uses probabilistic rejection sampling. A complete attempt can abort even when peers are healthy. TKeeper retries with fresh session state up to:
+Threshold ML-DSA uses probabilistic rejection sampling. A complete attempt can stop even when peers follow the protocol. TKeeper retries with fresh session state up to:
 
 ```text
 keeper.session.mldsa.max-rounds
 ```
 
-The default is `12`. Exhaustion returns `SESSION_MAX_ROUNDS_EXCEEDED`; treat it as availability first, not proof of corruption.
+The default is `12`. Exhaustion returns `SESSION_MAX_ROUNDS_EXCEEDED`. Treat it as availability first, not proof of corruption.
 
 ## Downstream verification
 
@@ -189,7 +189,7 @@ Before executing the action, the receiving system must check:
 - environment or domain separation between test and production
 - nonce, expiry, sequence, or idempotency where replay matters
 
-If context is enforced outside the signed payload, the verifier must reject mismatches before execution. For `arbitrary`, TKeeper governs only the supplied bytes; it cannot infer omitted business context.
+If context is enforced outside the signed payload, the verifier must reject mismatches before execution. For `arbitrary`, TKeeper governs only the supplied bytes. It cannot infer omitted business context.
 
 ## Common failures
 
@@ -199,7 +199,7 @@ Check that the command type and artifact, `tweak`, `generation`, and `signature6
 
 ### Authority rejects the command
 
-`AUTHORITY_VIOLATION` means the command selected an authority that is not attached to the key. `INVALID_AUTHORITY_ARTIFACT` means the command shape does not match the selected authority or its feature is absent. `POLICY_VIOLATION` means the materialized intent was understood but policy returned `DENY`.
+`AUTHORITY_VIOLATION` means the command selected an authority that is not attached to the key. `INVALID_AUTHORITY_ARTIFACT` means the command structure does not match the selected authority or its feature is absent. `POLICY_VIOLATION` means the materialized intent was understood but policy returned `DENY`.
 
 ### No manager for scheme and algorithm
 

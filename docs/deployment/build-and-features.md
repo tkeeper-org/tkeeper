@@ -1,4 +1,4 @@
-# Build and Features
+# Build and features
 
 TKeeper has two build-time selectors:
 
@@ -35,13 +35,13 @@ for artifact selection and deployment checks.
 
 ## Build a smaller artifact
 
-Example: EVM signing and ECIES:
+To include EVM signing and ECIES:
 
 ```bash
 ./gradlew :build -Pkeeper.features=evm,ecies -Pkeeper.platforms=ecc
 ```
 
-Example: ML-DSA only:
+To include only ML-DSA:
 
 ```bash
 ./gradlew :build -Pkeeper.platforms=pqc
@@ -91,7 +91,7 @@ Before services are created, Keeper loads GMP, libsodium, RocksDB JNI, and secp2
 when `ecc` is selected. Packaging records their SHA-256 digests and checks the final
 jar against that inventory. Startup verifies each extracted library before loading it.
 
-System loading is disabled by default. On Linux arm64 and macOS amd64, no crypto
+System loading is turned off by default. On Linux arm64 and macOS amd64, no crypto
 natives are bundled: install GMP, libsodium, and (for `ecc`) secp256k1, then explicitly
 allow their use with `-Dkeeper.native.allow-system=true`. Set `-Djava.library.path`
 to their directory if needed. RocksDB requires a compatible JNI library
@@ -101,14 +101,14 @@ matching embedded variant and no unlisted resource is present. A missing, change
 unreadable, or unloadable expected binary aborts startup even with the flag enabled.
 
 The production Dockerfile provides the system crypto libraries and sets the JVM
-library path; a standalone jar does not install them. For the loading smoke task,
+library path. A standalone jar does not install them. For the loading smoke task,
 pass `-Pkeeper.native.allow-system=true` to forward the explicit opt-in to its JVM.
 Linux targets use glibc binaries. For musl-based distributions, use `target=all` and
 verify the remaining native dependencies. A targeted jar is specific to its OS/CPU.
 
 `shadowJar` checks that the targeted archive contains the required runtime classes
 and native libraries and excludes other targets. Run the loading check on the target
-host as well; archive validation cannot detect host library-loading failures.
+host as well. Archive validation cannot detect host library-loading failures.
 
 On the target host, load the native libraries from the built jar with:
 
@@ -119,8 +119,8 @@ On the target host, load the native libraries from the built jar with:
 This checks the JVM OS/CPU against `target`, then loads RocksDB, GMP, libsodium, and
 secp256k1 when `ecc` is selected. It fails if a required library cannot load. For
 Linux arm64 or macOS amd64, provide these system libraries in the JVM library path.
-For example, set `JAVA_TOOL_OPTIONS=-Djava.library.path=/path/to/libs` for a standalone
-run. A cross build needs this smoke command run on the target OS/CPU; it cannot validate
+Set `JAVA_TOOL_OPTIONS=-Djava.library.path=/path/to/libs` for a standalone
+run. A cross build needs this smoke command run on the target OS/CPU. It cannot validate
 native loading on the build host.
 
 ## Feature and platform matrix
@@ -157,12 +157,12 @@ recovery module for each selected platform:
 ./gradlew :build -Pkeeper.features=recovery -Pkeeper.platforms=ecc,pqc
 ```
 
-These commands build recovery for ECC, ML-DSA, or both. Select `recovery` once;
-the selected platforms determine which recovery protocols are included. Recovery,
+These commands build recovery for ECC, ML-DSA, or both. Select `recovery` once.
+The selected platforms determine which recovery protocols are included. Recovery,
 `auth-dev`, `dry-run`, and `mandate` are excluded from `keeper.features=all`.
 
 Treat this as a maintenance artifact. After recovery, rebuild and redeploy the normal production
-artifact without the `recovery` selector; setting `keeper.recovery=false` alone leaves the recovery
+artifact without the `recovery` selector. Setting `keeper.recovery=false` alone leaves the recovery
 code and routes in the artifact.
 
 To include developer authentication, select `auth-dev` explicitly:
@@ -211,7 +211,7 @@ Dockerfile produces Linux images.
 
 `dockerBuild` also loads the jar's native libraries inside the target image before
 finishing. For `linux-arm64` on an amd64 host, Docker must be able to execute arm64
-build steps (for example through an arm64 builder or emulation).
+build steps (such as an arm64 builder or emulation).
 
 Images default to refusing system fallback too. Linux arm64 images need an explicit
 opt-in for their system crypto libraries:
@@ -273,15 +273,15 @@ Build both images used by functional integration tests with:
 ./gradlew buildTestContainers
 ```
 
-The test task reuses these images. Re-run the build after changing application code, dependencies, or Dockerfiles.
+The test task reuses these images. Re-run the build after changing app code, dependencies, or Dockerfiles.
 
 Both test-image builds use Docker's selected platform. They enable
 `keeper.native.allow-system` automatically only for `linux/arm64`, which lacks
 bundled crypto natives and uses the libraries built into the image. Other platforms
-keep system fallback disabled by default. Bundled variants still take priority and
+keep system fallback turned off by default. Bundled variants still take priority and
 fail closed on verification or loading errors. Pass
 `-Pkeeper.native.allow-system=true|false` to override the test-image default.
-Production image builds keep system fallback disabled by default on every platform.
+Production image builds keep system fallback turned off by default on every platform.
 
 Do not pass `keeper.features` or `keeper.platforms` to this task. The development integration image
 uses a dedicated classpath containing every default production feature, the explicit `auth-dev`,
@@ -308,7 +308,7 @@ For recovery, select the base feature and the required platforms:
 
 The platform was not included in the artifact.
 
-Rebuild with the required platform, for example:
+Rebuild with the required platform:
 
 ```bash
 ./gradlew :build -Pkeeper.features=evm -Pkeeper.platforms=ecc

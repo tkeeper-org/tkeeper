@@ -1,16 +1,16 @@
-# Governed Cryptographic Identity
+# Governed cryptographic identity
 
 A governed cryptographic identity is a key with rules for its use. An authority document attached to the key defines the accepted command format and policy. A caller with signing permission still has to satisfy that policy.
 
-For example, a treasury key can allow USDC transfers only to one operating wallet. A CA key can allow certificates only for a specified DNS name and validity period. An agent key can allow a typed restart command only for one service and environment.
+A treasury key can allow USDC transfers only to one operating wallet. A CA key can allow certificates only for a specified DNS name and validity period. An agent key can allow a typed restart command only for one service and environment.
 
 TKeeper parses each command into an intent for policy evaluation and signs the command's defined signing material after the checks pass. The receiving system verifies that material against the expected key. See [Typed JSON signing material](../signing-and-authorities/arbitrary-and-typed.md#signing-bytes) for the `custom` encoding.
 
-## Why this matters
+## Policy checks before signing
 
 An agent or service can hold permission to request signatures without having unrestricted use of the key. Authority policy can constrain recipients, amounts, certificate fields, or service commands.
 
-TKeeper also checks key lifecycle state, required approvals, audit availability, and quorum participation. A denied request returns no signature. Raw `arbitrary` signing has no intent policy and is disabled by default.
+TKeeper also checks key lifecycle state, required approvals, audit availability, and quorum participation. A denied request returns no signature. Raw `arbitrary` signing has no intent policy and is turned off by default.
 
 ## Enforcement boundary
 
@@ -27,17 +27,17 @@ If another API or credential can perform the same action without this verificati
 
 ## Verifier contract
 
-A valid signature binds a key to specific bytes. The verifier must check that those bytes describe the action it will execute and that the authorization is still acceptable.
+A valid signature binds a key to specific bytes. The verifier must check that those bytes describe the action it executes and that the authorization is still acceptable.
 
 The verifier should:
 
 - trust the expected identity or public key, not any mathematically valid key
-- reconstruct or validate the exact intent that will be executed
+- reconstruct or validate the exact intent to execute
 - bind the proof to the correct environment, target, and operation
 - enforce nonce, expiry, sequence, or idempotency rules where replay matters
 - reject fields or effects that were not covered by the governed intent
 
-Accepting different content, acting on unsigned fields, or reusing a one-time authorization can bypass the policy that approved the original command.
+Different content or unsigned fields can cause execution to bypass the policy that approved the command. Reusing a one-time authorization can also bypass that policy.
 
 ## Authority path
 

@@ -1,4 +1,4 @@
-# AI and Agentic Payments
+# AI and agentic payments
 
 | Task | Guide |
 | --- | --- |
