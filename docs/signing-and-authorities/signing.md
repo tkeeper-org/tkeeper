@@ -100,8 +100,7 @@ Typed command:
 ```
 
 See the [typed authority example](arbitrary-and-typed.md#typed-json) for the matching schema, payload, effects, and policy. [Digital assets](../digital-assets/README.md), [agentic payments](../ai/agentic-payments/README.md), and [X.509](../pki/x509.md) have their own authority guides.
-The exact typed JSON byte encoding and hashing contract is documented in
-[Typed JSON signing material](arbitrary-and-typed.md#signing-bytes).
+For `custom`, Keeper canonicalizes the parsed `artifact.typed` object before hashing and signing. Follow the [typed JSON signing byte rules](arbitrary-and-typed.md#signing-bytes) when verifying the signature.
 
 ## Schemes and algorithms
 

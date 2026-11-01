@@ -58,13 +58,15 @@ A missing `status` uses `READY`. A missing `labels` uses `[]`. A missing `note` 
 
 ## Signing bytes
 
-Keeper signs the submitted `artifact.typed` object, without adding schema defaults to it:
+Keeper derives the signing bytes from the parsed `artifact.typed` object using these canonicalization rules. Schema defaults apply only to policy evaluation:
 
-1. Sort every object's field names lexicographically, recursively, including objects in arrays.
+1. Sort every object's field names lexicographically by UTF-16 code units, recursively, including objects in arrays.
 2. Preserve array order and scalar JSON types and values, including explicit `null`.
 3. Serialize compact UTF-8 JSON.
 4. Apply the artifact's `hash`: `NONE`, `SHA256`, `SHA512` or `KECCAK256`.
 5. Pass the result to the selected signature scheme.
+
+Field order and whitespace in the submitted JSON do not affect the signing bytes. Both `{"b":2, "a":1}` and `{"a":1,"b":2}` serialize to `{"a":1,"b":2}` before hashing.
 
 Use `TKeeperJackson.signingBytes` when constructing the same bytes in a Java consumer. This is Keeper's signing format. It is not a claim of conformance to another JSON canonicalization standard.
 

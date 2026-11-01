@@ -96,7 +96,7 @@ An invalid input is an error, distinct from a valid input denied by a rule. Neit
 
 ## Use the same meaning when executing the command
 
-Keeper signs the submitted JSON. Defaults apply to policy evaluation and are not inserted into the signed payload. A service executing this command must verify the signature against the expected authority revision. Execution must apply the same default semantics.
+Keeper canonicalizes the parsed `artifact.typed` object, then applies the selected hash and signature scheme. See the [typed signing byte rules](../signing-and-authorities/arbitrary-and-typed.md#signing-bytes) to reproduce those bytes when verifying a signature. Defaults apply to policy evaluation and are not inserted into the signed payload. A service executing this command must verify the signature against the expected authority revision. Execution must apply the same default semantics.
 
 Policy evaluation treats `country` and `active` as supplied assertions about the recipient, whose identity and status require independent verification. The app must establish their origin, or redesign the command so it can verify the relevant facts itself. See [Typed JSON signing](../signing-and-authorities/arbitrary-and-typed.md#signing-bytes).
 

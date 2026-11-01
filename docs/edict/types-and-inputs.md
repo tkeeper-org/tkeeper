@@ -95,7 +95,7 @@ input request {
 
 A default applies only when a field is absent. To accept explicit null, declare an optional type. Defaults must be known at compilation and must match the declared type. They can use compatible authority constants.
 
-Defaults prepare the values used for evaluation. They do not modify the JSON being signed. A consumer executing the signed JSON must use the same authority revision and default semantics. See [Typed signing bytes](../signing-and-authorities/arbitrary-and-typed.md#signing-bytes).
+Defaults prepare the values used for evaluation. Keeper derives the signing bytes by canonicalizing the submitted `artifact.typed` object, without inserting those defaults. A consumer executing the signed JSON must use the same authority revision and default semantics. See [Typed signing bytes](../signing-and-authorities/arbitrary-and-typed.md#signing-bytes).
 
 ## Optional values in expressions
 
