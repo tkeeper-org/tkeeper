@@ -2,7 +2,9 @@
 
 Build with `-Pkeeper.features=evm -Pkeeper.platforms=ecc`. Submit the unsigned transaction bytes as Base64 in `artifact.message64`.
 
-For native transfers, `config.chainId` pins the network. Roots include `chainId`, `to`, `value`, `gasLimit`, `transaction` and `effects`. Values are wei. For contract calls, declare the contract and ABI signatures in the Edict document:
+Every transaction authority requires `config.chainId`. Legacy transactions use EIP-155 to bind signatures to that network. The signer rejects transactions with a missing or different `chainId`. Verification also requires the chain ID in the transaction.
+
+For native transfers, roots include `chainId`, `to`, `value`, `gasLimit`, `transaction` and `effects`. Values are wei. For contract calls, declare the contract and ABI signatures in the Edict document:
 
 ```edict
 authority "test:evm/mainnet-usdc-transfer" {
