@@ -7,6 +7,9 @@ The schema defines which values a policy can read. Keeper validates a custom req
 | Type | Accepted value |
 | --- | --- |
 | `Text` | String, including an empty string |
+| `Bytes` | Immutable byte sequence; Base64 string at a custom JSON boundary |
+| `Time` | UTC timeline value; ISO timestamp at a custom JSON boundary |
+| `Duration` | Elapsed time; ISO duration at a custom JSON boundary |
 | `Integer` | Exact signed integer within the numeric limits |
 | `Number` | Exact decimal number. Accepts `Integer` values through exact widening |
 | `Boolean` | `true` or `false` |
@@ -20,6 +23,8 @@ The schema defines which values a policy can read. Keeper validates a custom req
 At an input boundary, an `Integer` field accepts numeric values that are exactly integral, including JSON `100.0`. Fractions and text are rejected before any policy rule runs. The type itself permits negative values. Declare a protocol range or add a policy condition when the value must be nonnegative. Native integer widths such as `uint256` and `u64` retain their protocol ranges.
 
 A list needs one compatible element type. Mixing `Integer` and `Number` produces `List<Number>`. A record may contain fields of different types.
+
+See [Bytes, time, and module functions](bytes-time-and-functions.md) for literals, conversions, methods, and time arithmetic.
 
 ## Define reusable records with `struct`
 

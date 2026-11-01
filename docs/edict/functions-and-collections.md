@@ -31,6 +31,8 @@ Native modules provide simple object type names, such as `Transaction` and `Cert
 
 Functions use explicit `return`. Every possible path must return a compatible value. Functions cannot recurse or call arbitrary Java methods. Pass request data as parameters. Functions do not obtain it through an implicit request context.
 
+Installed modules also provide typed functions and value methods, such as `Time.seconds(value)`, `crypto.sha256(payload)`, and `payload.slice(0, 4)`. See [Bytes, time, and module functions](bytes-time-and-functions.md). These calls use the same execution budget as document functions.
+
 ## Lists and lambdas
 
 A lambda has one parameter followed by `->` and an expression:

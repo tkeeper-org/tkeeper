@@ -60,6 +60,7 @@ Read it as ``request.`approver` ``. Backticks escape field names that follow the
 | Value | Source example |
 | --- | --- |
 | Text | `"USD"` |
+| Bytes | `b"deadbeef"`, `b""` |
 | Integer | `100`, `-10` |
 | Number | `100.0`, `0.25` |
 | Boolean | `true`, `false` |

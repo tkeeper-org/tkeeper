@@ -1,0 +1,8 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':edict:extension-api')
+    implementation project(':edict:core')
+}

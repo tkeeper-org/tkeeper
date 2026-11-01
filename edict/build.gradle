@@ -59,6 +59,7 @@ def jmhVersion = '1.37'
 
 dependencies {
     api project(':edict:core')
+    api project(':edict:fn-commons')
     testImplementation project(':edict:digital-assets:evm')
     testImplementation project(':edict:digital-assets:xlm:soroban')
     testImplementation project(':edict:digital-assets:solana')

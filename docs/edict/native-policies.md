@@ -58,6 +58,8 @@ These are placeholder addresses. Replace them with the intended deployed contrac
 
 The decoder checks the declared destination, selector and argument layout before the rules run. Native integer arguments and integral transaction facts have Edict type `Integer`. Amounts remain in raw token units. An EVM `uint256` also defines native encoding and range checks that an ordinary JSON `Integer` declaration does not provide.
 
+EVM `bytes` and `bytesN` arguments use `Bytes`. Solana and Soroban `bytes` arguments use the same type. Use methods such as `call.payload.slice(0, 4)` to inspect their contents. Fixed EVM byte arguments retain their declared byte length.
+
 ## Wire structs and ordinary structs
 
 A `struct` inside a contract or program describes a native argument layout using that protocol's wire types. A document-level struct describes ordinary Edict data using `Text`, `Integer`, `Number`, `Boolean`, lists, maps, and optional values.

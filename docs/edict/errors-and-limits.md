@@ -13,7 +13,7 @@ Examples:
 | A `Number` field compared with `"100"` | Use a number literal or change the declared type |
 | `Map<Number, Number>` | Use `Map<Text, Number>` and text keys |
 | Access to an undeclared record field | Declare the field or correct its name |
-| A struct containing itself through a list or map | Use a finite, nonrecursive shape |
+| A struct containing itself through a list or map | Use a finite structure without recursion |
 | `amount: Number = "zero"` | Use a numeric default |
 | A custom authority with two input roots | Declare one object root named `request` |
 
@@ -33,11 +33,14 @@ Some operations are valid to compile but can fail for a request:
 | --- | --- |
 | `limits["USD"]` | Key absent |
 | `items[0]` | List empty |
-| `amount / count` | Zero divisor or nonterminating decimal result |
+| `amount / count` | Zero divisor or decimal result with an infinite expansion |
 | Fractional operands for `%` | Integer remainder requires integral values |
+| `payload.slice(start, end)` | Invalid byte or text slice bounds |
+| `bytes.toUtf8()` | Malformed UTF-8 |
+| `Time.seconds(value)` | Unsupported range or precision finer than a nanosecond |
 | Large arithmetic or collection expansion | Numeric or resource budget exceeded |
 
-Guard absent keys and indexes at the expression where they are used. Choose an explicit rounding mode for nonexact division. Do not assume a later allow, deny, or fallback catches an evaluation error.
+Guard absent keys and indexes at the expression where they are used. Choose an explicit rounding mode for inexact division. Do not assume a later allow, deny, or fallback catches an evaluation error.
 
 ## Bounded execution
 

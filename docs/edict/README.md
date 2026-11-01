@@ -10,6 +10,7 @@ Start with [Your first policy](getting-started.md). It walks through a complete 
 | [Types and input schemas](types-and-inputs.md)            | Reusable structs, required fields, defaults, and optional values |
 | [Expressions and numbers](expressions.md)                 | Conditions, comparisons, and exact arithmetic                    |
 | [Functions and collections](functions-and-collections.md) | Reusable checks, list operations, sorted maps, and loops         |
+| [Bytes, time, and module functions](bytes-time-and-functions.md) | Binary values, timestamps, durations, and protocol helpers |
 | [Decisions and approvals](decisions-and-approvals.md)     | Allow and deny rules, thresholds, and fallback behavior          |
 | [Native transaction policies](native-policies.md)         | Contract and program interfaces tied to the bytes being signed  |
 | [Errors and execution limits](errors-and-limits.md)       | Compilation failures, invalid inputs, and bounded execution      |

@@ -31,11 +31,13 @@ The lines run from top to bottom and stop at the first false result. An empty `w
 | Operation | Meaning |
 | --- | --- |
 | `a == b`, `a != b` | Equality or inequality between compatible values |
-| `a < b`, `a <= b`, `a > b`, `a >= b` | Numeric comparison |
+| `a < b`, `a <= b`, `a > b`, `a >= b` | Compare numbers, two times, or two durations |
 | `value in items`, `value not in items` | Membership in a compatible list |
 | `"USD" in limits` | Existence of a text key in a map |
 
 Text equality is case-sensitive. There are no text ordering operators or implicit text-to-number conversions. Numeric equality compares value, so `1 == 1.0` is true. Lists compare their elements in order. Records and maps compare their fields and values.
+
+`Bytes` compare by contents and support concatenation with `+`. Time subtraction produces a `Duration`. Adding or subtracting a duration shifts a time. See [Bytes and time](bytes-time-and-functions.md) for supported operations.
 
 Membership in a map checks the key. It returns true even when that key's value is explicitly `null`. In a list, membership tests compare values.
 
@@ -49,7 +51,7 @@ request.amount * 100
 (request.amount + request.fee) <= maximum
 ```
 
-`+`, `-` and `*` return `Integer` when both operands are `Integer`. If either operand is `Number`, the result is `Number`: `5 * 2` is the integer `10`, while `5 * 2.5` is the decimal `12.5`. Unary `+` and `-` preserve the operand's type.
+`+`, `-` and `*` return `Integer` when both operands are `Integer`. If either operand is `Number`, the result is `Number`: `5 * 2` is the integer `10`, while `5 * 2.5` is the decimal `12.5`. Unary `+` and `-` preserve the type of the operand.
 
 `/` always returns `Number` and requires an exact result: `10 / 4` produces `2.5`, while `1 / 3` fails because its decimal expansion has infinitely many digits. `6 / 2` is a `Number` with value `3`. Use `integer(6 / 2)` when an `Integer` result is required. Dividing by zero fails. Intermediate results are bounded too. A later subtraction does not make an oversized intermediate multiplication acceptable.
 
@@ -98,7 +100,7 @@ Use parentheses when the grouping matters to a reader. Write `0 < amount and amo
 
 ## Guard an operation where it executes
 
-For a map with nonoptional numeric values:
+For a map whose numeric values cannot be null:
 
 ```edict
 allow if ("USD" in request.limits and request.limits["USD"] <= 1000)

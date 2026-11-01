@@ -95,7 +95,7 @@ authority "test:evm/permit" {
 
 [ERC-3009](https://eips.ethereum.org/EIPS/eip-3009) uses the same domain layout. Set `operation` to `transferWithAuthorization`, `receiveWithAuthorization` or `cancelAuthorization` inside `artifact.authorization`. Transfer and receive require `from`, `to`, `value`, `validAfter`, `validBefore` and a 32-byte hexadecimal `nonce`. Cancellation requires `authorizer` and `nonce`. Each operation uses its own EIP-712 type hash.
 
-In policy facts, `authorizer` is the signed `from` or `authorizer` address. `transfer` contains `from`, `to`, `value`, `validAfter` and `validBefore` for transfer and receive. It is null for cancellation. Guard access with `transfer != null` and constrain `operation` explicitly. Policy addresses and hexadecimal nonces use lowercase.
+In policy facts, `authorizer` is the signed `from` or `authorizer` address. `transfer` contains `from`, `to`, `value`, `validAfter` and `validBefore` for transfer and receive. It is null for cancellation. Guard access with `transfer != null` and constrain `operation` explicitly. Policy addresses use lowercase. The nonce has type `Bytes`. Compare it with a literal such as `b"0000000000000000000000000000000000000000000000000000000000000001"`.
 
 ```edict
 authority "test:evm/receive" {

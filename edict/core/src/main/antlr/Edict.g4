@@ -216,6 +216,7 @@ argumentList
 
 primary
     : NUMBER # numberLiteral
+    | BYTES # bytesLiteral
     | STRING # textLiteral
     | value=('true' | 'false' | 'null') # scalarLiteral
     | ID # nameExpression
@@ -247,6 +248,10 @@ NUMBER
 
 STRING
     : '"' (ESCAPE | ~["\\\r\n])* '"'
+    ;
+
+BYTES
+    : 'b"' (HEX HEX)* '"'
     ;
 
 fragment ESCAPE

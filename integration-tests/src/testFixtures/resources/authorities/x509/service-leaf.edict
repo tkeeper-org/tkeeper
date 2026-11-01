@@ -11,6 +11,10 @@ authority "test:x509/service-leaf" {
             not extensions.basicConstraints.cA
             extensions.keyUsage.digitalSignature
             extensions.extKeyUsage.serverAuth
+            validity.notBefore != null
+            validity.notAfter != null
+            validity.notAfter > validity.notBefore
+            validity.notAfter - validity.notBefore <= Duration.days(398)
         }
     }
 }
