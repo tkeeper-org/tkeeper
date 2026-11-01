@@ -121,6 +121,21 @@ The matching `artifact.typed` uses this JSON:
 
 Native Java `byte[]` and `Instant` values become `Bytes` and `Time`. EVM `bytes` and `bytesN`, Solana `bytes`, and Soroban `bytes` arguments expose `Bytes`. EVM fixed byte arguments retain their declared length. X.509 validity fields expose optional `Time` values.
 
+## Protocol functions
+
+Each protocol module defines its functions. A function is available when the host installs that module's function provider.
+
+| Module | Functions |
+| --- | --- |
+| `fn-commons` | `Bytes` factories and methods, text methods, `Time`, `Duration`, `crypto.sha256(bytes)` |
+| `digital-assets:evm` | `evm.validAddress(text)`, `evm.addressEquals(left, right)`, `crypto.keccak256(bytes)` |
+| `digital-assets:bitcoin` | `bitcoin.validAddress(text, network)` |
+| `agentic-payments` | `payment.minorUnits(amount, currency)`, `payment.currencyScale(currency)`, `payment.matchesIdentity(actual, expected)` |
+
+EVM validation checks address syntax and mixed-case checksums. `addressEquals` validates both operands before comparing their addresses. Bitcoin validation checks the address checksum and the network argument, such as `"mainnet"` or `"testnet"`.
+
+Payment amounts use quoted decimal text and an ISO currency code. `payment.minorUnits("50.00", "USD")` returns the integer 5000. Excess fractional digits and unknown currencies fail. Identity matching checks the configured `id` and `website`, or the payment instrument's `id` and `type`. It compares every configured field.
+
 ## Java hosts and function providers
 
 `FunctionModule` belongs to `extension-api`. A module supplies named `FunctionDefinition` values and optional `MethodDefinition` values. Named functions use `namespace.name`. A method's first parameter is its receiver. The compiler checks parameter and result types and binds the function into the execution plan. Returned values undergo validation too.
