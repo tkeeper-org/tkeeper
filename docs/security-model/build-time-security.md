@@ -18,6 +18,7 @@ or protocol implementations.
 | Key creation, import, destruction, and quorum changes | Controllers must use the corresponding operation services. | Resource permissions, authenticated peer identity and import/session binding. |
 | Approver registry and proofs | Registry writes pass through the cluster service. Local write shortcuts are forbidden. | Registration and metadata permissions, replicated admission and WebAuthn invitation/session checks. |
 | Authorities and recovery | Required guards are present. External controllers cannot call raw evaluators or recovery handlers. | Policy validation, recovery permission and peer/contribution binding. |
+| Edict module functions | Function factories and implementations must match the selected modules. | Keeper supplies providers from its closed service registry without runtime discovery. |
 | Public keys, inventory and control-plane data | Controllers use the protected read APIs. | Resource permissions and identity filtering. |
 | Request context and cleanup | Required middleware and cleanup declarations must be present. | Context propagation and sensitive-buffer cleanup. |
 

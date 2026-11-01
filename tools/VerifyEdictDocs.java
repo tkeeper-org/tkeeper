@@ -1,4 +1,8 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.exploit.edict.format.bitcoin.function.BitcoinFunctions;
+import org.exploit.edict.format.evm.function.EvmFunctions;
+import org.exploit.edict.format.payment.function.PaymentFunctions;
+import org.exploit.edict.function.CommonFunctions;
 import org.exploit.edict.model.value.Value;
 import org.exploit.keeper.factory.PolicyEngineFactory;
 import org.exploit.keeper.service.command.intent.IntentBuilder;
@@ -35,7 +39,9 @@ public class VerifyEdictDocs {
         for (var name : BUILDERS) {
             builders.add((IntentBuilder) Class.forName(name).getConstructor().newInstance());
         }
-        var engine = new PolicyEngineFactory(builders).policyEvaluator();
+        var engine = new PolicyEngineFactory(builders, List.of(
+                new CommonFunctions(), new EvmFunctions(), new BitcoinFunctions(), new PaymentFunctions()
+        )).policyEvaluator();
         var remaining = new HashSet<>(builders.stream().map(IntentBuilder::type).toList());
         var checked = 0;
         try (var paths = Files.walk(Path.of(args[0], "docs"))) {

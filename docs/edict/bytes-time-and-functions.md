@@ -142,6 +142,8 @@ Payment amounts use quoted decimal text and an ISO currency code. `payment.minor
 
 The default `Edict` constructors discover providers with Java `ServiceLoader`. A provider JAR registers its provider class in `META-INF/services/org.exploit.edict.extension.FunctionModule`. The four-argument constructor accepts an explicit list of providers. An empty list disables module functions. Duplicate module IDs, function names, and receiver methods are rejected. `CompiledPolicy.functionModules()` reports installed module versions.
 
+Keeper passes an explicit provider list from its closed service registry. The build selects the function factories with the enabled features and verifies their implementations in the packaged JAR. Additional service metadata cannot add functions at runtime. Rebuild Keeper to change the installed providers.
+
 Java hosts can pass `new EvaluationContext(instant)` to `evaluate` or `evaluateAll` for a fixed evaluation time. The default overload captures the current time once per evaluation.
 
 Function implementations are trusted host code. They must reserve work and allocation budgets before processing input or creating results. A budget does not interrupt arbitrary Java code. Declare a function as constant only when its result depends on its arguments and fixed module configuration. Functions that need evaluation context must set `constant` to `false`.
