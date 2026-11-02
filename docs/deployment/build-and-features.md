@@ -13,9 +13,10 @@ A usable production artifact must include at least one platform.
 ./gradlew build -Pkeeper.features=all -Pkeeper.platforms=all
 ```
 
-`build` runs the root, SDK, and selected module unit tests, then produces a deployable jar through `shadowJar`.
+`build` runs unit tests across the project and produces a deployable jar through `shadowJar`.
+Functional and performance tests run only when requested explicitly. `releaseGate` includes the functional suite.
 
-Equivalent:
+To run only the root, SDK, and selected module unit tests:
 
 ```bash
 ./gradlew :build -Pkeeper.features.all=true -Pkeeper.platforms.all=true
@@ -188,6 +189,9 @@ separately from Keeper and uses its core [configuration and identity catalog API
 Comma-separated selectors accept short names such as `ecies`, `ecc`, and `pqc`. `all` selects every
 default production module in that category. Explicit features such as `recovery`, `auth-dev`, `dry-run`, and `mandate` are
 not included.
+
+Feature aliases such as `feature-xlm` select the same module as `xlm`. Unknown feature or platform names
+fail the build, including names passed through the Docker selectors.
 
 `target` is independent of these selectors. Invalid target names fail the Gradle build
 instead of silently producing a jar with mismatched native libraries.

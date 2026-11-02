@@ -20,6 +20,10 @@ kotlin {
     jvmToolchain(25)
 }
 
+tasks.named('build') {
+    setDependsOn([tasks.named('assemble')])
+}
+
 tasks.withType(Test).configureEach {
     dependsOn rootProject.tasks.named('shadowJarProductionTest')
     systemProperty 'it.native.jar', rootProject.tasks.named('shadowJarProductionTest').get().archiveFile.get().asFile.absolutePath

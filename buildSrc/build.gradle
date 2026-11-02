@@ -23,6 +23,10 @@ test {
     jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED'
     systemProperty 'build.fixture.classpath', sourceSets.main.runtimeClasspath.asPath
     systemProperty 'build.fixture.gradle', gradle.gradleHomeDir.absolutePath
+    systemProperty 'build.fixture.project', projectDir.parent
+
+    inputs.files('../build.gradle', '../settings.gradle', '../integration-tests/functional/build.gradle',
+            '../integration-tests/performance/build.gradle')
 }
 
 tasks.named('jar') {

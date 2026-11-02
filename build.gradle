@@ -244,12 +244,35 @@ def legacyDigitalAssetSelectors = [
         'features:digital-assets:xlm'    : ['authority-xlm', 'keeper.feature.authority.xlm']
 ]
 
-def explicitlySelectedFeature = { Set<String> features, String moduleName ->
+def featureSelectors = { String moduleName ->
     def moduleFeatureName = moduleName.tokenize(':').last()
     def shortName = moduleFeatureName.startsWith('authority-') ? moduleFeatureName.substring('authority-'.length()) : moduleFeatureName
-    features.contains(moduleName) || features.contains(moduleFeatureName) ||
-            features.contains(shortName) || features.contains("feature-$shortName")
+
+    [moduleName, moduleFeatureName, shortName, "feature-$shortName".toString()].toSet()
 }
+
+def explicitlySelectedFeature = { Set<String> features, String moduleName ->
+    !Collections.disjoint(features, featureSelectors(moduleName))
+}
+
+def validateSelectors = { String propertyName, Set<String> supported ->
+    def unknown = parseFeatures(findProperty(propertyName)) - supported
+    if (!unknown.isEmpty()) {
+        throw new GradleException("Unknown $propertyName selectors: ${unknown.sort().join(', ')}. " +
+                "Use: ${supported.sort().join(', ')}")
+    }
+}
+
+def featureGroups = featureModules.keySet().findAll { it.count(':') == 2 }
+        .collect { it.substring(0, it.lastIndexOf(':')) }.toSet()
+def supportedFeatures = (featureModules.keySet() + explicitFeatureModules.keySet() + featureGroups)
+        .collectMany { featureSelectors(it) }.toSet() + legacyDigitalAssetSelectors.values().flatten() + ['all']
+
+['keeper.features', 'keeper.docker.features'].each { validateSelectors(it, supportedFeatures) }
+
+def supportedPlatforms = platformModules.keySet().collectMany { [it, it - 'platform-'] }.toSet() + ['all']
+
+['keeper.platforms', 'keeper.docker.platforms'].each { validateSelectors(it, supportedPlatforms) }
 
 def allProductionFeaturesSelected =
         truthy(findProperty('keeper.features.all')) ||

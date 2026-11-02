@@ -5,11 +5,11 @@ plugins {
 tasks.named('assemble') {
     dependsOn ':features:digital-assets:bitcoin:assemble', ':features:digital-assets:evm:assemble',
             ':features:digital-assets:tron:assemble', ':features:digital-assets:xrp:assemble',
-            ':features:digital-assets:solana:assemble'
+            ':features:digital-assets:solana:assemble', ':features:digital-assets:xlm:assemble'
 }
 
 tasks.named('check') {
     dependsOn ':features:digital-assets:bitcoin:check', ':features:digital-assets:evm:check',
             ':features:digital-assets:tron:check', ':features:digital-assets:xrp:check',
-            ':features:digital-assets:solana:check'
+            ':features:digital-assets:solana:check', ':features:digital-assets:xlm:check'
 }
