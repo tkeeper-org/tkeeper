@@ -12,6 +12,25 @@ try (var client = new TKeeperClient("https://hub.example", new JwtTokenAuth(acce
 }
 ```
 
+For a private CA, mutual TLS or an HTTP proxy, configure both Jettyx and the SSE
+transport explicitly. Jettyx 0.2 does not expose its HTTP client settings. The
+four-argument constructor accepts a caller-owned JDK HttpClient for Hub events;
+configure it with the same SSLContext/proxy and keep redirects disabled:
+
+```java
+var events = HttpClient.newBuilder().sslContext(sslContext)
+        .followRedirects(HttpClient.Redirect.NEVER).build();
+try (var client = new TKeeperClient(jettyx, hubOrigin, new JwtTokenAuth(accessJwt), events)) {
+    try (var stream = client.hub().operations().observeOperationEvents(operationId)) {
+        var event = stream.read();
+    }
+}
+```
+
+Closing TKeeperClient closes active event requests and streams, but does not close
+the caller-supplied HttpClient. Existing constructors use JVM-default trust/proxy
+settings for SSE.
+
 Hub calls send the existing SSO JWT as `Authorization: Bearer <token>`. `JwtTokenAuth` is adapted for Hub calls; native Keeper calls retain their `X-JWT-TOKEN` behavior. Jettyx `BearerAuth` is also supported. Public authentication discovery, `hub().session().getAuthenticationConfig()`, omits authentication.
 
 | Accessor | Contract area |
