@@ -1,6 +1,6 @@
 # Bytes, time, and module functions
 
-Use `Bytes` for binary data, `Time` for a point on the UTC timeline, and `Duration` for elapsed time. These values are immutable. The `fn-commons` module provides their factories, conversions, and methods, along with text methods and SHA-256.
+Use `Bytes` for binary data, `Time` for a point on the UTC timeline, and `Duration` for elapsed time. These values are immutable. Keeper includes the conversions and methods below, along with text methods and SHA-256.
 
 ## Byte values
 
@@ -73,7 +73,7 @@ Create a duration with `Duration.millis(value)`, `Duration.seconds(value)`, `Dur
 | `-duration` | Negated `Duration` |
 | `<`, `<=`, `>`, `>=` | Compare two times or two durations |
 
-`Time.now()` reads the host's evaluation time. Every call in one evaluation, including every action in a batch, reads the same value. It is unavailable in authority constants, defaults, and other compile-time expressions.
+`Time.now()` reads the current time once per policy evaluation. Every call in one evaluation, including every action in a batch, reads the same value. It is unavailable in authority constants, defaults, and other compile-time expressions.
 
 Calendar methods require a time zone:
 
@@ -119,33 +119,23 @@ The matching `artifact.typed` uses this JSON:
 {"payload":"3q2+7w==","expiresAt":"2026-11-01T11:00:00Z"}
 ```
 
-Native Java `byte[]` and `Instant` values become `Bytes` and `Time`. EVM `bytes` and `bytesN`, Solana `bytes`, and Soroban `bytes` arguments expose `Bytes`. EVM fixed byte arguments retain their declared length. X.509 validity fields expose optional `Time` values.
+EVM `bytes` and `bytesN`, Solana `bytes`, and Soroban `bytes` arguments expose `Bytes`. EVM fixed byte arguments retain their declared length. X.509 validity fields expose optional `Time` values.
 
 ## Protocol functions
 
-Each protocol module defines its functions. A function is available when the host installs that module's function provider.
+Protocol functions are available when Keeper is built with the corresponding feature. See [Build and features](../deployment/build-and-features.md) to select features.
 
-| Module | Functions |
+| Keeper feature | Functions |
 | --- | --- |
-| `fn-commons` | `Bytes` factories and methods, text methods, `Time`, `Duration`, `crypto.sha256(bytes)` |
-| `digital-assets:evm` | `evm.validAddress(text)`, `evm.addressEquals(left, right)`, `crypto.keccak256(bytes)` |
-| `digital-assets:bitcoin` | `bitcoin.validAddress(text, network)` |
+| Included in every build | `Bytes` conversions and methods, text methods, `Time`, `Duration`, `crypto.sha256(bytes)` |
+| `evm` | `evm.validAddress(text)`, `evm.addressEquals(left, right)`, `crypto.keccak256(bytes)` |
+| `bitcoin` | `bitcoin.validAddress(text, network)` |
 | `agentic-payments` | `payment.minorUnits(amount, currency)`, `payment.currencyScale(currency)`, `payment.matchesIdentity(actual, expected)` |
 
 EVM validation checks address syntax and mixed-case checksums. `addressEquals` validates both operands before comparing their addresses. Bitcoin validation checks the address checksum and the network argument, such as `"mainnet"` or `"testnet"`.
 
 Payment amounts use quoted decimal text and an ISO currency code. `payment.minorUnits("50.00", "USD")` returns the integer 5000. Excess fractional digits and unknown currencies fail. Identity matching checks the configured `id` and `website`, or the payment instrument's `id` and `type`. It compares every configured field.
 
-## Java hosts and function providers
+## Limits
 
-`FunctionModule` belongs to `extension-api`. A module supplies named `FunctionDefinition` values and optional `MethodDefinition` values. Named functions use `namespace.name`. A method's first parameter is its receiver. The compiler checks parameter and result types and binds the function into the execution plan. Returned values undergo validation too.
-
-The default `Edict` constructors discover providers with Java `ServiceLoader`. A provider JAR registers its provider class in `META-INF/services/org.exploit.edict.extension.FunctionModule`. The four-argument constructor accepts an explicit list of providers. An empty list disables module functions. Duplicate module IDs, function names, and receiver methods are rejected. `CompiledPolicy.functionModules()` reports installed module versions.
-
-Keeper passes an explicit provider list from its closed service registry. The build selects the function factories with the enabled features and verifies their implementations in the packaged JAR. Additional service metadata cannot add functions at runtime. Rebuild Keeper to change the installed providers.
-
-Java hosts can pass `new EvaluationContext(instant)` to `evaluate` or `evaluateAll` for a fixed evaluation time. The default overload captures the current time once per evaluation.
-
-Function implementations are trusted host code. They must reserve work and allocation budgets before processing input or creating results. A budget does not interrupt arbitrary Java code. Declare a function as constant only when its result depends on its arguments and fixed module configuration. Functions that need evaluation context must set `constant` to `false`.
-
-Byte values use the configured `stringCharacters` limit as their maximum byte count. Execution and value budgets also cover searches, conversions, concatenation, and intermediate results. Out-of-range times, invalid encodings, and exhausted budgets fail evaluation.
+Byte values, searches, conversions, and intermediate results share the policy's resource limits. Invalid encodings, unsupported time values, or exhausted limits fail evaluation. See [Errors and execution limits](errors-and-limits.md).

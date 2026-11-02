@@ -1,6 +1,6 @@
 # MCP through TKeeper Hub
 
-AI agents can manage Keeper through TKeeper Hub’s MCP tools. Tools cover policy editing and key management as well as signing and approvals. Inventory and audit records are available through read tools, along with details of Keeper peers. MCP and the web workspace use the same domain services and the authenticated user’s permissions.
+AI agents can manage Keeper through TKeeper Hub’s MCP tools. Tools cover policy editing and key management as well as signing and approvals. Inventory and audit records are available through read tools, along with details of Keeper peers. MCP and the web workspace enforce the authenticated user’s permissions.
 
 Connect an MCP client to `https://<hub-host>/mcp`. Tool calls use the Keeper cluster configured for that Hub deployment. MCP arguments cannot select a cluster or supply an arbitrary Keeper endpoint.
 

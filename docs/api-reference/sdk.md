@@ -3,7 +3,7 @@
 The Java SDK provides typed modules for the public TKeeper API:
 
 - [SDK README](../../sdk/README.md)
-- Maven coordinate: `org.exploit:tkeeper-sdk:3.0.0`
+- Maven coordinate: `org.exploit:tkeeper-sdk:4.0.0`
 - Java toolchain: 17 or newer
 
 Find the API operation for a client method in the [SDK module table](../../sdk/README.md#modules). [OpenAPI](../../openapi.yaml) defines their request and response format.
@@ -16,7 +16,7 @@ Find the API operation for a client method in the [SDK module table](../../sdk/R
 - Build signing requests with `AuthorityCommand` and use `VerificationCommand.from(command)` for verification. Verification checks the signature against `type` and `artifact`. It does not load an authority or reassess policy.
 - Use `dryRun().emulate(...)` to preview an authority-policy decision. See [Dry Run Policy Evaluation](../signing-and-authorities/dry-run.md).
 - Use `approvers()` to register credentials, then pin returned refs in key or authority policies. Registration does not grant approval authority.
-- Use `approvals().prepare(...)` for WebAuthn approval challenges. The [SDK migration notes](../../sdk/README.md) cover the `Proof` interface and its implementations.
+- Use `approvals().prepare(...)` for WebAuthn approval challenges. See the [SDK guide](../../sdk/README.md) for signature and WebAuthn proofs.
 - Use `central().getConfig()` for runtime modules and quorum settings, and `controlPlane().listIdentities(...)` for the caller's permitted signing identities.
 - Catch `TKeeperException` and branch on `ErrorType`, not diagnostic detail text.
 - Do not retry authorization or policy denials as availability failures.

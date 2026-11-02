@@ -8,7 +8,7 @@ The public API accepts client requests. The internal API exchanges threshold pro
 Client
   -> public API
   -> authentication and permissions
-  -> intent materialization
+  -> command validation and decoding
   -> authority and key policy checks
   -> audit gate
   -> key/session manager
@@ -27,7 +27,7 @@ For threshold operations, the coordinator starts the session, but peers validate
 | Auth layer | Client authentication, internal peer authentication, permission checks |
 | Authority layer | Converts command data into governed intent and policy checks |
 | Key lifecycle | DKG, import, refresh, rotate, destroy, generation tracking |
-| Session managers | Coordinate signing, DKG, destroy, and feature-specific multi-step operations |
+| Operation coordination | Runs signing, key generation, destruction, and other operations across the required peers |
 | Audit layer | Records security-relevant decisions and can block operations if required sinks fail |
 | Storage | Local key share state, metadata, authorities, audit state, and side data |
 
@@ -51,7 +51,7 @@ Features add command types, endpoints, or seal providers:
 | `x509` | Certificate issuance intent support |
 | `ecies` | ECIES encryption and threshold decryption |
 | `seal-aws` | AWS KMS seal provider |
-| `seal-gcloud` | Google Cloud KMS seal provider |
+| `seal-gcloud` | Google KMS seal provider |
 
 If a feature is not included in the artifact, its endpoints or command types are unavailable.
 

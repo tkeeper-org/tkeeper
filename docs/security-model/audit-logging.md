@@ -146,7 +146,7 @@ keeper.audit {
 
 The socket sink marks a line accepted after TKeeper writes and flushes it to the local socket stream. Acceptance confirms the local write, but not durable storage at the collector. TKeeper treats the sink as failed if the write exceeds `ack-timeout`.
 
-Timeouts accept HOCON durations. Unitless values still mean milliseconds but are deprecated. The socket's former `connect-timeout-millis` and `read-timeout-millis` names are deprecated aliases. `connect-timeout` and `read-timeout` take precedence when both forms are present. `read-timeout = 0ms` disables the socket read timeout. Other socket and file audit timeouts must be positive. Socket connect/read limits must fit a 32-bit millisecond value.
+Timeouts accept HOCON durations. Values without units mean milliseconds and are deprecated. The socket's former `connect-timeout-millis` and `read-timeout-millis` names are deprecated aliases. `connect-timeout` and `read-timeout` take precedence when both forms are present. `read-timeout = 0ms` disables the socket read timeout. Other socket and file audit timeouts must be positive. Socket connect/read limits must fit a 32-bit millisecond value.
 
 ## Verification
 
@@ -250,7 +250,8 @@ Required permission:
 tkeeper.integrity.rotate
 ```
 
-Restart every peer after rotating an integrity key. Peer integrity-key pins are process-local in 2.2.0+. Until restart, callers that previously contacted the rotated peer continue to reject its new signed responses.
+Restart every peer after rotating an integrity key so peers trust the new key. Until restart,
+peers that trusted the earlier key reject responses signed with its replacement.
 
 Rotation keeps historical public keys for log verification and removes the corresponding historical private keys. Replaying only the current-version pointer fails closed when it no longer matches the stored history. A coordinated same-location replay of the pointer and its matching records can still pass local verification, as can a complete database rollback. Detecting that class of rollback requires an independently protected monotonic checkpoint or external audit anchor.
 

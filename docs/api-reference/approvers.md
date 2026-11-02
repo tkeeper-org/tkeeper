@@ -55,7 +55,7 @@ existing metadata. The same normalized key under another id returns `409`. A dif
 under the same id creates another version and retains the previous versions. The API does not provide endpoints to update or delete descriptors.
 
 Registration does not make the credential an authorized approver. A key's FourEye policy or
-an OCI authority policy must explicitly pin its complete `ref`. Both SIGNATURE and WEBAUTHN
+an OCI authority policy must explicitly pin its complete `ref`. Both `SIGNATURE` and `WEBAUTHN`
 descriptors are supported. Existing inline FourEye policies use the same request format and checks.
 
 ## Pin a registered approver in a policy
@@ -103,7 +103,7 @@ during CREATE protects subsequent operations. Key-bound and authority approval g
 
 The original policy retains the literal ref in its signing hash. A new version or metadata update
 does not change an existing policy. Changing a pinned ref requires REFRESH/ROTATE authorized
-by the current policy. Historical generations retain their exact refs. Approval verification reads those descriptors independently of the registry writer and mutation lock. Recovery and MONO promotion transfer the
+by the current policy. Historical generations retain their exact refs. Existing policies remain usable for signing while a registry write is waiting for peers. Recovery and MONO promotion transfer the
 registry before the affected keys are made usable.
 
 ## Register WebAuthn from a hub
@@ -157,31 +157,24 @@ and browser options to the intended credential holder. The holder sends their ow
 and the invitation to finish, possibly through another peer. No registry permission or match
 with the registrar's JWT subject is required. The writer independently checks a forwarded JWT.
 The session pins the registrar, target id,
-metadata, RP, origins, algorithm, and deadline. The invitation is 32 random bytes in canonical
-unpadded Base64url. Its domain-separated SHA-256 hash is the public `registrationId`. That id
-cannot authorize finish. The mirrored session contains the hash, not the invitation secret.
-Keeper returns a token. External management creates enrollment links and delivers them.
+metadata, RP, origins, algorithm, and deadline. Use the returned `invitation` to finish enrollment.
+The public `registrationId` identifies the session and cannot authorize finish. The registrar's
+app creates the enrollment link and delivers it to the intended holder.
 
 A session defaults to five minutes (maximum ten). Each registrar can have eight unfinished
 sessions and the writer retains at most 256 unexpired sessions. Capacity exhaustion returns 429.
 
 Finish returns `201` for a new version and `200` for an identical successful retry within the
 session deadline. A different
-response for a completed session is rejected. Session consumption, the descriptor, uniqueness
-indexes, initial counter/backup observations and replication outbox commit in one transaction.
-Completed sessions and records survive writer restarts. Runtime observations are stored separately
-from the descriptor and do not change the ref. Counters are never reduced by registration retries.
-Before signing PREPARE, each peer must validate the invitation and reserve its response/ref. A failed check leaves a valid invitation available for another attempt. Live sessions and durable
-consumption reservations transfer through recovery and promotion. Treat the invitation as a bearer
+response for a completed session is rejected. Completed enrollment survives writer restarts.
+A failed verification leaves an otherwise valid invitation available for another attempt.
+Recovery and promotion preserve enrollment sessions and their consumption state. Treat the invitation as a bearer
 secret: any authenticated holder can enroll a credential for its pinned id. The recipient's
 JWT does not change that id or establish that the registrar intended this holder.
 Registration does not grant approval rights. A policy must explicitly pin the resulting ref.
 
-Deploy this contract to all peers and update SDK callers together. Earlier unfinished sessions
-must be restarted. Finish now accepts `invitation` instead of `registrationId`.
-
-The deadline limits new WebAuthn confirmations and PREPARE receipts. An already complete
-all-member confirmation remains valid for delivery after that deadline. Partial signed
+The deadline limits enrollment checks and new confirmations from peers. A change already
+confirmed by every member can still be delivered after that deadline. Partial signed
 reservations retain locks for their keys, credentials, and metadata until coordinated settlement.
 TTL does not release those locks or permit a conflicting registration.
 
@@ -225,14 +218,10 @@ Metadata is for search and display and has no effect on approval permissions or 
 
 ## Persistence
 
-Descriptors, metadata, uniqueness indexes, sessions/runtime, signed preparations, commit
-certificates and replication outboxes are signed in `cf_approvers` using each peer's integrity
-key. Full database snapshots include them. Preserve integrity-key history when restoring.
-Registry transactions synchronously flush the WAL before acknowledging PREPARE or commit.
-Registry restoration and promotion transfers require the same durability for their whole transaction.
-Read-only transactions and unchanged repeat deliveries do not write or synchronize the WAL.
-Ordinary key stores retain their existing write options. Column families still share the
-physical WAL and disk, so registry fsync can affect concurrent write latency.
+Full database backups include the registry, enrollment sessions, and pending changes.
+Preserve the peer's integrity-key history when restoring. A write succeeds only after every
+current member has durably stored the result. Registry writes can increase storage latency
+for other operations on the same peer.
 
 Mutations are ordered by the lowest peer ID in the current membership. A mono Keeper has one
 member even when its configuration includes future promotion targets. Any public peer forwards
@@ -241,29 +230,25 @@ member must be ready with matching topology. Identity keys are obtained through 
 signed peer responses. Each member must independently check the actor's permission and exact command.
 It also validates the canonical descriptor and key ownership, with separate checks for metadata revision and WebAuthn proofs where required.
 No member can authorize a registry change on behalf of the others.
-Peer coordination serializes registry mutations. Signing, registry reads, and health checks
-do not acquire the registry mutation monitor.
+Registry writes are processed one at a time. Signing, registry reads, and health checks can continue while a write waits for peers.
 
-Each member durably reserves the exact proposal and signs a PREPARE receipt. Only a certificate
-containing a valid receipt from every current member authorizes commit. Signature registration,
-WebAuthn finish and metadata updates succeed only after every member has persisted the result.
+Every current member must validate and confirm the exact change. Signature registration,
+WebAuthn finish, and metadata updates succeed only after every member has persisted the result.
 WebAuthn options also require every member online and mirror the actor-bound session everywhere.
 
-An unavailable or sealed member causes `503 APPROVER_REPLICATION_UNAVAILABLE`. Failure during
-the protocol can leave reservations or committed copies. Surviving prepared members can collect
-the remaining receipts and deliver a complete certificate after the writer stops or the actor token expires. Durable retries resume after restarts. Recipients retain delivery work too. Partial
-preparations without a complete certificate remain locked, including after expiry.
+An unavailable or sealed member causes `503 APPROVER_REPLICATION_UNAVAILABLE`. A failed request
+can leave a pending or partially delivered change. Peers can finish delivering a change confirmed
+by every member after the writer stops or the actor token expires. Pending delivery resumes
+after restart. A partially confirmed change remains locked, including after expiry.
 
-Each peer retains at most 256 uncommitted preparations, including expired ones. Expiry does not
+Each peer retains at most 256 uncommitted changes, including expired ones. Expiry does not
 free this capacity while protective locks remain. Another preparation then returns 429.
 An identical registration retry converges to the existing version. For a metadata retry, read the current
 revision before reconciling the previous request. Older deliveries cannot roll metadata back.
 
-ECC and PQC share recovery obtain a validated registry snapshot from every selected helper.
-Helpers must have no uncommitted preparations and agree on records, revisions, runtime,
-sessions, and certificates at one shared cutoff. Certified commits can be recovered while their
-delivery queues remain pending. These local queues are not transferred. The target rebuilds its registry and uniqueness
-indexes atomically with key installation, signing restored data with its own integrity key.
+ECC and PQC share recovery restore the registry together with the key. Selected helpers must
+have no uncommitted changes and must agree on credential versions, metadata, enrollment state,
+and completed changes. A failed key installation leaves the target registry unchanged.
 
 Mono-to-threshold promotion transfers the registry even when no key sets exist. A nonempty
 registry requires `tkeeper.approvers.register` and `tkeeper.approvers.metadata` on
@@ -271,7 +256,7 @@ the promotion principal. The source pins one transfer draft and blocks registry 
 promotion completes. Targets require a draft authenticated by the source and an empty, settled registry/vault with no active DKG. Retries remain bound to that transfer.
 After a failed promotion, retry the same transfer because its safety state remains stored after TTL expiry.
 
-Registration and metadata writes use the existing audit pipeline. Successful events include
+Registration and metadata writes produce signed audit events. Successful events include
 `context.approverRef` and `context.metadataRevision`. Metadata remains protected by the request
 body digest and is not copied into the audit context. These fields describe registry changes,
 not verified approval votes.

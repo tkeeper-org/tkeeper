@@ -1,6 +1,6 @@
-# TKeeper Java SDK
+# Java client
 
-Use TKeeper from Java to sign governed commands and manage the keys behind your application's identities.
+Use TKeeper from Java to sign governed commands and manage the keys behind your app's identities.
 The client connects to Keeper nodes or [TKeeper Hub](https://tkeeper.org/hub). Requires Java 17 or newer.
 
 ## Dependency
@@ -11,22 +11,15 @@ Maven:
 <dependency>
   <groupId>org.exploit</groupId>
   <artifactId>tkeeper-sdk</artifactId>
-  <version>3.0.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'org.exploit:tkeeper-sdk:3.0.0'
+implementation 'org.exploit:tkeeper-sdk:4.0.0'
 ```
-
-The SDK uses Jettyx 0.2.0 with the JDK HTTP client. Recompile applications that used
-the former Jetty-based SDK: response headers now use `java.net.http.HttpHeaders`
-(`firstValue(name)` / `allValues(name)`), and custom `Authorization` implementations
-must implement `apply(java.net.http.HttpRequest.Builder)`. Pass raw path parameters;
-Jettyx encodes them. `HubUtils.checked(...)` handles HTTP error responses; the former
-Jetty-specific `HubUtils.httpError(Throwable)` helper has been removed.
 
 ## Connect to Keeper
 
@@ -51,11 +44,18 @@ in `features`, sorted supported authority types in `authorities`, and `sealProvi
 It requires authentication without an additional permission and
 works on an initialized sealed Keeper.
 
+## Customize requests
+
+Custom `Authorization` implementations apply credentials through
+`apply(java.net.http.HttpRequest.Builder)`. Response headers use `java.net.http.HttpHeaders`:
+read them with `firstValue(name)` or `allValues(name)`. Pass path parameters without URL encoding.
+The client encodes them. Use `HubUtils.checked(...)` to handle Hub HTTP error responses.
+
 ## TKeeper Hub
 
 Use [TKeeper Hub](https://tkeeper.org/hub) to coordinate approvals between your service and the people
-who review its requests. Your service can submit a signing request, store its operation ID and return
-to it after approvals arrive.
+who review its requests. Submit a signing request and retain its operation ID. Your service can return to
+the request after approvals arrive.
 
 Connect to your Hub deployment's origin with an SSO access JWT. The example below uses an existing key
 and an `AuthorityCommand`, such as the one in [Governed typed signing](#governed-typed-signing).
@@ -84,11 +84,10 @@ try (var client = new TKeeperClient("https://hub.example", new JwtTokenAuth(acce
 A completed signing call returns its signature in `result()`. When approval is required, HTTP 202
 returns a saved operation in `operation()`. Read `hub.approvals().getApprovalStatus(operationId).body()` to
 find which approvals are still needed. Once those requirements are met, the request owner can call
-`hub.operations().executeOperation(operationId)`. Check the returned operation state: an execution
-failure can be reported in an HTTP 200 response.
+`hub.operations().executeOperation(operationId)`. Check the operation state even after HTTP 200, which can contain an execution failure.
 
 Choose an idempotency key for each business request and keep it with that request. Reuse it only for
-the same action and payload. Signing, composition, refresh, rotation and destruction require it.
+the same action and payload. Signing, composition, refresh, rotation, and destruction require it.
 After an unknown transport outcome, check the operation journal before submitting again.
 
 Use `hub.keys()` to manage keys and `hub.policies()` to work with authority drafts and releases.
@@ -164,7 +163,7 @@ The short `Generate` constructors that omit `KeySetAuthorities` default to `arbi
 | `expire()` | expiration indexes |
 | `audit()` and `integrity()` | audit verification and integrity-key rotation |
 | `controlPlane()` | control-plane reads |
-| `central()` | peer id, public key, ping and runtime configuration |
+| `central()` | peer id, public key, ping, and runtime configuration |
 | [`hub()`](HUB.md) | signing and approval workflows through Hub, with a saved operation journal |
 
 Feature-specific calls fail when the server artifact does not include the required feature or cryptographic platform.
@@ -172,9 +171,8 @@ Feature-specific calls fail when the server artifact does not include the requir
 ## Approvals
 
 `Approvals.proofs()` accepts `SignatureProof` for signature approvals and `WebAuthnProof` for browser
-assertions. Both implement `Proof` in `org.exploit.tkeeper.sdk.model.approval`. When migrating code
-that used `Approvals.Proof`, construct `new SignatureProof(fingerprint, signature64)`. Inspect each
-proof's type before accessing its signature or credential fields.
+assertions. Check each proof's type before accessing its signature or credential fields.
+Construct a signature proof with `new SignatureProof(fingerprint, signature64)`.
 
 For WebAuthn, `keeper.approvals().prepare(new PrepareApprovals(type, operationJson))` returns a
 signed binding and browser request options. Attach the browser assertion with
@@ -208,8 +206,8 @@ independent. The module URL-encodes complete refs and sends the quoted revision 
 Reconcile `APPROVER_METADATA_REVISION_MISMATCH` by reading the current record before retrying.
 Registration and metadata updates require every current member online and persisted before
 success. Requests may use any peer. A 503 can leave durable reservations or deliveries. Surviving
-members finish fully confirmed deliveries after writer failure. TTL limits new WebAuthn/PREPARE
-confirmations; partial signed reservations keep their protective locks until coordinated settlement.
+members finish fully confirmed deliveries after writer failure. TTL limits new enrollment confirmations. Partially confirmed changes retain their protective
+locks until coordinated settlement.
 An identical registration retry is safe. Pin the returned ref in a key policy:
 
 ```java
@@ -235,11 +233,11 @@ approver alice {
 References pin the exact credential and approval method; metadata and new registrations do
 not change existing policies. Key policies can mix `Reference` and legacy `PublicKey` entries.
 `ApprovalRequirement.approvers()` values decode as `Approver` or
-`model.authority.RegistryApprover`; rules still select their manifest aliases.
+`model.authority.RegistryApprover`. Rules select their manifest aliases.
 When reading `fourEye.keys()` or `ApprovalRequirement.approvers()`, check the entry type
 before accessing inline key fields.
 
-For a browser application connected directly to Keeper, obtain creation options and finish with
+For a browser app connected directly to Keeper, obtain creation options, and finish with
 the browser's credential JSON. Hub invitations use the flow in the [Hub API guide](HUB.md#approvers-and-deadlines).
 
 ```java
@@ -256,15 +254,15 @@ Issuing options requires `tkeeper.approvers.register`. Pass `options.invitation(
 options to the intended credential holder. The holder finishes using a client authenticated with
 their own JWT and can target another peer. Finish requires both the JWT and invitation, with no
 additional registry permission. The public
-`registrationId()` is only a session identifier. Identical finish retries return the same record;
-another response cannot reuse the invitation. Returned credentials decode as `SignatureCredential`
+`registrationId()` is only a session identifier. Identical finish retries return the same record.
+Another response cannot reuse the invitation. Returned credentials decode as `SignatureCredential`
 or `WebAuthnApproverCredential`.
-Configure `keeper.webauthn` on the cluster for the browser application's RP ID and exact frontend origins.
+Configure `keeper.webauthn` on the cluster for the browser app's RP ID and exact frontend origins.
 
 ## Errors
 
-Direct Keeper calls throw `TKeeperException` for HTTP failures. Branch on the stable `ErrorType`;
-use `details` only for diagnostics.
+Direct Keeper calls throw `TKeeperException` for HTTP failures. Branch on the stable `ErrorType`.
+Use `details` only for diagnostics.
 
 | Error family | Handling |
 | --- | --- |
@@ -272,7 +270,7 @@ use `details` only for diagnostics.
 | `APPROVAL_REQUIRED` | collect every group from `TKeeperException.getApprovals()`, [build and sign `hashForSigning`](../docs/security-model/four-eye-control.md#building-hashforsigning), and resubmit once |
 | validation and authority errors | fix the request, authority, or server artifact |
 | `SESSION_MAX_ROUNDS_EXCEEDED`, quorum, audit, or timeout errors | retry only under a bounded availability policy |
-| non-empty `imposters` | preserve as security evidence and investigate the named peers |
+| non-empty `imposters` | preserve as security evidence and investigate the peers in `imposters` |
 
 Do not blindly retry policy, permission, or validation failures. Preserve `imposters` and `dead` as security and availability diagnostics.
 
@@ -283,4 +281,4 @@ Keeper 401 alone does not require a new Hub session. See [Hub errors](HUB.md#err
 ## Contract
 
 The [Keeper OpenAPI](../openapi.yaml) defines the node API's routes and wire models.
-The [Hub API guide](HUB.md) covers Hub responses, approval workflows and operation events.
+The [Hub API guide](HUB.md) covers Hub responses, approval workflows, and operation events.

@@ -54,7 +54,7 @@ var command = Command.of("test:custom/recipients", artifact);
 var signature = client.signature().sign(Sign.of(keyId, command));
 ```
 
-A missing `status` uses `READY`. A missing `labels` uses `[]`. A missing `note` becomes `null`. Unknown fields in a record, missing required fields, and wrong types fail validation. Maps accept text keys supplied at runtime and validate each value. Numeric strings are not coerced to numbers. Decimal and large integer values retain their exact value through parsing and peer transport. The control-plane command schema is generated from the compiled Edict input.
+A missing `status` uses `READY`. A missing `labels` uses `[]`. A missing `note` becomes `null`. Unknown fields in a record, missing required fields, and wrong types fail validation. Maps accept text keys supplied at runtime and validate each value. Numeric strings are not coerced to numbers. Decimal and large integer values retain their exact value. The identity catalog exposes the command schema declared by the authority.
 
 ## Signing bytes
 

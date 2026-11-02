@@ -70,8 +70,8 @@ Cryptographic validity alone does not establish business validity, freshness, or
 
 Approver registration, WebAuthn enrollment and metadata writes require every current member
 to be ready and persist the result. One unavailable member stops these writes even when enough
-peers remain for signing. A failed write can leave durable preparations or delivery work. Expiry
-does not release protective locks on a partially signed proposal. Retry an identical registration
+peers remain for signing. A failed write can leave a pending or partially delivered change. Expiry
+does not release protective locks on a partially confirmed change. Retry an identical registration
 after recovery and reconcile metadata revisions before replacing them. See
 [registry persistence](../api-reference/approvers.md#persistence).
 

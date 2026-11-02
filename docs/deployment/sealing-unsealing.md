@@ -66,7 +66,7 @@ Select a provider and include its build feature when required:
 | `shamir` | submit unseal shares | built in |
 | `hsm` | PKCS#11 wrapping key | built in |
 | `aws` | AWS KMS key | `seal-aws` |
-| `google` | Google Cloud KMS key | `seal-gcloud` |
+| `google` | Google KMS key | `seal-gcloud` |
 
 A selected provider must be present in the artifact. `keeper.providers.selected = "aws"` requires `-Pkeeper.features=seal-aws`.
 
@@ -83,7 +83,7 @@ keeper.providers {
 
 `auto-unseal` applies to automatic providers. Manual Shamir unseal uses submitted shares.
 
-For automatic providers, `GET /v1/keeper/system/unseal` asks the selected provider to decrypt TKeeper's internal master key. That is how HSM, AWS KMS, and Google Cloud KMS unseal without submitted shares.
+For automatic providers, `GET /v1/keeper/system/unseal` asks the selected provider to decrypt TKeeper's internal master key. That is how HSM, AWS KMS, and Google KMS unseal without submitted shares.
 
 ## Shamir provider
 
@@ -165,7 +165,7 @@ keeper.providers {
 }
 ```
 
-## Google Cloud KMS provider
+## Google KMS provider
 
 Use provider id `google` with the `seal-gcloud` feature.
 
@@ -191,51 +191,27 @@ keeper.providers {
 }
 ```
 
-## KMS credentials and transport
+## KMS credentials and access
 
-KMS encrypt and decrypt requests use Jettyx 0.2.0 over HTTPS. The official AWS and Google authentication libraries provide credential discovery,
-request signing, federation, and token refresh. These providers use Jettyx for KMS
-transport without bundling Netty or gRPC.
+KMS encrypt and decrypt requests use HTTPS. Provide the selected cloud identity with access to
+the configured key, and test unsealing in the deployment environment before relying on auto-unseal.
 
-AWS resolves credentials through its [default chain](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials-chain.html).
-It checks JVM properties and environment variables before web identity and shared profiles.
-Container credentials and EC2 instance credentials are the final sources. STS, IAM Identity Center (SSO), and
-SSO OIDC support are included. Obtain an SSO session with the AWS command-line tool before
-starting TKeeper. Credential-service requests use the SDK's JDK URLConnection
-transport. KMS requests use SigV4 and `SYMMETRIC_DEFAULT`. Region endpoints and
-signing regions come from official AWS service metadata.
+AWS uses its [default credential chain](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/credentials-chain.html).
+It supports environment variables, shared profiles, web identity, container credentials, and EC2
+instance credentials. For IAM Identity Center (SSO), obtain a session with the AWS command-line tool
+before starting Keeper. The identity needs `kms:Encrypt` and `kms:Decrypt`, with access allowed
+by the key policy.
 
-Google uses [Application Default Credentials](https://cloud.google.com/docs/authentication/application-default-credentials):
-`GOOGLE_APPLICATION_CREDENTIALS`, the local ADC file, or the attached service
-account. Supported credential types and their refresh behavior remain those of
-the official authentication library, including service accounts, user credentials,
-workload federation, and impersonation. OAuth 2.0 uses the `cloud-platform` scope.
-KMS requests include quota-project metadata when credentials provide it.
+Google uses [default credentials](https://cloud.google.com/docs/authentication/application-default-credentials):
+`GOOGLE_APPLICATION_CREDENTIALS`, the local ADC file, or the attached service account.
+Service accounts, user credentials, workload federation, and impersonation are supported.
+The identity needs `cloudkms.cryptoKeyVersions.useToEncrypt` and
+`cloudkms.cryptoKeyVersions.useToDecrypt`. Requests use the `cloud-platform` OAuth 2.0 scope and
+include quota-project metadata when the credentials supply it.
 
-The existing provider configuration and stored wrapped keys do not need migration.
-The identity needs `kms:Encrypt` and `kms:Decrypt` for AWS, or
-`cloudkms.cryptoKeyVersions.useToEncrypt` and
-`cloudkms.cryptoKeyVersions.useToDecrypt` for Google. Provider IAM and key policies
-still control access.
-
-The wire contracts follow the official
-[AWS Encrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Encrypt.html),
-[AWS Decrypt](https://docs.aws.amazon.com/kms/latest/APIReference/API_Decrypt.html),
-[Google Encrypt](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/encrypt),
-and [Google Decrypt](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys/decrypt)
-APIs. Google responses must pass CRC32C verification. Encryption must confirm the
-request checksum and return a version of the configured key. Both providers
-bound response sizes and retry transient HTTP errors up to three attempts.
-Redirects are rejected.
-
-Run the local protocol and authentication tests with:
-
-```bash
-./gradlew :features:seal-aws:test :features:seal-gcloud:test
-```
-
-These tests use local HTTP endpoints and fake credentials. They verify request
-formats, signing, OAuth 2.0 exchanges, token refresh, and failure handling. Deployment credentials and IAM policies require separate checks against live cloud keys.
+Keeper refreshes credentials when required. Transient KMS HTTP errors receive up to three attempts.
+Redirects are rejected. Google KMS responses must pass checksum verification and use a version
+of the configured key. If KMS cannot decrypt the master key, unsealing fails and the node remains sealed.
 
 ## Common problems
 

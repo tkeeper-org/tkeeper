@@ -73,7 +73,7 @@ Both forms expose `request.amount` and `request.recipient` to the rules. The sub
 {"amount":250,"recipient":{"address":{"country":"AE"}}}
 ```
 
-Keeper builds the command schema from the compiled document. Authors do not also define a Java `InputSchema` or a separate schema catalog for a custom authority. The standalone Edict API can accept other root arrangements. The `request` root is Keeper's contract for `custom` signing.
+Keeper derives the command schema from the authority document. Declare exactly one object input named `request` for a custom signing authority.
 
 ## Required, optional, and defaulted fields
 

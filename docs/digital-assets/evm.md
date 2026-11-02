@@ -121,7 +121,7 @@ authority "test:evm/receive" {
 }
 ```
 
-The materializers require secp256k1 and verify that `owner`, `from` or `authorizer` matches the requested signing key, including its tweak. `config.chainId`, when present, must match the signed chain ID exactly. Policies must pin the token domain and the delegate or recipient. Add amount and validity bounds appropriate to the operation. Chain state determines whether a nonce remains usable and whether a deadline has expired.
+Keeper requires secp256k1 and verifies that `owner`, `from` or `authorizer` matches the requested signing key, including its tweak. `config.chainId`, when present, must match the signed chain ID exactly. Policies must pin the token domain and the delegate or recipient. Add amount and validity bounds appropriate to the operation. Chain state determines whether a nonce remains usable and whether a deadline has expired.
 
 Use `signature().sign(...)` with the SDK artifacts `Evm7702Authorization`, `Evm2612Permit` or `Evm3009Authorization`. The returned recoverable ECDSA signature signs the protocol digest directly. Submit the signature through the corresponding authorization tuple or contract method. Composing an outer transaction requires a separate transaction intent.
 

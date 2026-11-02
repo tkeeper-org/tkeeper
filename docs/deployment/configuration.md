@@ -343,7 +343,7 @@ keeper.session {
 }
 ```
 
-For ML-DSA, `max-rounds` is the maximum number of complete signing attempts, not the number of protocol messages and not the internal parallel-instance count `K`. Each attempt has three signing rounds and may stop during rejection sampling. The default of `12` bounds latency. Exhausting it returns `SESSION_MAX_ROUNDS_EXCEEDED` and does not identify a dead or malicious peer. Increase it only together with an end-to-end request deadline and latency monitoring.
+For ML-DSA, `max-rounds` limits complete signing attempts. Rejection sampling can stop an attempt even when all peers behave correctly. The default is `12`. Exhausting it returns `SESSION_MAX_ROUNDS_EXCEEDED` and does not identify a dead or malicious peer. Increase it only together with an end-to-end request deadline and latency monitoring.
 
 ## Audit
 
@@ -396,7 +396,7 @@ Other origins are rejected unless listed. HTTP origins require `insecure = true`
 
 ## External control-plane clients
 
-The bundled UI and its `keeper.csp` configuration have been removed. Configure browser
+Configure browser
 security headers on the server hosting your frontend. See [Control-plane clients](control-plane-ui.md)
 for the available discovery APIs and authentication requirements.
 

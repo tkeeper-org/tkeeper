@@ -46,7 +46,7 @@ Guard absent keys and indexes at the expression where they are used. Choose an e
 
 The engine bounds source length, tokens, nesting, text size, numeric precision and scale, value count, and execution work. Input preparation, defaults, arithmetic, comparisons, collection operations, loops, and function calls consume budgets. Collection projections allocate values too: `entries()` constructs a list of entry records, so its cost is greater than `count()`.
 
-Limits apply to intermediate results, not just the final Boolean. A policy can exceed a budget even if its input is syntactically valid. The standalone Java API configures limits. A Keeper policy cannot increase them through source declarations.
+Limits apply to intermediate results, not just the final Boolean. A policy can exceed a budget even if its input is syntactically valid. A Keeper policy cannot increase its resource limits through source declarations.
 
 Use the operation that expresses the question directly. `items.any(...)` can stop at the first match. Building a filtered list merely to check whether one match exists does more work. Keep permitted request sizes within the app's expected range and test their upper boundary.
 

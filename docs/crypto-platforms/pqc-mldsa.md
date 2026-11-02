@@ -30,9 +30,9 @@ they reveal those values. The challenge binds the aggregate commitment and messa
 and each party produces its rejection-sampled response. The combiner applies the ML-DSA norm
 and hint bounds and verifies the final standard ML-DSA signature before release.
 
-TKeeper binds each attempt to an exact configured signer set, the
-stored aggregate public key, materialized message, and one-shot session state.
-The adversarial regressions and their limits are listed in
+TKeeper binds each attempt to the configured signers and their stored aggregate public key.
+The attempt covers the exact message, and its signing state cannot be reused.
+Test coverage and its limits are listed in
 [Security Assurance](../security-model/security-assurance.md).
 
 ## Signing availability

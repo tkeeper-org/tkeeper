@@ -84,21 +84,18 @@ The output is `build/libs/tkeeper-4.0.0-linux-amd64.jar`. To keep every bundled 
 | `windows-amd64` | `windows-amd64` |
 
 A targeted jar contains native libraries for the selected OS/CPU. Java classes and
-features stay the same. Both test jars retain every bundled native variant regardless
-of `target`.
-
-Before services are created, Keeper loads GMP, libsodium, RocksDB JNI, and secp256k1
-when `ecc` is selected. Packaging records their SHA-256 digests and checks the final
-jar against that inventory. Startup verifies each extracted library before loading it.
+features stay the same. Keeper checks the bundled native libraries during packaging
+and verifies their integrity before loading them at startup.
 
 System loading is turned off by default. On Linux arm64 and macOS amd64, no crypto
 natives are bundled: install GMP, libsodium, and (for `ecc`) secp256k1, then explicitly
 allow their use with `-Dkeeper.native.allow-system=true`. Set `-Djava.library.path`
 to their directory if needed. RocksDB requires a compatible JNI library
 when its embedded variant is unavailable. System libraries are trusted without digest
-verification. The flag permits fallback only when the compiled inventory has no
-matching embedded variant and no unlisted resource is present. A missing, changed,
-unreadable, or unloadable expected binary aborts startup even with the flag enabled.
+verification. Fallback is allowed only when the artifact has no bundled library for
+the host's OS/CPU. If a bundled library is expected but missing, changed, unreadable, or
+unloadable, startup fails even with the flag enabled. Unexpected native resources also
+stop startup.
 
 The production Dockerfile provides the system crypto libraries and sets the JVM
 library path. A standalone jar does not install them. For the loading smoke task,
@@ -140,7 +137,7 @@ native loading on the build host.
 | Deferred operations authorized by a mandate | `mandate` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Peer share recovery | `recovery` (explicit opt-in) | `ecc`, `pqc`, or both |
 | AWS KMS seal provider | `seal-aws` | any required crypto platform |
-| Google Cloud KMS seal provider | `seal-gcloud` | any required crypto platform |
+| Google KMS seal provider | `seal-gcloud` | any required crypto platform |
 | Developer token authentication | `auth-dev` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | Authority policy dry run | `dry-run` (explicit opt-in, excluded from `all`) | any required crypto platform |
 | ML-DSA identities | none | `pqc` |
@@ -224,7 +221,7 @@ This passes `TKEEPER_ALLOW_SYSTEM_LIBRARIES=true` to the Docker build and record
 `-Dkeeper.native.allow-system=true` in the image's default JVM options. Protect the
 image and its system libraries as trusted deployment inputs.
 
-Build a recovery image with both platform implementations:
+Build a recovery image for both ECC and ML-DSA:
 
 ```bash
 ./gradlew dockerBuild \
@@ -239,7 +236,7 @@ exploit/tkeeper:4.0.0
 exploit/tkeeper:latest
 ```
 
-The Dockerfile adds the JVM flag required by the FFI Java API:
+The Docker image enables native library access with this JVM flag:
 
 ```text
 --enable-native-access=ALL-UNNAMED
@@ -257,38 +254,15 @@ docker run --rm \
   exploit/tkeeper:4.0.0
 ```
 
-## Integration image
+## Test images
 
-Run the complete release verification with:
+`exploit/tkeeper:dev` and `exploit/tkeeper:production-it` are test images. The development
+image includes controls that can corrupt keys and protocol state. Deploy the production
+image or JAR for normal service.
 
-```bash
-./gradlew releaseGate
-```
-
-This includes every module's unit tests, artifact isolation, both test-container builds, and the functional integration suite. Performance benchmarks are separate.
-
-Build both images used by functional integration tests with:
-
-```bash
-./gradlew buildTestContainers
-```
-
-The test task reuses these images. Re-run the build after changing app code, dependencies, or Dockerfiles.
-
-Both test-image builds use Docker's selected platform. They enable
-`keeper.native.allow-system` automatically only for `linux/arm64`, which lacks
-bundled crypto natives and uses the libraries built into the image. Other platforms
-keep system fallback turned off by default. Bundled variants still take priority and
-fail closed on verification or loading errors. Pass
-`-Pkeeper.native.allow-system=true|false` to override the test-image default.
-Production image builds keep system fallback turned off by default on every platform.
-
-Do not pass `keeper.features` or `keeper.platforms` to this task. The development integration image
-uses a dedicated classpath containing every default production feature, the explicit `auth-dev`,
-`dry-run`, `mandate`, and `recovery` features, both recovery platform modules, every platform, and the test-only
-failure-injection module.
-
-Never deploy either test image as production runtime.
+Run `./gradlew releaseGate` before publishing a source build. It builds the test images and
+runs module tests, artifact checks, and the functional suite. See
+[Integration tests](../operations/integration-tests.md) for requirements and focused checks.
 
 ## Common failures
 

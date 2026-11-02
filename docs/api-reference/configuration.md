@@ -13,12 +13,10 @@ authorize it.
 promotion. `sealProvider` is the configured provider id, such as `shamir`, `hsm`, `aws`
 or `google`. Provider secrets and connection settings are not returned.
 
-`features` contains sorted, unique ids of loaded modules, including `core`. Each runtime feature
-registers a `KeeperModule` singleton. Its `id(): String` method supplies the module id. No central feature catalog or config flag determines this list.
-Nested module ids retain their path, such as `digital-assets:evm`, `recovery:ecc`
-and `agentic-payments:ap2`. Shared runtime dependencies such as `agentic-payments` are
-included when loaded. The `digital-assets` Gradle aggregation project has no runtime
-artifact. Only its selected chain modules appear. Cryptographic platforms are separate.
+`features` lists the installed features in sorted order, including `core`. Use this list to
+check which capabilities the running artifact includes. Nested ids retain their path, such as
+`digital-assets:evm`, `recovery:ecc`, and `agentic-payments:ap2`. Selecting `digital-assets`
+at build time adds its individual chain features to the response. Cryptographic platforms are separate.
 
 The Java SDK exposes this response as `keeper.central().getConfig()`.
 

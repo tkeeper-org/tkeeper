@@ -1,8 +1,7 @@
 # Control-plane clients
 
-Keeper no longer serves a bundled browser UI. The `ui` build selector, `/ui/` routes,
-and `keeper.ui` and `keeper.csp` settings have been removed. Host the operator interface
-separately and connect it to the public API.
+Use [TKeeper Hub](https://tkeeper.org/hub) or another separately hosted client as the operator
+interface. Keeper provides the public APIs below and does not serve a browser UI.
 
 The core control plane provides:
 

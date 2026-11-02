@@ -94,16 +94,16 @@ Keeper protocol-order coverage adds seven failure-injection invocations:
 These cases cross the internal peer transport. The race cases require one accepted transition and
 seven rejected duplicates. Each case ends with a normal distributed signature.
 
-## Research lineage and interpretation
+## Protocol references
 
-| Source | Failure cases converted into executable regressions |
+| Source | Failure cases covered by tests |
 | --- | --- |
 | [RFC 9591] and the [NCC Group Zcash FROST assessment] | Distinct and valid signer identities, exact commitment sets, participant binding, proof validation, partial-signature verification, and one-shot nonce state. |
 | [BitForge GG18/GG20 finding] | Invalid Paillier modulus, generator, ciphertext, range proof, biprime proof, and no-small-factor proof inputs. |
 | [CGGMP21 modulus-proof advisory], [CGGMP24 Pi-enc hardening], and [CGGMP24 aff-g hardening] | Multiplicative-group membership variants across Paillier ciphertexts, randomizers, range commitments, and Ring-Pedersen proof elements. Non-coprime biprime witnesses. |
 | [Efficient Threshold ML-DSA] | Commit/reveal binding, exact round participants, malformed transcript rejection, and one-shot round state. |
 | [NIST ACVP ML-DSA specification] | Independent mutation of the final signature commitment, `z`, hint, and message across ML-DSA-44, ML-DSA-65, and ML-DSA-87. |
-| TKeeper variant analysis and [Anvil Paillier proof regressions] | Truncated and non-canonical binary inputs, degenerate zero-ciphertext proofs, concurrent state resurrection, session replay, consumed-state reuse, and in-flight keeper crash schedules. |
+| [Anvil Paillier proof tests] | Truncated and non-canonical binary inputs, degenerate zero-ciphertext proofs, concurrent state resurrection, session replay, consumed-state reuse, and in-flight keeper crash schedules. |
 
 ## Reproducing the assurance
 
@@ -113,39 +113,8 @@ Run the release gate:
 ./gradlew releaseGate
 ```
 
-This builds the integration and production transport images. It runs module and
-functional tests before verifying artifact isolation. A shorter command for the
-protocol-input package is documented under
-[Integration Tests](../operations/integration-tests.md).
-
-The property and coverage-guided parser layer can be reproduced separately:
-
-```bash
-./gradlew :platform-ecc:test \
-  --tests 'org.exploit.keeper.platform.ecc.property.SecuritySerializationProperties' \
-  --tests 'org.exploit.keeper.platform.ecc.fuzz.SecurityBinaryParserFuzzTest'
-./gradlew :platform-ecc:fuzzSecurityParsers
-```
-
-Run the generated and coverage-guided protocol-state layer with:
-
-```bash
-./gradlew :platform-ecc:test \
-  --tests 'org.exploit.keeper.platform.ecc.property.ProtocolStateMachineProperties' \
-  --tests 'org.exploit.keeper.platform.ecc.fuzz.SecurityProtocolStateFuzzTest' \
-  --tests 'org.exploit.keeper.platform.ecc.fuzz.KeeperProtocolStateFuzzTest'
-./gradlew :platform-pqc:test \
-  --tests 'org.exploit.keeper.platform.pqc.property.MLDSAStateMachineProperties' \
-  --tests 'org.exploit.keeper.platform.pqc.fuzz.MLDSAStateMachineFuzzTest' \
-  --tests 'org.exploit.keeper.platform.pqc.fuzz.KeeperMLDSAProtocolStateFuzzTest'
-./gradlew :test \
-  --tests 'org.exploit.keeper.tests.temporary.InMemoryTemporaryMapConcurrencyTest'
-./gradlew securityFuzz
-```
-
-`securityFuzz` runs seven coverage-guided campaigns: binary decoding, the existing ECC and ML-DSA
-state containers, keeper-level ECC and ML-DSA protocol transitions, ECC recovery sessions, and PQC
-recovery payloads.
+This builds both test images and runs module tests, artifact checks, and the functional suite.
+For individual suites and fuzzing commands, see [Focused test scenarios](../../integration-tests/SCENARIOS.md).
 
 ## Deployment and operational boundaries
 
@@ -344,7 +313,7 @@ produces and verifies a normal distributed signature with the same stored key.
 [CGGMP21 modulus-proof advisory]: https://github.com/LFDT-Lockness/cggmp21/security/advisories/GHSA-m95p-425x-x889
 [CGGMP24 Pi-enc hardening]: https://github.com/LFDT-Lockness/cggmp21/commit/a1b7dc6c1e669789e2bfdff8e1bbfbf12cbe1057
 [CGGMP24 aff-g hardening]: https://github.com/LFDT-Lockness/cggmp21/commit/fd81bb8cb70f0b04961c1771cfa31e571847694e
-[Anvil Paillier proof regressions]: https://github.com/exploit-org/anvil/tree/main/paillier/src/test/java/org/exploit/crypto/paillier/test
+[Anvil Paillier proof tests]: https://github.com/exploit-org/anvil/tree/main/paillier/src/test/java/org/exploit/crypto/paillier/test
 [Efficient Threshold ML-DSA]: https://inria.hal.science/hal-05442192v1/document
 [NIST ACVP ML-DSA specification]: https://pages.nist.gov/ACVP/draft-celi-acvp-ml-dsa.html
 [ArbitraryAuthorityConfigTests]: https://github.com/tkeeper-org/tkeeper/blob/main/integration-tests/functional/src/test/kotlin/org/exploit/test/functional/ArbitraryAuthorityConfigTests.kt

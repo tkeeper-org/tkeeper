@@ -69,7 +69,7 @@ The key's authority configuration is invalid. Check for an empty list, duplicate
 
 The authority policy denied the intent. Inspect the command and policy before retrying.
 
-Check the materialized intent and effects. If an external verdict is used, verify the verdict input is bound to the action submitted for signing.
+Check the command fields and effects exposed to the authority policy. If an external verdict is used, verify the verdict input is bound to the action submitted for signing.
 
 ## `SESSION_MAX_ROUNDS_EXCEEDED`
 

@@ -22,7 +22,7 @@ tkeeper.key.{keyId}.verify
 ```text
 command
 -> authority match
--> intent materialization
+-> command validation and decoding
 -> policy and key controls
 -> audit gate
 -> mono or threshold signing
@@ -31,7 +31,7 @@ command
 
 For `arbitrary`, TKeeper signs bytes after checking the key identity allows `arbitrary`.
 
-For concrete authorities, TKeeper loads the authority document before materializing the command into an intent. It extracts effects where supported, then evaluates policy. It signs for `ALLOW`, or after every requirement from `REQUIRES_APPROVAL` is satisfied.
+For a governed command, TKeeper validates its fields and decodes any native transaction using the selected authority. It then evaluates the authority policy against the command and its effects. It signs for `ALLOW`, or after every requirement from `REQUIRES_APPROVAL` is satisfied.
 
 ## Quorum modes
 
@@ -198,7 +198,7 @@ Check that the command type and artifact, `tweak`, `generation`, and `signature6
 
 ### Authority rejects the command
 
-`AUTHORITY_VIOLATION` means the command selected an authority that is not attached to the key. `INVALID_AUTHORITY_ARTIFACT` means the command structure does not match the selected authority or its feature is absent. `POLICY_VIOLATION` means the materialized intent was understood but policy returned `DENY`.
+`AUTHORITY_VIOLATION` means the command selected an authority that is not attached to the key. `INVALID_AUTHORITY_ARTIFACT` means the command structure does not match the selected authority or its feature is absent. `POLICY_VIOLATION` means the command was valid but policy returned `DENY`.
 
 ### No manager for scheme and algorithm
 

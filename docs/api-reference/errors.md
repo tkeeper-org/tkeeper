@@ -49,7 +49,7 @@ Fields:
 | `INVALID_AUTHORITY` | invalid authority list, id, OCI reference, document, or policy | key authority configuration and artifact digest |
 | `AUTHORITY_VIOLATION` | command authority is not attached to the key | key authorities and command `authorityId` |
 | `INVALID_AUTHORITY_ARTIFACT` | command cannot be decoded or feature missing | authority type and build features |
-| `POLICY_VIOLATION` | policy denied the intent | materialized intent and matched rules |
+| `POLICY_VIOLATION` | policy denied the intent | command fields, effects, and matched rules |
 | `AUDIT_NOT_AVAILABLE` | no audit sink is usable | audit sink config |
 | `AUDIT_FAILED` | audit write failed | sink health and timeout |
 | `SESSION_MAX_ROUNDS_EXCEEDED` | retry cap exhausted | peer health, request deadline, ML-DSA retries |

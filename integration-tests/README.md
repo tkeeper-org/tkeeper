@@ -1,6 +1,6 @@
 # Integration tests
 
-The integration suites run against multi-node TKeeper clusters managed by Testcontainers. Most functional tests use Docker Compose; production transport tests use an isolated generated-TLS topology.
+The integration suites run against multi-node TKeeper clusters managed by Testcontainers. Most functional tests use Docker Compose. Production transport tests use an isolated generated-TLS topology.
 
 ## Requirements
 
@@ -37,7 +37,7 @@ Run all functional tests:
 ./gradlew :integration-tests:functional:test
 ```
 
-Functional tests do not rebuild the images. Re-run `buildTestContainers` after changing application code, dependencies, or Dockerfiles. Repeated and filtered test runs reuse the current images but always execute when requested.
+Functional tests do not rebuild the images. Re-run `buildTestContainers` after changing app code, dependencies, or Dockerfiles. Repeated and filtered test runs reuse the current images but always execute when requested.
 
 Run one class with:
 
@@ -63,7 +63,7 @@ Do not pass `keeper.features` or `keeper.platforms`. The dedicated integration c
 Regular `shadowJar` and `dockerBuild` artifacts do not include failure injection. Dry run and recovery
 are included only when explicitly selected. Never deploy the integration image as a production runtime.
 
-Verify that the production transport test artifact excludes `auth-dev`, `dry-run`, recovery, and
+Verify that the artifact used for production transport tests excludes `auth-dev`, `dry-run`, recovery, and
 failure injection while the integration artifact contains all four:
 
 ```bash
@@ -88,14 +88,14 @@ The functional suite is split by boundary:
 | `QuorumPromotionTests` | mono-to-threshold promotion |
 | `KeyImportTests` | trusted-dealer import |
 | `FourEyeControlTests` | approval binding and replay rejection |
-| `ApproversTests` | core registry over HTTPS/JWT, independent permissions, normalized versions, metadata revisions, races across nodes, filtering, pagination, replication to every peer and restart persistence |
+| `ApproversTests` | core registry over HTTPS/JWT, independent permissions, normalized versions, metadata revisions, races across nodes, filtering, pagination, replication to every peer, and restart persistence |
 | `ApproverReferenceTests` | pinned key and authority refs, cumulative groups, method substitution, missing descriptors on a follower, duplicate keys across representations, 1-of-n policies, and lifecycle replacement under old approvals |
 | `IdentityCatalogTests` | signing-permission filtering without inventory access, pagination, attached authority command schemas, invalid query input, authentication, cache headers, and sealed access |
 | `KeeperConfigurationTests` | authenticated configuration without permissions, sealed access, current quorum, authority types and seal provider, core module identity in the production artifact |
 | `ApprovalExpirationTests` | seconds-based deadlines, stable repeated preparation, insufficient and accepted proofs, expired windows without renewal |
 | `WebAuthnApproversTests` | JWT and invitation required on finish, independent registrar and recipient, invitation scope and context substitution, invalid tokens and ceremonies, competing credential races, session quotas, durable consumption after peer/writer restart |
 | `ApproverProtocolFailureTests` | independent follower permissions and enrollment command restrictions against a forged writer, real challenge expiry, complete confirmation delivered by survivors after writer failure and restart, signing/read/health progress while peer PREPARE is held |
-| `ApproverPromotionTests` | mono registry and active WebAuthn sessions transferred without key sets, future targets offline during mono registration, promotion permissions, restored ownership indexes and threshold mutations |
+| `ApproverPromotionTests` | mono registry and active WebAuthn sessions transferred without key sets, future targets offline during mono registration, promotion permissions, restored ownership indexes, and threshold mutations |
 | `FourEyeWebAuthnTests` | ES256 assertions, mixed quorum, method isolation, peer verification, nonce races, decrypt, and lifecycle policies |
 | `SealManagerTests` | seal and unseal providers |
 | `ECIESTests` | optional ECIES paths |
@@ -109,19 +109,21 @@ Run only the share-recovery scenario:
   --tests 'org.exploit.test.functional.RecoveryFailureInjectionTests'
 ```
 
-The corrupted-share Schnorr and ECDSA scenarios make up to ten signing attempts because a 2-of-3 coordinator may select the other healthy peer. Assuming independent 50/50 peer selection, there is still about a 0.1% chance that the corrupted peer is never selected and either test fails; stable latency bias can make the actual probability higher.
+The corrupted-share Schnorr and ECDSA scenarios make up to ten signing attempts because a 2-of-3 coordinator may select the peer whose share is intact. Assuming independent 50/50 peer selection, there is still about a 0.1% chance that the corrupted peer is never selected and either test fails. Stable latency bias can make the actual probability higher.
+
+See [Focused test scenarios](SCENARIOS.md) for filtered protocol, registry, restart, and fuzzing commands.
 
 ## Test topology
 
-- client index `3` targets a peer with coordinator endpoints disabled
+- client index `3` targets a peer with coordinator endpoints turned off
 - client index `2` targets a peer using the HSM seal provider
-- test execution is single-fork and JUnit parallel execution is disabled
+- test execution is single-fork and JUnit parallel execution is turned off
 
 When diagnosing a cluster failure, use the prefixed `keeper-1`, `keeper-2`, and `keeper-3` logs to identify the peer and protocol stage that failed.
 
 ## Production transport coverage
 
-`ProductionTransportSecurityTests` starts a separate three-node topology from the production UBI image and a jar that excludes development authentication and failure injection. The fixture generates an ephemeral CA, per-peer PKCS12 identities, trust stores, JWT signing keys, and an HTTPS JWKS endpoint for every run. No private test credentials are stored in the repository.
+`ProductionTransportSecurityTests` starts a separate three-node topology from the production UBI image and a jar that excludes development authentication and failure injection. The fixture generates an ephemeral CA, per-peer PKCS12 identities, trust stores, JWT signing keys, and an HTTPS JWKS endpoint for every run. The fixture creates private test credentials for each run.
 
 The topology exercises:
 
@@ -134,7 +136,7 @@ The topology exercises:
 - PEM hot rotation with continuous new connections and a deliberately mismatched cert/key interval;
 - fail-closed startup for unsafe TLS, peer URL, JWKS/OIDC URL, and SPKI configurations.
 
-The migration suites additionally verify V1 transaction logging, readiness/sealed behavior, audit continuity, persistence across container restart, and rejection of synthetic migration roots.
+The migration suites also verify V1 transaction logging, readiness/sealed behavior, audit continuity, persistence across container restart, and rejection of synthetic migration roots.
 
 Run only this class with:
 

@@ -41,9 +41,9 @@ Rules:
 An entry may instead be `{"ref":"alice@sha256:<digest>"}`. Use the complete ref returned by
 registration. References and inline entries can coexist in a group. Mixed `ref` and inline fields
 in one entry are rejected. Duplicate-key checks run after resolution. The immutable descriptor
-selects SIGNATURE or WEBAUTHN, and a WebAuthn ref cannot be approved by a raw signature.
+selects `SIGNATURE` or `WEBAUTHN`, and a WebAuthn ref cannot be approved by a raw signature.
 
-`STRICT` preserves the original behavior: approvals are required for every operation protected by the key policy, including signing, decrypting, rotating, refreshing, and destroying a generation.
+`STRICT` requires approvals for every operation protected by the key policy, including signing, decrypting, rotating, refreshing, and destroying a generation.
 
 `LENIENT` protects key lifecycle changes: `ROTATE`, `REFRESH`, and generation destruction. Signing and decryption proceed without key-bound approvals. Initial `CREATE` has no stored key policy to enforce. A `fourEye` policy supplied during creation protects later operations. Authentication, permissions, authority policies, and audit checks still apply.
 
@@ -101,7 +101,7 @@ At the coordinator boundary, the nonce is one-time and is consumed only after ev
 group has enough valid proofs. Consumed nonces are retained for `keeper.nonce-ttl` (12 hours
 by default), so a coordinator restart does not reopen the replay window. The approval timestamp
 must not be in the future and must fit `keeper.approval.ttl`. Nonce retention must be strictly
-longer than the approval lifetime. Physical FIFO cleanup can occur later.
+longer than the approval lifetime.
 
 Once the operation's approval requirements have been collected, responses include
 `X-EXPIRES-AT` on success and approval failure. It is the original approval deadline in Unix
@@ -160,9 +160,13 @@ WebAuthn uses the approval operation providers to resolve the operation type, pe
 
 The server creates a random 32-byte challenge and signs a binding containing the operation hash/type, coordinator, selected source generation, current approval requirements, and validity window. Its signature covers the canonical JSON with domain `TKEEPER_WEBAUTHN_CHALLENGE_V1`, payload, and signature metadata with an empty `signature64`. Peers verify the receipt against the authenticated coordinator's pinned integrity key and independently verify the assertion. Its expiry cannot exceed `approvals.timestamp + keeper.approval.ttl`. Changed operations, generations, policies, or receipt fields fail verification.
 
-Verification has no mutable credential state. Zero counters and repeated internal checks are supported. Signature counters are not used for clone detection. After a complete quorum passes verification, atomic nonce admission prevents external replay across concurrent submissions and coordinator restarts. An incomplete quorum leaves the nonce available. Internal protocol retries retain the previously described approval replay window. Integrity-key changes require fresh preparation when peers no longer pin the receipt's signing key. Roll out this format to all participating peers before enabling a WebAuthn policy.
+Signature counters are not used for clone detection. Once every required group has enough valid
+proofs, the approval nonce is consumed and cannot authorize another public request, including after
+a coordinator restart. Failed or incomplete approval checks leave the nonce available within its
+original lifetime. Internal protocol retries follow the [replay rules](#approval-model).
+Prepare fresh WebAuthn approvals after an integrity-key change if peers reject the earlier binding.
 
-Java SDK: `client.approvals().prepare(new PrepareApprovals(type, operationJson))` returns the browser options and binding. `Proof` is the common interface for `SignatureProof(fingerprint, signature64)` and `WebAuthnProof(fingerprint, binding, assertionJson)`. Use `new WebAuthnProof(fingerprint, prepared.binding(), assertionJson)` to attach an assertion. SDK callers constructing the former `Approvals.Proof` record must switch to `new SignatureProof(fingerprint, signature64)`. The signature JSON format is unchanged.
+Java SDK: `client.approvals().prepare(new PrepareApprovals(type, operationJson))` returns the browser options and binding. `Proof` is the common interface for `SignatureProof(fingerprint, signature64)` and `WebAuthnProof(fingerprint, binding, assertionJson)`. Use `new WebAuthnProof(fingerprint, prepared.binding(), assertionJson)` to attach an assertion. Use `new SignatureProof(fingerprint, signature64)` for a signature proof.
 
 ## Signature algorithms
 

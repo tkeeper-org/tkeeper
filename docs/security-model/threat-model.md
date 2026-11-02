@@ -44,7 +44,7 @@ The keeper must be unsealed before it can run a protected operation.
 
 Production artifacts include only explicitly selected platforms and features. The dedicated integration artifact contains failure-injection controls and must not be deployed as a production image.
 
-The build, dependency inputs, generated bootstrap classes, and delivered app artifact are trusted. Embedded native digests detect resource changes relative to that trusted build. They do not authenticate a dependency to its publisher or protect a replacement of both the code and its digests. Operators who enable `-Dkeeper.native.allow-system=true` must also trust the selected system libraries and their dependencies, including the search paths used to load them.
+The build, dependency inputs, startup code, and delivered app artifact are trusted. Embedded native digests detect resource changes relative to that trusted build. They do not authenticate a dependency to its publisher or protect a replacement of both the code and its digests. Operators who enable `-Dkeeper.native.allow-system=true` must also trust the selected system libraries and their dependencies, including the search paths used to load them.
 
 Authorities are part of the signing boundary. A key either uses `arbitrary` for raw signing or uses concrete authority policies. `arbitrary` cannot be mixed with concrete authorities on the same key.
 
@@ -86,13 +86,17 @@ Authorities are loaded only from explicitly allowed OCI registries. Digest-pinne
 
 Keeper to seal provider:
 
-Seal providers protect the DEK. Built-in providers are Shamir and HSM. External providers are AWS and Google Cloud features.
+Seal providers protect the DEK. Built-in providers are Shamir and HSM. External providers are AWS and Google KMS features.
 
 Keeper storage:
 
 Stored key material is AEAD-encrypted. Integrity-sensitive records use one of two location-bound formats: signed records bind their payload to a column family and record id. Integrity private keys and audit-HMAC keys use encrypted envelopes bound to their exact record ids. This prevents a valid record or ciphertext from being moved into another storage slot.
 
-A legacy V1 upgrade uses one cross-column-family transaction to rebind internal secrets and sign the initialization envelope. Relocation of legacy key generations and removal of their source records occur in that transaction before the marker advances. Any validation failure rolls the whole V1 transaction back. The keeper reports not-ready throughout migration and stays sealed on failure, including auto-unseal failure. Relocation is allowed only when the isolated key-version store is empty. Pending or mixed state is rejected. Generation pointers must be canonical and match signed head/version metadata. Orphan records are not migration roots. Relocated key material remains explicitly legacy and unsigned. Only a later refresh or rotate creates a signed, location-bound generation.
+A legacy V1 storage upgrade validates the existing state before committing the migration.
+Keeper remains not-ready during migration and sealed if it fails, including during auto-unseal.
+Conflicting or inconsistent state is rejected. Migration preserves the existing key material without adding a signature to legacy generations. Refresh or rotate creates a signed,
+location-bound generation. The limits of legacy integrity checks are described under
+[local storage tampering](#t-9-local-storage-read-or-tamper).
 
 The signed initialization envelope binds the peer id and quorum tuple after unseal. Integrity and HMAC version pointers are checked against the latest stored version. Integrity-key rotation retains historical public keys but removes historical private keys.
 
@@ -103,7 +107,7 @@ public APIs. Its operator controls browser session handling and content security
 
 Build to native execution:
 
-The build selects native resources for the artifact profile and OS/CPU target. Their SHA-256 digests are compiled into the bootstrap and checked against the final JAR. Startup extracts those resources into fresh temporary directories, then verifies their hashes before loading them. This happens before the service registry is created. RocksDB uses its explicit-directory API so its normal system-first loader cannot choose another binary on the embedded path.
+The build selects native resources for the artifact profile and OS/CPU target. Their SHA-256 digests are compiled into the bootstrap and checked against the final JAR. Startup extracts those resources into fresh temporary directories, then verifies their hashes before loading them. Startup cannot substitute an unchecked system library for an expected bundled library.
 
 System fallback is off by default in production. Fallback is allowed only when no expected embedded variant exists and no unlisted matching resource is present. A present expected digest makes resource, extraction, verification, and native linking errors fatal.
 
@@ -189,7 +193,7 @@ The policy sees a weak model of the requested action and allows a command whose 
 
 Mitigation:
 
-- Typed authorities materialize commands into policy input.
+- Typed authorities validate command fields before policy evaluation.
 - EVM, Bitcoin, X.509, and custom authorities have separate intent builders.
 - `arbitrary` is isolated from typed authority keys.
 
@@ -215,7 +219,7 @@ Residual risk:
 
 Compromised approver keys can approve malicious requests. Store approver keys separately from TKeeper peers. Protocol retries reuse the same approval, so non-coordinator peers verify its signatures, request-field binding, and TTL but do not independently consume its nonce. A compromised coordinator that bypasses its own nonce check can replay a still-fresh approval with the same approved request fields. Current lifecycle and session checks still apply, but independent peer-side replay prevention is not provided.
 
-### T-7: Byzantine peer during signing
+### T-7: byzantine peer during signing
 
 Attack:
 
@@ -236,7 +240,7 @@ Residual risk:
 
 Byzantine peers can interrupt sessions and make signing unavailable. Threshold ML-DSA cannot identify the responsible peer for every failure. A defect that exposes an MtA mask or permits reuse of FROST/GG20 signing state can invalidate the threshold confidentiality assumption. Affected key generations require rotation, not refresh.
 
-### T-8: Byzantine peer during ECIES decrypt
+### T-8: byzantine peer during ECIES decrypt
 
 Attack:
 
@@ -286,7 +290,7 @@ Mitigation:
 
 - Shamir uses configurable `threshold` and `total`.
 - HSM keeps wrapping keys outside TKeeper storage.
-- AWS and Google Cloud providers rely on provider IAM and KMS audit logs.
+- AWS and Google KMS providers rely on provider IAM and KMS audit logs.
 - Auto-unseal can be turned off.
 
 Residual risk:
@@ -427,11 +431,23 @@ Mitigation:
 - Build-generated, compiled SHA-256 digests bind the embedded GMP, libsodium, secp256k1, and RocksDB JNI resources to the trusted build. Packaging rejects missing, changed, or additional managed resources relative to that inventory.
 - Startup verifies the extracted file before loading it. Missing, unlisted, modified, unreadable, or unloadable embedded binaries fail startup without system fallback, including when the system flag is enabled.
 - System loading requires `-Dkeeper.native.allow-system=true` and the absence of an expected embedded variant for the current platform. Embedded variants retain priority when the flag is enabled.
-- RocksDB's embedded JNI is loaded from the verified directory before its later idempotent `loadLibrary()` calls. Its normal system-search path is used only for the permitted fallback case.
 
 Residual risk:
 
 System libraries are deliberately not digest-checked when fallback is explicitly enabled. The flag is an operator trust decision, including for images on platforms without bundled crypto natives. This control covers these four app bootstrap libraries. It is not a global restriction on JVM native loading. The JVM, OS loader, transitive native dependencies, other native-using dependencies, build infrastructure, full artifact provenance, and protection of extracted files against a compromised host remain trusted deployment inputs. An attacker who can replace the compiled verifier and expected digests or control the running process is outside this control's boundary.
+
+### ECC share recovery
+
+ECC recovery hides an honest helper's contribution from a target colluding with up to
+`t - 2` helpers. A malicious helper can stop recovery without the result identifying which helper caused the failure.
+
+Recovery retries reuse the contribution for that session. New sessions use fresh random
+masks. The signed session context prevents reuse across different targets or helper sets.
+Reusing a mask across those contexts could expose a helper's share.
+
+The arithmetic used for ECC recovery is not formally verified as constant-time. Timing and
+microarchitectural attacks from another process on the same host remain outside this protocol's
+threat model. Protect recovery hosts as part of the key-custody boundary.
 
 ## Security properties
 
@@ -445,7 +461,7 @@ artifact selection and deployment checks.
 | No unilateral key use in threshold mode | `t-of-n` threshold protocols |
 | No key reconstruction in normal threshold flows | FROST, GG20, threshold ML-DSA, and threshold ECIES use shares |
 | Raw signing isolated | `arbitrary` cannot be mixed with concrete authorities |
-| Typed signing policy | authorities materialize commands before signing |
+| Typed signing policy | authorities validate command fields before signing |
 | Authority immutability | digest-pinned OCI references |
 | Binding for four-eye approvals | approver signatures over operation hash |
 | Byzantine detection | protocol proofs, DLEQ checks, imposter reporting |
@@ -467,7 +483,7 @@ artifact selection and deployment checks.
 - Verify release artifact provenance. Embedded digests rely on a trusted build and bootstrap.
 - Review Asset Inventory exports.
 - Distribute Shamir shares across separate operators.
-- Restrict HSM, AWS KMS, and Google Cloud KMS access to TKeeper identities.
+- Restrict HSM, AWS KMS, and Google KMS access to TKeeper identities.
 - Enable audit with more than one sink.
 - Watch `imposters` and `dead` fields after failed threshold operations.
 - Put rate limiting in front of public endpoints.

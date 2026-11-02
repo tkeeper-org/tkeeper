@@ -10,7 +10,7 @@
 - [ ] Pin the release artifact used by every peer.
 - [ ] Verify artifact provenance and integrity before rollout.
 - [ ] Confirm every peer runs the same feature and platform set.
-- [ ] Validate protocol compatibility before a rolling upgrade. Changes to Fiat-Shamir domains or GG20 MtA wire formats require a coordinated upgrade.
+- [ ] Validate the exact upgrade path before a rolling upgrade. Use a coordinated upgrade when releases cannot exchange protocol messages.
 
 ## Authentication and permissions
 
@@ -65,7 +65,7 @@
 - [ ] Decide whether operations must stop when an audit sink fails.
 - [ ] Test audit verification.
 - [ ] Alert on audit sink outage.
-- [ ] Restart all peers after an integrity-key rotation so process-local peer pins are re-enrolled.
+- [ ] Restart all peers after an integrity-key rotation so they trust each other's current signing keys.
 
 ## ML-DSA
 

@@ -47,7 +47,7 @@ tkeeper.key.*.sign
 | `tkeeper.quorum.promote` | promote mono to threshold |
 | `tkeeper.consistency.fix` | repair threshold state |
 | `tkeeper.recover` | run share-recovery protocols |
-| `tkeeper.expired.view` | read key-expiration indexes |
+| `tkeeper.expired.view` | view key expiration dates |
 | `tkeeper.compliance.inventory` | read asset inventory |
 | `tkeeper.integrity.rotate` | rotate the key used to sign audit events |
 | `tkeeper.audit.log.verify` | verify signed audit log lines |

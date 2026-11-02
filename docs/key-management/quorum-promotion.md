@@ -20,8 +20,8 @@ For a `2-of-3` quorum:
 
 Promotion creates a new generation for each active key and distributes its shares. Authorities and policy are preserved. The source destroys its old mono generations. The response reports `promotedKeys` and `restartRequired: true`. Restart the source before resuming normal operations.
 
-Promotion also transfers the core Approvers registry, including metadata revisions, uniqueness
-indexes, WebAuthn runtime, completed sessions, active registration options, and commit certificates.
+Promotion also transfers the Approvers registry, metadata revisions, and WebAuthn enrollment
+state. Credential ownership and completed enrollments remain valid after promotion.
 This transfer runs even when the mono node has no key sets. A nonempty registry requires both
 `tkeeper.approvers.register` and `tkeeper.approvers.metadata` along with the promotion permission.
 Each target independently checks those permissions.
