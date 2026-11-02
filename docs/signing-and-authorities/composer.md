@@ -8,10 +8,11 @@
 | `tron.transaction` | `SignedTronTransaction`: signed JSON and transaction hash |
 | `xrp.transaction` | `SignedXrpTransaction`: signed hex and transaction hash |
 | `solana.transaction` | `SignedSolanaTransaction`: signed Base64, `complete`, and hash when complete |
+| `xlm.transaction` | `SignedXlmTransaction`: signed Base64 envelope and network-bound hash |
 | `ap2.mandate`, `mcintent.mandate` | `PaymentCredential`: signed credential layer |
 | Other types, including `bitcoin.transaction` | `ThresholdSignature`: raw signature, as with `/sign` |
 
-The result also carries `generation` and `imposters`. Composition does not broadcast a transaction or submit a credential to a merchant.
+The result also includes `generation` and `imposters`. Composition does not broadcast a transaction or submit a credential to a merchant.
 
 ## SDK example
 

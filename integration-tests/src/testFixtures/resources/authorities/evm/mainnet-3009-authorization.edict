@@ -1,0 +1,28 @@
+authority "test:evm/mainnet-3009-authorization" {
+    intent = "evm.3009"
+    version = "1.0.0"
+
+    config {
+        chainId = 1
+    }
+
+    policy "authorization" {
+        allow "transfer" when {
+            operation in ["transferWithAuthorization", "receiveWithAuthorization"]
+            domain.name == "Ether Mail"
+            domain.version == "1"
+            domain.verifyingContract == "0xcccccccccccccccccccccccccccccccccccccccc"
+            transfer != null
+            transfer.to == "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            transfer.value <= 1000000
+            transfer.validBefore <= 2000000000
+        }
+
+        allow "cancel" when {
+            operation == "cancelAuthorization"
+            domain.name == "Ether Mail"
+            domain.version == "1"
+            domain.verifyingContract == "0xcccccccccccccccccccccccccccccccccccccccc"
+        }
+    }
+}

@@ -1,0 +1,21 @@
+authority "test:custom/admin-ops" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "Administrative operation signing"
+
+    input request {
+        purpose: Text
+        operation: Text
+        ticket: Text
+        emergency: Boolean = false
+    }
+
+    policy "test-custom-admin-ops" {
+        allow "allow-normal-admin-change" when {
+            request.purpose == "admin"
+            request.operation in ["rotate", "reconcile", "freeze"]
+            request.ticket in ["INC-0001", "INC-0002"]
+            not (request.emergency)
+        }
+    }
+}

@@ -1,19 +1,7 @@
-# Authority Fixtures
+# Authority fixtures
 
-These documents are test-only Verdict authority bundles. Tests must publish them through
-`AuthorityFixtures.publish(...)`, which uploads each document to the local OCI registry and returns
-`oci://...@sha256:...` references only.
+These `.edict` documents are published to the local OCI registry by `AuthorityFixtures.publish`. Tests use the returned digest-pinned references.
 
-Fixture ids:
+The folders cover custom JSON, Bitcoin, EVM, TRON, XRP, Solana, XLM/Soroban, X.509, AP2 and Mastercard VI. Custom schemas are declared with `input` and `struct`; protocol interfaces use native `contract` or `program` declarations.
 
-- `test:custom/payments-small`
-- `test:custom/payments-country`
-- `test:custom/treasury-large`
-- `test:custom/payroll-eur`
-- `test:custom/admin-ops`
-- `test:evm/mainnet-native-small`
-- `test:evm/mainnet-usdc-transfer`
-- `test:evm/sepolia-demo-token`
-- `test:bitcoin/btc-small-output`
-- `test:tron/trx-small-transfer`
-- `test:x509/service-leaf`
+`vectors/xlm-stellar-sdk-17.4.0.json` is copied from the Edict XLM vector corpus generated with `@stellar/stellar-sdk@17.4.0`. It contains deterministic test seeds and native envelopes. Tests preserve the published bytes for decoder checks and change explicit transaction fields when building Keeper scenarios.

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '3.1.0'
+version = '4.0.0'
 
 repositories {
     mavenCentral()
@@ -28,6 +28,8 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
     testImplementation 'io.kotest:kotest-property:6.1.11'
     testImplementation(project(':'))
+    testImplementation project(':sdk')
+    testImplementation project(':edict:formats')
     compileOnly(project(':'))
 
     kapt project(':build-tools:helidon-codegen')

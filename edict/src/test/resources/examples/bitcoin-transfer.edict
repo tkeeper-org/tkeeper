@@ -1,0 +1,33 @@
+authority "com.acme.bitcoin.transfer" {
+    version = "1.0.0"
+    intent = "bitcoin.transaction"
+
+    config {
+        network = "MAINNET"
+    }
+
+    let recipientAddress = "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+    let changeAddress = "1KFHE7w8BhaENAswwryaoccDb6qcT6DbYY"
+    let recipientSatoshis = 100000
+    let maxFeeSatoshis = 1000
+
+    policy "bitcoin-payment-with-change" {
+        default deny
+
+        allow "approved-payment" when {
+            network == "MAINNET"
+            signing.single
+            sighash.all
+            not sighash.anyoneCanPay
+            effects.all(e -> e.type in ["utxo.spend", "utxo.output", "utxo.fee"])
+            outputs.count() >= 1
+            outputs.count() <= 2
+            outputs.count(o -> o.address == recipientAddress) == 1
+            outputs.all(o ->
+                (o.address == recipientAddress and o.amount == recipientSatoshis)
+                    or o.address == changeAddress
+            )
+            fee <= maxFeeSatoshis
+        }
+    }
+}

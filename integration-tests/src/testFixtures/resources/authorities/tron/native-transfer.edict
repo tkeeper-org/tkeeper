@@ -1,0 +1,17 @@
+authority "test:tron/native-transfer" {
+    intent = "tron.transaction"
+    version = "1.0.0"
+    description = "Sign a TRON native transfer of up to 100 TRX to the configured recipient."
+
+    policy "tron-native-transfer" {
+        let recipient = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+        allow "small-transfer" when {
+            feeLimit <= 30000000
+            effects.all(e -> e.type in ["native.transfer"])
+            effects.count(e -> e.type == "native.transfer") == 1
+            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "trx" and e.to == recipient)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100000000)
+        }
+    }
+}

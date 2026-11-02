@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+    id 'antlr'
+}
+
+dependencies {
+    api project(':edict:extension-api')
+    antlr "org.antlr:antlr4:$antlrVersion"
+    implementation "org.antlr:antlr4-runtime:$antlrVersion"
+}
+
+configurations.api {
+    setExtendsFrom([])
+}
+
+generateGrammarSource {
+    arguments += ['-visitor', '-no-listener']
+    packageName = 'org.exploit.edict.parser.generated'
+}

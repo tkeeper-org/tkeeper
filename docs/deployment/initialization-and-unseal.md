@@ -1,4 +1,4 @@
-# Initialization and Unseal
+# Initialization and unseal
 
 Init writes the keeper identity and quorum settings into the sealed store.
 
@@ -61,7 +61,7 @@ Rules:
 - every peer in a threshold cluster must use the same `threshold` and `total`
 - run init once per peer
 
-If a fresh peer with no keys has incorrect quorum parameters, recreate its database and initialize it with the correct values. For a peer that already holds key state, stop and follow [Backup and Recovery](backup-and-recovery.md) before replacing its database.
+If a fresh peer with no keys has incorrect quorum parameters, recreate its database and initialize it with the correct values. Before replacing a peer's database that already contains key state, follow [Backup and Recovery](backup-and-recovery.md) for the recovery procedure.
 
 Peers can be initialized independently. The threshold parameters are the part that must match.
 
@@ -69,13 +69,13 @@ Peers can be initialized independently. The threshold parameters are the part th
 
 Mono holds the full private key on one host. It retains authority policy and other controls, but host compromise exposes the key.
 
-Threshold splits the key across peers. Signing and decryption need enough healthy peers, and fewer than `threshold` compromised peers cannot act alone. Choose the mode according to this custody requirement; see [Quorum Modes](../security-model/quorum-modes.md).
+Threshold splits the key across peers. Signing and decryption need enough healthy peers, and fewer than `threshold` compromised peers cannot act alone. Choose the mode according to this custody requirement. See [Quorum Modes](../security-model/quorum-modes.md).
 
 ## Promoting mono to threshold
 
 See [Quorum Promotion](../key-management/quorum-promotion.md).
 
-If the selected seal provider needs recovery material, init returns it. With manual Shamir, that means unseal shares. Store them outside the node. Without enough shares, the node stays sealed.
+If the selected seal provider needs recovery material, init returns it. With manual Shamir, that means unseal shares. Store them outside the node. The node remains sealed until it receives enough shares.
 
 Manual Shamir response:
 

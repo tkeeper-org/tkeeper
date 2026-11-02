@@ -2,15 +2,16 @@
 
 The optional `mandate` module authorizes a specific operation for later execution, after the client collects approvals. A mandate contains signatures from at least the cluster threshold of distinct peers, including its coordinator. Each issuing peer checks the forwarded primary credential, the operation permission, and its current policies.
 
-Include the module with `-Pkeeper.features=mandate` when building the runtime, or `-Pkeeper.docker.features=mandate` for a Docker build. The `all` feature selector does not enable it.
+Select `mandate` explicitly with `-Pkeeper.features=mandate` for a JAR build or
+`-Pkeeper.docker.features=mandate` for Docker. It is excluded from `all`.
 
 ## Issue a mandate
 
 Send `POST /v1/keeper/mandate` to the coordinator over TLS with a valid primary credential. With JWT authentication, use `X-JWT-TOKEN`. A mandate cannot issue another mandate.
 
-The request contains a registered operation type, the normal operation body, and an expiration timestamp in Unix milliseconds. Core operation types are `sign`, `dkg`, and `destroy`; optional modules can register more types through `GrantOperationProvider` and `HasGrantBinding`.
+The request contains a registered operation type, the normal operation body, and an expiration timestamp in Unix milliseconds. Core operation types are `sign`, `dkg`, and `destroy`. With the ECIES feature, mandates can also authorize `decrypt`.
 
-For example, to authorize destruction of a specific generation:
+To authorize destruction of a specific generation:
 
 ```json
 {
@@ -36,14 +37,14 @@ An allowed request returns:
 }
 ```
 
-When approvals are needed, the verdict is `ALLOW_WITH_REQUIREMENTS`. Each requirement group
+When approvals are needed, the verdict is `REQUIRES_APPROVAL`. Each requirement group
 contains `threshold`, resolved public `keys` with WebAuthn parameters where applicable, and
 policy `details` when available. Registry refs have already been resolved in this response.
 All groups must be satisfied. A denied request returns the existing authorization or policy
 error and no mandate. Issuance does not consume the operation's approval nonce or execute it.
 
-Successful issuance includes `X-EXPIRES-AT`, the mandate deadline in Unix seconds. The JSON
-`expiresAt` field remains in milliseconds. Retrying execution does not extend either deadline.
+Successful issuance includes `X-EXPIRES-AT`, the mandate deadline in Unix seconds. Use milliseconds for the JSON `expiresAt` field.
+Retrying execution preserves the original deadline.
 An operation with approvals must also fit its separate approval window.
 
 ## Execute the operation
@@ -58,7 +59,7 @@ cannot authorize preparation or registry endpoints. Execute the completed operat
 mandate credential. Failed approval checks leave it available for a corrected submission; the
 mandate's lifetime and attempt rules still apply. See [WebAuthn approvals](../../docs/security-model/four-eye-control.md#webauthn-approvals).
 
-The mandate also binds its actor, coordinator, execution nonce, lifetime, and attempt budget. DKG mandates bind one target generation. Issuance requires consistent DKG state without a pending generation; execution does not perform implicit consistency repair.
+The mandate also binds its actor, coordinator, execution nonce, lifetime, and attempt budget. DKG mandates bind one target generation. Issuance requires consistent DKG state without a pending generation. Resolve consistency errors before execution.
 
 ## Lifetime and retries
 
@@ -72,13 +73,9 @@ Accepted retries can produce multiple signatures for the same authorized body if
 
 JWT mandates bind the original issuer, configured audience, `kid`, and the RFC 7638 thumbprint of the trusted public JWK that verified the token. The original JWT may expire before execution. Removing its signing key from the current JWKS, or replacing the key under the same `kid`, invalidates the mandate after the configured JWKS refresh.
 
-Witness signatures are checked against trusted keeper integrity keys through the existing peer transport and boot verification. Integrity-key changes can invalidate outstanding mandates when a peer's trusted current key no longer matches a witness. The mandate token is a bearer credential; store it with the same care as the authorized request.
+Witness signatures are checked against trusted Keeper integrity keys. Integrity-key changes can invalidate outstanding mandates when a peer's trusted current key no longer matches a witness. The mandate token is a bearer credential. Store it with the same care as the authorized request.
 
 Mandates support up to 32 witness signatures. Large thresholds with post-quantum witness signatures need a larger HTTP header budget. Keeper allows a header block of about 288 KiB when the mandate provider is loaded, with the token itself capped at 256 KiB. Reverse proxies must allow the same header size if those large tokens are used.
-
-Internal endpoints are `POST /v1/mandate/issue` for peer witness issuance and `GET /v1/mandate/identity` for establishing a signed peer identity. They use normal keeper transport authentication; witness issuance additionally requires the forwarded primary credential.
-
-Deploy this core change to all peers together. Signed actor requests now bind the credential header as well as its token; older peers use a different request hash and cannot participate in these requests with updated peers.
 
 ## Java SDK
 
@@ -91,4 +88,4 @@ var issued = primaryClient.mandate().issue(request);
 
 Create a client with `new MandateTokenAuth(issued.mandate())` for execution. Send the same operation through its normal SDK module, including any approvals collected from `issued.requirements()`.
 
-The SDK uses the JDK HTTP client, which does not require the former Jetty request-header-size setting. If supplying your own `Jettyx` instance, use the JDK `HttpClient.Builder` API in `.customize(...)`. Any proxy in front of Keeper must accept the 288 KiB header budget.
+Configure proxies to accept the header size required by the mandate. Large post-quantum witness sets can need the full 288 KiB header budget.

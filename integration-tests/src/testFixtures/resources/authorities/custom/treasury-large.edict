@@ -1,0 +1,22 @@
+authority "test:custom/treasury-large" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "Treasury transfer signing"
+
+    input request {
+        purpose: Text
+        amount: Number
+        currency: Text
+        `approver`: Text
+        memo: Text?
+    }
+
+    policy "test-custom-treasury-large" {
+        allow "allow-approved-treasury-transfer" when {
+            request.purpose == "treasury"
+            request.`approver` in ["cfo", "controller"]
+            request.currency in ["USD", "EUR"]
+            request.amount <= 100000
+        }
+    }
+}

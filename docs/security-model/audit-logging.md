@@ -1,11 +1,11 @@
-# Audit Logging
+# Audit logging
 
 Audit logs are newline-delimited JSON records.
 
 Each line contains:
 
 - `event`: audit event payload
-- `signature`: Signature over the encoded `event`
+- `signature`: signature over the encoded `event`
 
 The audit signature algorithm depends on the platforms in the build:
 
@@ -72,15 +72,15 @@ Example line, formatted for readability:
 }
 ```
 
-Some fields depend on the operation. `approvers` appears only for approved operations. `policy` appears when a Verdict authority was evaluated. `imposters` and `dead` appear when a threshold protocol reports bad or unavailable peers.
+Some fields depend on the operation. `approvers` appears only for approved operations. `policy` appears when an Edict authority was evaluated. `imposters` and `dead` appear when a threshold protocol reports bad or unavailable peers.
 
 `auth.subject` is the identity authenticated on the current HTTP hop. For a direct public request it is the external principal. For a protected peer request it is the keeper peer that signed the internal request, while optional `auth.actor` preserves the original external principal. Peer-only protocol rounds omit `actor`.
 
-The `policy` object contains the evaluation `decision`, matched rules, and any `approvalRequirements`. `ALLOW_WITH_REQUIREMENTS` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
+The `policy` object contains the evaluation `decision`, matched rules, and any `approvalRequirements`. `REQUIRES_APPROVAL` remains visible after proofs satisfy the requirements. A rejected challenge records the redacted groups in `outcome.approvals`.
 
 Registry registration and metadata replacement add `context.approverRef` and
 `context.metadataRevision` to successful audit events. These identify the changed credential
-version and metadata revision; they do not record an approval vote. Metadata values are covered
+version and metadata revision. They do not record an approval vote. Metadata values are covered
 by the request body digest and are not copied into the context. Authority approval requirements
 can contain either inline keys or pinned refs, so collectors must retain both forms.
 
@@ -144,9 +144,9 @@ keeper.audit {
 }
 ```
 
-The socket sink marks a line accepted after TKeeper writes and flushes it to the local socket stream. This is not a collector durability acknowledgement. If the local write does not complete before `ack-timeout`, TKeeper treats that sink as failed.
+The socket sink marks a line accepted after TKeeper writes and flushes it to the local socket stream. Acceptance confirms the local write, but not durable storage at the collector. TKeeper treats the sink as failed if the write exceeds `ack-timeout`.
 
-Timeouts accept HOCON durations. Unitless values still mean milliseconds but are deprecated. The socket's former `connect-timeout-millis` and `read-timeout-millis` names are deprecated aliases; `connect-timeout` and `read-timeout` take precedence when both forms are present. `read-timeout = 0ms` disables the socket read timeout. Other socket and file audit timeouts must be positive; socket connect/read limits must fit a 32-bit millisecond value.
+Timeouts accept HOCON durations. Values without units mean milliseconds and are deprecated. The socket's former `connect-timeout-millis` and `read-timeout-millis` names are deprecated aliases. `connect-timeout` and `read-timeout` take precedence when both forms are present. `read-timeout = 0ms` disables the socket read timeout. Other socket and file audit timeouts must be positive. Socket connect/read limits must fit a 32-bit millisecond value.
 
 ## Verification
 
@@ -250,7 +250,8 @@ Required permission:
 tkeeper.integrity.rotate
 ```
 
-Restart every peer after rotating an integrity key. Peer integrity-key pins are process-local in 2.2.0+; until restart, callers that previously contacted the rotated peer continue to reject its new signed responses.
+Restart every peer after rotating an integrity key so peers trust the new key. Until restart,
+peers that trusted the earlier key reject responses signed with its replacement.
 
 Rotation keeps historical public keys for log verification and removes the corresponding historical private keys. Replaying only the current-version pointer fails closed when it no longer matches the stored history. A coordinated same-location replay of the pointer and its matching records can still pass local verification, as can a complete database rollback. Detecting that class of rollback requires an independently protected monotonic checkpoint or external audit anchor.
 
@@ -274,7 +275,7 @@ When audit is enabled, TKeeper checks sink availability before protected operati
 
 When an event is written, the operation continues if at least one configured sink accepts the event before the audit timeout. If all configured sinks fail or miss the timeout, the operation fails with `AUDIT_FAILED`.
 
-With multiple sinks, one acceptance is enough for the operation to continue. If delivery to a particular archive is mandatory, enforce and monitor it at the collector or deployment layer.
+With multiple sinks, one acceptance is enough for the operation to continue. If delivery to an archive is mandatory, enforce and monitor it at the collector or deployment layer.
 
 ## Common problems
 

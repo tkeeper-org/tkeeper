@@ -1,0 +1,47 @@
+engine	case_id	source_key	original	upstream_expected	preamble	mode	edict	expected	relation
+CEL	integer_math/int64_math/add_positive_positive	cel/integer_math	40 + 2	int64:42		EXPRESSION	40 + 2	value:42	compatible
+CEL	integer_math/int64_math/add_positive_negative	cel/integer_math	42 + (-7)	int64:35		EXPRESSION	42 + (-7)	value:35	compatible
+CEL	integer_math/int64_math/sub_positive_negative	cel/integer_math	42 - (-22)	int64:64		EXPRESSION	42 - (-22)	value:64	compatible
+CEL	integer_math/int64_math/multiply_negative_negative	cel/integer_math	-30 * (-2)	int64:60		EXPRESSION	-30 * (-2)	value:60	compatible
+CEL	integer_math/int64_math/divide_positive_positive	cel/integer_math	42 / 2	int64:21		EXPRESSION	42 / 2	value:21	compatible
+CEL	integer_math/int64_math/mod_negative_positive	cel/integer_math	-3 % 5	int64:-3		EXPRESSION	-3 % 5	value:-3	compatible
+CEL	integer_math/int64_math/unary_minus_neg	cel/integer_math	-(-42)	int64:42		EXPRESSION	-(-42)	value:42	compatible
+CEL	integer_math/int64_math/divide_zero	cel/integer_math	15 / 0	evaluation error		EXPRESSION	15 / 0	runtime:ARITHMETIC	compatible
+CEL	integer_math/int64_math/mod_zero	cel/integer_math	34 % 0	evaluation error		EXPRESSION	34 % 0	runtime:ARITHMETIC	compatible
+CEL	integer_math/int64_math/int64_overflow_positive	cel/integer_math	9223372036854775807 + 1	int64 overflow error		EXPRESSION	9223372036854775807 + 1	value:9223372036854775808	deliberate-divergence: bounded exact Number is not int64
+CEL	logic/AND/all_true	cel/logic	true && true	bool:true		EXPRESSION	true and true	value:true	syntax-adaptation: Boolean operator spelling
+CEL	logic/AND/false_right	cel/logic	true && false	bool:false		EXPRESSION	true and false	value:false	syntax-adaptation: Boolean operator spelling
+CEL	logic/OR/false_left	cel/logic	false || true	bool:true		EXPRESSION	false or true	value:true	syntax-adaptation: Boolean operator spelling
+CEL	logic/NOT/not_true	cel/logic	!true	bool:false		EXPRESSION	not true	value:false	syntax-adaptation: Boolean operator spelling
+CEL	logic/OR/short_circuit_error_left	cel/logic	true || (2 / 0 > 3 ? false : true)	bool:true		EXPRESSION	true or (not (2 / 0 > 3))	value:true	syntax-adaptation: C ? false : true becomes not C
+CEL	logic/OR/short_circuit_error_right	cel/logic	(2 / 0 > 3 ? false : true) || true	bool:true		EXPRESSION	(not (2 / 0 > 3)) or true	runtime:ARITHMETIC	deliberate-divergence: reached errors abort instead of CEL error masking
+CEL	comparisons/eq_literal/eq_int	cel/comparisons	1 == 1	bool:true		EXPRESSION	1 == 1	value:true	compatible
+CEL	comparisons/eq_literal/not_eq_int	cel/comparisons	-1 == 1	bool:false		EXPRESSION	-1 == 1	value:false	compatible
+CEL	comparisons/eq_literal/eq_null	cel/comparisons	null == null	bool:true		EXPRESSION	null == null	value:true	compatible
+CEL	comparisons/eq_literal/eq_list_numbers	cel/comparisons	[1, 2, 3] == [1, 2, 3]	bool:true		EXPRESSION	[1, 2, 3] == [1, 2, 3]	value:true	compatible
+CEL	comparisons/eq_literal/not_eq_list_order	cel/comparisons	[1, 2, 3] == [1, 3, 2]	bool:false		EXPRESSION	[1, 2, 3] == [1, 3, 2]	value:false	compatible
+CEL	comparisons/lt_literal/lt_int	cel/comparisons	-1 < 0	bool:true		EXPRESSION	-1 < 0	value:true	compatible
+CEL	lists/index/zero_based	cel/lists	[7, 8, 9][0]	int64:7		EXPRESSION	[7, 8, 9][0]	value:7	compatible
+CEL	lists/index/middle	cel/lists	[0, 1, 1, 2, 3, 5, 8, 13][4]	int64:3		EXPRESSION	[0, 1, 1, 2, 3, 5, 8, 13][4]	value:3	compatible
+CEL	lists/in/empty	cel/lists	7 in []	bool:false		EXPRESSION	7 in []	value:false	compatible
+CEL	lists/in/middle	cel/lists	3 in [5, 4, 3, 2, 1]	bool:true		EXPRESSION	3 in [5, 4, 3, 2, 1]	value:true	compatible
+CEL	lists/in/missing	cel/lists	'hawaiian' in ['meat', 'veggie', 'margarita', 'cheese']	bool:false		EXPRESSION	"hawaiian" in ["meat", "veggie", "margarita", "cheese"]	value:false	syntax-adaptation: text quotes
+CEL	lists/index/index_out_of_bounds	cel/lists	[1, 2, 3][3]	invalid_argument evaluation error		EXPRESSION	[1, 2, 3][3]	runtime:INPUT	compatible
+Cedar	authorizer_sanity_check_empty	cedar/authorizer	PolicySet::new()	Deny		POLICY		decision:DENY	compatible
+Cedar	authorizer_sanity_check_allow	cedar/authorizer	true_policy(0, Effect::Permit)	Allow		POLICY	allow if (true)	decision:ALLOW	compatible
+Cedar	authorizer_sanity_check_deny	cedar/authorizer	true_policy(0, Permit); true_policy(1, Forbid)	Deny		POLICY	allow if (true)\ndeny if (true)	decision:DENY	compatible
+Cedar	satisfied_permit_no_forbids	cedar/authorizer	permit principal==p; forbid principal==p when false; request principal=p	Allow	let principal = "p"	POLICY	allow if (principal == "p")\ndeny if (principal == "p" and false)	decision:ALLOW	syntax-adaptation: entity identity supplied as exact text
+Cedar	interpret_is_empty/[]	cedar/evaluator	[].isEmpty()	bool:true		EXPRESSION	[].count() == 0	value:true	syntax-adaptation: empty-set predicate becomes empty-list count
+Cedar	interpret_is_empty/[1]	cedar/evaluator	[1].isEmpty()	bool:false		EXPRESSION	[1].count() == 0	value:false	syntax-adaptation: empty-set predicate becomes empty-list count
+Cedar	interpret_is_empty/long_type_error	cedar/evaluator	0.isEmpty()	evaluation type error: expected set, got long		EXPRESSION	0.count() == 0	compile:TYPE	deliberate-divergence: Edict rejects incompatible receivers statically
+Cedar	skip_on_error_tests/after_policy_3	cedar/authorizer	permit true; permit context.bad==2; forbid context.bad==2; context={}	Allow with missing-attribute diagnostics	let context = {}	POLICY	allow if (true)\nallow if (context.bad == 2)\ndeny if (context.bad == 2)	compile:TYPE	deliberate-divergence: missing fields fail static checking instead of skip-on-error
+OPA	defaultkeyword/undefined	opa/defaultkeyword/804	p := 1 if false; default p := 0; p := 2 if false	number:0	fn p(): Number {\nif (false) { return 1 }\nif (false) { return 2 }\nreturn 0\n}	EXPRESSION	p()	value:0	syntax-adaptation: fixed scalar default translated to final function return
+OPA	defaultkeyword/defined	opa/defaultkeyword/805	default p := 0; p := 1; p := 2 if false	number:1	fn p(): Number {\nif (true) { return 1 }\nif (false) { return 2 }\nreturn 0\n}	EXPRESSION	p()	value:1	syntax-adaptation: fixed scalar default translated to final function return
+OPA	defaultkeyword/defined-ooo	opa/defaultkeyword/806	p := 1; default p := 0; p := 2 if false	number:1	fn p(): Number {\nif (true) { return 1 }\nif (false) { return 2 }\nreturn 0\n}	EXPRESSION	p()	value:1	syntax-adaptation: fixed scalar default translated to final function return
+OPA	completedoc/undefined	opa/completedoc/495	p := null if false; query data.generated.p = x	undefined (no query results)		POLICY	allow if (false)	decision:DENY	deliberate-divergence: undefined result becomes absence of permission and default DENY
+OPA	completedoc/vars conflict	opa/completedoc/510	p := {a:[x,y]} for x in [1,2], y in [1,2]	eval_conflict_error: multiple complete outputs	let p = {a: [1, 1]}\nlet p = {a: [1, 2]}	POLICY	allow if (true)	compile:TYPE	deliberate-divergence: conflicting outputs unrolled as duplicate immutable bindings and rejected statically
+OPA	arithmetic/remainder	opa/arithmetic/816	p := 7 % 4	number:3		EXPRESSION	7 % 4	value:3	compatible
+OPA	arithmetic/bug 2469 - precision	opa/arithmetic/823	49649733057 + 1 == 49649733058	bool:true		EXPRESSION	49649733057 + 1 == 49649733058	value:true	compatible
+OPA	arithmetic/divide+error	opa/arithmetic/814	p := x / i; data.a=[1]; i=0; x=data.a[i]	strict eval_builtin_error: divide by zero		EXPRESSION	[1][0] / 0	runtime:ARITHMETIC	syntax-adaptation: the only enumerated index and element bound explicitly
+OPA	arithmetic/remainder+error	opa/arithmetic/817	p := 7 % 0	strict eval_builtin_error: modulo by zero		EXPRESSION	7 % 0	runtime:ARITHMETIC	compatible
+OPA	arithmetic/remainder+error+floating	opa/arithmetic/818	p := 1.1 % 1	strict eval_builtin_error: modulo on floating-point number		EXPRESSION	1.1 % 1	runtime:ARITHMETIC	compatible

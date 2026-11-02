@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    testRuntimeOnly 'org.exploit:tss4j-natives:1.0.0:linux-amd64@jar'
+    testRuntimeOnly 'org.exploit:tss4j-natives:1.0.0:macos-aarch64@jar'
+    testRuntimeOnly 'org.exploit:tss4j-natives:1.0.0:windows-amd64@jar'
+
+    api project(':edict:digital-assets:contracts')
+    api project(':edict:digital-assets')
+    api 'org.exploit.signet:solana'
+}

@@ -11,7 +11,7 @@ Choose threshold mode when one compromised peer must not be able to sign alone. 
 
 ## Threshold guarantees
 
-Each peer stores one share and validates an operation before participating. Signing or threshold decryption completes only with enough accepted contributions; the private key is not reconstructed by the normal protocol flow.
+Each peer stores one share and validates an operation before participating. Signing or threshold decryption completes only with enough accepted contributions. The private key is not reconstructed by the normal protocol flow.
 
 This protects against:
 
@@ -22,7 +22,7 @@ This protects against:
 
 Policy enforcement also becomes quorum-dependent when honest peers hold matching policy state and independently validate the same request. A compromised minority may approve locally but cannot complete the cryptographic operation alone.
 
-Imposter evidence is protocol-specific. FROST, GG20, and threshold ECIES can identify some invalid contributions. Threshold ML-DSA validates transcripts, but a normal rejection-sampling abort is not evidence of a malicious peer.
+Imposter evidence is protocol-specific. FROST, GG20, and threshold ECIES can identify some invalid contributions. Threshold ML-DSA validates transcripts, but rejection during normal sampling does not establish that a peer is malicious.
 
 ## What threshold mode does not guarantee
 
@@ -38,7 +38,7 @@ The threshold is a security boundary and an availability dependency. Select `t` 
 
 ## Operational cost
 
-Threshold operations add peer networking, session deadlines, coordinated deployment, per-peer sealing, consistency recovery, and more failure states. ML-DSA adds bounded retries because a healthy signing attempt can abort during rejection sampling.
+Threshold operations add peer networking, session deadlines, coordinated deployment, per-peer sealing, consistency recovery, and more failure states. ML-DSA adds bounded retries because rejection sampling can stop an attempt even when peers follow the protocol.
 
 Plan for:
 
@@ -51,7 +51,7 @@ Plan for:
 
 ## When mono is acceptable
 
-Mono retains authentication, permissions, authorities, four-eye control, time policy, and audit, but one process holds full private key material. A host compromise is therefore a key compromise.
+Mono retains authentication, permissions, authorities, four-eye control, time policy, and audit, but one process holds full private key material. A host compromise is a key compromise.
 
 Use mono when that risk is explicitly acceptable: local development, low-impact workloads, or a controlled bootstrap phase. Do not describe mono as threshold custody or protection from a malicious host.
 
@@ -63,7 +63,7 @@ TKeeper can promote a mono identity with:
 POST /v2/keeper/quorum/promote
 ```
 
-Promotion distributes the existing identity into threshold state; it does not create a history in which the key was never whole. Backups, memory captures, or prior compromise may retain the mono key. Rotate or run a new DKG when prior exposure cannot be accepted.
+Promotion distributes the existing identity into threshold state. It does not create a history in which the key was never whole. Backups, memory captures, or prior compromise may retain the mono key. Rotate or run a new DKG when prior exposure cannot be accepted.
 
 Target peers must already be initialized and unsealed with matching `threshold` and `total`. See [Quorum Promotion](../key-management/quorum-promotion.md).
 

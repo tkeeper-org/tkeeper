@@ -50,7 +50,8 @@
   "ApproverId": "alice",
   "ApproverRef": "alice@sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "ApproverMetadata": {
-    "sample": "sample-value"
+    "sample": "sample-value",
+    "displayName": "Alice Smith"
   },
   "SignatureCredentialRegistration": {
     "type": "SIGNATURE",
@@ -71,7 +72,8 @@
       "publicKey64": "AQ=="
     },
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     }
   },
   "WebAuthnApproverCredential": {
@@ -95,7 +97,8 @@
   },
   "UpdateApproverMetadata": {
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     }
   },
   "ApproverRecord": {
@@ -108,7 +111,8 @@
       "publicKey64": "AQ=="
     },
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     },
     "createdAt": 1729000123456,
     "updatedAt": 1729000123456,
@@ -126,7 +130,8 @@
           "publicKey64": "AQ=="
         },
         "metadata": {
-          "sample": "sample-value"
+          "sample": "sample-value",
+          "displayName": "Alice Smith"
         },
         "createdAt": 1729000123456,
         "updatedAt": 1729000123456,
@@ -1197,10 +1202,7 @@
     "keyId": "key-1",
     "algorithm": "ED25519",
     "authorities": [
-      {
-        "id": "arbitrary",
-        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-      }
+      "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     ],
     "mode": "CREATE",
     "policy": {
@@ -1251,10 +1253,7 @@
     "keyId": "key-1",
     "algorithm": "ED25519",
     "authorities": [
-      {
-        "id": "arbitrary",
-        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-      }
+      "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     ],
     "mode": "REFRESH",
     "policy": {
@@ -1300,10 +1299,7 @@
     "keyId": "key-1",
     "algorithm": "ED25519",
     "authorities": [
-      {
-        "id": "arbitrary",
-        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-      }
+      "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     ],
     "mode": "ROTATE",
     "policy": {
@@ -1378,10 +1374,7 @@
     "keyId": "key-1",
     "algorithm": "ED25519",
     "authorities": [
-      {
-        "id": "arbitrary",
-        "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-      }
+      "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     ],
     "value64": "AQ==",
     "policy": {
@@ -2026,7 +2019,8 @@
   },
   "CreateApproverInvitationRequest": {
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     },
     "subject": "subject-value"
   },
@@ -2035,7 +2029,8 @@
     "invitationId": "invitationId-value",
     "expiresAt": "2026-10-18T12:00:00Z",
     "metadata": {
-      "sample": "sample-value"
+      "sample": "sample-value",
+      "displayName": "Alice Smith"
     },
     "state": "PENDING",
     "serverTime": "2026-10-18T12:00:00Z",
@@ -2048,7 +2043,8 @@
         "invitationId": "invitationId-value",
         "expiresAt": "2026-10-18T12:00:00Z",
         "metadata": {
-          "sample": "sample-value"
+          "sample": "sample-value",
+          "displayName": "Alice Smith"
         },
         "state": "PENDING",
         "serverTime": "2026-10-18T12:00:00Z",
@@ -2070,7 +2066,8 @@
           "publicKey64": "AQ=="
         },
         "metadata": {
-          "sample": "sample-value"
+          "sample": "sample-value",
+          "displayName": "Alice Smith"
         },
         "createdAt": 1729000123456,
         "updatedAt": 1729000123456,
@@ -2496,7 +2493,6 @@
     "oci": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
   },
   "PolicyCapabilities": {
-    "verdictVersion": "verdictVersion-value",
     "read": true,
     "write": true,
     "publish": true,
@@ -2506,86 +2502,28 @@
     "authorityTypes": [
       "authorityTypes-value"
     ],
-    "maxSourceBytes": 1
+    "maxSourceBytes": 1,
+    "engineVersion": "engineVersion-value"
   },
   "PolicyIssue": {
     "stage": "stage-value",
-    "message": "message-value"
+    "message": "message-value",
+    "severity": "error",
+    "code": "UNKNOWN_NAME",
+    "line": 1,
+    "column": 1
   },
   "Authority": {
-    "schemaVersion": "verdict.authority/v1",
     "id": "AQ",
     "type": "sign",
-    "version": "version-value",
-    "metadata": {
-      "custom": {
-        "values": [
-          1,
-          null,
-          "arbitrary value"
-        ],
-        "enabled": true
-      }
-    },
-    "config": {
-      "custom": {
-        "values": [
-          1,
-          null,
-          "arbitrary value"
-        ],
-        "enabled": true
-      }
-    },
-    "policy": {
-      "custom": {
-        "values": [
-          1,
-          null,
-          "arbitrary value"
-        ],
-        "enabled": true
-      }
-    }
+    "version": "version-value"
   },
   "PolicyValidation": {
     "valid": true,
-    "verdictVersion": "verdictVersion-value",
     "authority": {
-      "schemaVersion": "verdict.authority/v1",
       "id": "AQ",
       "type": "sign",
-      "version": "version-value",
-      "metadata": {
-        "custom": {
-          "values": [
-            1,
-            null,
-            "arbitrary value"
-          ],
-          "enabled": true
-        }
-      },
-      "config": {
-        "custom": {
-          "values": [
-            1,
-            null,
-            "arbitrary value"
-          ],
-          "enabled": true
-        }
-      },
-      "policy": {
-        "custom": {
-          "values": [
-            1,
-            null,
-            "arbitrary value"
-          ],
-          "enabled": true
-        }
-      }
+      "version": "version-value"
     },
     "rootVariables": [
       "rootVariables-value"
@@ -2593,12 +2531,25 @@
     "errors": [
       {
         "stage": "stage-value",
-        "message": "message-value"
+        "message": "message-value",
+        "severity": "error",
+        "code": "UNKNOWN_NAME",
+        "line": 1,
+        "column": 1
       }
     ],
     "warnings": [
       "warnings-value"
-    ]
+    ],
+    "engineVersion": "engineVersion-value",
+    "inputTypes": {
+      "value": {
+        "kind": "Integer",
+        "minimum": "0",
+        "maximum": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "defaultSource": "0"
+      }
+    }
   },
   "PolicyTemplate": {
     "id": "AQ",
@@ -2607,12 +2558,22 @@
     "documentation": "documentation-value"
   },
   "PolicyHelp": {
-    "verdictVersion": "verdictVersion-value",
     "documentation": "documentation-value",
     "rootVariables": {
       "sample": [
         "sample-value"
       ]
+    },
+    "engineVersion": "engineVersion-value",
+    "inputTypes": {
+      "evm.2612": {
+        "value": {
+          "kind": "Integer",
+          "minimum": "0",
+          "maximum": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+          "defaultSource": "0"
+        }
+      }
     }
   },
   "PolicySource": {
@@ -2666,5 +2627,24 @@
       "items-value"
     ],
     "nextCursor": "nextCursor-value"
+  },
+  "KeyAuthorityInput": "oci://registry.example/authority@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "PolicyType": {
+    "kind": "Record",
+    "fields": {
+      "amount": {
+        "kind": "Integer",
+        "minimum": "0",
+        "maximum": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "defaultSource": "0"
+      }
+    },
+    "element": {
+      "kind": "Text"
+    },
+    "defaultSource": "{ amount: 0 }",
+    "minimum": "0",
+    "maximum": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+    "literal": "\"exact literal\""
   }
 }

@@ -1,0 +1,12 @@
+authority "test:custom/limits" {
+    intent = "custom"
+    version = "1"
+    input request: Map<Text, Number>
+    policy "limits" {
+        allow when {
+            request.count() > 0
+            request.values().all(amount -> amount > 0)
+            request.values().sum() <= 1000
+        }
+    }
+}

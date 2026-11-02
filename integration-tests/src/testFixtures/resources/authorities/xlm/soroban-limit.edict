@@ -1,0 +1,21 @@
+authority "test:xlm/soroban-limit" {
+    intent = "xlm.transaction"
+    version = "1.0.0"
+    config { networkPassphrase = "Standalone Network ; February 2017" }
+
+    contract limits: soroban {
+        address = "CADAMBQGAYDAMBQGAYDAMBQGAYDAMBQGAYDAMBQGAYDAMBQGAYDAMSST"
+        fn set_limit(period: symbol, amount: u32)
+    }
+
+
+    policy "soroban-limit" {
+        allow when {
+            transaction.fee > 0 and transaction.fee <= 1000000
+            transaction.sequence > 0
+            limits.set_limit.count() == 1
+            limits.set_limit.all(call -> call.period == "daily")
+            limits.set_limit.sum(call -> call.amount) <= 100
+        }
+    }
+}

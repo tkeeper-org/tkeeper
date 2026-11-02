@@ -12,7 +12,7 @@ Use it to control:
 - key import, rotation, refresh, and destruction
 - agent tool calls and production actions
 
-Caller permissions grant access to a key. Authority policy limits what that key may sign, such as a transfer to a particular recipient below an amount limit.
+Caller permissions grant access to a key. Authority policy limits what that key may sign, such as a transfer to a specified recipient below an amount limit.
 
 ## The basic flow
 
@@ -24,9 +24,9 @@ TKeeper returns a signature only when the request passes its controls. The recei
 
 ## Product boundaries
 
-TKeeper generates and imports keys, manages their generations, signs approved commands, and records audit events. Threshold mode splits key custody across peers.
+TKeeper generates or imports keys and manages their generations. It signs approved commands and records audit events. Threshold mode splits key custody across peers.
 
-The integrating application builds transactions or certificate requests, supplies any external risk decisions, verifies results, and submits or executes the approved action. A path that can execute without the signature bypasses TKeeper's controls. Host security and risk detection remain deployment and application responsibilities.
+The integrating app builds transactions or certificate requests with any required external risk decisions. After verifying the result, it submits or executes the approved action. A path that can execute without the signature bypasses TKeeper's controls. Host security and risk detection remain deployment and app responsibilities.
 
 ## Main concepts
 

@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':edict:digital-assets')
+    api project(':edict:digital-assets:xlm:soroban')
+    api 'org.exploit.signet:xlm'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+}

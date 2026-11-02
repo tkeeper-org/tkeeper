@@ -3,13 +3,13 @@
 Approvers is part of the TKeeper core. Every peer stores immutable credential versions in its
 own database. The API registers `SIGNATURE` credentials with installed signature providers
 (including PQC where installed) and `WEBAUTHN` credentials through a verified ES256 ceremony.
-Requests can enter through any initialized, unsealed peer, including non-coordinators.
+Send requests to an initialized peer after unsealing it. Non-coordinators accept registry requests too.
 
 | Operation | Permission |
 | --- | --- |
 | `POST /v1/keeper/approvers` | `tkeeper.approvers.register` |
 | `POST /v1/keeper/approvers/webauthn/registration/options` | `tkeeper.approvers.register` |
-| `POST /v1/keeper/approvers/webauthn/registration/finish` | primary authentication and registration invitation; no additional permission |
+| `POST /v1/keeper/approvers/webauthn/registration/finish` | primary authentication and registration invitation. No additional permission |
 | `GET /v1/keeper/approvers` | `tkeeper.approvers.read` |
 | `GET /v1/keeper/approvers/{ref}` | `tkeeper.approvers.read` |
 | `PUT /v1/keeper/approvers/{ref}/metadata` | `tkeeper.approvers.metadata` |
@@ -47,37 +47,32 @@ Canonical JSON sorts object keys recursively. The example's ref is
 `alice@sha256:65c61b68b633767fa1f7666832f3967a8d4d83b8fdd1ac4a62f3b127e985ef1f`.
 Metadata, id, and timestamps are excluded from the digest.
 
-A key identity combines the canonical algorithm with the normalized public-key fingerprint;
-identical byte encodings on different curves represent distinct keys.
+A key identity combines the canonical algorithm with the normalized public-key fingerprint.
+Identical byte encodings on different curves represent distinct keys.
 
-A new version returns `201`; an identical version under the same id returns `200` with its
+A new version returns `201`. An identical version under the same id returns `200` with its
 existing metadata. The same normalized key under another id returns `409`. A different key
-under the same id creates another version and preserves every previous version. No descriptor
-update or deletion endpoint is provided.
+under the same id creates another version and retains the previous versions. The API does not provide endpoints to update or delete descriptors.
 
 Registration does not make the credential an authorized approver. A key's FourEye policy or
-an OCI authority policy must explicitly pin its complete `ref`. Both SIGNATURE and WEBAUTHN
-descriptors are supported. Existing inline FourEye policies keep their current contract.
+an OCI authority policy must explicitly pin its complete `ref`. Both `SIGNATURE` and `WEBAUTHN`
+descriptors are supported. Existing inline FourEye policies use the same request format and checks.
 
 ## Pin a registered approver in a policy
 
-Use `{"ref":"alice@sha256:<digest>"}` as an element of `fourEye.keys`, or as a value under
-`policy.approvers` in an authority manifest. Replace the placeholder with the actual ref returned
-by registration. Authority approval rules continue to select local aliases:
+Use `{"ref":"alice@sha256:<digest>"}` as an element of `fourEye.keys`. An Edict authority declares its own approver:
 
-```yaml
-policy:
-  id: payments
-  fallback: ALLOW_WITH_REQUIREMENTS
-  approvers:
-    treasury:
-      ref: "alice@sha256:<digest>"
-  fallbackApprovals:
-    threshold: 1
-    approvers: [treasury]
+```edict
+approver treasury {
+    type = "reference"
+    id = "treasury"
+    ref = "alice@sha256:<digest>"
+}
 ```
 
-Every participant resolves all target refs before CREATE/REFRESH/ROTATE, including unused
+Use the complete ref returned by registration. A policy can require `1 of [treasury]` conditionally, or use `default allow require treasury` for a reviewed fallback. See [Edict approvals](../signing-and-authorities/edict.md#decisions-and-approvals).
+
+Each participant must resolve the target refs before CREATE/REFRESH/ROTATE, including unused
 authority approvers reserved for later rules. Resolution reads the local replicated registry and
 verifies descriptor integrity and digest. Missing descriptors fail closed. There is no lookup by
 bare id, latest, URL, metadata, or a key supplied in a proof. Duplicate keys are rejected after
@@ -103,13 +98,12 @@ requires one valid proof from any of the configured approvers, including a `1 of
 ```
 
 `LENIENT` requires these approvals for ROTATE, REFRESH, and generation destruction. `STRICT`
-also protects signing and decryption. Initial CREATE has no existing key policy; a policy supplied
+also protects signing and decryption. Initial CREATE has no existing key policy. A policy supplied
 during CREATE protects subsequent operations. Key-bound and authority approval groups are cumulative.
 
 The original policy retains the literal ref in its signing hash. A new version or metadata update
 does not change an existing policy. Changing a pinned ref requires REFRESH/ROTATE authorized
-by the current policy; historical generations retain their exact refs. Normal approval verification
-needs no registry writer or registry mutation lock. Recovery and MONO promotion transfer the
+by the current policy. Historical generations retain their exact refs. Existing policies remain usable for signing while a registry write is waiting for peers. Recovery and MONO promotion transfer the
 registry before the affected keys are made usable.
 
 ## Register WebAuthn from a hub
@@ -127,18 +121,19 @@ keeper.webauthn {
 }
 ```
 
-Registration is disabled by default and requires the P256 platform. HTTPS origins must be exact
-origins under the RP ID: no wildcard, path, credentials, query or fragment. Explicit HTTP localhost
+Registration is turned off by default and requires the P256 platform. HTTPS origins must be exact
+origins under the RP ID: no wildcard, path, credentials, query, or fragment. Explicit HTTP localhost
 configuration is allowed for development. Origins are pinned in sorted order in each descriptor.
 
 Send `{"id":"alice","metadata":{"team":"treasury"}}` to the options endpoint. Its response is
 `{registrationId, invitation, expiresAt, publicKey}`. `publicKey` is standard JSON creation options: binary fields
-are unpadded Base64url. Convert challenge, user.id and excludeCredentials ids to browser buffers
+are unpadded Base64url. Convert `challenge`, `user.id`, and `excludeCredentials` ids to browser buffers
 before `navigator.credentials.create({publicKey})`, or use the browser's JSON options parser.
-The server supplies a fresh 32-byte challenge and random user handle, requests ES256 and required
-user verification, and includes known credentials of this id/RP in excludeCredentials.
+Creation options contain a fresh 32-byte `challenge` and a random user handle.
+The server requests ES256 with required user verification. Known credentials for this
+id/RP appear in `excludeCredentials`.
 The response includes `X-EXPIRES-AT`, the session deadline as a Unix timestamp in
-whole seconds; the JSON `expiresAt` field remains in milliseconds.
+whole seconds. The JSON `expiresAt` field remains in milliseconds.
 
 Send the resulting browser credential JSON to finish:
 
@@ -162,49 +157,41 @@ and browser options to the intended credential holder. The holder sends their ow
 and the invitation to finish, possibly through another peer. No registry permission or match
 with the registrar's JWT subject is required. The writer independently checks a forwarded JWT.
 The session pins the registrar, target id,
-metadata, RP, origins, algorithm and deadline. The invitation is 32 random bytes in canonical
-unpadded Base64url. Its domain-separated SHA-256 hash is the public `registrationId`; that id
-cannot authorize finish. The mirrored session contains the hash, not the invitation secret.
-Keeper returns a token, leaving links and delivery to external management.
+metadata, RP, origins, algorithm, and deadline. Use the returned `invitation` to finish enrollment.
+The public `registrationId` identifies the session and cannot authorize finish. The registrar's
+app creates the enrollment link and delivers it to the intended holder.
 
-A session defaults to five minutes (maximum ten); each registrar can have eight unfinished
+A session defaults to five minutes (maximum ten). Each registrar can have eight unfinished
 sessions and the writer retains at most 256 unexpired sessions. Capacity exhaustion returns 429.
 
 Finish returns `201` for a new version and `200` for an identical successful retry within the
 session deadline. A different
-response for a completed session is rejected. Session consumption, the descriptor, uniqueness
-indexes, initial counter/backup observations and replication outbox commit in one transaction.
-Completed sessions and records survive writer restarts. Runtime observations are stored separately
-from the descriptor and do not change the ref. Counters are never reduced by registration retries.
-Every peer validates the invitation and reserves its one response/ref before signing PREPARE.
-Invalid tokens or ceremony responses do not consume a valid invitation. Live sessions and durable
-consumption reservations transfer through recovery and promotion. Treat the invitation as a bearer
+response for a completed session is rejected. Completed enrollment survives writer restarts.
+A failed verification leaves an otherwise valid invitation available for another attempt.
+Recovery and promotion preserve enrollment sessions and their consumption state. Treat the invitation as a bearer
 secret: any authenticated holder can enroll a credential for its pinned id. The recipient's
-JWT does not change that id or establish that the registrar intended this particular holder.
-Registration still grants no approval rights until a policy explicitly pins the resulting ref.
+JWT does not change that id or establish that the registrar intended this holder.
+Registration does not grant approval rights. A policy must explicitly pin the resulting ref.
 
-Deploy this contract to all peers and update SDK callers together. Earlier unfinished sessions
-must be restarted; finish now accepts `invitation` instead of `registrationId`.
-
-The deadline limits new WebAuthn confirmations and PREPARE receipts. An already complete
-all-member confirmation remains valid for delivery after that deadline. Partial signed
-reservations keep their key, credential and metadata locks until coordinated settlement;
+The deadline limits enrollment checks and new confirmations from peers. A change already
+confirmed by every member can still be delivered after that deadline. Partial signed
+reservations retain locks for their keys, credentials, and metadata until coordinated settlement.
 TTL does not release those locks or permit a conflicting registration.
 
-The WebAuthn descriptor contains version/type, credentialId, canonical public ES256 COSE key,
-rpId, sorted origins, `userVerification: REQUIRED`, userHandle and backupEligible. Every field
-enters its digest. `(rpId, credentialId)` is unique; the normalized P256 key shares its owner index
+The WebAuthn descriptor contains version/type, `credentialId`, canonical public ES256 COSE key,
+`rpId`, sorted origins, `userVerification: REQUIRED`, `userHandle` and `backupEligible`. Every field
+enters its digest. `(rpId, credentialId)` is unique. The normalized P256 key shares its owner index
 with SIGNATURE keys, so switching formats cannot acquire another owner's key.
 
 ## Read and filter
 
-Pass the complete URL-encoded ref in path parameters, for example `alice%40sha256%3A<digest>`.
+Pass the complete URL-encoded ref in path parameters, such as `alice%40sha256%3A<digest>`.
 Bare ids and shortened or uppercase hashes are invalid.
 
 The list response is `{items, nextCursor}`. Supported filters are `id`, `type=SIGNATURE|WEBAUTHN`,
 and exact string matches such as `metadata.team=treasury`. Multiple metadata filters combine
-with AND. URL-encode both parameter names and values. Every matching version is returned;
-there is no implicit latest version.
+with AND. URL-encode both parameter names and values. The response includes each matching version.
+There is no implicit latest version.
 
 `limit` defaults to 50 and must be between 1 and 200. Pass the returned `nextCursor` as `cursor`
 with the same filters. Versions sort by full ref. Pagination is not a snapshot: concurrent
@@ -213,74 +200,64 @@ registrations or metadata updates can change subsequent pages. `nextCursor` is n
 ## Replace metadata
 
 Registration, exact reads and metadata updates return `metadataRevision` and a matching quoted
-numeric `ETag`. To replace metadata, send the current value as `If-Match`, for example `"1"`:
+numeric `ETag`. To replace metadata, send the current value as `If-Match`, such as `"1"`:
 
 ```json
 {"metadata": {"team": "operations"}}
 ```
 
-The map replaces all previous pairs; `{ "metadata": {} }` clears it. Successful updates increment
+The map replaces all previous pairs. `{ "metadata": {} }` clears it. Successful updates increment
 the revision, update `updatedAt`, and retain the ref, descriptor and `createdAt`. A missing
 `If-Match` returns `428`. Stale revisions, weak validators, wildcards and validator lists return
 `412`. Read the current record before reconciling a conflict.
 
-Metadata is a `Map<String, String>` with at most 32 pairs. Keys use 1–64 UTF-8 bytes; values use
-at most 512 UTF-8 bytes; total key and value bytes must not exceed 16 KiB. Unknown body fields,
+Metadata is a `Map<String, String>` with at most 32 pairs. Keys use 1 to 64 UTF-8 bytes. Values use
+at most 512 UTF-8 bytes. Total key and value bytes must not exceed 16 KiB. Unknown body fields,
 duplicate JSON keys, explicit nulls, trailing JSON and non-string metadata values are rejected.
 Metadata is for search and display and has no effect on approval permissions or thresholds.
 
 ## Persistence
 
-Descriptors, metadata, uniqueness indexes, sessions/runtime, signed preparations, commit
-certificates and replication outboxes are signed in `cf_approvers` using each peer's integrity
-key. Full database snapshots include them. Preserve integrity-key history when restoring.
-Registry transactions synchronously flush the WAL before acknowledging PREPARE or commit.
-Registry restoration and promotion transfers require the same durability for their whole transaction.
-Read-only transactions and unchanged repeat deliveries do not write or synchronize the WAL.
-Ordinary key stores retain their existing write options. Column families still share the
-physical WAL and disk, so registry fsync can affect concurrent write latency.
+Full database backups include the registry, enrollment sessions, and pending changes.
+Preserve the peer's integrity-key history when restoring. A write succeeds only after every
+current member has durably stored the result. Registry writes can increase storage latency
+for other operations on the same peer.
 
 Mutations are ordered by the lowest peer ID in the current membership. A mono Keeper has one
 member even when its configuration includes future promotion targets. Any public peer forwards
 the caller's original authenticated request to the writer. Before preparation, every current
-member must be ready with matching topology; identity keys are obtained through authenticated,
-signed peer responses. Every member independently checks the actor's permission, exact command,
-canonical descriptor, key ownership, metadata revision and WebAuthn proof where applicable.
+member must be ready with matching topology. Identity keys are obtained through authenticated,
+signed peer responses. Each member must independently check the actor's permission and exact command.
+It also validates the canonical descriptor and key ownership, with separate checks for metadata revision and WebAuthn proofs where required.
 No member can authorize a registry change on behalf of the others.
-Peer coordination serializes registry mutations. Signing, registry reads and health checks
-do not acquire the registry mutation monitor.
+Registry writes are processed one at a time. Signing, registry reads, and health checks can continue while a write waits for peers.
 
-Each member durably reserves the exact proposal and signs a PREPARE receipt. Only a certificate
-containing a valid receipt from every current member authorizes commit. Signature registration,
-WebAuthn finish and metadata updates succeed only after every member has persisted the result.
+Every current member must validate and confirm the exact change. Signature registration,
+WebAuthn finish, and metadata updates succeed only after every member has persisted the result.
 WebAuthn options also require every member online and mirror the actor-bound session everywhere.
 
-An unavailable or sealed member causes `503 APPROVER_REPLICATION_UNAVAILABLE`. Failure during
-the protocol can leave reservations or committed copies. Surviving prepared members can collect
-the remaining receipts and deliver a complete certificate without the writer or a still-valid
-actor token. Durable retries resume after restarts; recipients retain delivery work too. Partial
-preparations without a complete certificate remain locked, including after expiry.
+An unavailable or sealed member causes `503 APPROVER_REPLICATION_UNAVAILABLE`. A failed request
+can leave a pending or partially delivered change. Peers can finish delivering a change confirmed
+by every member after the writer stops or the actor token expires. Pending delivery resumes
+after restart. A partially confirmed change remains locked, including after expiry.
 
-Each peer retains at most 256 uncommitted preparations, including expired ones. Expiry does not
-free this capacity while protective locks remain; another preparation then returns 429.
+Each peer retains at most 256 uncommitted changes, including expired ones. Expiry does not
+free this capacity while protective locks remain. Another preparation then returns 429.
 An identical registration retry converges to the existing version. For a metadata retry, read the current
 revision before reconciling the previous request. Older deliveries cannot roll metadata back.
 
-ECC and PQC share recovery obtain a validated registry snapshot from every selected helper.
-Helpers must have no uncommitted preparations and agree on records, revisions, runtime,
-sessions and certificates at one shared cutoff. Certified commits can be recovered while their
-delivery queues remain pending; these local queues are not transferred. The target rebuilds its registry and uniqueness
-indexes atomically with key installation, signing restored data with its own integrity key.
+ECC and PQC share recovery restore the registry together with the key. Selected helpers must
+have no uncommitted changes and must agree on credential versions, metadata, enrollment state,
+and completed changes. A failed key installation leaves the target registry unchanged.
 
 Mono-to-threshold promotion transfers the registry even when no key sets exist. A nonempty
-registry additionally requires `tkeeper.approvers.register` and `tkeeper.approvers.metadata` on
+registry requires `tkeeper.approvers.register` and `tkeeper.approvers.metadata` on
 the promotion principal. The source pins one transfer draft and blocks registry mutations until
-promotion completes. Targets accept only the source-authenticated draft, only into an empty
-settled registry/vault with no active DKG, and permanently bind retries to the same transfer.
-After a failed promotion, retry the same transfer; elapsed TTL does not discard its safety state.
+promotion completes. Targets require a draft authenticated by the source and an empty, settled registry/vault with no active DKG. Retries remain bound to that transfer.
+After a failed promotion, retry the same transfer because its safety state remains stored after TTL expiry.
 
-Registration and metadata writes use the existing audit pipeline. Successful events include
-`context.approverRef` and `context.metadataRevision`; metadata remains protected by the request
+Registration and metadata writes produce signed audit events. Successful events include
+`context.approverRef` and `context.metadataRevision`. Metadata remains protected by the request
 body digest and is not copied into the audit context. These fields describe registry changes,
 not verified approval votes.
 

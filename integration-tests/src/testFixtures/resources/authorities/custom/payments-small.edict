@@ -1,0 +1,23 @@
+authority "test:custom/payments-small" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "Small USD payment signing"
+    description = "Sign USD payment requests of up to 1000 units."
+
+    struct PaymentRequest {
+        purpose: Text
+        amount: Number
+        currency: Text
+        payload: Text?
+    }
+
+    input request: PaymentRequest
+
+    policy "test-custom-payments-small" {
+        allow "allow-small-usd-payment" when {
+            request.purpose == "payments"
+            request.currency == "USD"
+            request.amount <= 1000
+        }
+    }
+}

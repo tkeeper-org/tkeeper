@@ -2,7 +2,7 @@
 
 Monitor signing and decryption outcomes alongside node readiness. A ready node can still reject or fail requests because of policy, audit, platform, or quorum state.
 
-Use API outcomes and service logs to diagnose requests, infrastructure telemetry to assess hosts and networks, and signed audit events to investigate security decisions. Retain audit evidence separately from ordinary logs.
+Diagnose requests with API outcomes and service logs. Use infrastructure telemetry to assess hosts and networks. Signed audit events provide evidence for investigating security decisions. Retain audit evidence separately from ordinary logs.
 
 ## Core signals
 
@@ -16,16 +16,16 @@ Use API outcomes and service logs to diagnose requests, infrastructure telemetry
 | Lifecycle | create, import, promote, rotate, refresh, destroy, consistency repair | these operations change custody or key state |
 | Audit | sink availability, write latency, rejected events, verification failures | audit enforcement may block protected operations |
 
-Avoid high-cardinality labels for raw payloads, signatures, nonces, tokens, or arbitrary error details. Key ids and authority ids may also be sensitive inventory; expose them only to the monitoring boundary that needs them.
+Avoid high-cardinality labels for raw payloads, signatures, nonces, tokens, or arbitrary error details. Key ids and authority ids may also be sensitive inventory. Expose them only to the monitoring boundary that needs them.
 
 ## Separate denial from outage
 
 Do not combine all non-success outcomes into one availability rate.
 
-- `UNAUTHENTICATED`, `ACCESS_DENIED`, and `POLICY_VIOLATION` are security decisions. Spikes may indicate attack, client drift, or a policy rollout problem.
+- `UNAUTHENTICATED`, `ACCESS_DENIED`, and `POLICY_VIOLATION` are security decisions. Investigate spikes for attacks or client changes. Check recent policy rollouts too.
 - `KEEPER_SEALED`, audit failures, peer loss, timeouts, and exhausted session attempts are availability outcomes.
 - `INVALID_AUTHORITY_ARTIFACT` or a missing algorithm provider often indicates artifact/configuration drift.
-- `imposters` is security evidence; an empty list is inconclusive.
+- `imposters` is security evidence. An empty list is inconclusive.
 
 Define signing availability over well-formed, authenticated, authorized requests that policy would allow. Track denied requests separately so a successful security control is not reported as downtime.
 
@@ -53,7 +53,7 @@ Threshold ML-DSA requires separate retry telemetry:
 - request deadline exhaustion
 - correlation with peer or generation changes
 
-An isolated rejection-sampling abort is expected. A sustained shift in the attempt distribution or repeated exhaustion is an availability incident and may justify protocol-level investigation. Raising `keeper.session.mldsa.max-rounds` increases worst-case latency and work; it is not a substitute for diagnosis.
+An isolated attempt may stop during normal rejection sampling. A sustained shift in the attempt distribution or repeated exhaustion is an availability incident and may justify protocol-level investigation. Raising `keeper.session.mldsa.max-rounds` increases worst-case latency and work. It is not a substitute for diagnosis.
 
 ## Audit
 
@@ -79,4 +79,4 @@ If audit enforcement is enabled, alert before sink failure consumes the entire o
 - `imposters` is non-empty
 - policy or authority changes unexpectedly enable raw `arbitrary` signing
 
-Route expected business denials to security analytics unless their volume or source crosses an incident threshold; do not page on every rejected request.
+Route expected business denials to security analytics unless their volume or source crosses an incident threshold. Do not page on every rejected request.

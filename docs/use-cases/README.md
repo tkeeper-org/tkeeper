@@ -1,4 +1,4 @@
-# Use Cases
+# Use cases
 
 Typed signing follows this path:
 
@@ -13,4 +13,4 @@ command -> authority policy -> signature -> verification -> execution
 | PKI | [For PKI](for-pki.md) | [X.509](../pki/README.md) |
 | Other activities | [For Other Activities](for-other-activities.md) | [Typed authorities](../signing-and-authorities/arbitrary-and-typed.md) |
 
-The downstream system verifies the proof before acting. If an action can bypass that check, Keeper does not govern it.
+The downstream system verifies the proof before acting. If an action can bypass that check, Keeper's policy checks cannot prevent it.

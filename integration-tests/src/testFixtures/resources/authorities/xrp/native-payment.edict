@@ -1,0 +1,18 @@
+authority "test:xrp/native-payment" {
+    intent = "xrp.transaction"
+    version = "1.0.0"
+
+    policy "xrp-native-payment" {
+        let recipient = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+        allow "small-payment" when {
+            type == "payment"
+            lastLedgerSequence != null
+            (fee <= 12)
+            effects.all(e -> e.type in ["native.transfer"])
+            effects.count(e -> e.type == "native.transfer") == 1
+            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "xrp" and e.to == recipient and e.destinationTag == 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
+            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100)
+        }
+    }
+}

@@ -63,19 +63,19 @@ See [Authorities](../signing-and-authorities/authorities.md).
 
 ## `INVALID_AUTHORITY`
 
-The key's authority configuration is invalid. Check for an empty list, duplicate ids, mixing `arbitrary` with concrete authorities, missing or mutable OCI references, a loaded document id mismatch, or invalid policy syntax.
+The key's authority configuration is invalid. Check for an empty list, duplicate ids, mixing `arbitrary` with concrete authorities, missing or mutable OCI references, invalid ids in loaded documents, or invalid policy syntax.
 
 ## `POLICY_VIOLATION`
 
 The authority policy denied the intent. Inspect the command and policy before retrying.
 
-Check the materialized intent and effects. If an external verdict is used, verify the verdict input is bound to the same action that will be signed.
+Check the command fields and effects exposed to the authority policy. If an external verdict is used, verify the verdict input is bound to the action submitted for signing.
 
 ## `SESSION_MAX_ROUNDS_EXCEEDED`
 
 The session retry cap was exhausted.
 
-For threshold ML-DSA, healthy attempts can abort during rejection sampling. Check retries and latency before attributing the failure to a bad peer.
+For threshold ML-DSA, attempts can stop during rejection sampling even when peers follow the protocol. Check retries and latency before attributing the failure to a bad peer.
 
 Check:
 
@@ -105,6 +105,6 @@ Check:
 
 - audit device config
 - network path to socket sink
-- file sink directory permissions
+- permissions on the file sink's directory
 - audit timeout
 - TLS and SPKI pinning for socket sink

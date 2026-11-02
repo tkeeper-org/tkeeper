@@ -39,7 +39,7 @@ String credential = result.credential();
 Use `McMandates` for MC VI. `signingInput` contains exactly two unpadded base64url
 segments: the protected JWS header and payload. Supply every disclosure referenced
 by `delegate_payload`, including nested disclosures. Keeper verifies their SHA-256
-commitments and reconstructs the mandates before running Verdict. Missing,
+commitments and reconstructs the mandates before running Edict. Missing,
 duplicate, unreferenced or colliding disclosures fail closed. Signing requires
 complete disclosure even though subsequent presentations may disclose a subset.
 The supported top-level `_sd` index, when present, mirrors `delegate_payload`
@@ -50,7 +50,7 @@ scheme to ECDSA, the key to P-256 and the digest to SHA-256. Caller-selected
 `scheme`/`hash` and detached `mandates`/`checkoutJson` fields are rejected.
 A closed checkout's content comes exclusively from its `checkout_jwt` payload;
 `checkout_hash` must equal `base64url(SHA256(ASCII(checkout_jwt)))`. Open checkout
-references use the hash of the actual encoded disclosure. Verdict checks pair
+references use the hash of the actual encoded disclosure. Keeper checks pair
 references, agent bindings, complete request contents and authority policies.
 
 AP2 supports trusted-provider SD-JWT (`dc+sd-jwt`/`sd+jwt`) and delegated KB-SD-JWT.

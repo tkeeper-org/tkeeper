@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+    id 'java-test-fixtures'
+}
+
+dependencies {
+    implementation 'org.exploit:jettyx:0.2.0'
+    implementation 'com.fasterxml.jackson.core:jackson-core'
+}

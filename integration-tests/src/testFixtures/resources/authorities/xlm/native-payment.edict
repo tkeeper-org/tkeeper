@@ -1,0 +1,20 @@
+authority "test:xlm/native-payment" {
+    intent = "xlm.transaction"
+    version = "1.0.0"
+    description = "Sign one native XLM payment of up to 2 XLM to the configured recipient."
+    config { networkPassphrase = "Standalone Network ; February 2017" }
+
+    policy "xlm-payment" {
+        allow when {
+            type == "v1"
+            fee <= 1000
+            sequence > 0
+            operations.count() == 1
+            effects.count() == 1
+            effects.all(effect -> effect.type == "native.transfer")
+            effects.all(effect -> effect.to == "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U")
+            effects.sum(effect -> effect.amount) > 0
+            effects.sum(effect -> effect.amount) <= 20000000
+        }
+    }
+}

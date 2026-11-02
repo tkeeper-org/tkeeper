@@ -1,33 +1,16 @@
 # Digital assets
 
-Build `digital-assets` with `ecc` to sign Bitcoin, EVM, Tron, XRP, and Solana
-transactions. Each authority parses an unsigned transaction and checks its policy
-and required approvals before signing. Tron uses secp256k1, Solana uses Ed25519,
-and XRP accepts either. Pass the unsigned transaction in the SDK artifact's
-`transaction` field: JSON for Tron, hex for XRP, and Base64 for Solana.
-`signature().compose(...)` signs and returns `SignedTronTransaction`,
-`SignedXrpTransaction`, or `SignedSolanaTransaction`. Each contains the signed
-transaction in the same wire format and its transaction hash. Solana also
-reports `complete`: a transaction with other missing signatures is partial and
-may not have a hash yet. EVM composition returns `SignedEvmTransaction` with
-the signed hex transaction and hash.
+Build `digital-assets` with `ecc` to include Bitcoin, EVM, TRON, XRP, Solana and XLM authorities. Each module checks the native transaction and policy before signing.
 
-Build a runtime containing both digital assets and agentic payments:
+| Type | Artifact | Composer result |
+| --- | --- | --- |
+| Bitcoin | Base64 transaction, previous transactions and selected input | Raw signature |
+| EVM | Base64 unsigned transaction bytes | Signed hex |
+| TRON | Unsigned transaction JSON | Signed JSON |
+| XRP | Unsigned transaction hex | Signed hex |
+| Solana | Base64 unsigned transaction | Signed Base64 and completeness flag |
+| XLM/Soroban | Base64 unsigned envelope XDR and pinned network passphrase | Signed Base64 envelope |
 
-```sh
-./gradlew :build -Pkeeper.features=agentic-payments,digital-assets -Pkeeper.platforms=ecc
-```
+Select `bitcoin`, `evm`, `tron`, `xrp`, `solana` or `xlm` individually when only one is needed. Solana and XLM use Ed25519; TRON uses secp256k1; XRP supports either. Construct transactions for the actual signing key, including any requested tweak.
 
-Select `bitcoin`, `evm`, `tron`, `xrp`, or `solana` individually when only one is
-needed. The previous `authority-bitcoin` and `authority-evm` selectors remain
-accepted.
-
-For tweaked Bitcoin, Tron, XRP, or Solana signatures, construct the unsigned transaction with the derived public key from `central().getPublicKey(keyId, tweak)`.
-
-See the separate [Bitcoin](../../docs/digital-assets/bitcoin.md),
-[EVM](../../docs/digital-assets/evm.md),
-[Tron](../../docs/digital-assets/tron.md),
-[XRP](../../docs/digital-assets/xrp.md), and
-[Solana](../../docs/digital-assets/solana.md) authority guides.
-
-See [For Digital Assets](../../docs/use-cases/for-digital-assets.md) for a policy and SDK example.
+See the [policy guides](../../docs/digital-assets/README.md) for schemas, native contract declarations, units and signing boundaries.

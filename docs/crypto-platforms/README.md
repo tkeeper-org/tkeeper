@@ -1,6 +1,6 @@
-# Crypto Platforms
+# Crypto platforms
 
-Select `ecc` or `pqc` when building TKeeper to include the algorithms your keys need. Features such as transaction authorities may also require a particular platform.
+Select `ecc` or `pqc` when building TKeeper to include the algorithms your keys need. Features such as transaction authorities may also require a platform.
 
 Read:
 

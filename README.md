@@ -38,9 +38,9 @@ update does not replace an approver in an existing policy.
 
 | Work | Guide |
 | --- | --- |
-| Agent signing APIs; AP2 and Mastercard Verifiable Intent payments | [Govern an action](docs/use-cases/for-ai.md#govern-an-action) · [AP2](docs/ai/agentic-payments/ap2.md) · [MC Intent](docs/ai/agentic-payments/mcintent.md) |
-| Bitcoin, EVM, Tron, XRP, and Solana transactions                    | [For Digital Assets](docs/use-cases/for-digital-assets.md) · [Chain authorities](docs/digital-assets/README.md)                                          |
-| X.509 certificate signing                                           | [For PKI](docs/use-cases/for-pki.md) · [X.509 example](docs/pki/x509.md#authority-example-workload-server-certificate)                                   |
+| Agent signing APIs; AP2 and Mastercard Verifiable Intent payments | [Govern an action](docs/use-cases/for-ai.md) · [AP2](docs/ai/agentic-payments/ap2.md) · [MC Intent](docs/ai/agentic-payments/mcintent.md) |
+| Bitcoin, EVM, Tron, XRP, Solana, and XLM transactions                    | [For Digital Assets](docs/use-cases/for-digital-assets.md) · [Chain authorities](docs/digital-assets/README.md)                                          |
+| X.509 certificate signing                                           | [For PKI](docs/use-cases/for-pki.md) · [X.509 example](docs/pki/x509.md)                                   |
 | Typed commands for internal systems                                 | [For Other Activities](docs/use-cases/for-other-activities.md) · [Custom authorities](docs/signing-and-authorities/arbitrary-and-typed.md)               |
 
 ## Multi-Party Computation and compromise resistance

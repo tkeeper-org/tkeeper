@@ -56,6 +56,10 @@ if (submitted.status() == 202) {
 
 Hub-specific requests live under `model.hub`. Lifecycle requests fix their respective mode. Refresh, rotate, destroy and signing accept `InitialApprovals` with empty proofs; omit it to let Hub assign the approval context. Omitted refresh/rotate policy stays omitted: Hub does not inherit the previous policy. Hub execution mandates are managed by the server.
 
+Lifecycle authorities use `KeySetAuthorities`, containing builtin IDs or digest-pinned OCI references. For example, `KeySetAuthorities.arbitrary()` selects the builtin authority.
+
+Policy source and draft requests default to `AuthorityFormat.EDICT`. Policy responses expose `engineVersion`, typed `inputTypes` and diagnostics with severity, code and source position. `PolicyType` preserves nested types, exact default literals and integer bounds as strings.
+
 `executeOperation(operationId)` executes the collected receipts. Its overload accepts `OperationExecuteRequest` for the contract's legacy owner-supplied proofs. Inspect the returned operation state: an HTTP 200 execution response can contain `FAILED` or `OUTCOME_UNKNOWN`.
 
 Native catalog responses preserve `isError` and the complete `result` payload. Check `isError` even when HTTP succeeds; `catalog()` and `authority()` expose the existing typed native models, and `error()` exposes native error details. Authority configuration, command schemas and operation request/result objects retain their open JSON structure.
@@ -63,6 +67,8 @@ Native catalog responses preserve `isError` and the complete `result` payload. C
 ## Approvers and deadlines
 
 Registration and metadata responses retain `ETag`. Pass it unchanged to `replaceApproverMetadata(ref, request, etag)`; the SDK sends the quoted value as `If-Match`.
+
+Approver metadata uses `Map<String, String>`, including the optional `displayName` field. Display names follow the length and format constraints in the Hub contract.
 
 Hub invitation requests use `invitationToken`. Native Keeper registration's separate invitation format is not substituted. WebAuthn creation/assertion JSON has typed models under `model.hub.webauthn`; binary browser fields remain base64url strings.
 
@@ -87,4 +93,4 @@ Events are delivered as they arrive. EOF ends one connection; explicitly reconne
 
 HTTP failures throw `HubException`, preserving status, headers, raw body and parsed JSON when available. `getProblem()`, `getKeeperError()` and `getValidation()` expose the contract's structured error variants. Empty and non-JSON gateway errors still retain their HTTP diagnostics. `requiresSignIn()` checks `X-Hub-Session: required`; a forwarded native 401 alone does not request a new Hub session. `HubProblem.outcome()` preserves `NOT_SENT`, `UNKNOWN` or null.
 
-Run the SDK unit suite with `./gradlew :sdk:test`. Its standalone [contract snapshot](src/test/resources/hub/openapi.json) covers all 83 operations, every documented success status, models, required nulls, request encoding, headers, error envelopes, mutation retry behavior and streaming/resume behavior. Tests use local HTTP stubs. They also check the original OpenAPI SHA-256 when the sibling `tkeeper-hub` checkout is available.
+Run the SDK unit suite with `./gradlew :sdk:test`. Its bundled [contract snapshot](src/test/resources/hub/openapi.json) covers all 83 operations, every documented success status, models, required nulls, request encoding, headers, error envelopes, mutation retry behavior and streaming/resume behavior. Tests use local HTTP stubs.

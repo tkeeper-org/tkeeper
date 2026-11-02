@@ -1,4 +1,4 @@
-# Local Single Node
+# Local single node
 
 Run a local node, create a key, sign `hello`, and verify the signature. The setup uses:
 
@@ -35,7 +35,7 @@ Build the jar with the explicit developer-auth feature:
 The jar is:
 
 ```text
-build/libs/tkeeper-3.1.0.jar
+build/libs/tkeeper-4.0.0.jar
 ```
 
 ## Create local config
@@ -102,7 +102,7 @@ java \
   -Dkeeper.dev.enabled=true \
   -Dkeeper.dev.config.location=/tmp/tkeeper \
   -Dkeeper.coordinator.enabled=true \
-  -jar build/libs/tkeeper-3.1.0.jar
+  -jar build/libs/tkeeper-4.0.0.jar
 ```
 
 ## Initialize the node
@@ -141,9 +141,7 @@ curl -s \
     "keyId": "demo-identity",
     "algorithm": "SECP256K1",
     "mode": "CREATE",
-    "authorities": [
-      { "id": "arbitrary" }
-    ]
+    "authorities": ["arbitrary"]
   }' \
   http://localhost:8080/v2/keeper/dkg
 ```
@@ -213,7 +211,7 @@ Expected response:
 { "valid": true }
 ```
 
-`valid: true` confirms that the signature matches the message and key. Verification does not evaluate authority policy. An executing application must also check the expected key, action, expiry, and replay rules.
+`valid: true` confirms that the signature matches the message and key. Verification does not evaluate authority policy. An executing app must also check the expected key, action, expiry, and replay rules.
 
 ## Turn the smoke test into a governed integration
 

@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    api project(':edict:authority')
+    api project(':edict:oras')
+    testImplementation testFixtures(project(':edict:oras'))
+}

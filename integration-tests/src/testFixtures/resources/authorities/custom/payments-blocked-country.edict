@@ -1,0 +1,23 @@
+authority "test:custom/payments-country" {
+    intent = "custom"
+    version = "1.0.0"
+    title = "Payment signing with country blocklist"
+
+    input request {
+        purpose: Text
+        amount: Number
+        currency: Text
+        country: Text
+    }
+
+    policy "test-custom-payments-country" {
+        deny "blocked-country" when {
+            request.country in ["IR", "KP"]
+        }
+        allow "allow-small-unblocked-payment" when {
+            request.purpose == "payments"
+            request.currency in ["USD", "EUR"]
+            request.amount <= 5000
+        }
+    }
+}

@@ -1,0 +1,35 @@
+authority "test:mcintent/purchases" {
+    intent = "mcintent.mandate"
+    version = "2.0.0"
+
+    config {
+        merchants = {
+            officeShop = {
+                website = "https://office.example"
+            }
+        }
+        methods = {
+            companyCard = {
+                id = "card-1"
+                type = "card"
+            }
+        }
+    }
+
+    policy "office-purchases" {
+        let maxPerPurchase = 10000
+        let maxPerRequest = 15000
+        deny "request-total" when {
+            not request.allAmountsKnown or purchases.map(p -> p.payment.payment_amount.amount).sum() > maxPerRequest
+        }
+        allow "office-purchase" when {
+            action.kind == "purchase"
+            checkout.content.merchant.website == merchants.officeShop.website
+            payment.payee.website == merchants.officeShop.website
+            payment.payment_instrument.id == methods.companyCard.id
+            payment.payment_instrument.type == methods.companyCard.type
+            payment.payment_amount.currency == "USD"
+            payment.payment_amount.amount <= maxPerPurchase
+        }
+    }
+}
