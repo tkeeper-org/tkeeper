@@ -27,6 +27,8 @@ fn permittedCountry(country: Text): Boolean {
 
 Call it with `permittedCountry(request.recipient.country)`. Arguments and return values are checked at compilation. Parameter and result annotations can be omitted when usage provides enough information. An unused function needs parameter annotations so the compiler can check its body.
 
+For Bitcoin, calling `spendableOutputs(transaction.outputs)` infers `List<Output>` for `items` when its annotation is omitted. Every field and operator used in the function must be valid for that type. Passing `transaction.inputs` to the same function fails compilation because an input has a different record type. Inference does not make a function accept arbitrary objects.
+
 Native modules provide simple object type names, such as `Transaction` and `Certificate`. A declared contract method also provides its parameter type, such as `usdc.transfer`. Pass a present method value directly to a helper. Its parameters have no `arguments` wrapper.
 
 Functions use explicit `return`. Every possible path must return a compatible value. Functions cannot recurse or call arbitrary Java methods. Pass request data as parameters. Functions do not obtain it through an implicit request context.

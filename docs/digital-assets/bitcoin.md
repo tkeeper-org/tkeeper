@@ -14,19 +14,25 @@ authority "test:bitcoin/btc-small-output" {
         network = "MAINNET"
     }
 
+    fn permittedSpend(tx: Transaction): Boolean {
+        return (tx.protocol == "BTC"
+            and tx.sighash.all
+            and not tx.sighash.anyoneCanPay
+            and tx.outputs.all(output -> output.spendable)
+            and tx.totalOutput <= 100000
+            and tx.fee <= 10000)
+    }
+
     policy "test-bitcoin-btc-small-output" {
-        allow "allow-small-btc-output" when {
-            protocol == "BTC"
-            sighash.all
-            not sighash.anyoneCanPay
-            effects.all(e -> e.type in ["utxo.spend", "utxo.output", "utxo.fee"])
-            (effects.filter(e -> e.type == "utxo.output").map(e -> e.amount).sum() <= 100000)
-            (effects.filter(e -> e.type == "utxo.fee").map(e -> e.amount).sum() <= 10000)
-        }
+        allow "allow-small-btc-output" if (permittedSpend(transaction))
     }
 }
 ```
 
-Use `outputs`, `inputs`, `fee`, `sighash`, `signing` and `effects` to constrain the whole transaction. The example limits total output and fee. Add an explicit destination check for your wallet. Keeper signs the selected input with `SIGHASH_ALL`. It returns a signature. There is no Bitcoin transaction composer. The wallet constructs and broadcasts the final transaction.
+`transaction` has type `Transaction`. It contains metadata, `inputs`, `outputs`, `previousTransactions`, `totalInput`, `totalOutput`, `fee`, `sighash`, `signing` and `effects`. Previous transactions contain funding metadata. Each input includes its resolved `prevout`, amount, and script. Outputs include their amount, address, script and `spendable` flag. These fields remain available as root inputs too.
+
+Pass `transaction` or a collection to a function. Use `Transaction`, `Input` and `Output` for explicit parameter types. Without an annotation, calling `spendableOutputs(transaction.outputs)` infers `List<Output>` and checks the function body against that type.
+
+The example limits total output and fee. Add an explicit destination check for your wallet. Keeper signs the selected input with `SIGHASH_ALL`. It returns a signature. There is no Bitcoin transaction composer. The wallet constructs and broadcasts the final transaction.
 
 Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction. The wallet remains responsible for construction, freshness, fees, and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.

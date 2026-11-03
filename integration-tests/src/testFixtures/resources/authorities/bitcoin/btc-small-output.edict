@@ -7,14 +7,16 @@ authority "test:bitcoin/btc-small-output" {
         network = "MAINNET"
     }
 
+    fn permittedSpend(tx: Transaction): Boolean {
+        return (tx.protocol == "BTC"
+            and tx.sighash.all
+            and not tx.sighash.anyoneCanPay
+            and tx.outputs.all(output -> output.spendable)
+            and tx.totalOutput <= 100000
+            and tx.fee <= 10000)
+    }
+
     policy "test-bitcoin-btc-small-output" {
-        allow "allow-small-btc-output" when {
-            protocol == "BTC"
-            sighash.all
-            not sighash.anyoneCanPay
-            effects.all(e -> e.type in ["utxo.spend", "utxo.output", "utxo.fee"])
-            (effects.filter(e -> e.type == "utxo.output").map(e -> e.amount).sum() <= 100000)
-            (effects.filter(e -> e.type == "utxo.fee").map(e -> e.amount).sum() <= 10000)
-        }
+        allow "allow-small-btc-output" if (permittedSpend(transaction))
     }
 }
