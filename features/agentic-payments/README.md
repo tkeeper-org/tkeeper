@@ -14,13 +14,17 @@ Select `ap2` or `mc-vi` when only one protocol is needed.
 
 Use `type: ap2.mandate` or `type: mcintent.mandate`.
 `config.merchants` and `config.methods` define the merchant and payment-method
-identities available to policy. `config.mode` is `PAIRED` by default; explicitly select `PAYMENTS` or
+identities available to policy. `config.mode` is `PAIRED` by default. Select `PAYMENTS` or
 `CHECKOUTS` for a standalone signing stage. The artifact mode must match it.
 
-Policy receives these roots: `action`, `payment`, `checkout`,
-`delegation`, `request`, `mandates`, `context`, `merchants`, and `methods`.
-Every action is evaluated; a denied action denies the complete request, and all
-approval requirements are retained. `context` is empty.
+Policy receives `action`, `payment`, `checkout`, `request`, `purchases`,
+`context`, `merchants` and `methods`. Use `payment.amount` for the integer amount
+in minor units, `payment.currency` for its currency code, and `payment.instrument`
+for the payment instrument. `purchases` contains
+all paired purchases with the same payment fields.
+
+Keeper evaluates each action. A denied action rejects the complete request.
+Approval requirements from the actions are combined. `context` exposes the signed header and payload metadata.
 
 The [AP2 guide](../../docs/ai/agentic-payments/ap2.md) and [MC Intent guide](../../docs/ai/agentic-payments/mcintent.md) have complete authorities and SDK examples.
 
@@ -40,7 +44,7 @@ Use `McMandates` for MC VI. `signingInput` contains exactly two unpadded base64u
 segments: the protected JWS header and payload. Supply every disclosure referenced
 by `delegate_payload`, including nested disclosures. Keeper verifies their SHA-256
 commitments and reconstructs the mandates before running Edict. Missing,
-duplicate, unreferenced or colliding disclosures fail closed. Signing requires
+duplicate, unreferenced, or colliding disclosures fail closed. Signing requires
 complete disclosure even though subsequent presentations may disclose a subset.
 The supported top-level `_sd` index, when present, mirrors `delegate_payload`
 (the VI profile). Other top-level selectively disclosed claims are not supported.
@@ -48,16 +52,16 @@ The supported top-level `_sd` index, when present, mirrors `delegate_payload`
 The signed bytes are the **unchanged ASCII `signingInput`**. ES256 fixes the signing
 scheme to ECDSA, the key to P-256 and the digest to SHA-256. Caller-selected
 `scheme`/`hash` and detached `mandates`/`checkoutJson` fields are rejected.
-A closed checkout's content comes exclusively from its `checkout_jwt` payload;
+A closed checkout's content comes exclusively from its `checkout_jwt` payload.
 `checkout_hash` must equal `base64url(SHA256(ASCII(checkout_jwt)))`. Open checkout
 references use the hash of the actual encoded disclosure. Keeper checks pair
-references, agent bindings, complete request contents and authority policies.
+references, agent bindings, complete request contents, and authority policies.
 
 AP2 supports trusted-provider SD-JWT (`dc+sd-jwt`/`sd+jwt`) and delegated KB-SD-JWT.
 MC VI supports L2 Immediate/Autonomous (`kb-sd-jwt`/`kb-sd-jwt+kb`) and terminal L3
 (`kb-sd-jwt` with an explicit PAYMENTS or CHECKOUTS authority mode). VI uses ES256,
 `sha-256`, required binding claims, compatible mandate kinds and P-256 public agent
-JWKs; L3 requires `kid` and a validity interval of at most one hour.
+JWKs. L3 requires `kid` and a validity interval of at most one hour.
 
 TKeeper validates the outgoing credential and its content commitments.
 The caller supplies issuer/audience/nonce/time claims and `sd_hash` computed from
@@ -79,13 +83,13 @@ It uses the same authority, approval and signing pipeline, then returns:
 ```
 
 MC VI returns `type: mcintent.mandate` with the same combined serialization; its
-protected JWT `typ` distinguishes Immediate, Autonomous and terminal credentials.
+protected JWT `typ` distinguishes Immediate, Autonomous, and terminal credentials.
 The string is ready to use as the signed SD-JWT/KB-SD-JWT layer. Composer preserves
 the exact signing input and disclosure strings/order, encodes ES256 as the 64-byte
 `R || S` signature in unpadded base64url, and includes the trailing `~`.
 For delegated credentials, present this layer alongside the existing parent
-credential(s) bound by `sd_hash`; Keeper cannot reconstruct that chain from a hash.
-All supplied disclosures are returned. Select the recipient-appropriate disclosures
+credentials bound by `sd_hash`. Keeper cannot reconstruct that chain from a hash.
+Composer returns the disclosures supplied in the request. Select the recipient-appropriate disclosures
 when presenting the credential.
 
 `/v2/keeper/sign` still returns the raw Keeper signature. Compose falls back to that
