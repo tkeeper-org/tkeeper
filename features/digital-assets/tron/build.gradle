@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.exploit'
-version = '4.0.0'
+version = '4.1.0'
 
 def evmFunctions = 'org.exploit.edict.format.evm.function.EvmFunctions'
 def functionService = 'META-INF/services/org.exploit.edict.extension.FunctionModule'
