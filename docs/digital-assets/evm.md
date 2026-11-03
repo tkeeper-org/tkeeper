@@ -4,7 +4,9 @@ Build with `-Pkeeper.features=evm -Pkeeper.platforms=ecc`. Submit the unsigned t
 
 Every transaction authority requires `config.chainId`. Legacy transactions use EIP-155 to bind signatures to that network. The signer rejects transactions with a missing or different `chainId`. Verification also requires the chain ID in the transaction.
 
-For native transfers, roots include `chainId`, `to`, `value`, `gasLimit`, `transaction` and `effects`. Values are wei. For contract calls, declare the contract and ABI signatures in the Edict document:
+`transaction` has type `Transaction` for native transfers and declared contract calls. Functions can read `type`, `chainId`, `nonce`, `gasPrice`, `gasLimit`, `maxPriorityFeePerGas`, `maxFeePerGas`, `to`, `value`, `data` and `selector` through this object. A fee field is `null` when it does not apply to the envelope. `data` has type `Bytes`. Values are wei.
+
+Native transfers also expose the root inputs `chainId`, `to`, `value`, `gasLimit` and `effects`. Declare contract calls and ABI signatures in the Edict document:
 
 ```edict
 authority "test:evm/mainnet-usdc-transfer" {

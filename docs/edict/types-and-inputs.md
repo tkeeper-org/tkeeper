@@ -131,6 +131,20 @@ fn acceptableGas(tx: Transaction): Boolean {
 
 This example requires an EVM intent. Call it inside the policy with `acceptableGas(transaction)`. Omitting the parameter annotation still allows the compiler to infer the type. User-defined structs cannot shadow a type provided by the intent.
 
+Native collection elements have these registered types:
+
+| Module | Element types |
+| --- | --- |
+| Bitcoin | `Input`, `Output` |
+| XRP | `Payment` |
+| TRON | `Contract` |
+| Solana | `Instruction` |
+| XLM | `Operation` |
+
+A Bitcoin function can accept `items: List<Output>` and inspect each output's `amount`, `address`, `script` and `spendable` fields.
+
+Native roots are supplied automatically. If an authority repeats an input declaration, use its registered type, such as `input transaction: Transaction`. A handwritten record must match the host schema.
+
 ## Lists and maps
 
 Use a list when position or repeated values matter:

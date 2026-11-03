@@ -14,21 +14,31 @@ authority "test:tron/native-transfer" {
     version = "1.0.0"
     description = "Sign a TRON native transfer of up to 100 TRX to the configured recipient."
 
+    let recipient = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
+
+    fn permittedTransfer(item: Contract): Boolean {
+        return (item.type == "TransferContract"
+            and item.to == recipient
+            and item.amount != null
+            and item.amount > 0
+            and item.amount <= 100000000)
+    }
+
+    fn permittedTransaction(tx: Transaction): Boolean {
+        return (tx.feeLimit <= 30000000
+            and tx.contracts.count() == 1
+            and tx.contracts.all(item -> permittedTransfer(item)))
+    }
+
     policy "tron-native-transfer" {
-        let recipient = "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb"
-        allow "small-transfer" when {
-            feeLimit <= 30000000
-            effects.all(e -> e.type in ["native.transfer"])
-            effects.count(e -> e.type == "native.transfer") == 1
-            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "trx" and e.to == recipient)
-            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
-            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100000000)
-        }
+        allow "small-transfer" if (permittedTransaction(transaction))
     }
 }
 ```
 
-Roots include `hash`, `timestamp`, `expiration`, `feeLimit`, and `effects`. The signing key must match the owner of the transaction's only owner-authorized contract. The decoder rejects nonzero permission ids and additional `auths` entries.
+`transaction` has type `Transaction`. It contains `hash`, `timestamp`, `expiration`, `feeLimit`, `refBlockBytes`, `refBlockHash`, `memoHex`, `contracts` and `effects`. The same fields remain available as root inputs. Each `Contract` exposes its type, owner, and decoded details. Native transfers provide `to` and `amount`. Supported token calls provide the contract address, selector, function and decoded `call.arguments`.
+
+The signing key must match the owner of the transaction's only owner-authorized contract. The decoder rejects nonzero permission ids and additional `auths` entries.
 
 ## Contract calls
 
@@ -64,7 +74,7 @@ TRON declarations support EVM ABI integer widths, `address`, `bool`, `string`, `
 
 If the authority declares one method, access its parameters as `token.transfer.amount`. With several declared methods, guard a member with `token.transfer != null` before reading its arguments. Unmatched methods are `null`. Declaring a method permits decoding it. An allow rule must authorize the call.
 
-The `Transaction` type exposes `hash`, `timestamp`, `expiration`, `feeLimit`, `refBlockBytes`, `refBlockNum`, `refBlockHash`, `memoHex`, `owner`, `contract`, `callValue`, `callTokenValue`, and `tokenId`. `owner` and `contract` use Base58Check. Numeric fields and ABI integers retain type `Integer`.
+With a contract declaration, the `Transaction` type exposes `hash`, `timestamp`, `expiration`, `feeLimit`, `refBlockBytes`, `refBlockNum`, `refBlockHash`, `memoHex`, `owner`, `contract`, `callValue`, `callTokenValue`, and `tokenId`. Pass `transaction` to a function to check these fields. Decoded ABI arguments remain in the declared contract namespace. `owner` and `contract` use Base58Check. Numeric fields and ABI integers retain type `Integer`.
 
 `callValue` is the attached TRX amount. `callTokenValue` and `tokenId` describe attached TRC-10 tokens. Constrain these fields even for a token transfer or approval. A policy that omits the corresponding numeric transaction fields cannot accept nonzero attached assets. Decoding does not simulate the contract or inspect its current state.
 

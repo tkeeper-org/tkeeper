@@ -19,7 +19,7 @@ Use the configuration and units from the relevant guide:
 | `evm.7702` | [EVM](../digital-assets/evm.md) | Delegation chain, contract address, and account nonce |
 | `evm.2612` | [EVM](../digital-assets/evm.md) | Permit domain, owner, spender, amount, nonce, and deadline |
 | `evm.3009` | [EVM](../digital-assets/evm.md) | Transfer, receive, and cancellation authorizations |
-| `tron.transaction` | [TRON](../digital-assets/tron.md) | Native transfer effects, declared contract calls, attached assets, and fees |
+| `tron.transaction` | [TRON](../digital-assets/tron.md) | Native transfers, declared contract calls, attached assets, and fees |
 | `xrp.transaction` | [XRP](../digital-assets/xrp.md) | Payment type, destination, amount, and flags |
 | `solana.transaction` | [Solana](../digital-assets/solana.md) | Program, instructions, account roles, and transfer amounts |
 | `xlm.transaction` | [XLM and Soroban](../digital-assets/xlm.md) | Network, operations, amounts, and declared invocations |
@@ -28,6 +28,12 @@ Use the configuration and units from the relevant guide:
 | `mcintent.mandate` | [Mastercard VI](../ai/agentic-payments/mcintent.md) | Credential context and requested payment actions |
 
 Each guide contains a complete authority and the API artifact it accepts. Build Keeper with the required feature and platform before loading it.
+
+## Pass transaction data to functions
+
+Every blockchain transaction intent provides `transaction` with the intent's `Transaction` type. Pass it to a function to inspect decoded amounts, fees, and other transaction fields. Bitcoin includes inputs, outputs, resolved previous outputs, totals, and signing details. XRP includes payment fields and batch payments. TRON, Solana and XLM expose contracts, instructions, and operations respectively. Existing root inputs and effects remain available.
+
+Contract and program declarations expose decoded methods in their own namespaces. In these authorities, `Transaction` contains the transaction metadata for that binding. Pass a method value or its call list separately when a function also needs decoded arguments. See [Types and input schemas](types-and-inputs.md#types-provided-by-native-intents) for parameter types.
 
 ## Declare an EVM call
 

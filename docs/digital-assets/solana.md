@@ -9,21 +9,34 @@ authority "test:solana/native-transfer" {
     intent = "solana.transaction"
     version = "1.0.0"
 
-    policy "solana-native-transfer" {
-        let recipient = "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
-        allow "small-transfer" when {
-            requiredSignatures == 1
-            effects.all(e -> e.type in ["native.transfer"])
-            effects.count(e -> e.type == "native.transfer") == 1
-            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "sol" and e.to == recipient)
-            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
-            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100)
+    let recipient = "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+
+    fn permittedInstruction(item: Instruction): Boolean {
+        if (item.type in ["compute.limit", "compute.price", "memo"]) {
+            return true
         }
+        return (item.type == "system.transfer"
+            and item.call.arguments.to == recipient
+            and item.call.arguments.amount != null
+            and item.call.arguments.amount > 0
+            and item.call.arguments.amount <= 100)
+    }
+
+    fn permittedTransaction(tx: Transaction): Boolean {
+        return (tx.requiredSignatures == 1
+            and tx.instructions.count(item -> item.type == "system.transfer") == 1
+            and tx.instructions.all(item -> permittedInstruction(item)))
+    }
+
+    policy "solana-native-transfer" {
+        allow "small-transfer" if (permittedTransaction(transaction))
     }
 }
 ```
 
-Roots include `version`, `feePayer`, `recentBlockhash`, `requiredSignatures` and `effects`. The Ed25519 key must be a required signer. The composer attaches that signature and returns the Base64 transaction and `complete`, indicating whether all required signatures are present. Keeper does not resolve address lookup tables or fetch chain state for the request.
+`transaction` has type `Transaction`. It contains `version`, `feePayer`, `recentBlockhash`, `requiredSignatures`, `computeUnitLimit`, `computeUnitPrice`, `instructions` and `effects`. The same fields remain available as root inputs. Each `Instruction` exposes its type, program id, account roles, data hex and decoded `call.arguments`. The example permits compute-budget and memo instructions alongside one native transfer.
+
+The Ed25519 key must be a required signer. The composer attaches that signature and returns the Base64 transaction and `complete`, indicating whether all required signatures are present. Keeper does not resolve address lookup tables or fetch chain state for the request.
 
 ## Program interfaces
 
@@ -55,6 +68,8 @@ authority "solana-system-transfer" {
     }
 }
 ```
+
+With program declarations, `Transaction` contains `version`, `feePayer`, `recentBlockhash`, `requiredSignatures` and `instructionCount`. Decoded instructions appear in each program's namespace. Pass the transaction or a method's call list to functions.
 
 The native binding must consume every instruction. Unknown programs, discriminators, trailing bytes, or incompatible account privileges fail intent validation. Local program structs describe nested wire arguments. Use the program's actual Borsh layout and discriminator.
 

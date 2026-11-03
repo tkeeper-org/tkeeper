@@ -19,25 +19,33 @@ authority "test:xlm/native-payment" {
     description = "Sign one native XLM payment of up to 2 XLM to the configured recipient."
     config { networkPassphrase = "Standalone Network ; February 2017" }
 
+    fn permittedPayment(operation: Operation): Boolean {
+        return (operation.transfer != null
+            and operation.transfer.type == "native.transfer"
+            and operation.transfer.to == "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U"
+            and operation.transfer.amount > 0
+            and operation.transfer.amount <= 20000000)
+    }
+
+    fn permittedTransaction(tx: Transaction): Boolean {
+        return (tx.type == "v1"
+            and tx.fee <= 1000
+            and tx.sequence > 0
+            and tx.operations.count() == 1
+            and tx.operations.all(operation -> permittedPayment(operation)))
+    }
+
     policy "xlm-payment" {
-        allow when {
-            type == "v1"
-            fee <= 1000
-            sequence > 0
-            operations.count() == 1
-            effects.count() == 1
-            effects.all(effect -> effect.type == "native.transfer")
-            effects.all(effect -> effect.to == "GCATS5YOVB6ROX2WUNKGNQ2MP3GMXDMKSG2O4N5CLX3A6W4PZGZZI55U")
-            effects.sum(effect -> effect.amount) > 0
-            effects.sum(effect -> effect.amount) <= 20000000
-        }
+        allow if (permittedTransaction(transaction))
     }
 }
 ```
 
 Amounts and fees are stroops. 1 XLM is 10,000,000 stroops. The example permits one native payment and rejects extra operations, issued-asset payments and fee-bump envelopes. Change the recipient, network, and limits for the deployed authority.
 
-The native profile exposes `type`, `hash`, `networkId`, `source`, `sourceAccount`, `feeSource`, `feeSourceAccount`, `fee`, `sequence`, `envelopeXdr`, `operations`, `effects` and optional `inner` fee-bump metadata. Each operation remains visible. Native payment effects include destination account and muxed-id fields. Other operations have distinct `xlm.*` effect types. Explicitly allow the types you intend to sign.
+`transaction` has type `Transaction`. It contains `type`, `hash`, `networkId`, `source`, `sourceAccount`, `feeSource`, `feeSourceAccount`, `fee`, `sequence`, `envelopeXdr`, `operations`, `effects` and optional `inner` fee-bump metadata. The same fields remain available as root inputs.
+
+Each `Operation` exposes its index, type, source and optional `transfer`. Payments and account creation provide transfer type, source, destination, amount and muxed-id fields. Other operations have `transfer == null`. Functions can inspect `transaction.operations` directly. Existing effects remain available, including distinct `xlm.*` types for other operations. Explicitly allow the operation types you intend to sign.
 
 ## Soroban call
 
