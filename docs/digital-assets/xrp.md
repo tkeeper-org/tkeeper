@@ -9,22 +9,29 @@ authority "test:xrp/native-payment" {
     intent = "xrp.transaction"
     version = "1.0.0"
 
+    let recipient = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
+
+    fn permittedPayment(tx: Transaction): Boolean {
+        return (tx.type == "payment"
+            and tx.lastLedgerSequence != null
+            and tx.fee <= 12
+            and tx.destination == recipient
+            and tx.destinationTag == 0
+            and tx.amount != null
+            and tx.amount > 0
+            and tx.amount <= 100)
+    }
+
     policy "xrp-native-payment" {
-        let recipient = "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh"
-        allow "small-payment" when {
-            type == "payment"
-            lastLedgerSequence != null
-            (fee <= 12)
-            effects.all(e -> e.type in ["native.transfer"])
-            effects.count(e -> e.type == "native.transfer") == 1
-            effects.filter(e -> e.type == "native.transfer").all(e -> e.type == "native.transfer" and e.asset == "xrp" and e.to == recipient and e.destinationTag == 0)
-            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() > 0)
-            (effects.filter(e -> e.type == "native.transfer").map(e -> e.amount).sum() <= 100)
-        }
+        allow "small-payment" if (permittedPayment(transaction))
     }
 }
 ```
 
-Roots include `type`, `account`, `fee`, `sequence`, `lastLedgerSequence` and `effects`. A missing destination tag is `null`, distinct from tag zero. Check every effect. An extra batch payment must not bypass recipient or total checks. Keeper checks the native signing account and supports secp256k1 and Ed25519. The composer returns signed transaction hex.
+`transaction` has type `Transaction`. It includes `type`, `account`, `fee`, `sequence`, `lastLedgerSequence`, `sourceTag`, `flags`, `signingPublicKey`, `destination`, `amount`, `destinationTag`, `payments` and `effects`. The same fields remain available as root inputs. Amounts have type `Integer`.
+
+A payment has an empty `payments` list. For a batch, `destination`, `amount` and `destinationTag` are `null`. Each entry in `transaction.payments` has type `Payment` and exposes its account, destination, amount, fee, sequence, ledger bound, tags, and flags. Pass the transaction or its payments to functions and check every payment and the total.
+
+A missing destination tag is `null`, distinct from tag zero. Keeper checks the native signing account and supports secp256k1 and Ed25519. The composer returns signed transaction hex.
 
 Use a separate authority id and OCI digest for a different network or action. Broadcast the exact approved transaction. The wallet remains responsible for construction, freshness, fees, and confirmation tracking. See [Edict](../signing-and-authorities/edict.md) for language syntax and [Authorities](../signing-and-authorities/authorities.md) for publication.
