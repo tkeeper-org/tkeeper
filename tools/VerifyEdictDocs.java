@@ -2,6 +2,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.exploit.edict.format.bitcoin.function.BitcoinFunctions;
 import org.exploit.edict.format.evm.function.EvmFunctions;
 import org.exploit.edict.format.payment.function.PaymentFunctions;
+import org.exploit.edict.format.tron.function.TronFunctions;
 import org.exploit.edict.function.CommonFunctions;
 import org.exploit.edict.model.value.Value;
 import org.exploit.keeper.factory.PolicyEngineFactory;
@@ -40,7 +41,7 @@ public class VerifyEdictDocs {
             builders.add((IntentBuilder) Class.forName(name).getConstructor().newInstance());
         }
         var engine = new PolicyEngineFactory(builders, List.of(
-                new CommonFunctions(), new EvmFunctions(), new BitcoinFunctions(), new PaymentFunctions()
+                new CommonFunctions(), new EvmFunctions(), new TronFunctions(), new BitcoinFunctions(), new PaymentFunctions()
         )).policyEvaluator();
         var remaining = new HashSet<>(builders.stream().map(IntentBuilder::type).toList());
         var checked = 0;

@@ -1,0 +1,23 @@
+authority "test:tron/vault-deposit" {
+    intent = "tron.transaction"
+    version = "1.0.0"
+    description = "Deposit up to 1000 raw asset units for the configured beneficiary."
+
+    contract vault: tron {
+        address = "TKJebW6SdoJhgkKU13BeKCbrMzT6HeQhJ6"
+        fn deposit(beneficiary: address, assets: uint256, payload: bytes)
+    }
+
+    policy "vault-deposit" {
+        allow when {
+            transaction.feeLimit <= 30000000
+            transaction.callValue == 0
+            transaction.callTokenValue == 0
+            transaction.tokenId == 0
+            tron.addressEquals(vault.deposit.beneficiary, "TEdvoHEatmDKvTh3o9vBRB9Vdtbhn4QFhy")
+            vault.deposit.assets > 0
+            vault.deposit.assets <= 1000
+            vault.deposit.payload == b"abcd"
+        }
+    }
+}

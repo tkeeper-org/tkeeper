@@ -1,0 +1,23 @@
+authority "test:tron/trc20-transfer-from" {
+    intent = "tron.transaction"
+    version = "1.0.0"
+    description = "Transfer up to 100000000 raw token units from the configured owner to the recipient."
+
+    contract token: tron {
+        address = "TD5gsCwxykWsLN9aPrq2TAfNjByuZKYp4E"
+        fn transferFrom(from: address, to: address, amount: uint256)
+    }
+
+    policy "token-transfer-from" {
+        allow when {
+            transaction.feeLimit <= 30000000
+            transaction.callValue == 0
+            transaction.callTokenValue == 0
+            transaction.tokenId == 0
+            tron.addressEquals(token.transferFrom.from, "TBXSw8fM4jpQkGc6zZjsVABFpVN7UvXPdV")
+            tron.addressEquals(token.transferFrom.to, "413333333333333333333333333333333333333333")
+            token.transferFrom.amount > 0
+            token.transferFrom.amount <= 100000000
+        }
+    }
+}

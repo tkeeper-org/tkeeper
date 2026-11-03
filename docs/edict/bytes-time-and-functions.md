@@ -129,10 +129,13 @@ Protocol functions are available when Keeper is built with the corresponding fea
 | --- | --- |
 | Included in every build | `Bytes` conversions and methods, text methods, `Time`, `Duration`, `crypto.sha256(bytes)` |
 | `evm` | `evm.validAddress(text)`, `evm.addressEquals(left, right)`, `crypto.keccak256(bytes)` |
+| `tron` | `tron.validAddress(text)`, `tron.addressEquals(left, right)` |
 | `bitcoin` | `bitcoin.validAddress(text, network)` |
 | `agentic-payments` | `payment.minorUnits(amount, currency)`, `payment.currencyScale(currency)`, `payment.matchesIdentity(actual, expected)` |
 
 EVM validation checks address syntax and mixed-case checksums. `addressEquals` validates both operands before comparing their addresses. Bitcoin validation checks the address checksum and the network argument, such as `"mainnet"` or `"testnet"`.
+
+TRON functions accept Base58Check addresses and 21-byte hex addresses beginning with `41`, with an optional `0x` or `0X` prefix. Hex digits are case-insensitive. `tron.addressEquals` compares the address bytes, so a Base58Check address and its hex representation compare equal. It rejects invalid operands. `tron.validAddress` returns `false` for an invalid address. A 20-byte EVM address is not a TRON address.
 
 Payment amounts use quoted decimal text and an ISO currency code. `payment.minorUnits("50.00", "USD")` returns the integer 5000. Excess fractional digits and unknown currencies fail. Identity matching checks the configured `id` and `website`, or the payment instrument's `id` and `type`. It compares every configured field.
 

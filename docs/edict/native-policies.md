@@ -19,7 +19,7 @@ Use the configuration and units from the relevant guide:
 | `evm.7702` | [EVM](../digital-assets/evm.md) | Delegation chain, contract address, and account nonce |
 | `evm.2612` | [EVM](../digital-assets/evm.md) | Permit domain, owner, spender, amount, nonce, and deadline |
 | `evm.3009` | [EVM](../digital-assets/evm.md) | Transfer, receive, and cancellation authorizations |
-| `tron.transaction` | [TRON](../digital-assets/tron.md) | Native transfer effects and transaction fields |
+| `tron.transaction` | [TRON](../digital-assets/tron.md) | Native transfer effects, declared contract calls, attached assets, and fees |
 | `xrp.transaction` | [XRP](../digital-assets/xrp.md) | Payment type, destination, amount, and flags |
 | `solana.transaction` | [Solana](../digital-assets/solana.md) | Program, instructions, account roles, and transfer amounts |
 | `xlm.transaction` | [XLM and Soroban](../digital-assets/xlm.md) | Network, operations, amounts, and declared invocations |
@@ -60,6 +60,8 @@ The decoder checks the declared destination, selector and argument layout before
 
 EVM `bytes` and `bytesN` arguments use `Bytes`. Solana and Soroban `bytes` arguments use the same type. Use methods such as `call.payload.slice(0, 4)` to inspect their contents. Fixed EVM byte arguments retain their declared byte length.
 
+TRON uses `contract token: tron` with the same ABI wire types, tuples, structs, and arrays. Contract addresses accept Base58Check or 21-byte hex with prefix `41`. Decoded addresses use Base58Check. Use `tron.addressEquals` to compare either representation. The [TRON guide](../digital-assets/tron.md) includes a complete authority.
+
 ## Wire structs and ordinary structs
 
 A `struct` inside a contract or program describes a native argument layout using that protocol's wire types. A document-level struct describes ordinary Edict data using `Text`, `Integer`, `Number`, `Boolean`, lists, maps, and optional values.
@@ -70,7 +72,7 @@ A declaration only works when Keeper has installed the corresponding module. It 
 
 Several contracts or programs may be declared in one authority. Several declarations may also share an address. Each declaration has a separate namespace. Conflicting descriptions of one selector or method, and overlapping Solana instruction discriminators, are rejected when Keeper loads the authority. Every submitted native call must match a declared method.
 
-For EVM, exactly one declared method must match the call. When the authority declares several methods, each matching member contains the decoded parameters and methods that do not match the call are `null`. Guard an optional method before reading its parameters:
+For EVM and TRON, exactly one declared method must match the call. When the authority declares several methods, each matching member contains the decoded parameters and methods that do not match the call are `null`. Guard an optional method before reading its parameters:
 
 ```edict
 allow "transfer" when {

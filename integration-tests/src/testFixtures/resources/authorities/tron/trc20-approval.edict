@@ -1,0 +1,22 @@
+authority "test:tron/trc20-approval" {
+    intent = "tron.transaction"
+    version = "1.0.0"
+    description = "Approve up to 50000000 raw token units for the configured spender."
+
+    contract token: tron {
+        address = "TD5gsCwxykWsLN9aPrq2TAfNjByuZKYp4E"
+        fn approve(spender: address, amount: uint256)
+    }
+
+    policy "token-approval" {
+        allow when {
+            transaction.feeLimit <= 30000000
+            transaction.callValue == 0
+            transaction.callTokenValue == 0
+            transaction.tokenId == 0
+            tron.addressEquals(token.approve.spender, "TGCAjMXComunWZEXCT1LPBdcYbDVuyexBv")
+            token.approve.amount > 0
+            token.approve.amount <= 50000000
+        }
+    }
+}
