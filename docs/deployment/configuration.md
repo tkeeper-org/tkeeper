@@ -309,7 +309,7 @@ When `issuer` is configured, it must match the token `iss` claim. Configure it i
 
 `clock-skew` defaults to `15s` and must not be negative.
 
-Remote `jwks-location` and OIDC discovery URLs must use HTTPS. A local JWKS path or
+Remote `jwks-location` and OIDC discovery URLs must use HTTPS. A local JWK set file or
 `file:` URI is also supported. OIDC callbacks must use HTTPS, except for loopback callbacks
 used during local development.
 
@@ -423,6 +423,40 @@ Common environment variables:
 | `KEEPER_INTERNAL_TLS_CLIENT_AUTH` | `keeper.server.internal.tls.client-auth` |
 | `KEEPER_INTERNAL_TLS_TRUST_STORE_PATH` | `keeper.server.internal.tls.trust-store-path` |
 | `KEEPER_CLIENT_KEY_STORE_PATH` | `keeper.client.key-store-path` |
+
+## Edict policy limits
+
+Set `edict.limits` to control how much work Edict can do when it compiles or evaluates a policy.
+Use the same limits on every peer. This block matches the defaults when `edict.limits` is absent.
+
+```hocon
+edict.limits {
+  source-characters = 65536
+  tokens = 8192
+  depth = 128
+  operations = 100000
+  values = 20000
+  string-characters = 16384
+  number-digits = 1024
+  scale = 256
+  compilation-operations = 1000000
+}
+```
+
+| Field                    | Accepted range           | Meaning                                                                                                                         |
+|--------------------------|--------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `source-characters`      | 1 to 1,048,576           | Total length of the policy source in UTF-16 code units.                                                                         |
+| `tokens`                 | 1 to 32,768              | Number of tokens the lexer can emit from one source file.                                                                       |
+| `depth`                  | 1 to 128                 | Maximum nesting depth when parsing a policy or evaluating expressions and input values.                                         |
+| `operations`             | Positive integer         | Work budget for one evaluation, shared across all actions in a batch. Edict charges more for operations that process more data. |
+| `values`                 | 1 to 100,000             | Cumulative value budget for each compilation or evaluation. Tokens, input fields, and intermediate values count toward it.      |
+| `string-characters`      | 1 to `source-characters` | Length of an individual text value in UTF-16 code units or a byte sequence in bytes.                                            |
+| `number-digits`          | 1 to 4,096               | Numeric precision in decimal digits, including for integers.                                                                    |
+| `scale`                  | 0 to 4,096               | Maximum absolute decimal scale. The scale of `0.001` is `3`.                                                                    |
+| `compilation-operations` | Positive integer         | Work budget for one compilation, from reading tokens to checking types.                                                         |
+
+In a partial `edict.limits` block, omitted `values` and `compilation-operations` default to
+`10000` and `100000`, respectively.
 
 ## Common problems
 
