@@ -43,7 +43,7 @@ Example:
 java \
   -Dkeeper.config.location=/etc/tkeeper \
   -Dkeeper.dev.config.location=/etc/tkeeper \
-  -jar build/libs/tkeeper-4.1.0.jar
+  -jar build/libs/tkeeper-4.1.1.jar
 ```
 
 Minimal node config:

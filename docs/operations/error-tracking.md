@@ -9,7 +9,7 @@ sentry {
   enabled = true
   dsn = "https://public@example.sentry.io/1"
   environment = "prod"
-  release = "4.1.0"
+  release = "4.1.1"
 }
 ```
 

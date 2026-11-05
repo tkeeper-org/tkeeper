@@ -5,6 +5,7 @@ import org.exploit.edict.format.payment.function.PaymentFunctions;
 import org.exploit.edict.format.tron.function.TronFunctions;
 import org.exploit.edict.function.CommonFunctions;
 import org.exploit.edict.model.value.Value;
+import org.exploit.keeper.factory.KeeperConfigFactory;
 import org.exploit.keeper.factory.PolicyEngineFactory;
 import org.exploit.keeper.service.command.intent.IntentBuilder;
 import org.exploit.keeper.service.command.intent.TypedIntentBuilder;
@@ -35,12 +36,14 @@ public class VerifyEdictDocs {
             "org.exploit.keeper.payment.mcvi.intent.McIntentBuilder");
 
     public static void main(String[] args) throws Exception {
+        var configFactory = new KeeperConfigFactory();
+        var config = configFactory.edictConfig(configFactory.rawConfig());
         var builders = new ArrayList<IntentBuilder>();
         builders.add(new TypedIntentBuilder(new ObjectMapper()));
         for (var name : BUILDERS) {
             builders.add((IntentBuilder) Class.forName(name).getConstructor().newInstance());
         }
-        var engine = new PolicyEngineFactory(builders, List.of(
+        var engine = new PolicyEngineFactory(config, builders, List.of(
                 new CommonFunctions(), new EvmFunctions(), new TronFunctions(), new BitcoinFunctions(), new PaymentFunctions()
         )).policyEvaluator();
         var remaining = new HashSet<>(builders.stream().map(IntentBuilder::type).toList());
