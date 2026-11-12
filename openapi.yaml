@@ -868,6 +868,28 @@ paths:
         default:
           $ref: '#/components/responses/ErrorResponse'
 
+  /v2/keeper/integrity/verify:
+    post:
+      tags: [Integrity]
+      operationId: verifyIntegritySignature
+      summary: Verify a signature with this Keeper's current integrity key
+      description: Requires authentication. Send the exact bytes passed to the signer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyIntegritySignature'
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResult'
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
   /v1/keeper/consistency/fix:
     post:
       tags: [Consistency]
@@ -2362,6 +2384,20 @@ components:
           allOf:
             - $ref: '#/components/schemas/Tweak'
           nullable: true
+
+    VerifyIntegritySignature:
+      type: object
+      additionalProperties: false
+      required: [data64, signature64]
+      properties:
+        data64:
+          type: string
+          format: byte
+          description: Base64-encoded bytes passed to the signer.
+        signature64:
+          type: string
+          format: byte
+          description: Base64-encoded integrity signature.
 
     AuthorityCommand:
       type: object
