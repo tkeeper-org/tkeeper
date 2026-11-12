@@ -33,6 +33,7 @@ Keeper requires `intent` and `version` as text properties. `intent` selects the 
 | `let maximum = 100` | Immutable named value | Authority, policy, or function |
 | `fn permitted(amount: Number) { ... }` | Reusable computation | Authority |
 | `approver reviewer { ... }` | An eligible approver | Authority |
+| `pdp quota { ... }` | [External policy checks](policy-decision-points.md) | Authority |
 | `config { chainId = 1 }` | Settings required by a native intent | Authority |
 | `contract token: evm { ... }` | Native contract interface | Authority |
 | `program system: solana { ... }` | Native program interface | Authority |

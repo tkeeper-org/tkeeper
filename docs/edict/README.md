@@ -12,6 +12,7 @@ Start with [Your first policy](getting-started.md). It walks through a complete 
 | [Functions and collections](functions-and-collections.md) | Reusable checks, list operations, sorted maps, and loops         |
 | [Bytes, time, and module functions](bytes-time-and-functions.md) | Binary values, timestamps, durations, and protocol helpers |
 | [Decisions and approvals](decisions-and-approvals.md)     | Allow and deny rules, thresholds, and fallback behavior          |
+| [Policy decision points](policy-decision-points.md)       | External checks, shared limits, and signed requests              |
 | [Native transaction policies](native-policies.md)         | Contract and program interfaces tied to the bytes being signed  |
 | [Errors and execution limits](errors-and-limits.md)       | Compilation failures, invalid inputs, and bounded execution      |
 
@@ -23,7 +24,7 @@ For a transaction, certificate or payment mandate, use the corresponding native 
 
 ## Use the policy in Keeper
 
-The policy produces a decision and any approval requirements. Keeper also checks caller permissions, the selected authority, the signing key, and approval proofs. A document cannot query a network, load a file or change a key's permissions.
+The policy produces a decision and any approval requirements. Keeper also checks caller permissions, the selected authority, the signing key, and approval proofs.
 
 An authority is loaded from a digest-pinned OCI artifact. Changing its schema, rules or declared native interface requires a new artifact digest. See [Authorities](../signing-and-authorities/authorities.md) for publishing and attachment, [Signing](../signing-and-authorities/signing.md) for API requests and [Four-eye control](../security-model/four-eye-control.md) for collecting proofs.
 
