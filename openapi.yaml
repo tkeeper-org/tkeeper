@@ -7,6 +7,9 @@ info:
     JSON request bodies reject unknown properties and are limited to 10 MiB by the HTTP server.
     Digital asset, agentic payment, and PKI commands use the shared signing API.
     Enabled features add their command types and, where available, composed results.
+    Signing, composition, key generation, key destruction, encryption, and decryption responses
+    include X-OP-ID (a Keeper-assigned UUID) and X-OP-HASH64 (the Base64-encoded SHA-256 operation hash)
+    once the request body has been decoded as an operation. This includes subsequent operation errors.
     Approval preparation, WebAuthn enrollment options, and operations with collected approval
     requirements return X-EXPIRES-AT as a Unix timestamp in seconds. Approval errors include
     the same deadline once the requirements have been collected. JSON expiresAt fields remain
