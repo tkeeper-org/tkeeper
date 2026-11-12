@@ -17,6 +17,7 @@ authorityItem
     | dataStructDeclaration
     | approverDeclaration
     | extensionDeclaration
+    | pdpDeclaration
     | binding
     | functionDeclaration
     | policyDeclaration
@@ -44,6 +45,24 @@ approverDeclaration
 
 extensionDeclaration
     : kind=ID name=ID ':' module=ID objectOpen (extensionItem NL+)* extensionItem? '}'
+    ;
+
+pdpDeclaration
+    : kind=ID name=ID objectOpen (pdpItem NL+)* pdpItem? '}'
+    ;
+
+pdpItem
+    : property
+    | dataStructDeclaration
+    | pdpMethod
+    ;
+
+pdpMethod
+    : kind=ID name=ID '(' NL* (pdpParameter (NL* ',' NL* pdpParameter)*)? NL* ')'
+    ;
+
+pdpParameter
+    : memberName ':' typeReference
     ;
 
 extensionItem
