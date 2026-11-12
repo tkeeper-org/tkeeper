@@ -90,7 +90,7 @@ allow "transfer" when {
 }
 ```
 
-Here `usdc` is a declared contract and `treasury` is an authority constant. Adding another method makes previously required method inputs optional, so unguarded access fails compilation. Declaring a method permits decoding it. An allow rule must still authorize it.
+Here `usdc` is a declared contract and `treasury` is an authority constant. Adding another method makes previously required method inputs optional, so unguarded access fails compilation. Declaring a method permits decoding it. The policy must authorize the call through `allow`, `require`, or its fallback.
 
 Solana and Soroban may contain several instructions or operations. Their method members are lists of decoded calls, including an empty list when that method is absent. `system.transfer.all(transfer -> transfer.lamports <= 1000)` checks each matching instruction. Parameters are direct fields on each element. Counts and sums remain available for whole-transaction constraints.
 

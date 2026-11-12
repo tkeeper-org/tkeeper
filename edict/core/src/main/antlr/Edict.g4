@@ -135,7 +135,7 @@ requirement
     ;
 
 defaultRule
-    : 'default' effect=('allow' | 'deny') ('require' requirement)?
+    : 'default' (effect=('allow' | 'deny') ('require' requirement)? | effect='require' requirement)
     ;
 
 condition

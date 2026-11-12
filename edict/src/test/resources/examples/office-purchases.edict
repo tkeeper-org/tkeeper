@@ -30,6 +30,7 @@ authority "com.acme.office.approvals" {
 
     policy "purchase-with-approval" {
         deny "urgent-purchase" if (purchase.urgent)
+        deny "invalid-purchase" if (not eligible(purchase) or purchase.amount > maxAmount)
 
         allow "approved-purchase" when {
             eligible(purchase)
