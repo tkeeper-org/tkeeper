@@ -19,7 +19,7 @@ plugins {
 def mainClassName = 'org.exploit.keeper.TKeeperKt'
 
 group = 'org.exploit'
-version = '4.1.1'
+version = '4.2.0'
 
 repositories {
     mavenCentral()

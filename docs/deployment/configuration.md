@@ -43,7 +43,7 @@ Example:
 java \
   -Dkeeper.config.location=/etc/tkeeper \
   -Dkeeper.dev.config.location=/etc/tkeeper \
-  -jar build/libs/tkeeper-4.1.1.jar
+  -jar build/libs/tkeeper-4.2.0.jar
 ```
 
 Minimal node config:
@@ -424,7 +424,9 @@ Common environment variables:
 | `KEEPER_INTERNAL_TLS_TRUST_STORE_PATH` | `keeper.server.internal.tls.trust-store-path` |
 | `KEEPER_CLIENT_KEY_STORE_PATH` | `keeper.client.key-store-path` |
 
-## Edict policy limits
+## Edict
+
+### Policy limits
 
 Set `edict.limits` to control how much work Edict can do when it compiles or evaluates a policy.
 Use the same limits on every peer. This block matches the defaults when `edict.limits` is absent.
@@ -457,6 +459,51 @@ edict.limits {
 
 In a partial `edict.limits` block, omitted `values` and `compilation-operations` default to
 `10000` and `100000`, respectively.
+
+### PDP
+
+Configure external policy decision points under `edict.pdp` on every peer. The
+`allowed-origins` list is empty by default, which blocks PDP calls. Add the HTTPS origins
+your policies use. Entries match the scheme, host, and port regardless of path. Omit the
+port to use 443. A wildcard such as `https://*.example.com` matches one subdomain level.
+
+The remaining values below are the defaults.
+
+```hocon
+edict.pdp {
+  allowed-origins = ["https://pdp.example.com"]
+  connect-timeout = 750ms
+  operation-timeout = 2s
+  max-calls-per-operation = 2
+  max-concurrent-requests = 128
+  max-request-bytes = 64KiB
+  max-response-bytes = 4KiB
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `connect-timeout` | Connection setup timeout |
+| `operation-timeout` | Time for PDP calls in one evaluation, from the first call |
+| `max-calls-per-operation` | Maximum requests per peer per evaluation |
+| `max-concurrent-requests` | Maximum concurrent requests per peer |
+| `max-request-bytes` | Maximum request body size |
+| `max-response-bytes` | Maximum response body size |
+
+Timeouts and limits must be positive. Set `edict.pdp.proxy` to route calls through an HTTP proxy.
+
+```hocon
+edict.pdp.proxy {
+  host = "egress.example.com"
+  port = 3128
+}
+```
+
+The proxy must accept `CONNECT` without proxy credentials. Keeper verifies the PDP's
+TLS certificate inside the tunnel. Omit `proxy` for a direct connection.
+
+See [Policy decision points](../edict/policy-decision-points.md) for policy declarations,
+the request format, and signature verification.
 
 ## Common problems
 
