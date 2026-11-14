@@ -1,6 +1,9 @@
 .gradle
 build/
 .cifuzz-corpus/
+/data/
+/features/agentic-payments/ap2/data/
+/features/agentic-payments/mc-vi/data/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
