@@ -502,8 +502,7 @@ edict.pdp.proxy {
 The proxy must accept `CONNECT` without proxy credentials. Keeper verifies the PDP's
 TLS certificate inside the tunnel. Omit `proxy` for a direct connection.
 
-See [Policy decision points](../edict/policy-decision-points.md) for policy declarations,
-the request format, and signature verification.
+See [Policy decision points](../edict/policy-decision-points.md) for the request format.
 
 ## Common problems
 

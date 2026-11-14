@@ -47,6 +47,10 @@ Successful issuance includes `X-EXPIRES-AT`, the mandate deadline in Unix second
 Retrying execution preserves the original deadline.
 An operation with approvals must also fit its separate approval window.
 
+After decoding the issuance request, Keeper returns `X-OP-ID` and `X-OP-HASH64`.
+The coordinator and witnesses use the same ID and hash for that issuance.
+The hash covers the request type, operation, and expiration.
+
 ## Execute the operation
 
 Submit the normal operation body to its existing endpoint with `X-KEEPER-MANDATE: <opaque token>`. Use only the mandate credential for that request. Add the required approval envelope to the body before execution.

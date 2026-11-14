@@ -47,8 +47,6 @@ In this example, the amount checks run before `quota.reserve`. A PDP result can 
 
 `actions` contains the inputs for all actions in the evaluation. Pass a batch in one call. Keeper reuses the result of an identical call during the evaluation and rejects a second call to the same PDP with a different method or different arguments.
 
-> Dry runs also call the PDP.
-
 ## Handle requests
 
 Keeper appends the request name to `endpoint` and sends a POST with `Content-Type: application/json`. The example calls `https://pdp.example.com/v1/reserve` with the declared parameters in `args`.
@@ -62,6 +60,7 @@ Keeper appends the request name to `endpoint` and sends a POST with `Content-Typ
   "opHash64": "jYYnlJi4YGPjj1jzcOeNVoREqzC/PGlTVnjUmMqT9L8=",
   "opId": "91f8cb1b-c9a8-47e5-ab5d-e6f428491723",
   "peerId": 1,
+  "preview": false,
   "signature64": "<base64 integrity signature>"
 }
 ```
@@ -70,21 +69,33 @@ Byte arguments use standard Base64. `Time` and `Duration` values use ISO 8601 st
 
 Return HTTP 200 with exactly one Boolean field, `{"allow": true}` or `{"allow": false}`. A timeout, redirect, connection failure, or invalid reply stops evaluation with `PDP_UNAVAILABLE`.
 
-For quota accounting, verify each peer's signature and count the operation once per `opId`. Reuse its decision when the URL, `opHash64`, and `args` match the original call. Reject mismatches. Use `X-OP-ID` and `X-OP-HASH64` to match the signing response to the PDP request.
+The Boolean `preview` field tells the PDP why Keeper is evaluating the policy.
+
+- `true` means Keeper is checking the policy without executing the operation. Dry runs
+  use this value. So do requests to issue a mandate or prepare approvals. Return the
+  decision without reserving quota or changing other state.
+- `false` means Keeper is evaluating a request to execute the operation. The PDP may
+  reserve quota. The operation can still fail after the PDP call.
+
+Verify each peer's signature before using the `preview` flag or updating quota. Reject
+requests with a missing or non-Boolean `preview` field. For execution requests, count
+the operation once per `opId`. Reuse a decision only when the URL, `opHash64`, `args`,
+and `preview` match the original call. Use `X-OP-ID` and `X-OP-HASH64` to match the
+signing response to the PDP request.
 
 ### Verify the request signature
 
 1. Keep the raw HTTP request body. Parse it as one JSON object and read `peerId` and `signature64`. Reject duplicate field names.
-2. Get `unsignedBody`, the canonical UTF-8 JSON bytes of the four fields `args`, `opHash64`, `opId`, and `peerId`. To rebuild these bytes from JSON, apply the following rules.
+2. Get `unsignedBody`, the canonical UTF-8 JSON bytes of `args`, `opHash64`, `opId`, `peerId`, and `preview`. To rebuild these bytes from JSON, apply the following rules.
 
    - Sort each object's field names lexicographically by UTF-16 code units. Apply the same order to nested objects, including objects in arrays.
    - Keep array order and explicit `null` values. Preserve the original number tokens and string escapes.
    - Write UTF-8 JSON without whitespace between tokens.
 
-   Keeper already applies these rules and writes `signature64` as the final field. To recover the signed bytes directly, remove that top-level field and its preceding comma from the raw body. End `unsignedBody` at the closing `}`. The example has this `unsignedBody`.
+   To use the raw body, remove the final `signature64` field and its preceding comma. Keep the closing `}`.
 
    ```json
-   {"args":{"currency":"USD","transfers":[{"amount":499}]},"opHash64":"jYYnlJi4YGPjj1jzcOeNVoREqzC/PGlTVnjUmMqT9L8=","opId":"91f8cb1b-c9a8-47e5-ab5d-e6f428491723","peerId":1}
+   {"args":{"currency":"USD","transfers":[{"amount":499}]},"opHash64":"jYYnlJi4YGPjj1jzcOeNVoREqzC/PGlTVnjUmMqT9L8=","opId":"91f8cb1b-c9a8-47e5-ab5d-e6f428491723","peerId":1,"preview":false}
    ```
 
 3. Set `url` to the full ASCII URL from `endpoint` with the request name appended. Preserve any explicit port and path escapes. The example uses `https://pdp.example.com/v1/reserve`.
@@ -99,7 +110,7 @@ For quota accounting, verify each peer's signature and count the operation once 
 
    ```json
    {
-     "data64": "e3HX5aPYFL+dj1a7DiR9ZXkzfQlFKXvOR0B4gbXaoIg=",
+     "data64": "kqh19zfy8Oi3pZ75Yc+GuhtAfMYHTFhklFClR4cjLe0=",
      "signature64": "<signature64 from the PDP request>"
    }
    ```
