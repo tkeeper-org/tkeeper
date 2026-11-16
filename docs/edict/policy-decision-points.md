@@ -124,8 +124,10 @@ Set these options under `edict.pdp`. Edict's [execution limits](errors-and-limit
 | Option | Default | Scope |
 | --- | --- | --- |
 | `connect-timeout` | 750 ms | Connection setup |
-| `operation-timeout` | 2 s | Time for PDP calls in one evaluation, from the first call |
+| `operation-timeout` | 2 s | Time for PDP calls in one evaluation, from the first call through acceptance of each parsed decision |
 | `max-calls-per-operation` | 2 | Requests per peer per evaluation |
 | `max-concurrent-requests` | 128 | Concurrent requests per peer |
 | `max-request-bytes` | 64 KiB | Request body |
 | `max-response-bytes` | 4 KiB | Response body |
+
+A decision that finishes parsing after the deadline fails with `PDP_UNAVAILABLE`.

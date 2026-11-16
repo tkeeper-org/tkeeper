@@ -484,7 +484,7 @@ edict.pdp {
 | Field | Meaning |
 | --- | --- |
 | `connect-timeout` | Connection setup timeout |
-| `operation-timeout` | Time for PDP calls in one evaluation, from the first call |
+| `operation-timeout` | Time for PDP calls in one evaluation, from the first call through acceptance of each parsed decision |
 | `max-calls-per-operation` | Maximum requests per peer per evaluation |
 | `max-concurrent-requests` | Maximum concurrent requests per peer |
 | `max-request-bytes` | Maximum request body size |

@@ -624,7 +624,7 @@ paths:
       operationId: compose
       summary: Sign and compose an artifact
       description: |
-        Uses the same request, permission, authority, policy, approval, and signing checks as `/v2/keeper/sign`.
+        Requires a coordinator, with the same request, permission, authority, policy, approval, and signing checks as `/v2/keeper/sign`.
         EVM, TRON, XRP, and Solana commands return signed transactions. AP2 and MC Intent
         commands return payment credentials. Types without a composer, including Bitcoin and X.509,
         return `CalculatedSignature`. Composition does not broadcast or submit the result.
