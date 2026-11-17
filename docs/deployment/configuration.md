@@ -16,6 +16,10 @@ External config can be:
 
 Multiple external locations are comma-separated. Earlier locations win because they are loaded first.
 
+At startup, TKeeper rejects unknown `keeper.*` settings with `Unknown flag: <name>`.
+Core settings are always accepted. Optional module settings require that module in the build,
+even when the setting disables a feature, such as `keeper.recovery = false`.
+
 Configuration may contain bootstrap tokens or HSM PINs as well as registry credentials and trust-store passwords. Restrict access to these files and keep them out of source control. Inject secrets through the deployment's protected configuration mechanism. Do not expose resolved configuration in logs or support bundles.
 
 Profile config uses bundled files named `application-{profile}.conf`, `application-{profile}.json`, or `application-{profile}.properties`.

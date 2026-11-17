@@ -169,8 +169,6 @@ remain usable for signing but return `RECOVERY_NOT_POSSIBLE`.
 ML-DSA parameter changes between generations are supported. A history that crosses between ECC and
 PQC returns `RECOVERY_NOT_POSSIBLE` without installing partial state.
 
-Recovery is limited to 64 historical generations per logical key.
-
 ### Recovery mode boundary
 
 Recovery mode blocks normal key operations. The public API allows health, status, seal, unseal,
