@@ -38,12 +38,20 @@ The imported key uses the same signing, verification, authority, and policy cont
 Response:
 
 ```http
-200 OK
+204 No Content
 ```
 
 Use trusted dealer only for bringing an existing key into TKeeper. For new keys, prefer DKG.
 
 Import does not erase the dealer's copy, backups, or handling history. Threshold custody protects later use by TKeeper peers, but it cannot make the key equivalent to one that was never reconstructed. Rotate after migration when continuity of the imported public key is not required.
+
+## Interrupted threshold imports
+
+The coordinator durably stores a signed import plan before writing any shares. It records commit after every member has activated its share. The plan contains the import identity, key generations, members, and request hash. Private material stays in key storage.
+
+After a coordinator restart or an incomplete cleanup, repeat the request on the same coordinator. Recovery compensates an attempt without commit before a new import starts. A committed attempt is finalized without deleting its key. Repeating the same request after recovery of a committed attempt succeeds without importing it again. If a member is unavailable, the plan remains stored for another retry.
+
+Recipients retain signed commit and revert outcomes so delayed messages cannot recreate an aborted import. Expiration prevents activating an old pending import. Its authenticated owner can still complete cleanup or finalization after expiration. Compensation checks the generation's import owner and captured key state before removing material. Active shares remain usable under their normal authorization and policy checks while finalization is pending.
 
 ## Common problems
 
