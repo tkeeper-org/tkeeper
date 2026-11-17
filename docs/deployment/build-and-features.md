@@ -214,6 +214,9 @@ Dockerfile produces Linux images.
 finishing. For `linux-arm64` on an amd64 host, Docker must be able to execute arm64
 build steps (such as an arm64 builder or emulation).
 
+Docker builds reject a JAR with the wrong build profile or SHA-256. Use the Gradle
+Docker tasks to supply the matching artifact and checksum.
+
 Images default to refusing system fallback too. Linux arm64 images need an explicit
 opt-in for their system crypto libraries:
 

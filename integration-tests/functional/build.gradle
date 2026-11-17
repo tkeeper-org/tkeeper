@@ -29,6 +29,10 @@ tasks.withType(Test).configureEach {
     systemProperty 'it.native.jar', rootProject.tasks.named('shadowJarProductionTest').get().archiveFile.get().asFile.absolutePath
     systemProperty 'it.native.entrypoint', rootProject.file('integration-tests/docker/entrypoint.sh').absolutePath
     systemProperty 'it.native.options', rootProject.file('tools/native-library-options.sh').absolutePath
+    systemProperty 'it.docker.project', rootProject.projectDir.absolutePath
+    ['production', 'production-test', 'integration'].each { profile ->
+        systemProperty "it.docker.${profile}.jar", rootProject.layout.buildDirectory.file("docker/$profile/tkeeper.jar").get().asFile.absolutePath
+    }
 }
 
 tasks.register('nativeLibraryStartupTest', Test) {
@@ -44,6 +48,7 @@ tasks.register('nativeLibraryStartupTest', Test) {
 }
 
 test {
+    dependsOn rootProject.tasks.named('prepareDockerIntegration'), rootProject.tasks.named('prepareDockerProductionTest')
     mustRunAfter rootProject.tasks.named('buildTestContainers')
 
     useJUnitPlatform()

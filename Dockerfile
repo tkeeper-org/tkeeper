@@ -49,7 +49,9 @@ RUN sha256sum --check --strict SHA256SUMS \
 FROM registry.access.redhat.com/ubi9/openjdk-25:1.24
 
 ARG TKEEPER_VERSION=dev
-ARG TKEEPER_JAR=build/docker/tkeeper.jar
+ARG TKEEPER_JAR=build/docker/production/tkeeper.jar
+ARG TKEEPER_PROFILE=production
+ARG TKEEPER_JAR_SHA256
 ARG TKEEPER_TARGET=all
 ARG TKEEPER_ALLOW_SYSTEM_LIBRARIES=false
 ARG TARGETOS
@@ -78,6 +80,12 @@ COPY --from=native-build /usr/local/lib/libgmp.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsecp256k1.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsodium.so* /usr/local/lib/
 COPY --chown=185:0 ${TKEEPER_JAR} /deployments/tkeeper.jar
+COPY --chown=185:0 tools/verify-docker-jar.sh /tmp/verify-docker-jar.sh
+
+RUN case "${TKEEPER_PROFILE}" in production|production-test) ;; *) echo "Unsupported production Docker profile" >&2; exit 1 ;; esac \
+ && sh /tmp/verify-docker-jar.sh /deployments/tkeeper.jar "${TKEEPER_PROFILE}" "${TKEEPER_JAR_SHA256}" \
+ && rm /tmp/verify-docker-jar.sh
+
 COPY --chown=185:0 tools/NativeJarSmoke.java /tmp/NativeJarSmoke.java
 COPY --chown=185:0 tools/native-library-options.sh /tmp/native-library-options.sh
 

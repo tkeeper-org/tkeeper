@@ -53,6 +53,7 @@ FROM eclipse-temurin:25-jdk-jammy AS runtime
 
 ARG TKEEPER_VERSION=dev
 ARG TKEEPER_FEATURES=
+ARG TKEEPER_JAR_SHA256
 ARG TKEEPER_ALLOW_SYSTEM_LIBRARIES=auto
 ARG TARGETOS
 ARG TARGETARCH
@@ -78,7 +79,12 @@ RUN mkdir -p /etc/softhsm2 /var/lib/softhsm/tokens && \
     > /etc/softhsm2/softhsm2.conf
 RUN ldconfig
 
-COPY --chown=185:0 build/docker/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
+COPY --chown=185:0 build/docker/integration/tkeeper.jar /opt/tkeeper/app/tkeeper.jar
+COPY --chown=185:0 tools/verify-docker-jar.sh /tmp/verify-docker-jar.sh
+
+RUN sh /tmp/verify-docker-jar.sh /opt/tkeeper/app/tkeeper.jar integration "${TKEEPER_JAR_SHA256}" \
+ && rm /tmp/verify-docker-jar.sh
+
 COPY --chown=185:0 integration-tests/docker/entrypoint.sh /opt/tkeeper/entrypoint.sh
 COPY --chown=185:0 integration-tests/docker/init-hsm.sh /opt/tkeeper/init-hsm.sh
 COPY --chown=185:0 tools/native-library-options.sh /tmp/native-library-options.sh

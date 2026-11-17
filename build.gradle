@@ -780,6 +780,7 @@ applicationProfiles.each { profile, composition ->
 
     tasks.named(composition.jar) {
         from application.output
+        manifest { attributes 'TKeeper-Profile': profile }
 
         doLast {
             def evidence = generation.get().outputDirectory.file('resources/' + RegistryFiles.INVENTORY).get().asFile
@@ -901,30 +902,30 @@ tasks.register('artifactIsolationTest') {
     }
 }
 
-tasks.register('prepareDocker', Copy) {
+tasks.register('prepareDocker', Sync) {
     dependsOn packagedSecurityChecks.production
     dependsOn tasks.named('shadowJar')
 
     from(tasks.named('shadowJar').get().archiveFile)
-    into("$buildDir/docker")
+    into("$buildDir/docker/production")
     rename { "tkeeper.jar" }
 }
 
-tasks.register('prepareDockerIntegration', Copy) {
+tasks.register('prepareDockerIntegration', Sync) {
     dependsOn packagedSecurityChecks.integration
     dependsOn tasks.named('shadowJarIntegration')
 
     from(tasks.named('shadowJarIntegration').get().archiveFile)
-    into("$buildDir/docker")
+    into("$buildDir/docker/integration")
     rename { "tkeeper.jar" }
 }
 
-tasks.register('prepareDockerProductionTest', Copy) {
+tasks.register('prepareDockerProductionTest', Sync) {
     dependsOn packagedSecurityChecks['production-test']
     dependsOn tasks.named('shadowJarProductionTest')
 
     from(tasks.named('shadowJarProductionTest').get().archiveFile)
-    into("$buildDir/docker-production-test")
+    into("$buildDir/docker/production-test")
     rename { "tkeeper.jar" }
 }
 
@@ -940,8 +941,7 @@ tasks.register('dockerBuild', Exec) {
             '--build-arg', "TKEEPER_TARGET=$nativeTarget",
             '--build-arg', "TKEEPER_ALLOW_SYSTEM_LIBRARIES=${providers.gradleProperty('keeper.native.allow-system').orElse('false').get()}",
             '-t', "exploit/tkeeper:${project.version}",
-            '-t', 'exploit/tkeeper:latest',
-            '.'
+            '-t', 'exploit/tkeeper:latest'
 
     doFirst {
         if (nativeTarget != 'all' && !nativeTarget.startsWith('linux-')) {
@@ -957,8 +957,7 @@ tasks.register('dockerBuildIntegration', Exec) {
     args 'build',
             '-f', 'integration-tests/docker/Dockerfile',
             '--build-arg', "TKEEPER_ALLOW_SYSTEM_LIBRARIES=${providers.gradleProperty('keeper.native.allow-system').orElse('auto').get()}",
-            '-t', 'exploit/tkeeper:dev',
-            '.'
+            '-t', 'exploit/tkeeper:dev'
 }
 
 tasks.register('dockerBuildProductionTest', Exec) {
@@ -968,10 +967,28 @@ tasks.register('dockerBuildProductionTest', Exec) {
     args 'build',
             '-f', 'Dockerfile',
             '--build-arg', "TKEEPER_VERSION=${project.version}",
-            '--build-arg', 'TKEEPER_JAR=build/docker-production-test/tkeeper.jar',
+            '--build-arg', 'TKEEPER_JAR=build/docker/production-test/tkeeper.jar',
+            '--build-arg', 'TKEEPER_PROFILE=production-test',
             '--build-arg', "TKEEPER_ALLOW_SYSTEM_LIBRARIES=${providers.gradleProperty('keeper.native.allow-system').orElse('auto').get()}",
-            '-t', 'exploit/tkeeper:production-it',
-            '.'
+            '-t', 'exploit/tkeeper:production-it'
+}
+
+def dockerJarDigest = { String archiveTask ->
+    def digest = java.security.MessageDigest.getInstance('SHA-256')
+    tasks.named(archiveTask).get().archiveFile.get().asFile.withInputStream { stream ->
+        new java.security.DigestInputStream(stream, digest).transferTo(OutputStream.nullOutputStream())
+    }
+    HexFormat.of()
+            .formatHex(digest.digest())
+}
+
+['dockerBuild': 'shadowJar', 'dockerBuildIntegration': 'shadowJarIntegration',
+ 'dockerBuildProductionTest': 'shadowJarProductionTest'].each { name, archiveTask ->
+    tasks.named(name) {
+        doFirst {
+            args '--build-arg', "TKEEPER_JAR_SHA256=${dockerJarDigest(archiveTask)}", '.'
+        }
+    }
 }
 
 tasks.register('buildTestContainers') {
