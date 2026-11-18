@@ -87,6 +87,7 @@ RUN sh /tmp/verify-docker-jar.sh /opt/tkeeper/app/tkeeper.jar integration "${TKE
 
 COPY --chown=185:0 integration-tests/docker/entrypoint.sh /opt/tkeeper/entrypoint.sh
 COPY --chown=185:0 integration-tests/docker/init-hsm.sh /opt/tkeeper/init-hsm.sh
+COPY --chown=185:0 integration-tests/src/testFixtures/resources/docker/peer-dns.security /opt/tkeeper/peer-dns.security
 COPY --chown=185:0 tools/native-library-options.sh /tmp/native-library-options.sh
 
 RUN sh /tmp/native-library-options.sh "${TKEEPER_ALLOW_SYSTEM_LIBRARIES}" "${TARGETOS}/${TARGETARCH}" \
@@ -103,6 +104,7 @@ EXPOSE 8080 9090
 
 ENV KEEPER_CONFIG_LOCATION=/etc/tkeeper
 ENV TKEEPER_FEATURES="${TKEEPER_FEATURES}"
+ENV JDK_JAVA_OPTIONS="-Djava.security.properties=/opt/tkeeper/peer-dns.security"
 
 ENV JAVA_TOOL_OPTIONS="\
 -XX:+UseZGC \
