@@ -243,11 +243,11 @@ exploit/tkeeper:4.2.0
 exploit/tkeeper:latest
 ```
 
-The Docker image enables native library access with this JVM flag:
-
-```text
---enable-native-access=ALL-UNNAMED
-```
+The production image enables JNI and FFM access for the `org.exploit.tkeeper.nativeaccess`
+module and denies native access to the classpath. The service runs as UID 185 with
+root-owned JARs and JVM options. The launcher disables Base64 intrinsics as a
+mitigation for CVE-2026-114938. Startup rejects JVM options that restore native
+access to the classpath or re-enable Base64 intrinsics.
 
 Run the image:
 
@@ -303,4 +303,5 @@ Add:
 --enable-native-access=ALL-UNNAMED
 ```
 
-The Docker image already does this.
+This flag applies to standalone `java -jar` launches. The production image configures
+native access through its launcher.

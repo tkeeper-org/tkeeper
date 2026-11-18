@@ -97,6 +97,7 @@ The example token and bootstrap token are local credentials. Use [JWT authentica
 
 ```bash
 java \
+  -XX:-UseBASE64Intrinsics \
   --enable-native-access=ALL-UNNAMED \
   -Dkeeper.config.location=/tmp/tkeeper \
   -Dkeeper.dev.enabled=true \
