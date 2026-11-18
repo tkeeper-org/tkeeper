@@ -149,6 +149,9 @@ Verify response:
 
 Verify checks the signature against the supplied `type` and `artifact`. It validates the material format and uses the type's signing encoding, but does not take `authorityId`, load an authority, or evaluate policy. Supported material can be verified even if the key's current policy would reject it for signing. `valid: true` confirms the signature and material match. It does not establish current authorization.
 
+Oversized or overly complex EVM transactions, Bitcoin transaction histories,
+`custom` JSON objects, and X.509 certificate bodies can return `INVALID_AUTHORITY_ARTIFACT`.
+
 ```json
 {
   "keyId": "payments-key",
