@@ -4,6 +4,8 @@ Dry run evaluates a command against the key's current authority policy and retur
 
 It does not execute the command, verify or consume approvals, or change key state. An allow decision is a preview of authority policy. The later signing request must still pass all signing controls.
 
+See [Policy decision points](../edict/policy-decision-points.md#handle-requests) for the requests Keeper sends to a PDP during a dry run.
+
 ## Enable the module
 
 Dry run is an explicit build feature. It is excluded from `keeper.features=all` and must be selected by name:

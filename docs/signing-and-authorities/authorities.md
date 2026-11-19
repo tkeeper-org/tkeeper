@@ -10,6 +10,8 @@ An authority defines the commands a key may sign. Keeper validates the Edict doc
 
 The authority id comes from `authority "payment-limits"`. After validation, Keeper stores it with the reference in the key metadata. Requests supply references only. A key cannot have multiple authority documents with the same id. Use a digest-pinned reference. Registry tags can change. `version` inside the document does not pin its contents. Changes to a schema, network, contract interface, rule or approver require a new artifact digest and key-authority update.
 
+Keeper reuses a compiled policy only when its full OCI reference matches the reference in the key metadata.
+
 Keep unrelated actions under separate authority ids. Rules within one authority can express amount ranges or different approval requirements for the same action.
 
 `arbitrary` permits raw signing when `keeper.authority.arbitrary.enabled` is enabled. Pass `["arbitrary"]`. It has no OCI document and must be the key's only authority. An OCI document cannot declare an arbitrary intent.

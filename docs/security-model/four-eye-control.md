@@ -49,7 +49,7 @@ selects `SIGNATURE` or `WEBAUTHN`, and a WebAuthn ref cannot be approved by a ra
 
 ## Policy-driven approvals
 
-Edict declares approvers at authority scope. A conditional `require` adds a group when its condition matches. It does not grant allow. Every selected group and every key-bound four-eye group must be satisfied.
+Edict declares approvers at authority scope. A conditional `require` permits the operation after its approval group is satisfied. Every matching group and every key-bound four-eye group must be satisfied. A matching `deny` rejects the operation even when its approvals are present.
 
 ```edict
 authority "reviewed-command" {
@@ -63,13 +63,14 @@ authority "reviewed-command" {
         publicKey64 = "11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo="
     }
     policy "payments" {
-        allow if (request.amount > 0 and request.amount <= 1000)
+        allow if (request.amount > 0 and request.amount <= 100)
         require 1 of [treasury] if (request.amount > 100)
+        deny if (request.amount <= 0 or request.amount > 1000)
     }
 }
 ```
 
-Replace the example key with the intended reviewer's key. To use a registered credential, declare `type = "reference"`, an explicit `id`, and the complete digest-pinned `ref`. All declared refs, including unused approvers, must resolve on every participating keeper before activation. A fallback requiring review is written `default allow require treasury`.
+Replace the example key with the intended reviewer's key. To use a registered credential, declare `type = "reference"`, an explicit `id`, and the complete digest-pinned `ref`. All declared refs, including unused approvers, must resolve on every participating keeper before activation. A fallback requiring review is written `default require treasury`.
 
 For an authority-policy challenge, TKeeper returns `APPROVAL_REQUIRED` with the `policyId`, rule or fallback `source`, and `threshold` for every required group. Approver descriptors come from inline manifest entries or their pinned registry refs. Collect enough signature or WebAuthn proofs for every group, attach them to the same request, and resubmit it unchanged.
 
@@ -189,7 +190,7 @@ base64(sha256(encoded-public-key))
 
 ### One format for key-bound and policy-bound approvals
 
-Key-bound approval keys come from the selected generation's policy. Authority-policy groups come from matching allow rules or the fallback. TKeeper requires every applicable group before proceeding.
+Key-bound approval keys come from the selected generation's policy. Authority-policy groups come from matching `require` rules or the fallback. TKeeper requires every applicable group before proceeding.
 
 All approvers sign one `hashForSigning`. Submit the proofs in one `approvals.proofs` array with one `keeperId`, nonce, and timestamp. Combined enforcement requires every key-bound and policy-bound group. It does not create another request or hash.
 

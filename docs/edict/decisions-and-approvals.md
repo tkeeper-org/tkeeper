@@ -11,11 +11,12 @@ deny "blocked-country" if (request.country in ["XX", "YY"])
 
 Each rule condition must be Boolean. Use `when { ... }` instead of `if (...)` when several checks are clearer on separate lines. The text label is optional. The compiler assigns an identifier to an unlabeled rule. Labels appear in decision results and help explain a match.
 
-The decision follows these rules:
+The decision uses the priority `deny > require > allow`.
 
 1. Any matching `deny` makes the decision deny.
-2. Otherwise, any matching `allow` permits the action, subject to its approval requirements.
-3. If no allow matches, the fallback decides. It is deny unless the document declares `default allow`.
+2. Matching `require` rules permit the action after every accumulated approval group is satisfied.
+3. A matching `allow` permits the action when no approval group is required.
+4. When no rule matches, the fallback decides. The implicit fallback is `default deny`.
 
 Conditions of later rules still run after an allow or deny matches. A failing expression stops evaluation even if an earlier rule allowed the action.
 
@@ -55,7 +56,7 @@ require 2 of [finance, security] if (request.amount > 500)
 
 `require reviewer` means one approval from that approver. `require 2 of [...]` requires two distinct eligible approvers from the list. Omitting the condition makes the requirement unconditional.
 
-A requirement does not grant allow. The action must also pass an allow rule or an allowing fallback. Every matching requirement accumulates and must be satisfied. Another matching allow cannot remove one.
+A matching requirement permits the action after its approvals are verified. Every matching requirement accumulates and must be satisfied, including when an `allow` also matches. A matching `deny` rejects the action even if all approvals are present.
 
 To require both finance and security approval, declare a requirement for each group. A `1 of [finance, security]` requirement accepts either approver.
 
@@ -76,8 +77,9 @@ authority "reviewed-payment" {
     }
 
     policy "reviewed-payment" {
-        allow if (request.amount > 0 and request.amount <= 1000)
+        allow if (request.amount > 0 and request.amount <= 100)
         require reviewer if (request.amount > 100)
+        deny if (request.amount <= 0 or request.amount > 1000)
     }
 }
 ```
@@ -93,13 +95,21 @@ Keeper verifies the proof against the operation being signed. The policy only de
 
 ## Fallback behavior
 
-`default deny` states the normal fallback explicitly. `default allow` permits actions when no allow matches and no deny matches, so it requires careful limits through deny rules.
+`default deny` rejects actions when no rule matches. `default allow` permits them. `default require` requests approval for them.
 
 ```edict
-default allow require reviewer
+default require reviewer
 ```
 
-This requirement applies to fallback approval when no explicit allow rule matched. Explicit allow rules use their own requirements. If every permitted action needs a reviewer, use an unconditional `require reviewer` alongside the allow rules.
+A threshold fallback uses the same requirement syntax.
+
+```edict
+default require 2 of [finance, security, treasury]
+```
+
+The fallback applies only when no explicit `allow`, `require`, or `deny` matches. All matching explicit requirements accumulate. To require a reviewer for every permitted action, use an unconditional `require reviewer`.
+
+`default allow require reviewer` remains an equivalent spelling of `default require reviewer`. Both forms are supported in `edict-v1`.
 
 ## Requests containing several actions
 

@@ -49,7 +49,9 @@ RUN sha256sum --check --strict SHA256SUMS \
 FROM registry.access.redhat.com/ubi9/openjdk-25:1.24
 
 ARG TKEEPER_VERSION=dev
-ARG TKEEPER_JAR=build/docker/tkeeper.jar
+ARG TKEEPER_JAR=build/docker/production/tkeeper.jar
+ARG TKEEPER_PROFILE=production
+ARG TKEEPER_JAR_SHA256
 ARG TKEEPER_TARGET=all
 ARG TKEEPER_ALLOW_SYSTEM_LIBRARIES=false
 ARG TARGETOS
@@ -68,30 +70,47 @@ ENV JAVA_OPTS_APPEND="\
   -Dcom.sun.management.jmxremote=false \
   -Djdk.serialFilter=!* \
   -Djdk.tls.client.protocols=TLSv1.3,TLSv1.2 \
-  -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib \
   -Dmsgpack.universal-buffer=true \
-  @/deployments/native-library.options \
-  -XX:+UseCompactObjectHeaders \
-  --enable-native-access=ALL-UNNAMED"
+  -XX:+UseCompactObjectHeaders"
+
+USER 0
 
 COPY --from=native-build /usr/local/lib/libgmp.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsecp256k1.so* /usr/local/lib/
 COPY --from=native-build /usr/local/lib/libsodium.so* /usr/local/lib/
-COPY --chown=185:0 ${TKEEPER_JAR} /deployments/tkeeper.jar
+COPY --chown=0:0 ${TKEEPER_JAR} /deployments/tkeeper.jar
+COPY --chown=185:0 tools/verify-docker-jar.sh /tmp/verify-docker-jar.sh
+
+RUN case "${TKEEPER_PROFILE}" in production|production-test) ;; *) echo "Unsupported production Docker profile" >&2; exit 1 ;; esac \
+ && sh /tmp/verify-docker-jar.sh /deployments/tkeeper.jar "${TKEEPER_PROFILE}" "${TKEEPER_JAR_SHA256}" \
+ && rm /tmp/verify-docker-jar.sh
+
 COPY --chown=185:0 tools/NativeJarSmoke.java /tmp/NativeJarSmoke.java
+COPY tools/DockerNativeModule.java /tmp/DockerNativeModule.java
 COPY --chown=185:0 tools/native-library-options.sh /tmp/native-library-options.sh
+COPY tools/production-java.options /deployments/production-java.options
+COPY tools/production-entrypoint.sh /usr/local/bin/tkeeper-run
 
 RUN sh /tmp/native-library-options.sh "${TKEEPER_ALLOW_SYSTEM_LIBRARIES}" "${TARGETOS}/${TARGETARCH}" \
       > /deployments/native-library.options \
- && rm /tmp/native-library-options.sh \
+ && printf '%s\n' '-Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib' \
+      >> /deployments/native-library.options \
+ && java /tmp/DockerNativeModule.java /deployments/tkeeper.jar /deployments/tkeeper-native.jar \
  && java \
-      --enable-native-access=ALL-UNNAMED \
+      @/deployments/production-java.options \
       @/deployments/native-library.options \
-      -Djava.library.path=/usr/local/lib:/usr/lib64:/lib64:/usr/lib:/lib \
       -cp /deployments/tkeeper.jar \
-      /tmp/NativeJarSmoke.java "${TKEEPER_TARGET}" \
- && rm /tmp/NativeJarSmoke.java
+      /tmp/NativeJarSmoke.java "${TKEEPER_TARGET}" container \
+ && chown root:root /deployments \
+ && chmod 0755 /deployments \
+ && chmod 0555 /usr/local/bin/tkeeper-run \
+ && chmod 0444 /deployments/tkeeper.jar /deployments/tkeeper-native.jar /deployments/*.options \
+ && rm /tmp/NativeJarSmoke.java /tmp/DockerNativeModule.java /tmp/native-library-options.sh
 
 ENV JAVA_APP_JAR="/deployments/tkeeper.jar"
 
+USER 185
+
 EXPOSE 8080 9090
+
+CMD ["/usr/local/bin/tkeeper-run"]

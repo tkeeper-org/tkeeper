@@ -44,6 +44,7 @@ authority "com.acme.bitcoin.transfer.reviewed" {
             fee <= maxFeeSatoshis
         }
 
+        deny if (not validPayment)
         allow if (validPayment)
 
         require 2 of [treasury, compliance] if (fee > automaticFeeSatoshis)

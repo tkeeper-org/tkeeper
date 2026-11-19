@@ -25,7 +25,7 @@ To run only the root, SDK, and selected module unit tests:
 The jar lands under:
 
 ```text
-build/libs/tkeeper-4.1.1.jar
+build/libs/tkeeper-4.2.0.jar
 ```
 
 TKeeper requires Java 25.
@@ -60,7 +60,7 @@ Use `digital-assets` for Bitcoin, EVM, Tron, XRP, Solana, and XLM, and `agentic-
 `keeper.platforms` selects cryptographic modules (`ecc` and `pqc`). The separate `target`
 property selects native libraries packaged into the **production** fat jar. By default,
 `target=all` keeps native binaries for every bundled OS/CPU combination and produces
-`build/libs/tkeeper-4.1.1.jar`.
+`build/libs/tkeeper-4.2.0.jar`.
 
 Build the complete feature set for a Linux amd64 host with a smaller jar:
 
@@ -68,7 +68,7 @@ Build the complete feature set for a Linux amd64 host with a smaller jar:
 ./gradlew shadowJar -Pkeeper.features=all -Pkeeper.platforms=all -Ptarget=linux-amd64
 ```
 
-The output is `build/libs/tkeeper-4.1.1-linux-amd64.jar`. To keep every bundled native variant, use
+The output is `build/libs/tkeeper-4.2.0-linux-amd64.jar`. To keep every bundled native variant, use
 `-Ptarget=all` or omit `target`:
 
 ```bash
@@ -214,6 +214,9 @@ Dockerfile produces Linux images.
 finishing. For `linux-arm64` on an amd64 host, Docker must be able to execute arm64
 build steps (such as an arm64 builder or emulation).
 
+Docker builds reject a JAR with the wrong build profile or SHA-256. Use the Gradle
+Docker tasks to supply the matching artifact and checksum.
+
 Images default to refusing system fallback too. Linux arm64 images need an explicit
 opt-in for their system crypto libraries:
 
@@ -236,15 +239,15 @@ Build a recovery image for both ECC and ML-DSA:
 Production image tags:
 
 ```text
-exploit/tkeeper:4.1.1
+exploit/tkeeper:4.2.0
 exploit/tkeeper:latest
 ```
 
-The Docker image enables native library access with this JVM flag:
-
-```text
---enable-native-access=ALL-UNNAMED
-```
+The production image enables JNI and FFM access for the `org.exploit.tkeeper.nativeaccess`
+module and denies native access to the classpath. The service runs as UID 185 with
+root-owned JARs and JVM options. The launcher disables Base64 intrinsics as a
+mitigation for CVE-2026-114938. Startup rejects JVM options that restore native
+access to the classpath or re-enable Base64 intrinsics.
 
 Run the image:
 
@@ -255,7 +258,7 @@ docker run --rm \
   -v "$PWD/config:/etc/tkeeper:ro" \
   -v "$PWD/data:/var/lib/tkeeper" \
   -e KEEPER_CONFIG_LOCATION=/etc/tkeeper \
-  exploit/tkeeper:4.1.1
+  exploit/tkeeper:4.2.0
 ```
 
 ## Test images
@@ -300,4 +303,5 @@ Add:
 --enable-native-access=ALL-UNNAMED
 ```
 
-The Docker image already does this.
+This flag applies to standalone `java -jar` launches. The production image configures
+native access through its launcher.

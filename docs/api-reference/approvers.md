@@ -70,7 +70,7 @@ approver treasury {
 }
 ```
 
-Use the complete ref returned by registration. A policy can require `1 of [treasury]` conditionally, or use `default allow require treasury` for a reviewed fallback. See [Edict approvals](../signing-and-authorities/edict.md#decisions-and-approvals).
+Use the complete ref returned by registration. A policy can require `1 of [treasury]` conditionally, or use `default require treasury` for a reviewed fallback. See [Edict approvals](../edict/decisions-and-approvals.md).
 
 Each participant must resolve the target refs before CREATE/REFRESH/ROTATE, including unused
 authority approvers reserved for later rules. Resolution reads the local replicated registry and

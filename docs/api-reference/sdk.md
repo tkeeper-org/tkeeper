@@ -3,7 +3,7 @@
 The Java SDK provides typed modules for the public TKeeper API:
 
 - [SDK README](../../sdk/README.md)
-- Maven coordinate: `org.exploit:tkeeper-sdk:4.0.0`
+- Maven coordinate: `org.exploit:tkeeper-sdk:4.2.0`
 - Java toolchain: 17 or newer
 
 Find the API operation for a client method in the [SDK module table](../../sdk/README.md#modules). [OpenAPI](../../openapi.yaml) defines their request and response format.

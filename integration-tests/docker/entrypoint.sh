@@ -30,7 +30,7 @@ if [ -n "${JAVA_OPTS:-}" ]; then
   set -- "$@" "${JAVA_OPTS}"
 fi
 
-set -- "$@" -jar /opt/tkeeper/app/tkeeper.jar
+set -- "$@" -XX:-UseBASE64Intrinsics -jar /opt/tkeeper/app/tkeeper.jar
 
 if [ "${HSM_ENABLED}" = "true" ]; then
   /opt/tkeeper/init-hsm.sh

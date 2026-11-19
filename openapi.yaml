@@ -1,12 +1,15 @@
 openapi: 3.0.3
 info:
   title: TKeeper API
-  version: 4.1.1
+  version: 4.2.0
   description: |
     TKeeper public HTTP API.
     JSON request bodies reject unknown properties and are limited to 10 MiB by the HTTP server.
     Digital asset, agentic payment, and PKI commands use the shared signing API.
     Enabled features add their command types and, where available, composed results.
+    Signing, composition, key generation, key destruction, encryption, and decryption responses
+    include X-OP-ID (a Keeper-assigned UUID) and X-OP-HASH64 (the Base64-encoded SHA-256 operation hash)
+    once the request body has been decoded as an operation. This includes subsequent operation errors.
     Approval preparation, WebAuthn enrollment options, and operations with collected approval
     requirements return X-EXPIRES-AT as a Unix timestamp in seconds. Approval errors include
     the same deadline once the requirements have been collected. JSON expiresAt fields remain
@@ -621,7 +624,7 @@ paths:
       operationId: compose
       summary: Sign and compose an artifact
       description: |
-        Uses the same request, permission, authority, policy, approval, and signing checks as `/v2/keeper/sign`.
+        Requires a coordinator, with the same request, permission, authority, policy, approval, and signing checks as `/v2/keeper/sign`.
         EVM, TRON, XRP, and Solana commands return signed transactions. AP2 and MC Intent
         commands return payment credentials. Types without a composer, including Bitcoin and X.509,
         return `CalculatedSignature`. Composition does not broadcast or submit the result.
@@ -862,6 +865,28 @@ paths:
       responses:
         '204':
           description: Integrity key rotated
+        default:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /v2/keeper/integrity/verify:
+    post:
+      tags: [Integrity]
+      operationId: verifyIntegritySignature
+      summary: Verify a signature with this Keeper's current integrity key
+      description: Requires authentication. Send the exact bytes passed to the signer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyIntegritySignature'
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyResult'
         default:
           $ref: '#/components/responses/ErrorResponse'
 
@@ -2359,6 +2384,20 @@ components:
           allOf:
             - $ref: '#/components/schemas/Tweak'
           nullable: true
+
+    VerifyIntegritySignature:
+      type: object
+      additionalProperties: false
+      required: [data64, signature64]
+      properties:
+        data64:
+          type: string
+          format: byte
+          description: Base64-encoded bytes passed to the signer.
+        signature64:
+          type: string
+          format: byte
+          description: Base64-encoded integrity signature.
 
     AuthorityCommand:
       type: object

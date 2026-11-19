@@ -45,7 +45,7 @@ public class VerifyEdictDocs {
         }
         var engine = new PolicyEngineFactory(config, builders, List.of(
                 new CommonFunctions(), new EvmFunctions(), new TronFunctions(), new BitcoinFunctions(), new PaymentFunctions()
-        )).policyEvaluator();
+        ), null).policyEvaluator();
         var remaining = new HashSet<>(builders.stream().map(IntentBuilder::type).toList());
         var checked = 0;
         try (var paths = Files.walk(Path.of(args[0], "docs"))) {

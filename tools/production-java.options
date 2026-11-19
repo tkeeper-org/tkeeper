@@ -1,0 +1,5 @@
+-XX:-UseBASE64Intrinsics
+--illegal-native-access=deny
+--module-path=/deployments/tkeeper-native.jar
+--add-modules=org.exploit.tkeeper.nativeaccess
+--enable-native-access=org.exploit.tkeeper.nativeaccess

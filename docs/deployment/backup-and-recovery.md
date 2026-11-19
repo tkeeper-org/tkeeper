@@ -99,7 +99,7 @@ local retry state and are not copied to the recovery target.
 3. Restart each participant with recovery mode enabled:
 
    ```bash
-   java -Dkeeper.recovery=true -jar build/libs/tkeeper-4.1.1.jar
+   java -Dkeeper.recovery=true -jar build/libs/tkeeper-4.2.0.jar
    ```
 
 4. Unseal the keepers if required and confirm health and status.
@@ -168,8 +168,6 @@ against verification data stored during key creation. Legacy generations without
 remain usable for signing but return `RECOVERY_NOT_POSSIBLE`.
 ML-DSA parameter changes between generations are supported. A history that crosses between ECC and
 PQC returns `RECOVERY_NOT_POSSIBLE` without installing partial state.
-
-Recovery is limited to 64 historical generations per logical key.
 
 ### Recovery mode boundary
 

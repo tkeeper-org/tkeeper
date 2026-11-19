@@ -35,7 +35,7 @@ Build the jar with the explicit developer-auth feature:
 The jar is:
 
 ```text
-build/libs/tkeeper-4.1.1.jar
+build/libs/tkeeper-4.2.0.jar
 ```
 
 ## Create local config
@@ -97,12 +97,13 @@ The example token and bootstrap token are local credentials. Use [JWT authentica
 
 ```bash
 java \
+  -XX:-UseBASE64Intrinsics \
   --enable-native-access=ALL-UNNAMED \
   -Dkeeper.config.location=/tmp/tkeeper \
   -Dkeeper.dev.enabled=true \
   -Dkeeper.dev.config.location=/tmp/tkeeper \
   -Dkeeper.coordinator.enabled=true \
-  -jar build/libs/tkeeper-4.1.1.jar
+  -jar build/libs/tkeeper-4.2.0.jar
 ```
 
 ## Initialize the node

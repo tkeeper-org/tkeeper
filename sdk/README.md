@@ -11,14 +11,14 @@ Maven:
 <dependency>
   <groupId>org.exploit</groupId>
   <artifactId>tkeeper-sdk</artifactId>
-  <version>4.0.0</version>
+  <version>4.2.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'org.exploit:tkeeper-sdk:4.0.0'
+implementation 'org.exploit:tkeeper-sdk:4.2.0'
 ```
 
 ## Connect to Keeper

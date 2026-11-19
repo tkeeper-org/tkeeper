@@ -44,7 +44,7 @@ Keep the internal API private to the cluster. Do not expose it as a public servi
 
 ## Coordinator
 
-Coordinator-enabled nodes accept signing and DKG requests that start sessions. Non-coordinator peers can still participate in threshold protocols.
+Coordinator-enabled nodes accept signing, composition, and DKG requests that start sessions. A non-coordinator returns `NOT_COORDINATOR` for both `/v2/keeper/sign` and `/v2/keeper/compose` before policy evaluation. It can still participate in threshold sessions started by another peer.
 
 Turn off coordinator endpoints on a peer:
 
